@@ -1,4 +1,4 @@
-package com.hyeeyoung.wishboard
+package com.hyeeyoung.wishboard.presentaion
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
