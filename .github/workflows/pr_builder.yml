@@ -52,3 +52,27 @@ jobs:
 
       - name: Build with Gradle
         run: ./gradlew build
+
+      - name: On Success!! Congratulations
+        if: ${{ success() }}
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_COLOR: '#95FB9D'
+          SLACK_ICON: https://play-lh.googleusercontent.com/5Ckp1AdoWkbHceiG3JUhmxIzmqK3gCe6pDOQM9gklKInmJnGSJgAOBjq39FAuPKSttw=w480-h960-rw
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_TITLE: '🎉 wishboard-android-compose PR Check S.U.C.C.E.S.S 🎉'
+          MSG_MINIMAL: true
+          SLACK_USERNAME: Wishboard-Android-Compose
+          SLACK_MESSAGE: 'PR이 완료되었습니다! 🥳 🥳 🥳'
+
+      - name: On Failed, Notify in Slack
+        if: ${{ failure() }}
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_COLOR: '#FA5DBB'
+          SLACK_ICON: https://play-lh.googleusercontent.com/5Ckp1AdoWkbHceiG3JUhmxIzmqK3gCe6pDOQM9gklKInmJnGSJgAOBjq39FAuPKSttw=w480-h960-rw
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_TITLE: 'wishboard-android-compose Debug build Fail ❌'
+          MSG_MINIMAL: true
+          SLACK_USERNAME: Wishboard-Android-Compose
+          SLACK_MESSAGE: '에러를 확인해주세요 👻'
