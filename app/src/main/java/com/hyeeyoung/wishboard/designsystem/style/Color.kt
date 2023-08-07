@@ -41,7 +41,7 @@ class WishBoardColors(
     gray200: Color,
     gray300: Color,
     gray600: Color,
-    gray700: Color
+    gray700: Color,
 ) {
     var green200 by mutableStateOf(green200)
         private set
@@ -128,7 +128,7 @@ fun wishBoardLightColors(
     gray200: Color = Gray200,
     gray300: Color = Gray300,
     gray600: Color = Gray600,
-    gray700: Color = Gray700
+    gray700: Color = Gray700,
 ) = WishBoardColors(
     green200,
     green500,
