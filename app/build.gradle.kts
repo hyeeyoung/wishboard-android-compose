@@ -3,7 +3,6 @@ import org.jetbrains.kotlin.konan.properties.Properties
 val properties = Properties()
 properties.load(project.rootProject.file("local.properties").inputStream())
 
-@Suppress("DSL_SCOPE_VIOLATION")
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -49,7 +48,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "11"
     }
     buildFeatures {
         viewBinding = true
