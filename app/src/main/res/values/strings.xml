@@ -1,6 +1,12 @@
 <resources>
     <string name="app_name">WishBoard</string>
 
+    <!-- Global -->
+    <string name="won"></string>
+
+    <!-- WishItem -->
+    <string name="cart_btn_text">Cart</string>
+
     <!-- Navigation Menu -->
     <string name="nav_menu_label_wishlist">WISHLIST</string>
     <string name="nav_menu_label_folder">FOLDER</string>

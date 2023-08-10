@@ -42,6 +42,7 @@ class WishBoardColors(
     gray300: Color,
     gray600: Color,
     gray700: Color,
+    blackAlpha5: Color,
 ) {
     var green200 by mutableStateOf(green200)
         private set
@@ -70,6 +71,9 @@ class WishBoardColors(
     var gray700 by mutableStateOf(gray700)
         private set
 
+    var blackAlpha5 by mutableStateOf(blackAlpha5)
+        private set
+
     fun copy(
         green200: Color = this.green200,
         green500: Color = this.green500,
@@ -84,6 +88,7 @@ class WishBoardColors(
         gray300: Color = this.gray300,
         gray600: Color = this.gray600,
         gray700: Color = this.gray700,
+        blackAlpha5: Color = this.blackAlpha5,
     ) = WishBoardColors(
         green200 = green200,
         green500 = green500,
@@ -98,6 +103,7 @@ class WishBoardColors(
         gray300 = gray300,
         gray600 = gray600,
         gray700 = gray700,
+        blackAlpha5 = blackAlpha5,
     )
 
     fun update(other: WishBoardColors) {
@@ -112,6 +118,7 @@ class WishBoardColors(
         gray300 = other.gray300
         gray600 = other.gray600
         gray700 = other.gray700
+        blackAlpha5 = other.blackAlpha5
     }
 }
 
@@ -129,6 +136,7 @@ fun wishBoardLightColors(
     gray300: Color = Gray300,
     gray600: Color = Gray600,
     gray700: Color = Gray700,
+    blackAlpha5: Color = BlackAlpha5,
 ) = WishBoardColors(
     green200,
     green500,
@@ -143,4 +151,5 @@ fun wishBoardLightColors(
     gray300,
     gray600,
     gray700,
+    blackAlpha5,
 )
