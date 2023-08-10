@@ -30,6 +30,7 @@ import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardDivider
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
+import com.hyeeyoung.wishboard.presentation.home.HomeScreen
 import com.hyeeyoung.wishboard.util.extension.noRippleClickable
 
 @Composable
@@ -41,9 +42,10 @@ fun MainScreen() {
             selectedMenu = selectedMenu,
             onSelect = { selected -> selectedMenu = selected },
         )
-    }) { paddingValues -> // TODO paddingValues 사용하기
+    }) { paddingValues ->
+        val modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding())
         when (selectedMenu) {
-            BottomNavItem.WishList -> {}
+            BottomNavItem.WishList -> HomeScreen(modifier)
             BottomNavItem.Folder -> {}
             BottomNavItem.Add -> {}
             BottomNavItem.Notice -> {}
@@ -88,10 +90,10 @@ fun BottomBarIconButton(navItem: BottomNavItem, isSelected: Boolean, onSelect: (
     horizontalAlignment = Alignment.CenterHorizontally,
     verticalArrangement = Arrangement.Center,
 ) {
-    val buttonColor = if (isSelected) WishBoardTheme.colors.gray700 else WishBoardTheme.colors.gray150
-    Icon(painter = painterResource(id = navItem.icon), contentDescription = null, tint = buttonColor)
+    val btnColor = if (isSelected) WishBoardTheme.colors.gray700 else WishBoardTheme.colors.gray150
+    Icon(painter = painterResource(id = navItem.icon), contentDescription = null, tint = btnColor)
     Spacer(modifier = Modifier.size(6.dp))
-    Text(text = stringResource(id = navItem.label), style = WishBoardTheme.typography.montserratD1, color = buttonColor)
+    Text(text = stringResource(id = navItem.label), style = WishBoardTheme.typography.montserratD1, color = btnColor)
 }
 
 enum class BottomNavItem(
