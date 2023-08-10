@@ -1,5 +1,7 @@
 package com.hyeeyoung.wishboard.presentation.home
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -7,11 +9,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,12 +25,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.component.CartButton
 import com.hyeeyoung.wishboard.designsystem.component.ColoredImage
+import com.hyeeyoung.wishboard.designsystem.component.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
 import com.hyeeyoung.wishboard.domain.WishItem
@@ -80,9 +86,35 @@ fun HomeScreen(modifier: Modifier) {
     )
     WishboardTheme { // TODO Theme 사용 여부 고려
         Surface(modifier = modifier, color = WishBoardTheme.colors.white) {
-            LazyVerticalGrid(columns = GridCells.Fixed(2)) {
-                items(wishList) { wishItem -> WishItemComponent(wishItem = wishItem) }
+            Scaffold(topBar = { HomeTopBar() }) { paddingValues ->
+                LazyVerticalGrid(
+                    modifier = Modifier.padding(top = paddingValues.calculateTopPadding()),
+                    columns = GridCells.Fixed(2),
+                ) {
+                    items(wishList) { wishItem -> WishItemComponent(wishItem = wishItem) }
+                }
             }
+        }
+    }
+}
+
+@Composable
+fun HomeTopBar() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 16.dp, end = 8.dp, top = 6.dp, bottom = 6.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Image(
+            modifier = Modifier.height(18.dp),
+            painter = painterResource(id = R.drawable.ic_app_text_logo),
+            contentDescription = null,
+        )
+        Row() {
+            WishBoardIconButton(iconRes = R.drawable.ic_cart, {})
+            WishBoardIconButton(iconRes = R.drawable.ic_calendar, {})
         }
     }
 }
