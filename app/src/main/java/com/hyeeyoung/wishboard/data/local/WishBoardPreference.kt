@@ -3,9 +3,9 @@ package com.hyeeyoung.wishboard.data.local
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
-import androidx.databinding.ktx.BuildConfig
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
+import com.hyeeyoung.wishboard.BuildConfig
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
