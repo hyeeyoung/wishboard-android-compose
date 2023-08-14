@@ -51,9 +51,8 @@ android {
         jvmTarget = "17"
     }
     buildFeatures {
-        viewBinding = true
-        dataBinding = true
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get()
