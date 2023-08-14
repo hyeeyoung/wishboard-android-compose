@@ -1,6 +1,7 @@
 package com.hyeeyoung.wishboard.presentation.home
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -85,10 +86,14 @@ fun HomeScreen(modifier: Modifier) {
         ),
     )
     WishboardTheme { // TODO Theme 사용 여부 고려
-        Surface(modifier = modifier, color = WishBoardTheme.colors.white) {
+        Surface(modifier = modifier) {
             Scaffold(topBar = { HomeTopBar() }) { paddingValues ->
                 LazyVerticalGrid(
-                    modifier = Modifier.padding(top = paddingValues.calculateTopPadding()),
+                    modifier = Modifier
+                        .background(WishBoardTheme.colors.white)
+                        .padding(
+                            top = paddingValues.calculateTopPadding(),
+                        ),
                     columns = GridCells.Fixed(2),
                 ) {
                     items(wishList) { wishItem -> WishItemComponent(wishItem = wishItem) }
