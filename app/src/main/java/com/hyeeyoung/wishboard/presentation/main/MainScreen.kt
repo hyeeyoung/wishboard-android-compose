@@ -2,6 +2,7 @@ package com.hyeeyoung.wishboard.presentation.main
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -60,13 +61,13 @@ fun WishBoardBottomBar(selectedMenu: BottomNavItem, onSelect: (BottomNavItem) ->
         modifier = Modifier
             .fillMaxWidth()
             .height(56.dp),
-        contentColor = WishBoardTheme.colors.white,
     ) {
         Column {
             WishBoardDivider()
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .background(WishBoardTheme.colors.white)
                     .padding(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
