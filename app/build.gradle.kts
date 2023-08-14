@@ -74,6 +74,7 @@ dependencies {
     kapt(libs.bundles.compiler)
     implementation(platform(libs.firebase.bom))
     implementation(libs.bundles.firebase)
+    implementation(libs.accompanist)
     implementation(platform(libs.okhttp.bom))
     implementation(libs.bundles.network)
     implementation(libs.bundles.app.update)
