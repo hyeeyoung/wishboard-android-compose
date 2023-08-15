@@ -35,9 +35,14 @@ fun CartButton(isInCart: Boolean, changeCartState: (Boolean) -> Unit) {
 }
 
 @Composable
-fun WishBoardIconButton(@DrawableRes iconRes: Int, onClick: () -> Unit, contentDescription: String? = null) {
+fun WishBoardIconButton(
+    modifier: Modifier = Modifier, // TODO 디폴트 값 수정 고려 필요
+    @DrawableRes iconRes: Int,
+    onClick: () -> Unit,
+    contentDescription: String? = null,
+) {
     Icon(
-        modifier = Modifier
+        modifier = modifier
             .noRippleClickable { onClick() }
             .padding(8.dp),
         painter = painterResource(id = iconRes),

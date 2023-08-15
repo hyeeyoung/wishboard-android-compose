@@ -4,6 +4,9 @@
     <!-- Global -->
     <string name="won"></string>
 
+    <!-- Sign -->
+    <string name="sign_in_title">로그인하기</string>
+
     <!-- WishItem -->
     <string name="cart_btn_text">Cart</string>
 

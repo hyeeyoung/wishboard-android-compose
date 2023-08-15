@@ -118,8 +118,8 @@ fun HomeTopBar() {
             contentDescription = null,
         )
         Row() {
-            WishBoardIconButton(iconRes = R.drawable.ic_cart, {})
-            WishBoardIconButton(iconRes = R.drawable.ic_calendar, {})
+            WishBoardIconButton(iconRes = R.drawable.ic_cart, onClick = {})
+            WishBoardIconButton(iconRes = R.drawable.ic_calendar, onClick = {})
         }
     }
 }
