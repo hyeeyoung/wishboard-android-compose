@@ -1,6 +1,5 @@
 package com.hyeeyoung.wishboard.designsystem.component.topbar
 
-import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,7 +16,7 @@ import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 
 @Composable
-fun WishBoardBasicTopBar(onClick: () -> Unit, @StringRes titleRes: Int) {
+fun WishBoardBasicTopBar(onClick: () -> Unit, title: String) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -31,7 +30,7 @@ fun WishBoardBasicTopBar(onClick: () -> Unit, @StringRes titleRes: Int) {
         )
         Text(
             modifier = Modifier.align(Alignment.Center),
-            text = stringResource(id = titleRes),
+            text = title,
             style = WishBoardTheme.typography.suitH3,
             color = WishBoardTheme.colors.gray700,
         )
@@ -41,5 +40,5 @@ fun WishBoardBasicTopBar(onClick: () -> Unit, @StringRes titleRes: Int) {
 @Preview
 @Composable
 fun PreviewWishBoardBasicTopBar() {
-    WishBoardBasicTopBar(onClick = { /*TODO*/ }, titleRes = R.string.sign_in_title)
+    WishBoardBasicTopBar(onClick = { /*TODO*/ }, title = stringResource(id = R.string.sign_in_title))
 }

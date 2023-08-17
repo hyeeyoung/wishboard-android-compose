@@ -1,6 +1,5 @@
 package com.hyeeyoung.wishboard.designsystem.component.button
 
-import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,7 +15,7 @@ import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 
 @Composable
-fun WishBoardWideButton(modifier: Modifier = Modifier, enabled: Boolean, onClick: () -> Unit, @StringRes textRes: Int) {
+fun WishBoardWideButton(modifier: Modifier = Modifier, enabled: Boolean, onClick: () -> Unit, text: String) {
     Button(
         modifier = modifier
             .fillMaxWidth(),
@@ -32,7 +31,7 @@ fun WishBoardWideButton(modifier: Modifier = Modifier, enabled: Boolean, onClick
         contentPadding = PaddingValues(vertical = 15.dp),
     ) {
         Text(
-            text = stringResource(id = textRes),
+            text = text,
             style = WishBoardTheme.typography.suitH3,
         )
     }
@@ -41,5 +40,5 @@ fun WishBoardWideButton(modifier: Modifier = Modifier, enabled: Boolean, onClick
 @Composable
 @Preview
 fun PreviewWishBoardWideButton() {
-    WishBoardWideButton(enabled = true, onClick = {}, textRes = R.string.sign_in_title)
+    WishBoardWideButton(enabled = true, onClick = {}, text = stringResource(id = R.string.sign_in_title))
 }

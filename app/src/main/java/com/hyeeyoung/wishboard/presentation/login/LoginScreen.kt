@@ -40,7 +40,7 @@ fun LoginScreen() {
         Scaffold(topBar = {
             WishBoardBasicTopBar(
                 onClick = { /*TODO*/ },
-                titleRes = R.string.sign_in_title,
+                title = stringResource(id = R.string.sign_in_title),
             )
         }) { paddingValues ->
             val emailInput = remember { mutableStateOf("") }
@@ -77,7 +77,7 @@ fun LoginScreen() {
 //                    modifier = Modifier.imePadding(),
                     enabled = false,
                     onClick = { /*TODO*/ },
-                    textRes = R.string.sign_in_title,
+                    text = stringResource(id = R.string.sign_in_title),
                 )
 
                 Spacer(modifier = Modifier.size(8.dp))
