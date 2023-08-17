@@ -18,6 +18,7 @@ import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.util.extension.noRippleClickable
 
+// 패키지 이동
 @Composable
 fun CartButton(isInCart: Boolean, changeCartState: (Boolean) -> Unit) {
     val btnColor = if (isInCart) WishBoardTheme.colors.green500 else WishBoardTheme.colors.white
