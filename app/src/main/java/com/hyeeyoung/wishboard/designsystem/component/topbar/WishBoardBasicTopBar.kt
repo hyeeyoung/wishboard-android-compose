@@ -22,18 +22,18 @@ fun WishBoardBasicTopBar(onClick: () -> Unit, @StringRes titleRes: Int) {
         modifier = Modifier
             .fillMaxWidth()
             .height(42.dp)
-            .background(color = WishBoardTheme.colors.white)
+            .background(color = WishBoardTheme.colors.white),
     ) {
         WishBoardIconButton(
             modifier = Modifier.align(Alignment.CenterStart),
             iconRes = R.drawable.ic_back,
-            onClick = { onClick() }
+            onClick = { onClick() },
         )
         Text(
             modifier = Modifier.align(Alignment.Center),
             text = stringResource(id = titleRes),
             style = WishBoardTheme.typography.suitH3,
-            color = WishBoardTheme.colors.gray700
+            color = WishBoardTheme.colors.gray700,
         )
     }
 }
