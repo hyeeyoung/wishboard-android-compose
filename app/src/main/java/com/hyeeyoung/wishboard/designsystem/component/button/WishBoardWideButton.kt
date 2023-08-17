@@ -16,9 +16,9 @@ import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 
 @Composable
-fun WishBoardWideButton(enabled: Boolean, onClick: () -> Unit, @StringRes textRes: Int) {
+fun WishBoardWideButton(modifier: Modifier = Modifier, enabled: Boolean, onClick: () -> Unit, @StringRes textRes: Int) {
     Button(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth(),
         onClick = { onClick() },
         shape = RoundedCornerShape(24.dp),
@@ -41,5 +41,5 @@ fun WishBoardWideButton(enabled: Boolean, onClick: () -> Unit, @StringRes textRe
 @Composable
 @Preview
 fun PreviewWishBoardWideButton() {
-    WishBoardWideButton(true, {}, R.string.sign_in_title)
+    WishBoardWideButton(enabled = true, onClick = {}, textRes = R.string.sign_in_title)
 }
