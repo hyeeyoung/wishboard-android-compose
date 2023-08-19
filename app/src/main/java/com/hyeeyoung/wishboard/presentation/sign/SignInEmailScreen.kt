@@ -39,11 +39,7 @@ fun SignInEmailScreen() {
                     .padding(top = paddingValues.calculateTopPadding(), start = 16.dp, end = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Spacer(modifier = Modifier.size(14.dp))
-
                 SignDescription(descriptionRes = R.string.sign_in_email_description, iconRes = R.drawable.ic_email)
-
-                Spacer(modifier = Modifier.size(32.dp))
 
                 WishBoardTextField(
                     input = emailInput,

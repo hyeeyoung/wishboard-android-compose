@@ -22,14 +22,20 @@ import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 @Composable
 fun SignDescription(@StringRes descriptionRes: Int, @DrawableRes iconRes: Int) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Spacer(modifier = Modifier.size(14.dp))
+
         Icon(painter = painterResource(id = iconRes), tint = Color.Unspecified, contentDescription = null)
+
         Spacer(modifier = Modifier.size(10.dp))
+
         Text(
             text = stringResource(id = descriptionRes),
             color = WishBoardTheme.colors.gray700,
             style = WishBoardTheme.typography.suitD2M,
             textAlign = TextAlign.Center,
         )
+
+        Spacer(modifier = Modifier.size(32.dp))
     }
 }
 
