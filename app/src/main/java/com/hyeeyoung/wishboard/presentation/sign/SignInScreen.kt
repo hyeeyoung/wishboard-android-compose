@@ -22,9 +22,10 @@ import androidx.compose.ui.unit.dp
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
 import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardTextField
-import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardBasicTopBar
+import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
+import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
 
 @Composable
 fun SignInScreen() {
@@ -38,9 +39,8 @@ fun SignInScreen() {
 //        }
 
         Scaffold(topBar = {
-            WishBoardBasicTopBar(
-                onClick = { /*TODO*/ },
-                title = stringResource(id = R.string.sign_in_title),
+            WishBoardTopBar(
+                topBarModel = WishBoardTopBarModel(title = stringResource(id = R.string.sign_in_title)),
             )
         }) { paddingValues ->
             val emailInput = remember { mutableStateOf("") }

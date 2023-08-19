@@ -2,6 +2,7 @@ package com.hyeeyoung.wishboard.designsystem.component.topbar
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Text
@@ -14,31 +15,56 @@ import androidx.compose.ui.unit.dp
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
+import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
 
 @Composable
-fun WishBoardBasicTopBar(onClick: () -> Unit, title: String) {
+fun WishBoardTopBar(topBarModel: WishBoardTopBarModel, endComponent: (@Composable (Modifier) -> Unit)? = null) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(42.dp)
             .background(color = WishBoardTheme.colors.white),
     ) {
-        WishBoardIconButton(
-            modifier = Modifier.align(Alignment.CenterStart),
-            iconRes = R.drawable.ic_back,
-            onClick = { onClick() },
-        )
-        Text(
-            modifier = Modifier.align(Alignment.Center),
-            text = title,
-            style = WishBoardTheme.typography.suitH3,
-            color = WishBoardTheme.colors.gray700,
-        )
+        // 시작 아이콘 영역
+        Row(modifier = Modifier.align(Alignment.CenterStart), verticalAlignment = Alignment.CenterVertically) {
+            topBarModel.startIcons.forEach { startIcon ->
+                val onClick = when (startIcon) {
+                    WishBoardTopBarModel.TopBarIcon.BACK -> {
+                        { /** TODO */ }
+                    }
+
+                    else -> {
+                        { /** TODO */ }
+                    }
+                }
+
+                WishBoardIconButton(
+                    iconRes = startIcon.iconRes,
+                    onClick = onClick,
+                    contentDescription = startIcon.contentDescription,
+                )
+            }
+        }
+
+        // 타이틀 영역
+        if (!topBarModel.title.isNullOrEmpty()) {
+            Text(
+                modifier = Modifier.align(Alignment.Center),
+                text = topBarModel.title,
+                style = WishBoardTheme.typography.suitH3,
+                color = WishBoardTheme.colors.gray700,
+            )
+        }
+
+        // 끝자락 컴포넌트 영역
+        endComponent?.let { component ->
+            component(Modifier.align(Alignment.CenterEnd))
+        }
     }
 }
 
 @Preview
 @Composable
-fun PreviewWishBoardBasicTopBar() {
-    WishBoardBasicTopBar(onClick = { /*TODO*/ }, title = stringResource(id = R.string.sign_in_title))
+fun PreviewWishBoardTopBar() {
+    WishBoardTopBar(topBarModel = WishBoardTopBarModel(title = stringResource(id = R.string.sign_in_title)))
 }
