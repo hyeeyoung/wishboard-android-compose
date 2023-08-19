@@ -4,6 +4,7 @@
     <!-- Global -->
     <string name="won">원</string>
     <string name="save">저장</string>
+    <string name="step">%d/%d 단계</string>
 
     <!-- Sign -->
     <string name="sign_email">이메일</string>
@@ -13,6 +14,13 @@
     <string name="sign_forget_password">비밀번호를 잊으셨나요?</string>
 
     <string name="sign_in_title">로그인하기</string>
+    <string name="sign_in_email_title">이메일로 로그인하기</string>
+    <string name="sign_in_verification_email">인증메일 받기</string>
+
+    <string name="sign_in_email_description">가입하신 이메일을 입력해주세요!\n로그인을 위해 인증코드가 포함된 이메일을 보내드려요.</string>
+    <string name="sign_in_verification_code_description">인증코드가 전송되었어요!\n이메일을 확인해주세요.</string>
+
+    <string name="sign_in_email_error">이메일 주소를 정확하게 입력해주세요.</string>
 
     <!-- WishItem -->
     <string name="cart_btn_text">Cart</string>
