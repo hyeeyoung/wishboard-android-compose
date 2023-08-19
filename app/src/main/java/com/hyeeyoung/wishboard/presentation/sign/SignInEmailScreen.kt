@@ -48,7 +48,7 @@ fun SignInEmailScreen() {
                 WishBoardTextField(
                     input = emailInput,
                     placeholder = stringResource(id = R.string.sign_email_placeholder),
-                    errorMsg = stringResource(id = R.string.sign_in_email_error),
+                    errorMsg = stringResource(id = R.string.sign_in_email_error), // TODO 미가입자 에러 메세지 추가
                     onTextChange = {},
                 )
 
