@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
+import com.hyeeyoung.wishboard.presentation.model.WishBoardTextFieldComponent
 
 @Composable
 fun WishBoardTextField(
@@ -39,9 +40,11 @@ fun WishBoardTextField(
     onTextChange: (String) -> Unit,
     isError: Boolean = false,
     singleLine: Boolean = true,
+    maxLength: Int? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     visualTransformation: VisualTransformation = VisualTransformation.None,
+    endComponent: WishBoardTextFieldComponent = WishBoardTextFieldComponent.DeleteButton,
 ) {
     Column() {
         // 라벨
@@ -57,7 +60,12 @@ fun WishBoardTextField(
         BasicTextField(
             value = input.value,
             onValueChange = {
-                input.value = it
+                if (maxLength != null) {
+                    if (it.length <= maxLength) input.value = it
+                } else {
+                    input.value = it
+                }
+
                 onTextChange(it)
             },
             textStyle = WishBoardTheme.typography.suitD1.copy(color = WishBoardTheme.colors.gray700),
@@ -73,7 +81,7 @@ fun WishBoardTextField(
                         color = WishBoardTheme.colors.gray50,
                         shape = RoundedCornerShape(6.dp),
                     )
-                    .padding(start = 10.dp, end = 2.dp),
+                    .padding(start = 10.dp, end = 2.dp), // end 변경 시 end 위치에 있는 컴포저블과 화면 가장자리 간 여백 조절 필요
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -88,11 +96,28 @@ fun WishBoardTextField(
                     innerTextField()
                 }
 
-                if (input.value.isNotEmpty()) {
-                    Spacer(modifier = Modifier.size(2.dp))
-                    WishBoardIconButton(iconRes = R.drawable.ic_delete_circle, onClick = { input.value = "" })
-                } else {
-                    Spacer(modifier = Modifier.size(8.dp))
+                when (endComponent) {
+                    is WishBoardTextFieldComponent.DeleteButton -> {
+                        if (input.value.isNotEmpty()) {
+                            Spacer(modifier = Modifier.size(2.dp))
+                            WishBoardIconButton(iconRes = R.drawable.ic_delete_circle, onClick = { input.value = "" })
+                        } else {
+                            Spacer(modifier = Modifier.size(8.dp))
+                        }
+                    }
+
+                    is WishBoardTextFieldComponent.Timer -> {
+                        Spacer(modifier = Modifier.size(10.dp))
+                        Text(
+                            text = stringResource(
+                                id = R.string.timer_format,
+                                formatArgs = arrayOf(endComponent.minute, endComponent.second),
+                            ),
+                            color = WishBoardTheme.colors.pink700,
+                            style = WishBoardTheme.typography.suitD2,
+                        )
+                        Spacer(modifier = Modifier.size(8.dp))
+                    }
                 }
             }
         }
@@ -119,5 +144,18 @@ fun PreviewWishBoardBasicTextField() {
         placeholder = stringResource(id = R.string.sign_email_placeholder),
         onTextChange = {},
         label = stringResource(id = R.string.sign_email),
+    )
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFFFFFF)
+@Composable
+fun PreviewWishBoardBasicTextFieldWithTimer() {
+    val input = remember { mutableStateOf("") }
+    WishBoardTextField(
+        modifier = Modifier.fillMaxWidth(),
+        input = input,
+        placeholder = stringResource(id = R.string.sign_verification_code_placeholder),
+        onTextChange = {},
+        endComponent = WishBoardTextFieldComponent.Timer(4, 56),
     )
 }
