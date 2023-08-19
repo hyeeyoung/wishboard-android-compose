@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -38,7 +37,7 @@ fun SignInEmailScreen() {
             Column(
                 modifier = Modifier
                     .background(WishBoardTheme.colors.white)
-                    .padding(top = paddingValues.calculateTopPadding(), start = 16.dp, end = 16.dp),
+                    .padding(top = paddingValues.calculateTopPadding(), bottom = 16.dp, start = 16.dp, end = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 SignDescription(descriptionRes = R.string.sign_in_email_description, iconRes = R.drawable.ic_email)
@@ -58,8 +57,6 @@ fun SignInEmailScreen() {
                     onClick = { /*TODO*/ },
                     text = stringResource(id = R.string.sign_in_verification_email),
                 )
-
-                Spacer(modifier = Modifier.size(16.dp))
             }
         }
     }

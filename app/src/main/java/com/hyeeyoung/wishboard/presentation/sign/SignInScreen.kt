@@ -49,7 +49,7 @@ fun SignInScreen() {
             Column(
                 modifier = Modifier
                     .background(WishBoardTheme.colors.white)
-                    .padding(top = paddingValues.calculateTopPadding(), start = 16.dp, end = 16.dp),
+                    .padding(top = paddingValues.calculateTopPadding(), bottom = 8.dp, start = 16.dp, end = 16.dp),
             ) {
                 Spacer(modifier = Modifier.size(32.dp))
 
@@ -74,7 +74,6 @@ fun SignInScreen() {
                 Spacer(modifier = Modifier.weight(1f))
 
                 WishBoardWideButton(
-//                    modifier = Modifier.imePadding(),
                     enabled = false,
                     onClick = { /*TODO*/ },
                     text = stringResource(id = R.string.sign_in_title),
@@ -91,8 +90,6 @@ fun SignInScreen() {
                     color = WishBoardTheme.colors.gray300,
                     textDecoration = TextDecoration.Underline,
                 )
-
-                Spacer(modifier = Modifier.size(8.dp))
             }
         }
     }

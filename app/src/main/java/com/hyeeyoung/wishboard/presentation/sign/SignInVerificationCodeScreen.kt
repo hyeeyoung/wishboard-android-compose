@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -39,7 +38,7 @@ fun SignInVerificationCodeScreen() {
             Column(
                 modifier = Modifier
                     .background(WishBoardTheme.colors.white)
-                    .padding(top = paddingValues.calculateTopPadding(), start = 16.dp, end = 16.dp),
+                    .padding(top = paddingValues.calculateTopPadding(), bottom = 16.dp, start = 16.dp, end = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 SignDescription(
@@ -63,8 +62,6 @@ fun SignInVerificationCodeScreen() {
                     onClick = { /*TODO*/ },
                     text = stringResource(id = R.string.sign_in_title),
                 )
-
-                Spacer(modifier = Modifier.size(16.dp))
             }
         }
     }
