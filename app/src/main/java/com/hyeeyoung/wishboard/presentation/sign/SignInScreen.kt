@@ -27,7 +27,7 @@ import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
 
 @Composable
-fun LoginScreen() {
+fun SignInScreen() {
     WishboardTheme {
         // TODO 화면 진입 시 키보드 올리기
 //        val focusRequester = remember { FocusRequester() }
@@ -100,6 +100,6 @@ fun LoginScreen() {
 
 @Preview
 @Composable
-fun PreviewLoginScreen() {
-    LoginScreen()
+fun PreviewSignInScreen() {
+    SignInScreen()
 }
