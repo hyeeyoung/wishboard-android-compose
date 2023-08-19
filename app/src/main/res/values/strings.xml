@@ -3,6 +3,7 @@
 
     <!-- Global -->
     <string name="won">원</string>
+    <string name="save">저장</string>
 
     <!-- Sign -->
     <string name="sign_email">이메일</string>
