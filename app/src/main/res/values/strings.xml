@@ -12,8 +12,7 @@
     <string name="sign_password">비밀번호</string>
     <string name="sign_email_placeholder">이메일을 입력해 주세요.</string>
     <string name="sign_password_placeholder">비밀번호 입력해 주세요.</string>
-    <string name="sign_verification_code_placeholder">인증코드를 입력해 주세요.</string>
-
+    <string name="sign_in_verification_code_placeholder">인증코드를 입력해 주세요.</string>
     <string name="sign_forget_password">비밀번호를 잊으셨나요?</string>
 
     <string name="sign_in_title">로그인하기</string>

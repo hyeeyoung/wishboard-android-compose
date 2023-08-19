@@ -53,7 +53,7 @@ fun SignInVerificationCodeScreen() {
 
                 WishBoardTextField(
                     input = verificationCodeInput,
-                    placeholder = stringResource(id = R.string.sign_verification_code_placeholder),
+                    placeholder = stringResource(id = R.string.sign_in_verification_code_placeholder),
                     errorMsg = stringResource(id = R.string.sign_in_verification_code_error),
                     onTextChange = { },
                     maxLength = VERIFICATION_CODE_MAX_LENGTH,

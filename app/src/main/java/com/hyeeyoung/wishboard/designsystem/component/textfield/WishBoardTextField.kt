@@ -154,7 +154,7 @@ fun PreviewWishBoardBasicTextFieldWithTimer() {
     WishBoardTextField(
         modifier = Modifier.fillMaxWidth(),
         input = input,
-        placeholder = stringResource(id = R.string.sign_verification_code_placeholder),
+        placeholder = stringResource(id = R.string.sign_in_verification_code_placeholder),
         onTextChange = {},
         endComponent = WishBoardTextFieldComponent.Timer(4, 56),
     )
