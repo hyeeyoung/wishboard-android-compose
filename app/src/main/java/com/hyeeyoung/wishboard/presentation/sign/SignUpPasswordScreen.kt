@@ -4,15 +4,19 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hyeeyoung.wishboard.R
@@ -21,6 +25,7 @@ import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardTextFie
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBarWithStep
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
+import com.hyeeyoung.wishboard.presentation.constant.WishBoardConstants
 import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.sign.component.SignDescription
 
@@ -52,11 +57,7 @@ fun SignUpPasswordScreen() {
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                Text(
-                    modifier = Modifier.padding(vertical = 6.dp),
-                    text = stringResource(id = R.string.sign_up_terms),
-                    style = WishBoardTheme.typography.suitD3,
-                ) // TODO 이용약관 별로 텍스트 컬러 적용 및 클릭 시 웹뷰 연결
+                TermsAndPolicyText()
 
                 WishBoardWideButton(
                     enabled = false,
@@ -66,6 +67,73 @@ fun SignUpPasswordScreen() {
             }
         }
     }
+}
+
+private const val TAG_TERMS = "terms"
+private const val TAG_POLICY = "policy"
+
+@Composable
+fun TermsAndPolicyText() {
+    val linkedSpanStyle = WishBoardTheme.typography.suitB4.run {
+        SpanStyle(
+            color = WishBoardTheme.colors.green700,
+            fontSize = fontSize,
+            fontFamily = fontFamily,
+            fontWeight = fontWeight,
+            textDecoration = TextDecoration.Underline,
+        )
+    }
+
+    val annotatedText = buildAnnotatedString {
+        append("가입 시 ")
+
+        pushStringAnnotation(
+            tag = TAG_TERMS,
+            annotation = WishBoardConstants.TERMS,
+        )
+        withStyle(
+            style = linkedSpanStyle,
+            block = { append("이용약관") },
+        )
+        pop()
+
+        append(" 및 ")
+
+        pushStringAnnotation(
+            tag = TAG_POLICY,
+            annotation = WishBoardConstants.PRIVACY_POLICY,
+        )
+        withStyle(
+            style = linkedSpanStyle,
+            block = { append("개인정보 처리방침") },
+        )
+        pop()
+
+        append("에 동의하는 것으로 간주합니다.")
+    }
+
+    ClickableText(
+        modifier = Modifier.padding(vertical = 6.dp),
+        style = WishBoardTheme.typography.suitD3.copy(color = WishBoardTheme.colors.gray300),
+        text = annotatedText,
+        onClick = { offset ->
+            annotatedText.getStringAnnotations(
+                tag = TAG_TERMS,
+                start = offset,
+                end = offset,
+            ).firstOrNull()?.let { annotation ->
+                // TODO 웹뷰 이동, url은 annotation.item으로 접근
+            }
+
+            annotatedText.getStringAnnotations(
+                tag = TAG_POLICY,
+                start = offset,
+                end = offset,
+            ).firstOrNull()?.let { annotation ->
+                // TODO 웹뷰 이동, url은 annotation.item으로 접근
+            }
+        },
+    )
 }
 
 @Preview
