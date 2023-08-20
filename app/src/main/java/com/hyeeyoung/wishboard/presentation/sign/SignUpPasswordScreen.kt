@@ -54,7 +54,7 @@ fun SignUpPasswordScreen() {
 
                 Text(
                     modifier = Modifier.padding(vertical = 6.dp),
-                    text = stringResource(id = R.string.sign_up_term),
+                    text = stringResource(id = R.string.sign_up_terms),
                     style = WishBoardTheme.typography.suitD3,
                 ) // TODO 이용약관 별로 텍스트 컬러 적용 및 클릭 시 웹뷰 연결
 
