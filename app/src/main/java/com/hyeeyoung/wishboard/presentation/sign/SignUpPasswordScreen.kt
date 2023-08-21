@@ -24,7 +24,7 @@ import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBarWith
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
 import com.hyeeyoung.wishboard.presentation.constant.WishBoardConstants
-import com.hyeeyoung.wishboard.presentation.model.LinkedString
+import com.hyeeyoung.wishboard.presentation.model.WishBoardString
 import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.sign.component.SignDescription
 
@@ -81,29 +81,25 @@ fun TermsAndPolicyText() {
     }
 
     val linkedStrings = listOf(
-        LinkedString(str = "가입 시 "),
-        LinkedString(
-            str = "이용약관",
-            linkInfo = LinkedString.LinkInfo(
-                tag = "terms",
-                link = WishBoardConstants.TERMS,
-            ),
+        WishBoardString.NormalString(value = "가입 시 "),
+        WishBoardString.LinkedString(
+            value = "이용약관",
+            tag = "terms",
+            link = WishBoardConstants.TERMS,
         ),
-        LinkedString(str = " 및 "),
-        LinkedString(
-            str = "개인정보 처리방침",
-            linkInfo = LinkedString.LinkInfo(
-                tag = "policy",
-                link = WishBoardConstants.PRIVACY_POLICY,
-            ),
+        WishBoardString.NormalString(value = " 및 "),
+        WishBoardString.LinkedString(
+            value = "개인정보 처리방침",
+            tag = "policy",
+            link = WishBoardConstants.PRIVACY_POLICY,
         ),
-        LinkedString(str = "에 동의하는 것으로 간주합니다."),
+        WishBoardString.NormalString(value = "에 동의하는 것으로 간주합니다."),
     )
 
     WishBoardClickableText(
         modifier = Modifier.padding(vertical = 6.dp),
         style = WishBoardTheme.typography.suitD3.copy(color = WishBoardTheme.colors.gray300),
-        linkedStrings = linkedStrings,
+        strings = linkedStrings,
         spanStyle = linkedSpanStyle,
         onClick = { link -> /** TODO */ },
     )

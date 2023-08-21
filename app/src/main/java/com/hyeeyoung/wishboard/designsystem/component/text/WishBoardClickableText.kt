@@ -7,27 +7,35 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
-import com.hyeeyoung.wishboard.presentation.model.LinkedString
+import com.hyeeyoung.wishboard.presentation.model.WishBoardString
 
 @Composable
 fun WishBoardClickableText(
     modifier: Modifier = Modifier,
     style: TextStyle,
-    linkedStrings: List<LinkedString>,
+    strings: List<WishBoardString>,
     spanStyle: SpanStyle,
     onClick: (String) -> Unit,
 ) {
     val annotatedText = buildAnnotatedString {
-        linkedStrings.forEach { linkedStr ->
-            if (linkedStr.linkInfo == null) {
-                append(linkedStr.str)
-            } else {
-                pushStringAnnotation(
-                    tag = linkedStr.linkInfo.tag,
-                    annotation = linkedStr.linkInfo.link,
-                )
-                withStyle(style = spanStyle) { append(linkedStr.str) }
-                pop()
+        strings.forEach { str ->
+            when (str) {
+                is WishBoardString.NormalString -> {
+                    append(str.value)
+                }
+
+                is WishBoardString.LinkedString -> {
+                    pushStringAnnotation(
+                        tag = str.tag,
+                        annotation = str.link,
+                    )
+                    withStyle(style = spanStyle) { append(str.value) }
+                    pop()
+                }
+
+                else -> {
+                    throw IllegalStateException("이 외 타입은 append 불가")
+                }
             }
         }
     }

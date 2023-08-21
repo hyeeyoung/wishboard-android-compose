@@ -23,10 +23,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
-import com.hyeeyoung.wishboard.designsystem.util.buildStringWithSpans
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
-import com.hyeeyoung.wishboard.presentation.model.SpanString
+import com.hyeeyoung.wishboard.designsystem.util.buildStringWithSpans
+import com.hyeeyoung.wishboard.presentation.model.WishBoardString
 import com.hyeeyoung.wishboard.util.extension.noRippleClickable
 
 @Composable
@@ -93,8 +93,8 @@ fun SignScreen() {
                         .padding(8.dp),
                     text = buildStringWithSpans(
                         spanStrings = listOf(
-                            SpanString.NormalString("이미 계정이 있으신가요? "),
-                            SpanString.Span("로그인"),
+                            WishBoardString.NormalString("이미 계정이 있으신가요? "),
+                            WishBoardString.SpanString("로그인"),
                         ),
                         spanStyle = linkedSpanStyle,
                     ),
