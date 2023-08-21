@@ -1,4 +1,4 @@
-package com.hyeeyoung.wishboard.presentation.sign
+package com.hyeeyoung.wishboard.presentation.sign.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -25,11 +25,11 @@ import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.sign.component.SignDescription
 
 @Composable
-fun SignUpEmailScreen() {
+fun SignInEmailScreen() {
     WishboardTheme {
         Scaffold(topBar = {
             WishBoardTopBarWithStep(
-                topBarModel = WishBoardTopBarModel(title = stringResource(id = R.string.sign_up_title)),
+                topBarModel = WishBoardTopBarModel(title = stringResource(id = R.string.sign_in_email_title)),
                 step = Pair(1, 2),
             )
         }) { paddingValues ->
@@ -40,12 +40,12 @@ fun SignUpEmailScreen() {
                     .padding(top = paddingValues.calculateTopPadding(), bottom = 16.dp, start = 16.dp, end = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                SignDescription(descriptionRes = R.string.sign_up_email_description, iconRes = R.drawable.ic_email)
+                SignDescription(descriptionRes = R.string.sign_in_email_description, iconRes = R.drawable.ic_email)
 
                 WishBoardTextField(
                     input = emailInput,
                     placeholder = stringResource(id = R.string.sign_email_placeholder),
-                    errorMsg = stringResource(id = R.string.sign_in_email_error), // TODO 기존 가입자 에러 메세지 추가
+                    errorMsg = stringResource(id = R.string.sign_in_email_error), // TODO 미가입자 에러 메세지 추가
                     onTextChange = {},
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 )
@@ -55,7 +55,7 @@ fun SignUpEmailScreen() {
                 WishBoardWideButton(
                     enabled = false,
                     onClick = { /*TODO*/ },
-                    text = stringResource(id = R.string.next),
+                    text = stringResource(id = R.string.sign_in_verification_email),
                 )
             }
         }
@@ -64,6 +64,6 @@ fun SignUpEmailScreen() {
 
 @Preview
 @Composable
-fun PreviewSignUpEmailScreen() {
-    SignUpEmailScreen()
+fun PreviewSignInEmailScreen() {
+    SignInEmailScreen()
 }
