@@ -102,9 +102,10 @@ fun TermsAndPolicyText() {
 
     WishBoardClickableText(
         modifier = Modifier.padding(vertical = 6.dp),
+        style = WishBoardTheme.typography.suitD3.copy(color = WishBoardTheme.colors.gray300),
         linkedStrings = linkedStrings,
         spanStyle = linkedSpanStyle,
-        onClick = { uri -> /** TODO */ },
+        onClick = { link -> /** TODO */ },
     )
 }
 
