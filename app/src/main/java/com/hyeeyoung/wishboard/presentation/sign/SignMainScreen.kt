@@ -30,7 +30,7 @@ import com.hyeeyoung.wishboard.presentation.model.WishBoardString
 import com.hyeeyoung.wishboard.util.extension.noRippleClickable
 
 @Composable
-fun SignScreen() {
+fun SignMainScreen() {
     WishboardTheme {
         Scaffold { paddingValues ->
             Column(
@@ -108,6 +108,6 @@ fun SignScreen() {
 
 @Preview
 @Composable
-fun PreviewSignScreen() {
-    SignScreen()
+fun PreviewSignMainScreen() {
+    SignMainScreen()
 }
