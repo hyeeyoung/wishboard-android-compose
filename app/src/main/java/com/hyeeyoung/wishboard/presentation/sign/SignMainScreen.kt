@@ -59,8 +59,7 @@ fun SignMainScreen() {
                     Spacer(modifier = Modifier.size(16.dp))
 
                     Text(
-                        text = "흩어져있는 위시리스트를\n" +
-                            "위시보드로 간편하게 통합 관리해 보세요!️",
+                        text = stringResource(id = R.string.sign_main_welcome_description),
                         style = WishBoardTheme.typography.suitD2M,
                         color = WishBoardTheme.colors.gray700,
                         textAlign = TextAlign.Center,
@@ -93,8 +92,8 @@ fun SignMainScreen() {
                         .padding(8.dp),
                     text = buildStringWithSpans(
                         spanStrings = listOf(
-                            WishBoardString.NormalString("이미 계정이 있으신가요? "),
-                            WishBoardString.SpanString("로그인"),
+                            WishBoardString.NormalString(stringResource(id = R.string.sign_main_login_guide)),
+                            WishBoardString.SpanString(stringResource(id = R.string.sign_in)),
                         ),
                         spanStyle = linkedSpanStyle,
                     ),
