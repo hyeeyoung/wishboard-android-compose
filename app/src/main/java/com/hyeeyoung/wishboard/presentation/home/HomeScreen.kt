@@ -31,9 +31,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hyeeyoung.wishboard.R
-import com.hyeeyoung.wishboard.designsystem.component.CartButton
+import com.hyeeyoung.wishboard.designsystem.component.button.CartButton
 import com.hyeeyoung.wishboard.designsystem.component.ColoredImage
-import com.hyeeyoung.wishboard.designsystem.component.WishBoardIconButton
+import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
 import com.hyeeyoung.wishboard.domain.WishItem
@@ -118,8 +118,8 @@ fun HomeTopBar() {
             contentDescription = null,
         )
         Row() {
-            WishBoardIconButton(iconRes = R.drawable.ic_cart, {})
-            WishBoardIconButton(iconRes = R.drawable.ic_calendar, {})
+            WishBoardIconButton(iconRes = R.drawable.ic_cart, onClick = {})
+            WishBoardIconButton(iconRes = R.drawable.ic_calendar, onClick = {})
         }
     }
 }
