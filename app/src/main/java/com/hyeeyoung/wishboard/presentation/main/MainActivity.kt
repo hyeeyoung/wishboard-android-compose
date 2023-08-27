@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.hyeeyoung.wishboard.presentation.util.WishBoardNavHost
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,8 +20,7 @@ class MainActivity : ComponentActivity() {
                     darkIcons = true,
                 )
             }
-            // TODO 상태바 컬러 변경, 네비게이션 구현
-            MainScreen()
+            WishBoardNavHost()
         }
     }
 }

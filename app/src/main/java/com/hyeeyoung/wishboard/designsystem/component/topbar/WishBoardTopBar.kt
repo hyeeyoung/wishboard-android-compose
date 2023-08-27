@@ -36,7 +36,7 @@ fun WishBoardTopBar(topBarModel: WishBoardTopBarModel, endComponent: (@Composabl
 
                 val onClick = when (startIcon) {
                     WishBoardTopBarModel.TopBarIcon.BACK -> {
-                        { /** TODO */ }
+                        { topBarModel.onClickStartIcon() }
                     }
 
                     else -> {

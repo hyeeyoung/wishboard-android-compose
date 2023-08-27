@@ -28,7 +28,7 @@ import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
 import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
 
 @Composable
-fun SignInScreen() {
+fun SignInScreen(onClickBack: () -> Unit) {
     WishboardTheme {
         // TODO 화면 진입 시 키보드 올리기
 //        val focusRequester = remember { FocusRequester() }
@@ -40,7 +40,10 @@ fun SignInScreen() {
 
         Scaffold(topBar = {
             WishBoardTopBar(
-                topBarModel = WishBoardTopBarModel(title = stringResource(id = R.string.sign_in_title)),
+                topBarModel = WishBoardTopBarModel(
+                    title = stringResource(id = R.string.sign_in_title),
+                    onClickStartIcon = onClickBack,
+                ),
             )
         }) { paddingValues ->
             val emailInput = remember { mutableStateOf("") }
@@ -98,5 +101,5 @@ fun SignInScreen() {
 @Preview
 @Composable
 fun PreviewSignInScreen() {
-    SignInScreen()
+    SignInScreen(onClickBack = {})
 }

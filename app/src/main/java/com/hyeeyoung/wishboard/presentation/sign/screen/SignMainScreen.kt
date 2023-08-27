@@ -30,7 +30,7 @@ import com.hyeeyoung.wishboard.presentation.model.WishBoardString
 import com.hyeeyoung.wishboard.util.extension.noRippleClickable
 
 @Composable
-fun SignMainScreen() {
+fun SignMainScreen(onNavigateToSignIn: () -> Unit) {
     WishboardTheme {
         Scaffold { paddingValues ->
             Column(
@@ -88,7 +88,7 @@ fun SignMainScreen() {
 
                 Text(
                     modifier = Modifier
-                        .noRippleClickable { /** TODO */ }
+                        .noRippleClickable { onNavigateToSignIn() }
                         .padding(8.dp),
                     text = buildStringWithSpans(
                         spanStrings = listOf(
@@ -108,5 +108,5 @@ fun SignMainScreen() {
 @Preview
 @Composable
 fun PreviewSignMainScreen() {
-    SignMainScreen()
+    SignMainScreen(onNavigateToSignIn = {})
 }
