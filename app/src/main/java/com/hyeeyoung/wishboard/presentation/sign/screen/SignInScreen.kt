@@ -26,9 +26,10 @@ import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
 import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
+import com.hyeeyoung.wishboard.util.extension.noRippleClickable
 
 @Composable
-fun SignInScreen(onClickBack: () -> Unit) {
+fun SignInScreen(onClickBack: () -> Unit, onNavigateToMain: () -> Unit, onNavigateToSignInEmail: () -> Unit) {
     WishboardTheme {
         // TODO 화면 진입 시 키보드 올리기
 //        val focusRequester = remember { FocusRequester() }
@@ -78,7 +79,7 @@ fun SignInScreen(onClickBack: () -> Unit) {
 
                 WishBoardWideButton(
                     enabled = false,
-                    onClick = { /*TODO*/ },
+                    onClick = { onNavigateToMain() },
                     text = stringResource(id = R.string.sign_in_title),
                 )
 
@@ -87,7 +88,8 @@ fun SignInScreen(onClickBack: () -> Unit) {
                 Text(
                     modifier = Modifier
                         .padding(8.dp)
-                        .align(Alignment.CenterHorizontally),
+                        .align(Alignment.CenterHorizontally)
+                        .noRippleClickable { onNavigateToSignInEmail() },
                     text = stringResource(id = R.string.sign_forget_password),
                     style = WishBoardTheme.typography.suitB3,
                     color = WishBoardTheme.colors.gray300,
@@ -101,5 +103,5 @@ fun SignInScreen(onClickBack: () -> Unit) {
 @Preview
 @Composable
 fun PreviewSignInScreen() {
-    SignInScreen(onClickBack = {})
+    SignInScreen(onClickBack = {}, onNavigateToMain = {}, onNavigateToSignInEmail = {})
 }

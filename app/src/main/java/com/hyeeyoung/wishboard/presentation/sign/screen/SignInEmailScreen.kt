@@ -25,11 +25,14 @@ import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.sign.component.SignDescription
 
 @Composable
-fun SignInEmailScreen() {
+fun SignInEmailScreen(onClickBack: () -> Unit, onNavigateToNext: () -> Unit) {
     WishboardTheme {
         Scaffold(topBar = {
             WishBoardTopBarWithStep(
-                topBarModel = WishBoardTopBarModel(title = stringResource(id = R.string.sign_in_email_title)),
+                topBarModel = WishBoardTopBarModel(
+                    title = stringResource(id = R.string.sign_in_email_title),
+                    onClickStartIcon = onClickBack,
+                ),
                 step = Pair(1, 2),
             )
         }) { paddingValues ->
@@ -65,5 +68,5 @@ fun SignInEmailScreen() {
 @Preview
 @Composable
 fun PreviewSignInEmailScreen() {
-    SignInEmailScreen()
+    SignInEmailScreen(onClickBack = {}, onNavigateToNext = {})
 }

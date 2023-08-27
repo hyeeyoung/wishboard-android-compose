@@ -30,7 +30,7 @@ import com.hyeeyoung.wishboard.presentation.model.WishBoardString
 import com.hyeeyoung.wishboard.util.extension.noRippleClickable
 
 @Composable
-fun SignMainScreen(onNavigateToSignIn: () -> Unit) {
+fun SignMainScreen(onNavigateToSignIn: () -> Unit, onNavigateToSignUp: () -> Unit) {
     WishboardTheme {
         Scaffold { paddingValues ->
             Column(
@@ -70,7 +70,7 @@ fun SignMainScreen(onNavigateToSignIn: () -> Unit) {
 
                 WishBoardWideButton(
                     enabled = true,
-                    onClick = { /*TODO*/ },
+                    onClick = { onNavigateToSignUp() },
                     text = stringResource(id = R.string.sign_up_title),
                 )
 
@@ -108,5 +108,5 @@ fun SignMainScreen(onNavigateToSignIn: () -> Unit) {
 @Preview
 @Composable
 fun PreviewSignMainScreen() {
-    SignMainScreen(onNavigateToSignIn = {})
+    SignMainScreen(onNavigateToSignIn = {}, onNavigateToSignUp = {})
 }

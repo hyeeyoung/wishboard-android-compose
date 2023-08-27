@@ -29,11 +29,14 @@ import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.sign.component.SignDescription
 
 @Composable
-fun SignUpPasswordScreen() {
+fun SignUpPasswordScreen(onClickBack: () -> Unit, onNavigateToMain: () -> Unit) {
     WishboardTheme {
         Scaffold(topBar = {
             WishBoardTopBarWithStep(
-                topBarModel = WishBoardTopBarModel(title = stringResource(id = R.string.sign_up_title)),
+                topBarModel = WishBoardTopBarModel(
+                    title = stringResource(id = R.string.sign_up_title),
+                    onClickStartIcon = onClickBack,
+                ),
                 step = Pair(2, 2),
             )
         }) { paddingValues ->
@@ -60,7 +63,7 @@ fun SignUpPasswordScreen() {
 
                 WishBoardWideButton(
                     enabled = false,
-                    onClick = { /*TODO*/ },
+                    onClick = { onNavigateToMain() }, // TODO 비밀번호 검증 실패 처리 필요
                     text = stringResource(id = R.string.sign_up_title),
                 )
             }
@@ -108,5 +111,5 @@ fun TermsAndPolicyText() {
 @Preview
 @Composable
 fun PreviewSignUpPasswordScreen() {
-    SignUpPasswordScreen()
+    SignUpPasswordScreen(onClickBack = {}, onNavigateToMain = {})
 }
