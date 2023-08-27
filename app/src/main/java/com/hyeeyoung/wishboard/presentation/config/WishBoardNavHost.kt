@@ -22,7 +22,7 @@ fun WishBoardNavHost(modifier: Modifier = Modifier, navController: NavHostContro
         composable(Navigation.INTRO.name) {
             IntroScreen(onNavigateToNext = { isLogin ->
                 val nextScreen = if (isLogin) Navigation.MAIN.name else Navigation.SIGN.name
-                navController.navigate(nextScreen)
+                navController.navigate(nextScreen) { popUpTo(navController.graph.id) { inclusive = true } }
             })
         }
 
@@ -45,7 +45,13 @@ fun WishBoardNavHost(modifier: Modifier = Modifier, navController: NavHostContro
                 composable(Navigation.PASSWORD.name) {
                     SignUpPasswordScreen(
                         onClickBack = { navController.popBackStack() },
-                        onNavigateToMain = { navController.navigate(Navigation.MAIN.name) },
+                        onNavigateToMain = {
+                            navController.navigate(Navigation.MAIN.name) {
+                                popUpTo(navController.graph.id) {
+                                    inclusive = true
+                                }
+                            }
+                        },
                     )
                 }
             }
@@ -53,7 +59,13 @@ fun WishBoardNavHost(modifier: Modifier = Modifier, navController: NavHostContro
             composable(Navigation.SIGN_IN.name) {
                 SignInScreen(
                     onClickBack = { navController.popBackStack() },
-                    onNavigateToMain = { navController.navigate(Navigation.MAIN.name) },
+                    onNavigateToMain = {
+                        navController.navigate(Navigation.MAIN.name) {
+                            popUpTo(navController.graph.id) {
+                                inclusive = true
+                            }
+                        }
+                    },
                     onNavigateToSignInEmail = { navController.navigate(Navigation.SIGN_IN_EMAIL.name) },
                 )
             }
@@ -68,7 +80,13 @@ fun WishBoardNavHost(modifier: Modifier = Modifier, navController: NavHostContro
                 composable(Navigation.VERIFICATION.name) {
                     SignInVerificationCodeScreen(
                         onClickBack = { navController.popBackStack() },
-                        onNavigateToMain = { navController.navigate(Navigation.MAIN.name) },
+                        onNavigateToMain = {
+                            navController.navigate(Navigation.MAIN.name) {
+                                popUpTo(navController.graph.id) {
+                                    inclusive = true
+                                }
+                            }
+                        },
                     )
                 }
             }
