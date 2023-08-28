@@ -1,4 +1,4 @@
-package com.hyeeyoung.wishboard.domain
+package com.hyeeyoung.wishboard.domain.model
 
 data class WishItem(
     val id: Long,

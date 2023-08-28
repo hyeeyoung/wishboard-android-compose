@@ -1,4 +1,4 @@
-package com.hyeeyoung.wishboard.util
+package com.hyeeyoung.wishboard.config
 
 import timber.log.Timber
 

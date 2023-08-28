@@ -1,4 +1,4 @@
-package com.hyeeyoung.wishboard.presentation.constant
+package com.hyeeyoung.wishboard.presentation.util.constant
 
 object WishBoardConstants {
     // URL

@@ -32,7 +32,7 @@ import com.hyeeyoung.wishboard.designsystem.component.WishBoardDivider
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
 import com.hyeeyoung.wishboard.presentation.home.HomeScreen
-import com.hyeeyoung.wishboard.util.extension.noRippleClickable
+import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 
 @Composable
 fun MainScreen() {

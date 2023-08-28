@@ -36,8 +36,8 @@ import com.hyeeyoung.wishboard.designsystem.component.ColoredImage
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
-import com.hyeeyoung.wishboard.domain.WishItem
-import com.hyeeyoung.wishboard.util.extension.setPriceFormat
+import com.hyeeyoung.wishboard.domain.model.WishItem
+import com.hyeeyoung.wishboard.presentation.util.extension.setPriceFormat
 
 @Composable
 fun HomeScreen(modifier: Modifier) {

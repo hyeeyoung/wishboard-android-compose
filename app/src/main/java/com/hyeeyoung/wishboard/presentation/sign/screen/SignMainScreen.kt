@@ -27,7 +27,7 @@ import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
 import com.hyeeyoung.wishboard.designsystem.util.buildStringWithSpans
 import com.hyeeyoung.wishboard.presentation.model.WishBoardString
-import com.hyeeyoung.wishboard.util.extension.noRippleClickable
+import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 
 @Composable
 fun SignMainScreen(onNavigateToSignIn: () -> Unit, onNavigateToSignUp: () -> Unit) {

@@ -26,7 +26,7 @@ import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
 import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
-import com.hyeeyoung.wishboard.util.extension.noRippleClickable
+import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 
 @Composable
 fun SignInScreen(onClickBack: () -> Unit, onNavigateToMain: () -> Unit, onNavigateToSignInEmail: () -> Unit) {

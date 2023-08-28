@@ -23,7 +23,7 @@ import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardTextFie
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBarWithStep
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
-import com.hyeeyoung.wishboard.presentation.constant.WishBoardConstants
+import com.hyeeyoung.wishboard.presentation.util.constant.WishBoardConstants
 import com.hyeeyoung.wishboard.presentation.model.WishBoardString
 import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.sign.component.SignDescription

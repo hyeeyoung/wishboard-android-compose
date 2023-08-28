@@ -1,4 +1,4 @@
-package com.hyeeyoung.wishboard.util.extension
+package com.hyeeyoung.wishboard.presentation.util.extension
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
