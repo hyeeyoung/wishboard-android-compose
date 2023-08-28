@@ -16,7 +16,7 @@ fun WishBoardNavHost(modifier: Modifier = Modifier, navController: NavHostContro
         composable(Navigation.INTRO.name) {
             IntroScreen(onNavigateToNext = { isLogin ->
                 val nextScreen = if (isLogin) Navigation.MAIN.name else Navigation.SIGN.name
-                navController.navigate(nextScreen) { popUpTo(navController.graph.id) { inclusive = true } }
+                navController.navigate(nextScreen) { popUpTo(navController.graph.id) }
             })
         }
 

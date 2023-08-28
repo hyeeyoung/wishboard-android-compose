@@ -33,7 +33,7 @@ fun NavGraphBuilder.signNavGraph(navController: NavHostController) =
                     onClickBack = { navController.popBackStack() },
                     onNavigateToMain = {
                         navController.navigate(Navigation.MAIN.name) {
-                            popUpTo(navController.graph.id) {
+                            popUpTo(route = Navigation.SIGN.name) {
                                 inclusive = true
                             }
                         }
@@ -47,7 +47,7 @@ fun NavGraphBuilder.signNavGraph(navController: NavHostController) =
                 onClickBack = { navController.popBackStack() },
                 onNavigateToMain = {
                     navController.navigate(Navigation.MAIN.name) {
-                        popUpTo(navController.graph.id) {
+                        popUpTo(route = Navigation.SIGN.name) {
                             inclusive = true
                         }
                     }
@@ -68,7 +68,7 @@ fun NavGraphBuilder.signNavGraph(navController: NavHostController) =
                     onClickBack = { navController.popBackStack() },
                     onNavigateToMain = {
                         navController.navigate(Navigation.MAIN.name) {
-                            popUpTo(navController.graph.id) {
+                            popUpTo(route = Navigation.SIGN.name) {
                                 inclusive = true
                             }
                         }
