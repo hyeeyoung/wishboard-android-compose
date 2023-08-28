@@ -57,7 +57,7 @@ fun SignInEmailScreen(onClickBack: () -> Unit, onNavigateToNext: () -> Unit) {
 
                 WishBoardWideButton(
                     enabled = false,
-                    onClick = { /*TODO*/ },
+                    onClick = { onNavigateToNext() },
                     text = stringResource(id = R.string.sign_in_verification_email),
                 )
             }

@@ -58,7 +58,7 @@ fun SignInVerificationCodeScreen(onClickBack: () -> Unit, onNavigateToMain: () -
                 Spacer(modifier = Modifier.weight(1f))
 
                 WishBoardWideButton(
-                    enabled = false,
+                    enabled = true,
                     onClick = { /*TODO*/ },
                     text = stringResource(id = R.string.sign_in_title),
                 )

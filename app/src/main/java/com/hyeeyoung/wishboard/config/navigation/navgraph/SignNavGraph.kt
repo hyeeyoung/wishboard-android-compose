@@ -60,7 +60,7 @@ fun NavGraphBuilder.signNavGraph(navController: NavHostController) =
             composable(Navigation.EMAIL.name) {
                 SignInEmailScreen(
                     onClickBack = { navController.popBackStack() },
-                    onNavigateToNext = { navController.navigate(Navigation.PASSWORD.name) },
+                    onNavigateToNext = { navController.navigate(Navigation.VERIFICATION.name) },
                 )
             }
             composable(Navigation.VERIFICATION.name) {
