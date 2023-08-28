@@ -29,7 +29,11 @@ import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 
 @Composable
-fun SignInScreen(onClickBack: () -> Unit, onNavigateToMain: () -> Unit, onNavigateToSignInEmail: () -> Unit) {
+fun SignInScreen(
+    onClickBack: () -> Unit = {},
+    onNavigateToMain: () -> Unit = {},
+    onNavigateToSignInEmail: () -> Unit = {},
+) {
     WishboardTheme {
         // TODO 화면 진입 시 키보드 올리기
 //        val focusRequester = remember { FocusRequester() }
@@ -103,5 +107,5 @@ fun SignInScreen(onClickBack: () -> Unit, onNavigateToMain: () -> Unit, onNaviga
 @Preview
 @Composable
 fun PreviewSignInScreen() {
-    SignInScreen(onClickBack = {}, onNavigateToMain = {}, onNavigateToSignInEmail = {})
+    SignInScreen()
 }

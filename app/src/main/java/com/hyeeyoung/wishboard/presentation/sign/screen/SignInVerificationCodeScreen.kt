@@ -26,7 +26,7 @@ import com.hyeeyoung.wishboard.presentation.sign.component.SignDescription
 private const val VERIFICATION_CODE_MAX_LENGTH = 6
 
 @Composable
-fun SignInVerificationCodeScreen(onClickBack: () -> Unit, onNavigateToMain: () -> Unit) {
+fun SignInVerificationCodeScreen(onClickBack: () -> Unit = {}, onNavigateToMain: () -> Unit = {}) {
     WishboardTheme {
         Scaffold(topBar = {
             WishBoardTopBarWithStep(
@@ -61,7 +61,7 @@ fun SignInVerificationCodeScreen(onClickBack: () -> Unit, onNavigateToMain: () -
                 Spacer(modifier = Modifier.weight(1f))
 
                 WishBoardWideButton(
-                    enabled = true,
+                    enabled = false,
                     onClick = { onNavigateToMain() },
                     text = stringResource(id = R.string.sign_in_title),
                 )
@@ -73,5 +73,5 @@ fun SignInVerificationCodeScreen(onClickBack: () -> Unit, onNavigateToMain: () -
 @Preview
 @Composable
 fun PreviewSignInVerificationCodeScreen() {
-    SignInVerificationCodeScreen(onClickBack = {}, onNavigateToMain = {})
+    SignInVerificationCodeScreen()
 }

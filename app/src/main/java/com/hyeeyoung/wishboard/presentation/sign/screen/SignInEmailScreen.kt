@@ -25,7 +25,7 @@ import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.sign.component.SignDescription
 
 @Composable
-fun SignInEmailScreen(onClickBack: () -> Unit, onNavigateToNext: () -> Unit) {
+fun SignInEmailScreen(onClickBack: () -> Unit = {}, onNavigateToNext: () -> Unit = {}) {
     WishboardTheme {
         Scaffold(topBar = {
             WishBoardTopBarWithStep(
@@ -68,5 +68,5 @@ fun SignInEmailScreen(onClickBack: () -> Unit, onNavigateToNext: () -> Unit) {
 @Preview
 @Composable
 fun PreviewSignInEmailScreen() {
-    SignInEmailScreen(onClickBack = {}, onNavigateToNext = {})
+    SignInEmailScreen()
 }

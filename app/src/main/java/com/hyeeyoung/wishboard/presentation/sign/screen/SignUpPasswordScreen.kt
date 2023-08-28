@@ -29,7 +29,7 @@ import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.sign.component.SignDescription
 
 @Composable
-fun SignUpPasswordScreen(onClickBack: () -> Unit, onNavigateToMain: () -> Unit) {
+fun SignUpPasswordScreen(onClickBack: () -> Unit = {}, onNavigateToMain: () -> Unit = {}) {
     WishboardTheme {
         Scaffold(topBar = {
             WishBoardTopBarWithStep(
@@ -111,5 +111,5 @@ fun TermsAndPolicyText() {
 @Preview
 @Composable
 fun PreviewSignUpPasswordScreen() {
-    SignUpPasswordScreen(onClickBack = {}, onNavigateToMain = {})
+    SignUpPasswordScreen()
 }

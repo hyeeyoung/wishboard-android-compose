@@ -30,7 +30,7 @@ import com.hyeeyoung.wishboard.presentation.model.WishBoardString
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 
 @Composable
-fun SignMainScreen(onNavigateToSignIn: () -> Unit, onNavigateToSignUp: () -> Unit) {
+fun SignMainScreen(onNavigateToSignIn: () -> Unit = {}, onNavigateToSignUp: () -> Unit = {}) {
     WishboardTheme {
         Scaffold { paddingValues ->
             Column(
@@ -108,5 +108,5 @@ fun SignMainScreen(onNavigateToSignIn: () -> Unit, onNavigateToSignUp: () -> Uni
 @Preview
 @Composable
 fun PreviewSignMainScreen() {
-    SignMainScreen(onNavigateToSignIn = {}, onNavigateToSignUp = {})
+    SignMainScreen()
 }
