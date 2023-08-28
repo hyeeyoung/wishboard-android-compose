@@ -1,4 +1,4 @@
-package com.hyeeyoung.wishboard.presentation.config
+package com.hyeeyoung.wishboard.config.navigation
 
 enum class Navigation {
     // Intro

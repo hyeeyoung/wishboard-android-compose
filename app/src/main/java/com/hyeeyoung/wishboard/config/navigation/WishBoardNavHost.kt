@@ -1,4 +1,4 @@
-package com.hyeeyoung.wishboard.presentation.config
+package com.hyeeyoung.wishboard.config.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
