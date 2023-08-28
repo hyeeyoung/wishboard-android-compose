@@ -23,13 +23,13 @@ import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardTextFie
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBarWithStep
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
-import com.hyeeyoung.wishboard.presentation.util.constant.WishBoardConstants
 import com.hyeeyoung.wishboard.presentation.model.WishBoardString
 import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.sign.component.SignDescription
+import com.hyeeyoung.wishboard.presentation.util.constant.WishBoardConstants
 
 @Composable
-fun SignUpPasswordScreen(onClickBack: () -> Unit = {}, onNavigateToMain: () -> Unit = {}) {
+fun SignUpPasswordScreen(onClickBack: () -> Unit = {}, onClickSignUp: () -> Unit = {}) {
     WishboardTheme {
         Scaffold(topBar = {
             WishBoardTopBarWithStep(
@@ -63,7 +63,7 @@ fun SignUpPasswordScreen(onClickBack: () -> Unit = {}, onNavigateToMain: () -> U
 
                 WishBoardWideButton(
                     enabled = false,
-                    onClick = { onNavigateToMain() }, // TODO 비밀번호 검증 실패 처리 필요
+                    onClick = { onClickSignUp() }, // TODO 비밀번호 검증 실패 처리 필요
                     text = stringResource(id = R.string.sign_up_title),
                 )
             }

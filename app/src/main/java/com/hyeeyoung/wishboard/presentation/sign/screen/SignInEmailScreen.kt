@@ -25,7 +25,7 @@ import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.sign.component.SignDescription
 
 @Composable
-fun SignInEmailScreen(onClickBack: () -> Unit = {}, onNavigateToNext: () -> Unit = {}) {
+fun SignInEmailScreen(onClickBack: () -> Unit = {}, onClickReceiveEmail: () -> Unit = {}) {
     WishboardTheme {
         Scaffold(topBar = {
             WishBoardTopBarWithStep(
@@ -57,7 +57,7 @@ fun SignInEmailScreen(onClickBack: () -> Unit = {}, onNavigateToNext: () -> Unit
 
                 WishBoardWideButton(
                     enabled = false,
-                    onClick = { onNavigateToNext() },
+                    onClick = { onClickReceiveEmail() },
                     text = stringResource(id = R.string.sign_in_verification_email),
                 )
             }

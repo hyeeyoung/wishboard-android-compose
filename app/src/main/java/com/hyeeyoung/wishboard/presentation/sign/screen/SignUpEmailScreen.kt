@@ -25,7 +25,7 @@ import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.sign.component.SignDescription
 
 @Composable
-fun SignUpEmailScreen(onClickBack: () -> Unit = {}, onNavigateToNext: () -> Unit = {}) {
+fun SignUpEmailScreen(onClickBack: () -> Unit = {}, onClickNext: () -> Unit = {}) {
     WishboardTheme {
         Scaffold(topBar = {
             WishBoardTopBarWithStep(
@@ -57,7 +57,7 @@ fun SignUpEmailScreen(onClickBack: () -> Unit = {}, onNavigateToNext: () -> Unit
 
                 WishBoardWideButton(
                     enabled = false,
-                    onClick = { onNavigateToNext() }, // 유효한 이메일인 경우에만 다음화면으로 이동
+                    onClick = { onClickNext() }, // 유효한 이메일인 경우에만 다음화면으로 이동
                     text = stringResource(id = R.string.next),
                 )
             }

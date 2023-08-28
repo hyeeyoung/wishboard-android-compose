@@ -31,8 +31,8 @@ import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 @Composable
 fun SignInScreen(
     onClickBack: () -> Unit = {},
-    onNavigateToMain: () -> Unit = {},
-    onNavigateToSignInEmail: () -> Unit = {},
+    onClickLogin: () -> Unit = {},
+    onClickForgotPassword: () -> Unit = {},
 ) {
     WishboardTheme {
         // TODO 화면 진입 시 키보드 올리기
@@ -83,7 +83,7 @@ fun SignInScreen(
 
                 WishBoardWideButton(
                     enabled = false,
-                    onClick = { onNavigateToMain() },
+                    onClick = { onClickLogin() },
                     text = stringResource(id = R.string.sign_in_title),
                 )
 
@@ -93,7 +93,7 @@ fun SignInScreen(
                     modifier = Modifier
                         .padding(8.dp)
                         .align(Alignment.CenterHorizontally)
-                        .noRippleClickable { onNavigateToSignInEmail() },
+                        .noRippleClickable { onClickForgotPassword() },
                     text = stringResource(id = R.string.sign_forget_password),
                     style = WishBoardTheme.typography.suitB3,
                     color = WishBoardTheme.colors.gray300,
