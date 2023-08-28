@@ -30,7 +30,10 @@ fun SignInVerificationCodeScreen(onClickBack: () -> Unit, onNavigateToMain: () -
     WishboardTheme {
         Scaffold(topBar = {
             WishBoardTopBarWithStep(
-                topBarModel = WishBoardTopBarModel(title = stringResource(id = R.string.sign_in_email_title)),
+                topBarModel = WishBoardTopBarModel(
+                    title = stringResource(id = R.string.sign_in_email_title),
+                    onClickStartIcon = onClickBack,
+                ),
                 step = Pair(2, 2),
             )
         }) { paddingValues ->
@@ -59,7 +62,7 @@ fun SignInVerificationCodeScreen(onClickBack: () -> Unit, onNavigateToMain: () -
 
                 WishBoardWideButton(
                     enabled = true,
-                    onClick = { /*TODO*/ },
+                    onClick = { onNavigateToMain() },
                     text = stringResource(id = R.string.sign_in_title),
                 )
             }
