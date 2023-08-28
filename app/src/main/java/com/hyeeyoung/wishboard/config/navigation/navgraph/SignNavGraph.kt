@@ -4,7 +4,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
-import com.hyeeyoung.wishboard.config.navigation.Navigation
+import com.hyeeyoung.wishboard.config.navigation.Route
 import com.hyeeyoung.wishboard.presentation.sign.screen.SignInEmailScreen
 import com.hyeeyoung.wishboard.presentation.sign.screen.SignInScreen
 import com.hyeeyoung.wishboard.presentation.sign.screen.SignInVerificationCodeScreen
@@ -13,27 +13,27 @@ import com.hyeeyoung.wishboard.presentation.sign.screen.SignUpEmailScreen
 import com.hyeeyoung.wishboard.presentation.sign.screen.SignUpPasswordScreen
 
 fun NavGraphBuilder.signNavGraph(navController: NavHostController) =
-    navigation(startDestination = Navigation.SIGN_MAIN.name, route = Navigation.SIGN.name) {
-        composable(Navigation.SIGN_MAIN.name) {
+    navigation(startDestination = Route.Sign.main, route = Route.Sign.toRoute()) {
+        composable(Route.Sign.main) {
             SignMainScreen(
-                onNavigateToSignIn = { navController.navigate(Navigation.SIGN_IN.name) },
-                onNavigateToSignUp = { navController.navigate(Navigation.SIGN_UP.name) },
+                onNavigateToSignIn = { navController.navigate(Route.Sign.login) },
+                onNavigateToSignUp = { navController.navigate(Route.Sign.signUp) },
             )
         }
 
-        navigation(startDestination = Navigation.EMAIL.name, route = Navigation.SIGN_UP.name) {
-            composable(Navigation.EMAIL.name) {
+        navigation(startDestination = Route.Sign.email, route = Route.Sign.signUp) {
+            composable(Route.Sign.email) {
                 SignUpEmailScreen(
                     onClickBack = { navController.popBackStack() },
-                    onNavigateToNext = { navController.navigate(Navigation.PASSWORD.name) },
+                    onNavigateToNext = { navController.navigate(Route.Sign.password) },
                 )
             }
-            composable(Navigation.PASSWORD.name) {
+            composable(Route.Sign.password) {
                 SignUpPasswordScreen(
                     onClickBack = { navController.popBackStack() },
                     onNavigateToMain = {
-                        navController.navigate(Navigation.MAIN.name) {
-                            popUpTo(route = Navigation.SIGN.name) {
+                        navController.navigate(Route.Main.toRoute()) {
+                            popUpTo(route = Route.Sign.toRoute()) {
                                 inclusive = true
                             }
                         }
@@ -42,33 +42,33 @@ fun NavGraphBuilder.signNavGraph(navController: NavHostController) =
             }
         }
 
-        composable(Navigation.SIGN_IN.name) {
+        composable(Route.Sign.login) {
             SignInScreen(
                 onClickBack = { navController.popBackStack() },
                 onNavigateToMain = {
-                    navController.navigate(Navigation.MAIN.name) {
-                        popUpTo(route = Navigation.SIGN.name) {
+                    navController.navigate(Route.Main.toRoute()) {
+                        popUpTo(route = Route.Sign.toRoute()) {
                             inclusive = true
                         }
                     }
                 },
-                onNavigateToSignInEmail = { navController.navigate(Navigation.SIGN_IN_EMAIL.name) },
+                onNavigateToSignInEmail = { navController.navigate(Route.Sign.emailLogin) },
             )
         }
 
-        navigation(startDestination = Navigation.EMAIL.name, route = Navigation.SIGN_IN_EMAIL.name) {
-            composable(Navigation.EMAIL.name) {
+        navigation(startDestination = Route.Sign.email, route = Route.Sign.emailLogin) {
+            composable(Route.Sign.email) {
                 SignInEmailScreen(
                     onClickBack = { navController.popBackStack() },
-                    onNavigateToNext = { navController.navigate(Navigation.VERIFICATION.name) },
+                    onNavigateToNext = { navController.navigate(Route.Sign.verification) },
                 )
             }
-            composable(Navigation.VERIFICATION.name) {
+            composable(Route.Sign.verification) {
                 SignInVerificationCodeScreen(
                     onClickBack = { navController.popBackStack() },
                     onNavigateToMain = {
-                        navController.navigate(Navigation.MAIN.name) {
-                            popUpTo(route = Navigation.SIGN.name) {
+                        navController.navigate(Route.Main.toRoute()) {
+                            popUpTo(route = Route.Sign.toRoute()) {
                                 inclusive = true
                             }
                         }
