@@ -40,7 +40,7 @@ import com.hyeeyoung.wishboard.domain.model.WishItem
 import com.hyeeyoung.wishboard.presentation.util.extension.setPriceFormat
 
 @Composable
-fun HomeScreen(modifier: Modifier) {
+fun HomeScreen(modifier: Modifier = Modifier) {
     val wishList = listOf(
         WishItem(
             1L,
