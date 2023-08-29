@@ -8,7 +8,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.hyeeyoung.wishboard.config.navigation.screen.Intro
 import com.hyeeyoung.wishboard.config.navigation.screen.Main
-import com.hyeeyoung.wishboard.config.navigation.screen.Sign
 import com.hyeeyoung.wishboard.presentation.intro.IntroScreen
 import com.hyeeyoung.wishboard.presentation.main.MainScreen
 
@@ -16,13 +15,10 @@ import com.hyeeyoung.wishboard.presentation.main.MainScreen
 fun WishBoardNavHost(modifier: Modifier = Modifier, navController: NavHostController = rememberNavController()) {
     NavHost(modifier = modifier, navController = navController, startDestination = Intro.route) {
         composable(Intro.route) {
-            IntroScreen(onNavigateToNext = { isLogin ->
-                val nextScreen = if (isLogin) Main.Root.route else Sign.Root.route
-                navController.navigate(nextScreen) { popUpTo(Intro.route) { inclusive = true } }
-            })
+            IntroScreen(navController)
         }
 
-        signNavGraph(navController = navController)
+        signNavGraph(navController)
 
         composable(Main.Root.route) {
             MainScreen()

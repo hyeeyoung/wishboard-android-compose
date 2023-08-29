@@ -13,7 +13,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.hyeeyoung.wishboard.R
+import com.hyeeyoung.wishboard.config.navigation.screen.Main
+import com.hyeeyoung.wishboard.config.navigation.screen.Sign
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
 import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardTextField
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBarWithStep
@@ -26,13 +30,13 @@ import com.hyeeyoung.wishboard.presentation.sign.component.SignDescription
 private const val VERIFICATION_CODE_MAX_LENGTH = 6
 
 @Composable
-fun SignInVerificationCodeScreen(onClickBack: () -> Unit = {}, onClickLogin: () -> Unit = {}) {
+fun SignInVerificationCodeScreen(navController: NavHostController) {
     WishboardTheme {
         Scaffold(topBar = {
             WishBoardTopBarWithStep(
                 topBarModel = WishBoardTopBarModel(
                     title = stringResource(id = R.string.sign_in_email_title),
-                    onClickStartIcon = onClickBack,
+                    onClickStartIcon = { navController.popBackStack() },
                 ),
                 step = Pair(2, 2),
             )
@@ -62,7 +66,13 @@ fun SignInVerificationCodeScreen(onClickBack: () -> Unit = {}, onClickLogin: () 
 
                 WishBoardWideButton(
                     enabled = false,
-                    onClick = { onClickLogin() },
+                    onClick = {
+                        navController.navigate(Main.Root.route) {
+                            popUpTo(route = Sign.Root.route) {
+                                inclusive = true
+                            }
+                        }
+                    },
                     text = stringResource(id = R.string.sign_in_title),
                 )
             }
@@ -73,5 +83,5 @@ fun SignInVerificationCodeScreen(onClickBack: () -> Unit = {}, onClickLogin: () 
 @Preview
 @Composable
 fun PreviewSignInVerificationCodeScreen() {
-    SignInVerificationCodeScreen()
+    SignInVerificationCodeScreen(rememberNavController())
 }

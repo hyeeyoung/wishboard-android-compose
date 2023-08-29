@@ -16,7 +16,11 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.hyeeyoung.wishboard.R
+import com.hyeeyoung.wishboard.config.navigation.screen.Main
+import com.hyeeyoung.wishboard.config.navigation.screen.Sign
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
 import com.hyeeyoung.wishboard.designsystem.component.text.WishBoardClickableText
 import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardTextField
@@ -29,13 +33,13 @@ import com.hyeeyoung.wishboard.presentation.sign.component.SignDescription
 import com.hyeeyoung.wishboard.presentation.util.constant.WishBoardConstants
 
 @Composable
-fun SignUpPasswordScreen(onClickBack: () -> Unit = {}, onClickSignUp: () -> Unit = {}) {
+fun SignUpPasswordScreen(navController: NavHostController) {
     WishboardTheme {
         Scaffold(topBar = {
             WishBoardTopBarWithStep(
                 topBarModel = WishBoardTopBarModel(
                     title = stringResource(id = R.string.sign_up_title),
-                    onClickStartIcon = onClickBack,
+                    onClickStartIcon = { navController.popBackStack() },
                 ),
                 step = Pair(2, 2),
             )
@@ -63,7 +67,13 @@ fun SignUpPasswordScreen(onClickBack: () -> Unit = {}, onClickSignUp: () -> Unit
 
                 WishBoardWideButton(
                     enabled = false,
-                    onClick = { onClickSignUp() }, // TODO 비밀번호 검증 실패 처리 필요
+                    onClick = {
+                        navController.navigate(Main.Root.route) {
+                            popUpTo(route = Sign.Root.route) {
+                                inclusive = true
+                            }
+                        }
+                    }, // TODO 비밀번호 검증 실패 처리 필요
                     text = stringResource(id = R.string.sign_up_title),
                 )
             }
@@ -111,5 +121,5 @@ fun TermsAndPolicyText() {
 @Preview
 @Composable
 fun PreviewSignUpPasswordScreen() {
-    SignUpPasswordScreen()
+    SignUpPasswordScreen(rememberNavController())
 }

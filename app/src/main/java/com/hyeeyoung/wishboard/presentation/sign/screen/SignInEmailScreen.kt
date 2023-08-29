@@ -15,7 +15,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.hyeeyoung.wishboard.R
+import com.hyeeyoung.wishboard.config.navigation.screen.Sign
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
 import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardTextField
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBarWithStep
@@ -25,13 +28,13 @@ import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.sign.component.SignDescription
 
 @Composable
-fun SignInEmailScreen(onClickBack: () -> Unit = {}, onClickReceiveEmail: () -> Unit = {}) {
+fun SignInEmailScreen(navController: NavHostController) {
     WishboardTheme {
         Scaffold(topBar = {
             WishBoardTopBarWithStep(
                 topBarModel = WishBoardTopBarModel(
                     title = stringResource(id = R.string.sign_in_email_title),
-                    onClickStartIcon = onClickBack,
+                    onClickStartIcon = { navController.popBackStack() },
                 ),
                 step = Pair(1, 2),
             )
@@ -57,7 +60,7 @@ fun SignInEmailScreen(onClickBack: () -> Unit = {}, onClickReceiveEmail: () -> U
 
                 WishBoardWideButton(
                     enabled = false,
-                    onClick = { onClickReceiveEmail() },
+                    onClick = { navController.navigate(Sign.Verification.route) },
                     text = stringResource(id = R.string.sign_in_verification_email),
                 )
             }
@@ -68,5 +71,5 @@ fun SignInEmailScreen(onClickBack: () -> Unit = {}, onClickReceiveEmail: () -> U
 @Preview
 @Composable
 fun PreviewSignInEmailScreen() {
-    SignInEmailScreen()
+    SignInEmailScreen(rememberNavController())
 }

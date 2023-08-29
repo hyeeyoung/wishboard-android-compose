@@ -21,7 +21,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.hyeeyoung.wishboard.R
+import com.hyeeyoung.wishboard.config.navigation.screen.Sign
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
@@ -30,7 +33,7 @@ import com.hyeeyoung.wishboard.presentation.model.WishBoardString
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 
 @Composable
-fun SignMainScreen(onClickSignUp: () -> Unit = {}, onClickLogin: () -> Unit = {}) {
+fun SignMainScreen(navController: NavHostController) {
     WishboardTheme {
         Scaffold { paddingValues ->
             Column(
@@ -70,7 +73,9 @@ fun SignMainScreen(onClickSignUp: () -> Unit = {}, onClickLogin: () -> Unit = {}
 
                 WishBoardWideButton(
                     enabled = true,
-                    onClick = { onClickSignUp() },
+                    onClick = {
+                        navController.navigate(Sign.SignUp.route)
+                    },
                     text = stringResource(id = R.string.sign_up_title),
                 )
 
@@ -88,7 +93,7 @@ fun SignMainScreen(onClickSignUp: () -> Unit = {}, onClickLogin: () -> Unit = {}
 
                 Text(
                     modifier = Modifier
-                        .noRippleClickable { onClickLogin() }
+                        .noRippleClickable { navController.navigate(Sign.Login.route) }
                         .padding(8.dp),
                     text = buildStringWithSpans(
                         spanStrings = listOf(
@@ -108,5 +113,5 @@ fun SignMainScreen(onClickSignUp: () -> Unit = {}, onClickLogin: () -> Unit = {}
 @Preview
 @Composable
 fun PreviewSignMainScreen() {
-    SignMainScreen()
+    SignMainScreen(navController = rememberNavController())
 }
