@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
+import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.hyeeyoung.wishboard.config.navigation.navgraph.WishBoardNavHost
 
@@ -20,7 +21,7 @@ class MainActivity : ComponentActivity() {
                     darkIcons = true,
                 )
             }
-            WishBoardNavHost()
+            WishBoardNavHost(navController = rememberNavController())
         }
     }
 }
