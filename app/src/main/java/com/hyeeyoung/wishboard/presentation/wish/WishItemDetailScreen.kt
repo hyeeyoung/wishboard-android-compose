@@ -54,6 +54,7 @@ fun WishItemDetailScreen(itemDetail: WishItemDetail) {
         }) { paddingValues ->
             Column(
                 modifier = Modifier
+                    .background(WishBoardTheme.colors.white)
                     .padding(top = paddingValues.calculateTopPadding()),
             ) {
                 WishItemDetailContents(modifier = Modifier.weight(1f), itemDetail = itemDetail)
