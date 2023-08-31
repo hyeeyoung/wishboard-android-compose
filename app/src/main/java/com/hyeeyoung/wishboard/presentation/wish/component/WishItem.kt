@@ -64,3 +64,16 @@ fun WishItem(wishItem: WishItem) {
     }
 }
 
+@Preview(showBackground = true, backgroundColor = 0xffffff, widthDp = 187, heightDp = 257)
+@Composable
+fun PreviewWishItem() {
+    WishItem(
+        wishItem = WishItem(
+            1L,
+            "21SS SAGE SHIRT [4COLOR]",
+            "https://url.kr/8vwf1e",
+            108000,
+            true,
+        ),
+    )
+}
