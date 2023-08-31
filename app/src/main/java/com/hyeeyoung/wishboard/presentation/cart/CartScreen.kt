@@ -21,7 +21,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -31,9 +30,7 @@ import com.hyeeyoung.wishboard.designsystem.component.WishBoardDivider
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
-import com.hyeeyoung.wishboard.designsystem.util.buildStringWithSpans
 import com.hyeeyoung.wishboard.presentation.model.CartItem
-import com.hyeeyoung.wishboard.presentation.model.WishBoardString
 import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.wish.component.PriceText
 
@@ -117,18 +114,6 @@ fun ItemCountController(count: Int) {
 
 @Composable
 fun CartTotalDisplay(totalCount: Int, totalPrice: Int) {
-    val spanStrings = listOf(
-        WishBoardString.NormalString("${stringResource(id = R.string.total)} "),
-        WishBoardString.SpanString("$totalCount"),
-        WishBoardString.NormalString(" ${stringResource(id = R.string.ea)}"),
-    )
-    val spanStyle = WishBoardTheme.typography.montserratH2.run {
-        SpanStyle(
-            fontSize = fontSize,
-            fontFamily = fontFamily,
-            fontWeight = fontWeight,
-        )
-    }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -137,12 +122,26 @@ fun CartTotalDisplay(totalCount: Int, totalPrice: Int) {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(
-            // TODO text aline 적용
-            text = buildStringWithSpans(spanStrings = spanStrings, spanStyle = spanStyle),
-            style = WishBoardTheme.typography.suitD2,
-            color = WishBoardTheme.colors.gray700,
-        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                modifier = Modifier.padding(end = 2.dp),
+                text = stringResource(id = R.string.total),
+                style = WishBoardTheme.typography.suitD2,
+                color = WishBoardTheme.colors.gray700,
+            )
+            Text(
+                text = "$totalCount",
+                style = WishBoardTheme.typography.montserratH2,
+                color = WishBoardTheme.colors.gray700,
+            )
+            Text(
+                modifier = Modifier.padding(start = 2.dp),
+                text = stringResource(id = R.string.ea),
+                style = WishBoardTheme.typography.suitD2,
+                color = WishBoardTheme.colors.gray700,
+            )
+        }
+
         PriceText(
             price = totalPrice,
             priceStyle = WishBoardTheme.typography.montserratH2,
