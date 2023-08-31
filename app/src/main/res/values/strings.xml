@@ -36,8 +36,15 @@
     <string name="sign_up_password_format_error">8자리 이상의 영문자, 숫자, 특수 문자 조합으로 입력해주세요.</string>
     <string name="sign_up_terms">가입 시 <b>이용약관</b>과 <b>개인정보 처리방침</b>에 동의하는 것으로 간주합니다.</string>
 
+    <!-- WishItem Global -->
+    <string name="memo">메모</string>
+
     <!-- WishItem -->
     <string name="cart_btn_text">Cart</string>
+
+    <!-- WishItemDetail -->
+    <string name="wish_item_detail_folder_guild">폴더를 지정해 보세요!</string>
+    <string name="wish_item_detail_go_to_shop">쇼핑몰로 이동하기</string>
 
     <!-- Navigation Menu -->
     <string name="nav_menu_label_wishlist">WISHLIST</string>

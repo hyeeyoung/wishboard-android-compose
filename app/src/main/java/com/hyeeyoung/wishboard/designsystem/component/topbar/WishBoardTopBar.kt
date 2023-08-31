@@ -74,3 +74,21 @@ fun WishBoardTopBar(topBarModel: WishBoardTopBarModel, endComponent: (@Composabl
 fun PreviewWishBoardTopBar() {
     WishBoardTopBar(topBarModel = WishBoardTopBarModel(title = stringResource(id = R.string.sign_in_title)))
 }
+
+@Preview
+@Composable
+fun PreviewWishBoardTopBarWithEndIcons() {
+    WishBoardTopBar(
+        topBarModel = WishBoardTopBarModel(),
+        endComponent = { modifier ->
+            Row(
+                modifier = modifier,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                WishBoardIconButton(iconRes = R.drawable.ic_trash, onClick = { /*TODO*/ })
+                WishBoardIconButton(iconRes = R.drawable.ic_edit, onClick = { /*TODO*/ })
+                Spacer(modifier = Modifier.size(8.dp))
+            }
+        },
+    )
+}
