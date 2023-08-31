@@ -1,4 +1,4 @@
-package com.hyeeyoung.wishboard.presentation.home
+package com.hyeeyoung.wishboard.presentation.wish
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -40,7 +40,7 @@ import com.hyeeyoung.wishboard.domain.model.WishItem
 import com.hyeeyoung.wishboard.presentation.util.extension.setPriceFormat
 
 @Composable
-fun HomeScreen(modifier: Modifier = Modifier) {
+fun WishlistScreen(modifier: Modifier = Modifier) {
     val wishList = listOf(
         WishItem(
             1L,
@@ -87,7 +87,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
     )
     WishboardTheme { // TODO Theme 사용 여부 고려
         Surface(modifier = modifier) {
-            Scaffold(topBar = { HomeTopBar() }) { paddingValues ->
+            Scaffold(topBar = { WishlistTopBar() }) { paddingValues ->
                 LazyVerticalGrid(
                     modifier = Modifier
                         .background(WishBoardTheme.colors.white)
@@ -104,7 +104,7 @@ fun HomeScreen(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun HomeTopBar() {
+fun WishlistTopBar() { // TODO 공용 TopBar 추출
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -175,6 +175,6 @@ fun WishItemComponent(wishItem: WishItem) {
 
 @Composable
 @Preview
-fun PreviewHomeScreen() {
-    HomeScreen(Modifier)
+fun PreviewWishlistScreen() {
+    WishlistScreen(Modifier)
 }
