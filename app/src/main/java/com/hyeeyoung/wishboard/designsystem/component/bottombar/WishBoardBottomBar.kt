@@ -91,7 +91,7 @@ enum class BottomNavItem(
     @DrawableRes val icon: Int,
     val screen: Screen,
 ) {
-    WishList(R.string.nav_menu_label_wishlist, R.drawable.ic_nav_wish_list, Main.Home),
+    WishList(R.string.nav_menu_label_wishlist, R.drawable.ic_nav_wish_list, Main.Wishlist),
     Folder(R.string.nav_menu_label_folder, R.drawable.ic_nav_folder, Main.Folder),
     Add(R.string.nav_menu_label_add, R.drawable.ic_nav_write, Main.Add),
     Notice(R.string.nav_menu_label_notice, R.drawable.ic_nav_notice, Main.Noti),
