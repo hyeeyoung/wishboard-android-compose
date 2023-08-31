@@ -51,6 +51,10 @@
     <string name="total">전체</string>
     <string name="ea">개</string>
 
+    <!-- Folder -->
+    <string name="folder">폴더</string>
+    <string name="folder_wish_item_count">%d 아이템</string>
+
     <!-- Navigation Menu -->
     <string name="nav_menu_label_wishlist">WISHLIST</string>
     <string name="nav_menu_label_folder">FOLDER</string>

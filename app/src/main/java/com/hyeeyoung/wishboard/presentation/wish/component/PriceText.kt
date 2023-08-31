@@ -12,7 +12,7 @@ import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.presentation.util.extension.setPriceFormat
 
 @Composable
-fun PriceText(modifier: Modifier = Modifier, price: Int, priceStyle: TextStyle, wonStyle: TextStyle) {
+fun PriceText(modifier: Modifier = Modifier, price: Int, priceStyle: TextStyle, wonStyle: TextStyle) { // TODO 패키지 이동
     Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
         Text(
             text = price.setPriceFormat(),
