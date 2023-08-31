@@ -1,4 +1,4 @@
-package com.hyeeyoung.wishboard.util.extension
+package com.hyeeyoung.wishboard.presentation.util.extension
 
 import java.text.DecimalFormat
 

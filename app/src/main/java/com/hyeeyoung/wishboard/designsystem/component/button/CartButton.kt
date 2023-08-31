@@ -12,7 +12,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
-import com.hyeeyoung.wishboard.util.extension.noRippleClickable
+import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 
 @Composable
 fun CartButton(isInCart: Boolean, changeCartState: (Boolean) -> Unit) {

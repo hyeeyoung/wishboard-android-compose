@@ -16,24 +16,31 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.hyeeyoung.wishboard.R
+import com.hyeeyoung.wishboard.config.navigation.screen.Main
+import com.hyeeyoung.wishboard.config.navigation.screen.Sign
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
 import com.hyeeyoung.wishboard.designsystem.component.text.WishBoardClickableText
 import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardTextField
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBarWithStep
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
-import com.hyeeyoung.wishboard.presentation.constant.WishBoardConstants
 import com.hyeeyoung.wishboard.presentation.model.WishBoardString
 import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.sign.component.SignDescription
+import com.hyeeyoung.wishboard.presentation.util.constant.WishBoardConstants
 
 @Composable
-fun SignUpPasswordScreen() {
+fun SignUpPasswordScreen(navController: NavHostController) {
     WishboardTheme {
         Scaffold(topBar = {
             WishBoardTopBarWithStep(
-                topBarModel = WishBoardTopBarModel(title = stringResource(id = R.string.sign_up_title)),
+                topBarModel = WishBoardTopBarModel(
+                    title = stringResource(id = R.string.sign_up_title),
+                    onClickStartIcon = { navController.popBackStack() },
+                ),
                 step = Pair(2, 2),
             )
         }) { paddingValues ->
@@ -60,7 +67,13 @@ fun SignUpPasswordScreen() {
 
                 WishBoardWideButton(
                     enabled = false,
-                    onClick = { /*TODO*/ },
+                    onClick = {
+                        navController.navigate(Main.Root.route) {
+                            popUpTo(route = Sign.Root.route) {
+                                inclusive = true
+                            }
+                        }
+                    }, // TODO 비밀번호 검증 실패 처리 필요
                     text = stringResource(id = R.string.sign_up_title),
                 )
             }
@@ -108,5 +121,5 @@ fun TermsAndPolicyText() {
 @Preview
 @Composable
 fun PreviewSignUpPasswordScreen() {
-    SignUpPasswordScreen()
+    SignUpPasswordScreen(rememberNavController())
 }

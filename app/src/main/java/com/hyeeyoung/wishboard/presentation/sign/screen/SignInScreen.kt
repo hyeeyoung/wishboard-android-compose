@@ -19,16 +19,21 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.hyeeyoung.wishboard.R
+import com.hyeeyoung.wishboard.config.navigation.screen.Main
+import com.hyeeyoung.wishboard.config.navigation.screen.Sign
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
 import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardTextField
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
 import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
+import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 
 @Composable
-fun SignInScreen() {
+fun SignInScreen(navController: NavHostController) {
     WishboardTheme {
         // TODO 화면 진입 시 키보드 올리기
 //        val focusRequester = remember { FocusRequester() }
@@ -40,7 +45,10 @@ fun SignInScreen() {
 
         Scaffold(topBar = {
             WishBoardTopBar(
-                topBarModel = WishBoardTopBarModel(title = stringResource(id = R.string.sign_in_title)),
+                topBarModel = WishBoardTopBarModel(
+                    title = stringResource(id = R.string.sign_in_title),
+                    onClickStartIcon = { navController.popBackStack() },
+                ),
             )
         }) { paddingValues ->
             val emailInput = remember { mutableStateOf("") }
@@ -75,7 +83,13 @@ fun SignInScreen() {
 
                 WishBoardWideButton(
                     enabled = false,
-                    onClick = { /*TODO*/ },
+                    onClick = {
+                        navController.navigate(Main.Root.route) {
+                            popUpTo(route = Sign.Root.route) {
+                                inclusive = true
+                            }
+                        }
+                    },
                     text = stringResource(id = R.string.sign_in_title),
                 )
 
@@ -84,7 +98,8 @@ fun SignInScreen() {
                 Text(
                     modifier = Modifier
                         .padding(8.dp)
-                        .align(Alignment.CenterHorizontally),
+                        .align(Alignment.CenterHorizontally)
+                        .noRippleClickable { navController.navigate(Sign.EmailLogin.route) },
                     text = stringResource(id = R.string.sign_forget_password),
                     style = WishBoardTheme.typography.suitB3,
                     color = WishBoardTheme.colors.gray300,
@@ -98,5 +113,5 @@ fun SignInScreen() {
 @Preview
 @Composable
 fun PreviewSignInScreen() {
-    SignInScreen()
+    SignInScreen(rememberNavController())
 }
