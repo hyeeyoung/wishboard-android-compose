@@ -55,18 +55,12 @@ fun WishItem(wishItem: WishItem) {
         ) {
             Text(text = wishItem.name, style = WishBoardTheme.typography.suitD3, color = WishBoardTheme.colors.gray700)
             Spacer(modifier = Modifier.size(8.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = wishItem.price.setPriceFormat(),
-                    style = WishBoardTheme.typography.montserratH3,
-                    color = WishBoardTheme.colors.gray700,
-                )
-                Text(
-                    text = stringResource(id = R.string.won),
-                    style = WishBoardTheme.typography.suitD3,
-                    color = WishBoardTheme.colors.gray700,
-                )
-            }
+            PriceText(
+                price = wishItem.price,
+                priceStyle = WishBoardTheme.typography.montserratH3,
+                wonStyle = WishBoardTheme.typography.suitD3,
+            )
         }
     }
 }
+
