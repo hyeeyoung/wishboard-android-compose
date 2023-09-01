@@ -4,7 +4,6 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -36,19 +35,14 @@ fun NotiScreen(notiList: List<Noti> = emptyList()) {
     Scaffold(topBar = {
         WishBoardMainTopBar(titleRes = R.string.noti)
     }) { paddingValues ->
-        Column(
+        LazyColumn(
             modifier = Modifier
-                .fillMaxSize()
                 .background(WishBoardTheme.colors.white)
                 .padding(top = paddingValues.calculateTopPadding()),
         ) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-            ) {
-                itemsIndexed(notiList) { idx, item ->
-                    NotiItem(noti = item)
-                    if (idx < notiList.lastIndex) WishBoardDivider()
-                }
+            itemsIndexed(notiList) { idx, item ->
+                NotiItem(noti = item)
+                if (idx < notiList.lastIndex) WishBoardDivider()
             }
         }
     }
@@ -70,7 +64,6 @@ fun NotiItem(noti: Noti) {
         )
         Column(
             modifier = Modifier
-                .fillMaxWidth()
                 .height(imageSize.dp)
                 .padding(start = 10.dp),
         ) {
