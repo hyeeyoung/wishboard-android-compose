@@ -22,7 +22,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.hyeeyoung.wishboard.R
+import com.hyeeyoung.wishboard.config.navigation.screen.Main
 import com.hyeeyoung.wishboard.designsystem.component.ColoredImage
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardMainTopBar
@@ -31,7 +34,17 @@ import com.hyeeyoung.wishboard.presentation.model.Folder
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 
 @Composable
-fun FolderScreen(folders: List<Folder> = emptyList()) {
+fun FolderScreen(navController: NavHostController) {
+    val folder = listOf(
+        Folder(
+            id = 1L,
+            name = "아우터",
+            thumbnail = "https://url.kr/8vwf1e",
+            itemCount = 1,
+        ),
+    )
+    val folders = List(8) { folder }.flatten() // TODO 서버 연동 후 삭제
+
     Scaffold(topBar = {
         WishBoardMainTopBar(
             titleRes = R.string.folder,
@@ -55,7 +68,12 @@ fun FolderScreen(folders: List<Folder> = emptyList()) {
                 columns = GridCells.Fixed(2),
             ) {
                 items(folders) { folder ->
-                    FolderItem(folder = folder)
+                    FolderItem(
+                        folder = folder,
+                        onClickFolder = { folderId ->
+                            navController.navigate("${Main.FolderDetail.route}/$folderId/${folder.name}")
+                        },
+                    )
                 }
             }
         }
@@ -63,8 +81,12 @@ fun FolderScreen(folders: List<Folder> = emptyList()) {
 }
 
 @Composable
-fun FolderItem(folder: Folder) {
-    Column(modifier = Modifier.padding(horizontal = 8.dp)) {
+fun FolderItem(folder: Folder, onClickFolder: (Long) -> Unit) {
+    Column(
+        modifier = Modifier
+            .padding(horizontal = 8.dp)
+            .noRippleClickable { onClickFolder(folder.id) },
+    ) {
         ColoredImage(
             model = folder.thumbnail,
             modifier = Modifier
@@ -106,17 +128,7 @@ fun FolderItem(folder: Folder) {
 @Composable
 @Preview
 fun PreviewFolderScreen() {
-    val folder = listOf(
-        Folder(
-            id = 1L,
-            name = "Bean Ring Gold",
-            thumbnail = "https://url.kr/8vwf1e",
-            itemCount = 1,
-        ),
-    )
-    val folders = List(8) { folder }.flatten()
-
-    FolderScreen(folders)
+    FolderScreen(navController = rememberNavController())
 }
 
 @Preview(showBackground = true)
@@ -131,5 +143,6 @@ fun PreviewFolderItem() {
 
     FolderItem(
         folder = folder,
+        onClickFolder = {},
     )
 }
