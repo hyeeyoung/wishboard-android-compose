@@ -129,4 +129,5 @@ data class WishBoardTypography(
     val suitB1M: TextStyle = suitB1.copy(lineHeight = 22.sp),
     val suitB3M: TextStyle = suitB3.copy(lineHeight = 20.sp),
     val suitD2M: TextStyle = suitD2.copy(lineHeight = 20.sp),
+    val suitD3M: TextStyle = suitD3.copy(lineHeight = 18.sp),
 )
