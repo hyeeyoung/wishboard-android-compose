@@ -29,6 +29,7 @@ fun MyScreen() {
     // TODO 알림 토글 및 클릭 이벤트 핸들링
     val myMenuComponents =
         listOf(
+            MyMenuComponent.Divider,
             MyMenuComponent.Menu(nameRes = R.string.my_menu_push_setting, endComponent = { /*TODO*/ }),
             MyMenuComponent.Menu(nameRes = R.string.my_menu_change_password, onClickMenu = {}),
             MyMenuComponent.Divider,
