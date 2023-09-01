@@ -11,16 +11,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.hyeeyoung.wishboard.config.navigation.screen.Main
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
 import com.hyeeyoung.wishboard.domain.model.WishItem
 import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
+import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.wish.component.WishItem
 
 @Composable
 fun FolderDetailScreen(navController: NavHostController, folderId: Long, folderName: String) {
-    val wishList = listOf(
+    val wishItem = listOf(
         WishItem(
             1L,
             "21SS SAGE SHIRT [4COLOR]",
@@ -28,42 +30,9 @@ fun FolderDetailScreen(navController: NavHostController, folderId: Long, folderN
             108000,
             true,
         ),
-        WishItem(
-            1L,
-            "SOFT BALL CHAIN MINI BAG [SILVER]",
-            "https://url.kr/8vwf1e",
-            108000,
-            false,
-        ),
-        WishItem(
-            1L,
-            "썸머호텔 여름차렵이불세트",
-            "https://url.kr/8vwf1e",
-            108000,
-            false,
-        ),
-        WishItem(
-            1L,
-            "Bean Ring Gold",
-            "https://url.kr/8vwf1e",
-            108000,
-            true,
-        ),
-        WishItem(
-            1L,
-            "Bean Ring Gold",
-            "https://url.kr/8vwf1e",
-            108000,
-            false,
-        ),
-        WishItem(
-            1L,
-            "Bean Ring Gold",
-            "https://url.kr/8vwf1e",
-            108000,
-            false,
-        ),
     )
+    val wishList = List(8) { wishItem }.flatten() // TODO 서버 연동 후 삭제
+
     WishboardTheme {
         Scaffold(topBar = {
             WishBoardTopBar(topBarModel = WishBoardTopBarModel(title = folderName))
@@ -76,7 +45,14 @@ fun FolderDetailScreen(navController: NavHostController, folderId: Long, folderN
                     ),
                 columns = GridCells.Fixed(2),
             ) {
-                items(wishList) { wishItem -> WishItem(wishItem = wishItem) }
+                items(wishList) { wishItem ->
+                    WishItem(
+                        modifier = Modifier.noRippleClickable {
+                            navController.navigate("${Main.WishItemDetail.route}/${wishItem.id}")
+                        },
+                        wishItem = wishItem,
+                    )
+                }
             }
         }
     }

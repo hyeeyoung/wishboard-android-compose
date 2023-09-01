@@ -23,8 +23,8 @@ import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.domain.model.WishItem
 
 @Composable
-fun WishItem(wishItem: WishItem) {
-    Column {
+fun WishItem(modifier: Modifier = Modifier, wishItem: WishItem) {
+    Column(modifier = modifier) {
         var cartState by remember { mutableStateOf(wishItem.isInCart) }
         // 이미지 및 장바구니 버튼
         Box() {

@@ -18,7 +18,7 @@ fun NavGraphBuilder.folderNavGraph(navController: NavHostController) =
 
         with(Main.FolderDetail) {
             composable(
-                route = "$route/{$ARG_FOLDER_ID}/{$ARG_FOLDER_NAME}",
+                route = "${Main.FolderDetail.route}/{$ARG_FOLDER_ID}/{$ARG_FOLDER_NAME}",
                 arguments = listOf(
                     navArgument(ARG_FOLDER_ID) { type = NavType.LongType },
                     navArgument(ARG_FOLDER_NAME) { type = NavType.StringType },
@@ -26,7 +26,8 @@ fun NavGraphBuilder.folderNavGraph(navController: NavHostController) =
             ) { backStackEntry ->
                 backStackEntry.arguments?.let {
                     val id = it.getLong(ARG_FOLDER_ID)
-                    val name = it.getString(ARG_FOLDER_NAME) ?: throw NullPointerException("폴더명이 존재하지 않습니다.")
+                    val name =
+                        it.getString(ARG_FOLDER_NAME) ?: throw NullPointerException("폴더명이 존재하지 않습니다.")
                     FolderDetailScreen(navController = navController, folderId = id, folderName = name)
                 }
             }

@@ -3,12 +3,14 @@ package com.hyeeyoung.wishboard.config.navigation.navhost
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.hyeeyoung.wishboard.config.navigation.navgraph.folderNavGraph
 import com.hyeeyoung.wishboard.config.navigation.screen.Main
-import com.hyeeyoung.wishboard.presentation.folder.FolderScreen
 import com.hyeeyoung.wishboard.presentation.noti.NotiScreen
+import com.hyeeyoung.wishboard.presentation.wish.WishItemDetailScreen
 import com.hyeeyoung.wishboard.presentation.wish.WishlistScreen
 
 @Composable
@@ -28,6 +30,18 @@ fun BottomBarNavHost(modifier: Modifier = Modifier, navController: NavHostContro
         }
         composable(route = Main.My.route) {
             /** TODO */
+        }
+
+        with(Main.WishItemDetail) {
+            composable(
+                route = "$route/{$ARG_WISH_ITEM_ID}",
+                arguments = listOf(navArgument(ARG_WISH_ITEM_ID) { type = NavType.LongType }),
+            ) { backStackEntry ->
+                backStackEntry.arguments?.let {
+                    val itemId = it.getLong(ARG_WISH_ITEM_ID)
+                    WishItemDetailScreen(itemId = itemId)
+                }
+            }
         }
     }
 }
