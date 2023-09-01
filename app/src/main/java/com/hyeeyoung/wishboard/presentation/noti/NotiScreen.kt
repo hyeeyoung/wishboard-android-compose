@@ -4,7 +4,6 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -23,7 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.component.ColoredImage
-import com.hyeeyoung.wishboard.designsystem.component.WishBoardDivider
+import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardMainTopBar
 import com.hyeeyoung.wishboard.designsystem.style.Green500
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
@@ -36,19 +35,14 @@ fun NotiScreen(notiList: List<Noti> = emptyList()) {
     Scaffold(topBar = {
         WishBoardMainTopBar(titleRes = R.string.noti)
     }) { paddingValues ->
-        Column(
+        LazyColumn(
             modifier = Modifier
-                .fillMaxSize()
                 .background(WishBoardTheme.colors.white)
                 .padding(top = paddingValues.calculateTopPadding()),
         ) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-            ) {
-                itemsIndexed(notiList) { idx, item ->
-                    NotiItem(noti = item)
-                    if (idx < notiList.lastIndex) WishBoardDivider()
-                }
+            itemsIndexed(notiList) { idx, item ->
+                NotiItem(noti = item)
+                if (idx < notiList.lastIndex) WishBoardDivider()
             }
         }
     }
@@ -70,7 +64,6 @@ fun NotiItem(noti: Noti) {
         )
         Column(
             modifier = Modifier
-                .fillMaxWidth()
                 .height(imageSize.dp)
                 .padding(start = 10.dp),
         ) {

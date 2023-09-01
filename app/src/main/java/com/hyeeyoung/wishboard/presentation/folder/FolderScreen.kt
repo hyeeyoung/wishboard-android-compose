@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -57,24 +56,19 @@ fun FolderScreen(navController: NavHostController) {
             },
         )
     }) { paddingValues ->
-        Column(
+        LazyVerticalGrid(
             modifier = Modifier
-                .fillMaxSize()
                 .background(WishBoardTheme.colors.white)
                 .padding(top = paddingValues.calculateTopPadding(), start = 8.dp, end = 8.dp),
+            columns = GridCells.Fixed(2),
         ) {
-            LazyVerticalGrid(
-                modifier = Modifier.fillMaxSize(),
-                columns = GridCells.Fixed(2),
-            ) {
-                items(folders) { folder ->
-                    FolderItem(
-                        folder = folder,
-                        onClickFolder = { folderId ->
-                            navController.navigate("${Main.FolderDetail.route}/$folderId/${folder.name}")
-                        },
-                    )
-                }
+            items(folders) { folder ->
+                FolderItem(
+                    folder = folder,
+                    onClickFolder = { folderId ->
+                        navController.navigate("${Main.FolderDetail.route}/$folderId/${folder.name}")
+                    },
+                )
             }
         }
     }
