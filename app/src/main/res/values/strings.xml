@@ -58,6 +58,19 @@
     <!-- Noti -->
     <string name="noti">알림</string>
 
+    <!-- My -->
+    <string name="my">마이페이지</string>
+    <string name="my_menu_push_setting">알림 설정</string>
+    <string name="my_menu_change_password">비밀번호 변경</string>
+    <string name="my_menu_inquiry">문의하기</string>
+    <string name="my_menu_manual">위시보드 이용방법</string>
+    <string name="my_menu_terms">이용약관</string>
+    <string name="my_menu_privacy">개인정보 처리방침</string>
+    <string name="my_menu_open_source">오픈소스 라이브러리</string>
+    <string name="my_menu_version">버전 정보</string>
+    <string name="my_menu_logout">로그아웃</string>
+    <string name="my_menu_withdraw">회원 탈퇴</string>
+
     <!-- Navigation Menu -->
     <string name="nav_menu_label_wishlist">WISHLIST</string>
     <string name="nav_menu_label_folder">FOLDER</string>
