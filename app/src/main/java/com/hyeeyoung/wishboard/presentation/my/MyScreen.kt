@@ -14,6 +14,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -23,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import com.hyeeyoung.wishboard.BuildConfig
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.component.ColoredImage
+import com.hyeeyoung.wishboard.designsystem.component.WishBoardToggleButton
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardMiniButton
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardThickDivider
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardMainTopBar
@@ -32,11 +37,14 @@ import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 
 @Composable
 fun MyScreen() {
-    // TODO 알림 토글 및 클릭 이벤트 핸들링
+    // TODO 클릭 이벤트 핸들링
     val myMenuComponents =
         listOf(
             MyMenuComponent.Divider,
-            MyMenuComponent.Menu(nameRes = R.string.my_menu_push_setting, endComponent = { /*TODO*/ }),
+            MyMenuComponent.Menu(nameRes = R.string.my_menu_push_setting, endComponent = {
+                var isSelected by remember { mutableStateOf(true) }
+                WishBoardToggleButton(selected = isSelected, onUpdate = { selected -> isSelected = selected })
+            }),
             MyMenuComponent.Menu(nameRes = R.string.my_menu_change_password, onClickMenu = {}),
             MyMenuComponent.Divider,
             MyMenuComponent.Menu(nameRes = R.string.my_menu_inquiry, onClickMenu = {}),
@@ -124,6 +132,7 @@ fun MenuItem(menu: MyMenuComponent.Menu) {
             .noRippleClickable { menu.onClickMenu?.let { onclick -> onclick() } }
             .padding(16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
             text = stringResource(id = menu.nameRes),
