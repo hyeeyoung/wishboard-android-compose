@@ -1,10 +1,11 @@
-package com.hyeeyoung.wishboard.config.navigation.navgraph
+package com.hyeeyoung.wishboard.config.navigation.navhost
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.hyeeyoung.wishboard.config.navigation.navgraph.folderNavGraph
 import com.hyeeyoung.wishboard.config.navigation.screen.Main
 import com.hyeeyoung.wishboard.presentation.wish.WishlistScreen
 

@@ -7,7 +7,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import com.hyeeyoung.wishboard.config.navigation.navgraph.WishBoardNavHost
+import com.hyeeyoung.wishboard.config.navigation.navhost.WishBoardNavHost
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

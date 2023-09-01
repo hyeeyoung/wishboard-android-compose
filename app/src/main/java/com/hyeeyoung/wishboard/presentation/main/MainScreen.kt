@@ -6,7 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
-import com.hyeeyoung.wishboard.config.navigation.navgraph.BottomBarNavHost
+import com.hyeeyoung.wishboard.config.navigation.navhost.BottomBarNavHost
 import com.hyeeyoung.wishboard.designsystem.component.bottombar.WishBoardBottomBar
 import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
 
