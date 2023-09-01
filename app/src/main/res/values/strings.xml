@@ -5,6 +5,7 @@
     <string name="won">원</string>
     <string name="save">저장</string>
     <string name="next">다음</string>
+    <string name="edit">편집</string>
     <string name="step">%d/%d 단계</string>
     <string name="timer_format">%d:%d</string>
 

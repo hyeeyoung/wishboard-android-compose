@@ -4,20 +4,27 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hyeeyoung.wishboard.BuildConfig
 import com.hyeeyoung.wishboard.R
+import com.hyeeyoung.wishboard.designsystem.component.ColoredImage
+import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardMiniButton
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardThickDivider
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardMainTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
@@ -56,23 +63,57 @@ fun MyScreen() {
     Scaffold(topBar = {
         WishBoardMainTopBar(titleRes = R.string.my)
     }) { paddingValues ->
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .background(WishBoardTheme.colors.white)
                 .padding(top = paddingValues.calculateTopPadding()),
         ) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-            ) {
-                items(myMenuComponents) { menuComponent ->
-                    when (menuComponent) {
-                        is MyMenuComponent.Menu -> MenuItem(menu = menuComponent)
-                        is MyMenuComponent.Divider -> WishBoardThickDivider()
-                    }
+            item { Profile() }
+            items(myMenuComponents) { menuComponent ->
+                when (menuComponent) {
+                    is MyMenuComponent.Menu -> MenuItem(menu = menuComponent)
+                    is MyMenuComponent.Divider -> WishBoardThickDivider()
                 }
             }
         }
+    }
+}
+
+@Composable
+fun Profile() {
+    // TODO 서버 연동 후 더미데이터 삭제
+    Row(
+        modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 34.dp, bottom = 48.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        ColoredImage(
+            model = "https://url.kr/8vwf1e",
+            modifier = Modifier
+                .size(60.dp)
+                .clip(CircleShape),
+        )
+
+        Column(modifier = Modifier.padding(start = 16.dp)) {
+            Text(
+                text = "새침한 진주",
+                style = WishBoardTheme.typography.suitH2,
+                color = WishBoardTheme.colors.gray700,
+            )
+            Text(
+                modifier = Modifier.padding(top = 8.dp),
+                text = "youngjin@naver.com",
+                style = WishBoardTheme.typography.suitB3,
+                color = WishBoardTheme.colors.gray200,
+            )
+        }
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        WishBoardMiniButton(
+            onClick = { /*TODO*/ },
+            text = stringResource(id = R.string.edit),
+        )
     }
 }
 
