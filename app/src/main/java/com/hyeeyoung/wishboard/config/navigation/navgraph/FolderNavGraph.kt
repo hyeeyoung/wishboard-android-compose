@@ -18,7 +18,7 @@ fun NavGraphBuilder.folderNavGraph(navController: NavHostController) =
 
         with(Main.FolderDetail) {
             composable(
-                route = "${Main.FolderDetail.route}/{$ARG_FOLDER_ID}/{$ARG_FOLDER_NAME}",
+                route = routeWithArg,
                 arguments = listOf(
                     navArgument(ARG_FOLDER_ID) { type = NavType.LongType },
                     navArgument(ARG_FOLDER_NAME) { type = NavType.StringType },

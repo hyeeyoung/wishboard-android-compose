@@ -34,7 +34,7 @@ fun BottomBarNavHost(modifier: Modifier = Modifier, navController: NavHostContro
 
         with(Main.WishItemDetail) {
             composable(
-                route = "$route/{$ARG_WISH_ITEM_ID}",
+                route = routeWithArg,
                 arguments = listOf(navArgument(ARG_WISH_ITEM_ID) { type = NavType.LongType }),
             ) { backStackEntry ->
                 backStackEntry.arguments?.let {
