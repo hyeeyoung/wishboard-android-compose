@@ -35,7 +35,12 @@ fun FolderDetailScreen(navController: NavHostController, folderId: Long, folderN
 
     WishboardTheme {
         Scaffold(topBar = {
-            WishBoardTopBar(topBarModel = WishBoardTopBarModel(title = folderName))
+            WishBoardTopBar(
+                topBarModel = WishBoardTopBarModel(
+                    title = folderName,
+                    onClickStartIcon = { navController.popBackStack() },
+                ),
+            )
         }) { paddingValues ->
             LazyVerticalGrid(
                 modifier = Modifier

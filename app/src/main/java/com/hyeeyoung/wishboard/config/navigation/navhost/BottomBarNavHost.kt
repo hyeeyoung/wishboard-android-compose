@@ -39,7 +39,7 @@ fun BottomBarNavHost(modifier: Modifier = Modifier, navController: NavHostContro
             ) { backStackEntry ->
                 backStackEntry.arguments?.let {
                     val itemId = it.getLong(ARG_WISH_ITEM_ID)
-                    WishItemDetailScreen(itemId = itemId)
+                    WishItemDetailScreen(navController, itemId = itemId)
                 }
             }
         }

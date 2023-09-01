@@ -25,6 +25,8 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.component.ColoredImage
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardDivider
@@ -44,7 +46,7 @@ import com.hyeeyoung.wishboard.presentation.wish.component.PriceText
 import java.time.LocalDateTime
 
 @Composable
-fun WishItemDetailScreen(itemId: Long) {
+fun WishItemDetailScreen(navController: NavHostController, itemId: Long) {
     val itemDetail = WishItemDetail(
         id = 1L,
         name = "21SS SAGE SHIRT [4COLOR]",
@@ -62,7 +64,7 @@ fun WishItemDetailScreen(itemId: Long) {
     WishboardTheme { // TODO Theme 사용 여부 고려
         Scaffold(topBar = {
             WishBoardTopBar(
-                WishBoardTopBarModel(onClickStartIcon = { /*TODO*/ }),
+                WishBoardTopBarModel(onClickStartIcon = { navController.popBackStack() }),
                 endComponent = { modifier -> TopBarEndIcons(modifier) },
             )
         }) { paddingValues ->
@@ -225,5 +227,5 @@ private fun FolderGuideString() {
 @Preview
 @Composable
 fun PreviewWishItemDetailScreen() {
-    WishItemDetailScreen(itemId = 1L)
+    WishItemDetailScreen(navController = rememberNavController(), itemId = 1L)
 }
