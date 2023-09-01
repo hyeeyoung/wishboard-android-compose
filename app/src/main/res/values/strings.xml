@@ -55,6 +55,9 @@
     <string name="folder">폴더</string>
     <string name="folder_wish_item_count">%d 아이템</string>
 
+    <!-- Noti -->
+    <string name="noti">알림</string>
+
     <!-- Navigation Menu -->
     <string name="nav_menu_label_wishlist">WISHLIST</string>
     <string name="nav_menu_label_folder">FOLDER</string>

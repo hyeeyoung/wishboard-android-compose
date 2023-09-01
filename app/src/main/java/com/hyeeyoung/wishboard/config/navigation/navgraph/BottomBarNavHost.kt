@@ -7,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.hyeeyoung.wishboard.config.navigation.screen.Main
 import com.hyeeyoung.wishboard.presentation.folder.FolderScreen
+import com.hyeeyoung.wishboard.presentation.noti.NotiScreen
 import com.hyeeyoung.wishboard.presentation.wish.WishlistScreen
 
 @Composable
@@ -22,7 +23,7 @@ fun BottomBarNavHost(modifier: Modifier = Modifier, navController: NavHostContro
             /** TODO */
         }
         composable(route = Main.Noti.route) {
-            /** TODO */
+            NotiScreen()
         }
         composable(route = Main.My.route) {
             /** TODO */
