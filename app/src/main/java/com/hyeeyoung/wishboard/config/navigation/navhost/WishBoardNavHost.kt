@@ -6,6 +6,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.hyeeyoung.wishboard.config.navigation.navgraph.signNavGraph
+import com.hyeeyoung.wishboard.config.navigation.navgraph.webViewNavGraph
 import com.hyeeyoung.wishboard.config.navigation.screen.Intro
 import com.hyeeyoung.wishboard.config.navigation.screen.Main
 import com.hyeeyoung.wishboard.presentation.intro.IntroScreen
@@ -23,5 +24,7 @@ fun WishBoardNavHost(modifier: Modifier = Modifier, navController: NavHostContro
         composable(Main.Root.route) {
             MainScreen()
         }
+
+        webViewNavGraph(navController = navController)
     }
 }

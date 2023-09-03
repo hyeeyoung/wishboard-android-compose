@@ -28,4 +28,7 @@ object WebView : Screen {
     /** TODO URL 추가 */
     override val route: String
         get() = "webView"
+    const val ARG_TITLE_RES = "titleRes"
+    const val ARG_URL = "url"
+    val routeWithArg = "$route/{$ARG_TITLE_RES}/{$ARG_URL}"
 }
