@@ -30,6 +30,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.hyeeyoung.wishboard.BuildConfig
 import com.hyeeyoung.wishboard.R
+import com.hyeeyoung.wishboard.config.navigation.screen.Main
 import com.hyeeyoung.wishboard.designsystem.component.ColoredImage
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardToggleButton
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardMiniButton
@@ -111,7 +112,7 @@ fun MyScreen(navController: NavHostController) {
                 .background(WishBoardTheme.colors.white)
                 .padding(top = paddingValues.calculateTopPadding()),
         ) {
-            item { Profile() }
+            item { Profile(onClickProfileEdit = { navController.navigate(Main.MyProfile.route) }) }
             items(myMenuComponents) { menuComponent ->
                 when (menuComponent) {
                     is MyMenuComponent.Menu -> MenuItem(menu = menuComponent)
@@ -124,7 +125,7 @@ fun MyScreen(navController: NavHostController) {
 }
 
 @Composable
-fun Profile() {
+fun Profile(onClickProfileEdit: () -> Unit) {
     // TODO 서버 연동 후 더미데이터 삭제
     Row(
         modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 34.dp, bottom = 48.dp),
@@ -154,7 +155,7 @@ fun Profile() {
         Spacer(modifier = Modifier.weight(1f))
 
         WishBoardMiniButton(
-            onClick = { /*TODO*/ },
+            onClick = { onClickProfileEdit() },
             text = stringResource(id = R.string.edit),
         )
     }

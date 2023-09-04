@@ -60,7 +60,7 @@ fun WishBoardTextField(
         BasicTextField(
             value = input.value,
             onValueChange = {
-                if (maxLength != null) {
+                if (maxLength != null) { // TODO 붙여넣기 예외처리
                     if (it.length <= maxLength) input.value = it
                 } else {
                     input.value = it

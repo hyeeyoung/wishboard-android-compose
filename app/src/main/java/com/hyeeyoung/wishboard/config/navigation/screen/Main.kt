@@ -2,6 +2,7 @@ package com.hyeeyoung.wishboard.config.navigation.screen
 
 import com.hyeeyoung.wishboard.config.navigation.screen.Main.FolderDetail.ARG_FOLDER_ID
 import com.hyeeyoung.wishboard.config.navigation.screen.Main.FolderDetail.ARG_FOLDER_NAME
+import com.hyeeyoung.wishboard.config.navigation.screen.Main.FolderDetail.route
 
 sealed class Main(override val route: String) : Screen {
     object Root : Main(route = "mainRoot")
@@ -19,6 +20,7 @@ sealed class Main(override val route: String) : Screen {
     object Add : Main(route = "add")
     object Noti : Main(route = "noti")
     object My : Main(route = "my")
+    object MyProfile : Main(route = "myProfile")
 
     /** NavGraphBuilder.navigation() 사용 시 파라미터 route + "start" 문자열을 합성해서 startDestination 경로를 만듦   */
     fun makeStartRoute() = when (this) {

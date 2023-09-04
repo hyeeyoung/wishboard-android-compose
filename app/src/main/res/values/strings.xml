@@ -7,6 +7,7 @@
     <string name="save">저장</string>
     <string name="next">다음</string>
     <string name="edit">편집</string>
+    <string name="complete">완료</string>
     <string name="step">%d/%d 단계</string>
     <string name="timer_format">%d:%d</string>
 
@@ -73,6 +74,11 @@
     <string name="my_menu_withdraw">회원 탈퇴</string>
     <string name="my_contact_us_email_title">위시보드에게 문의하기</string>
     <string name="my_contact_us_email_content">Device: %s %s\nApp version: %s\nOS Version: %d\n-------------\n내용 :</string>
+
+    <string name="my_profile_edit_title">프로필 수정</string>
+    <string name="my_profile_nickname">닉네임</string>
+    <string name="my_profile_nickname_placeholder">닉네임을 입력해 주세요.</string>
+    <string name="my_profile_nickname_already_exist_error">이미 사용 중인 닉네임이에요!</string>
 
     <!-- Navigation Menu -->
     <string name="nav_menu_label_wishlist">WISHLIST</string>
