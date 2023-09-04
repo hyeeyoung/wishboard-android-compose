@@ -1,5 +1,6 @@
 package com.hyeeyoung.wishboard.presentation.my
 
+import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -21,6 +22,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -38,10 +40,12 @@ import com.hyeeyoung.wishboard.presentation.model.MyMenuComponent
 import com.hyeeyoung.wishboard.presentation.util.constant.WishBoardUrl
 import com.hyeeyoung.wishboard.presentation.util.extension.moveToWebView
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
+import com.hyeeyoung.wishboard.presentation.util.extension.sendMail
 
 @Composable
 fun MyScreen(navController: NavHostController) {
     // TODO 클릭 이벤트 핸들링
+    val context = LocalContext.current
     val myMenuComponents =
         listOf(
             MyMenuComponent.Divider,
@@ -51,7 +55,20 @@ fun MyScreen(navController: NavHostController) {
             }),
             MyMenuComponent.Menu(nameRes = R.string.my_menu_change_password, onClickMenu = {}),
             MyMenuComponent.Divider,
-            MyMenuComponent.Menu(nameRes = R.string.my_menu_inquiry, onClickMenu = {}),
+            MyMenuComponent.Menu(nameRes = R.string.my_menu_contact_us, onClickMenu = {
+                with(context) {
+                    sendMail(
+                        getString(R.string.my_contact_us_email_title),
+                        String.format(
+                            getString(R.string.my_contact_us_email_content),
+                            Build.BRAND,
+                            Build.DEVICE,
+                            BuildConfig.VERSION_NAME,
+                            Build.VERSION.SDK_INT,
+                        ),
+                    )
+                }
+            }),
             MyMenuComponent.Menu(nameRes = R.string.my_menu_manual, onClickMenu = {}),
             MyMenuComponent.Menu(
                 nameRes = R.string.my_menu_terms,

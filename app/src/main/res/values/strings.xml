@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">WishBoard</string>
+    <string name="wishboard_email">wishboard2022@gmail.com</string>
 
     <!-- Global -->
     <string name="won">원</string>
@@ -62,7 +63,7 @@
     <string name="my">마이페이지</string>
     <string name="my_menu_push_setting">알림 설정</string>
     <string name="my_menu_change_password">비밀번호 변경</string>
-    <string name="my_menu_inquiry">문의하기</string>
+    <string name="my_menu_contact_us">문의하기</string>
     <string name="my_menu_manual">위시보드 이용방법</string>
     <string name="my_menu_terms">이용약관</string>
     <string name="my_menu_privacy">개인정보 처리방침</string>
@@ -70,6 +71,8 @@
     <string name="my_menu_version">버전 정보</string>
     <string name="my_menu_logout">로그아웃</string>
     <string name="my_menu_withdraw">회원 탈퇴</string>
+    <string name="my_contact_us_email_title">위시보드에게 문의하기</string>
+    <string name="my_contact_us_email_content">Device: %s %s\nApp version: %s\nOS Version: %d\n-------------\n내용 :</string>
 
     <!-- Navigation Menu -->
     <string name="nav_menu_label_wishlist">WISHLIST</string>
