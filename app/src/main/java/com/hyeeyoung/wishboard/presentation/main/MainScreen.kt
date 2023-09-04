@@ -33,7 +33,7 @@ fun isVisibleBottomBar(navController: NavHostController): Boolean {
         Main.Wishlist.route,
         Main.Folder.makeStartRoute(),
         Main.Add.route, Main.Noti.route,
-        Main.My.route,
+        Main.My.makeStartRoute(),
         Main.FolderDetail.routeWithArg,
         -> true
         else -> false
