@@ -24,6 +24,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.hyeeyoung.wishboard.BuildConfig
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.component.ColoredImage
@@ -33,10 +35,12 @@ import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardThickDivi
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardMainTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.presentation.model.MyMenuComponent
+import com.hyeeyoung.wishboard.presentation.util.constant.WishBoardUrl
+import com.hyeeyoung.wishboard.presentation.util.extension.moveToWebView
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 
 @Composable
-fun MyScreen() {
+fun MyScreen(navController: NavHostController) {
     // TODO 클릭 이벤트 핸들링
     val myMenuComponents =
         listOf(
@@ -49,9 +53,24 @@ fun MyScreen() {
             MyMenuComponent.Divider,
             MyMenuComponent.Menu(nameRes = R.string.my_menu_inquiry, onClickMenu = {}),
             MyMenuComponent.Menu(nameRes = R.string.my_menu_manual, onClickMenu = {}),
-            MyMenuComponent.Menu(nameRes = R.string.my_menu_terms, onClickMenu = {}),
-            MyMenuComponent.Menu(nameRes = R.string.my_menu_privacy, onClickMenu = {}),
-            MyMenuComponent.Menu(nameRes = R.string.my_menu_open_source, onClickMenu = {}),
+            MyMenuComponent.Menu(
+                nameRes = R.string.my_menu_terms,
+                onClickMenu = {
+                    navController.moveToWebView(WishBoardUrl.TERMS.title, WishBoardUrl.TERMS.url)
+                },
+            ),
+            MyMenuComponent.Menu(
+                nameRes = R.string.my_menu_privacy,
+                onClickMenu = {
+                    navController.moveToWebView(WishBoardUrl.PRIVACY_POLICY.title, WishBoardUrl.PRIVACY_POLICY.url)
+                },
+            ),
+            MyMenuComponent.Menu(
+                nameRes = R.string.my_menu_open_source,
+                onClickMenu = {
+                    navController.moveToWebView(WishBoardUrl.OPEN_SOURCE.title, WishBoardUrl.OPEN_SOURCE.url)
+                },
+            ),
             MyMenuComponent.Menu(
                 nameRes = R.string.my_menu_version,
                 endComponent = {
@@ -146,7 +165,7 @@ fun MenuItem(menu: MyMenuComponent.Menu) {
 @Composable
 @Preview
 fun PreviewMyScreen() {
-    MyScreen()
+    MyScreen(rememberNavController())
 }
 
 @Preview(showBackground = true)

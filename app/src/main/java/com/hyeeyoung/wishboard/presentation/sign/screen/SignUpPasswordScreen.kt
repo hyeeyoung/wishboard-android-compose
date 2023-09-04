@@ -30,7 +30,8 @@ import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
 import com.hyeeyoung.wishboard.presentation.model.WishBoardString
 import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.sign.component.SignDescription
-import com.hyeeyoung.wishboard.presentation.util.constant.WishBoardConstants
+import com.hyeeyoung.wishboard.presentation.util.constant.WishBoardUrl
+import com.hyeeyoung.wishboard.presentation.util.extension.moveToWebView
 
 @Composable
 fun SignUpPasswordScreen(navController: NavHostController) {
@@ -63,10 +64,15 @@ fun SignUpPasswordScreen(navController: NavHostController) {
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                TermsAndPolicyText()
+                TermsAndPolicyText(onClickTermsOrPolicy = { url, title ->
+                    navController.moveToWebView(
+                        title = title,
+                        url = url,
+                    )
+                })
 
                 WishBoardWideButton(
-                    enabled = false,
+                    enabled = true,
                     onClick = {
                         navController.navigate(Main.Root.route) {
                             popUpTo(route = Sign.Root.route) {
@@ -82,7 +88,7 @@ fun SignUpPasswordScreen(navController: NavHostController) {
 }
 
 @Composable
-fun TermsAndPolicyText() {
+fun TermsAndPolicyText(onClickTermsOrPolicy: (String, String) -> Unit) {
     val linkedSpanStyle = WishBoardTheme.typography.suitB4.run {
         SpanStyle(
             color = WishBoardTheme.colors.green700,
@@ -96,15 +102,15 @@ fun TermsAndPolicyText() {
     val linkedStrings = listOf(
         WishBoardString.NormalString(value = "가입 시 "),
         WishBoardString.LinkedString(
-            value = "이용약관",
-            tag = "terms",
-            link = WishBoardConstants.TERMS,
+            value = WishBoardUrl.TERMS.title,
+            tag = WishBoardUrl.TERMS.name,
+            link = WishBoardUrl.TERMS.url,
         ),
         WishBoardString.NormalString(value = " 및 "),
         WishBoardString.LinkedString(
-            value = "개인정보 처리방침",
-            tag = "policy",
-            link = WishBoardConstants.PRIVACY_POLICY,
+            value = WishBoardUrl.PRIVACY_POLICY.title,
+            tag = WishBoardUrl.PRIVACY_POLICY.name,
+            link = WishBoardUrl.PRIVACY_POLICY.url,
         ),
         WishBoardString.NormalString(value = "에 동의하는 것으로 간주합니다."),
     )
@@ -114,7 +120,15 @@ fun TermsAndPolicyText() {
         style = WishBoardTheme.typography.suitD3.copy(color = WishBoardTheme.colors.gray300),
         strings = linkedStrings,
         spanStyle = linkedSpanStyle,
-        onClick = { link -> /** TODO */ },
+        onClick = { link ->
+            val title =
+                when (link) {
+                    WishBoardUrl.TERMS.url -> WishBoardUrl.TERMS.title
+                    WishBoardUrl.PRIVACY_POLICY.url -> WishBoardUrl.PRIVACY_POLICY.title
+                    else -> throw IllegalStateException("유효하지 않은 링크")
+                }
+            onClickTermsOrPolicy(link, title)
+        },
     )
 }
 

@@ -8,6 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.hyeeyoung.wishboard.config.navigation.navgraph.folderNavGraph
+import com.hyeeyoung.wishboard.config.navigation.navgraph.webViewNavGraph
 import com.hyeeyoung.wishboard.config.navigation.screen.Main
 import com.hyeeyoung.wishboard.presentation.my.MyScreen
 import com.hyeeyoung.wishboard.presentation.noti.NotiScreen
@@ -30,7 +31,7 @@ fun BottomBarNavHost(modifier: Modifier = Modifier, navController: NavHostContro
             NotiScreen()
         }
         composable(route = Main.My.route) {
-            MyScreen()
+            MyScreen(navController = navController)
         }
 
         with(Main.WishItemDetail) {
@@ -44,5 +45,7 @@ fun BottomBarNavHost(modifier: Modifier = Modifier, navController: NavHostContro
                 }
             }
         }
+
+        webViewNavGraph(navController = navController)
     }
 }
