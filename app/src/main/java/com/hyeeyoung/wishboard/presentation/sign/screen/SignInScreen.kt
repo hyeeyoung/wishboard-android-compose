@@ -76,6 +76,7 @@ fun SignInScreen(navController: NavHostController) {
                     input = passwordInput,
                     placeholder = stringResource(id = R.string.sign_password_placeholder),
                     onTextChange = {},
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                     visualTransformation = PasswordVisualTransformation(),
                 )
 
