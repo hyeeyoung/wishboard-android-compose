@@ -6,17 +6,17 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.navArgument
-import com.hyeeyoung.wishboard.config.navigation.screen.Main
+import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.presentation.folder.FolderDetailScreen
 import com.hyeeyoung.wishboard.presentation.folder.FolderScreen
 
 fun NavGraphBuilder.folderNavGraph(navController: NavHostController) =
-    navigation(startDestination = Main.Folder.makeStartRoute(), route = Main.Folder.route) {
-        composable(route = Main.Folder.makeStartRoute()) {
+    navigation(startDestination = MainScreen.Folder.makeStartRoute(), route = MainScreen.Folder.route) {
+        composable(route = MainScreen.Folder.makeStartRoute()) {
             FolderScreen(navController = navController)
         }
 
-        with(Main.FolderDetail) {
+        with(MainScreen.FolderDetail) {
             composable(
                 route = routeWithArg,
                 arguments = listOf(

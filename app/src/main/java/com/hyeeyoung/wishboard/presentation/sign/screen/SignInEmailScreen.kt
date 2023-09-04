@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.hyeeyoung.wishboard.R
-import com.hyeeyoung.wishboard.config.navigation.screen.Sign
+import com.hyeeyoung.wishboard.config.navigation.screen.SignScreen
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
 import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardTextField
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBarWithStep
@@ -60,7 +60,7 @@ fun SignInEmailScreen(navController: NavHostController) {
 
                 WishBoardWideButton(
                     enabled = false,
-                    onClick = { navController.navigate(Sign.Verification.route) },
+                    onClick = { navController.navigate(SignScreen.Verification.route) },
                     text = stringResource(id = R.string.sign_in_verification_email),
                 )
             }

@@ -30,7 +30,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.hyeeyoung.wishboard.BuildConfig
 import com.hyeeyoung.wishboard.R
-import com.hyeeyoung.wishboard.config.navigation.screen.Main
+import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.designsystem.component.ColoredImage
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardToggleButton
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardMiniButton
@@ -55,7 +55,7 @@ fun MyScreen(navController: NavHostController) {
                 WishBoardToggleButton(selected = isSelected, onUpdate = { selected -> isSelected = selected })
             }),
             MyMenuComponent.Menu(nameRes = R.string.my_menu_change_password, onClickMenu = {
-                navController.navigate(Main.MyPasswordChange.route)
+                navController.navigate(MainScreen.MyPasswordChange.route)
             }),
             MyMenuComponent.Divider,
             MyMenuComponent.Menu(nameRes = R.string.my_menu_contact_us, onClickMenu = {
@@ -114,7 +114,7 @@ fun MyScreen(navController: NavHostController) {
                 .background(WishBoardTheme.colors.white)
                 .padding(top = paddingValues.calculateTopPadding()),
         ) {
-            item { Profile(onClickProfileEdit = { navController.navigate(Main.MyProfile.route) }) }
+            item { Profile(onClickProfileEdit = { navController.navigate(MainScreen.MyProfile.route) }) }
             items(myMenuComponents) { menuComponent ->
                 when (menuComponent) {
                     is MyMenuComponent.Menu -> MenuItem(menu = menuComponent)

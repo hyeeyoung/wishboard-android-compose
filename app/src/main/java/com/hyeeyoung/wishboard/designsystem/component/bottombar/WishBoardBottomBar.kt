@@ -27,7 +27,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.hyeeyoung.wishboard.R
-import com.hyeeyoung.wishboard.config.navigation.screen.Main
+import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
@@ -89,11 +89,11 @@ fun BottomBarIconButton(navItem: BottomNavItem, isSelected: Boolean, onSelect: (
 enum class BottomNavItem(
     @StringRes val label: Int,
     @DrawableRes val icon: Int,
-    val Screen: Main,
+    val Screen: MainScreen,
 ) {
-    WishList(R.string.nav_menu_label_wishlist, R.drawable.ic_nav_wish_list, Main.Wishlist),
-    Folder(R.string.nav_menu_label_folder, R.drawable.ic_nav_folder, Main.Folder),
-    Add(R.string.nav_menu_label_add, R.drawable.ic_nav_write, Main.Add),
-    Notice(R.string.nav_menu_label_notice, R.drawable.ic_nav_notice, Main.Noti),
-    My(R.string.nav_menu_label_my, R.drawable.ic_nav_my, Main.My),
+    WishList(R.string.nav_menu_label_wishlist, R.drawable.ic_nav_wish_list, MainScreen.Wishlist),
+    Folder(R.string.nav_menu_label_folder, R.drawable.ic_nav_folder, MainScreen.Folder),
+    Add(R.string.nav_menu_label_add, R.drawable.ic_nav_write, MainScreen.Add),
+    Notice(R.string.nav_menu_label_notice, R.drawable.ic_nav_notice, MainScreen.Noti),
+    My(R.string.nav_menu_label_my, R.drawable.ic_nav_my, MainScreen.My),
 }
