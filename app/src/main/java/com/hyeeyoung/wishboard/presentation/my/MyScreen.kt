@@ -35,17 +35,13 @@ import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardThickDivi
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardMainTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.presentation.model.MyMenuComponent
-import com.hyeeyoung.wishboard.presentation.util.constant.WishBoardConstants
+import com.hyeeyoung.wishboard.presentation.util.constant.WishBoardUrl
 import com.hyeeyoung.wishboard.presentation.util.extension.moveToWebView
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 
 @Composable
 fun MyScreen(navController: NavHostController) {
     // TODO 클릭 이벤트 핸들링
-    val termsTitle = stringResource(id = R.string.my_menu_terms)
-    val privacyTitle = stringResource(id = R.string.my_menu_privacy)
-    val openSourceTitle = stringResource(id = R.string.my_menu_open_source)
-
     val myMenuComponents =
         listOf(
             MyMenuComponent.Divider,
@@ -60,19 +56,19 @@ fun MyScreen(navController: NavHostController) {
             MyMenuComponent.Menu(
                 nameRes = R.string.my_menu_terms,
                 onClickMenu = {
-                    navController.moveToWebView(termsTitle, WishBoardConstants.TERMS)
+                    navController.moveToWebView(WishBoardUrl.TERMS.title, WishBoardUrl.TERMS.url)
                 },
             ),
             MyMenuComponent.Menu(
                 nameRes = R.string.my_menu_privacy,
                 onClickMenu = {
-                    navController.moveToWebView(privacyTitle, WishBoardConstants.PRIVACY_POLICY)
+                    navController.moveToWebView(WishBoardUrl.PRIVACY_POLICY.title, WishBoardUrl.PRIVACY_POLICY.url)
                 },
             ),
             MyMenuComponent.Menu(
                 nameRes = R.string.my_menu_open_source,
                 onClickMenu = {
-                    navController.moveToWebView(openSourceTitle, WishBoardConstants.OPEN_SOURCE)
+                    navController.moveToWebView(WishBoardUrl.OPEN_SOURCE.title, WishBoardUrl.OPEN_SOURCE.url)
                 },
             ),
             MyMenuComponent.Menu(

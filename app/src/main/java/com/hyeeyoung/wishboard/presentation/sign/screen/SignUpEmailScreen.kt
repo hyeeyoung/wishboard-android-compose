@@ -59,7 +59,7 @@ fun SignUpEmailScreen(navController: NavHostController) {
                 Spacer(modifier = Modifier.weight(1f))
 
                 WishBoardWideButton(
-                    enabled = false,
+                    enabled = true,
                     onClick = { navController.navigate(Sign.Password.route) }, // 유효한 이메일인 경우에만 다음화면으로 이동
                     text = stringResource(id = R.string.next),
                 )
