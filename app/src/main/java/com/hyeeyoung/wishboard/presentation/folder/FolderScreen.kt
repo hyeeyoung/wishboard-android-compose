@@ -16,7 +16,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -111,9 +110,9 @@ fun FolderItem(folder: Folder, onClickFolder: (Long) -> Unit) {
                 modifier = Modifier
                     .noRippleClickable { /*TODO*/ }
                     .padding(start = 4.dp),
-                painter = painterResource(id = R.drawable.ic_folder_more),
+                painter = painterResource(id = R.drawable.ic_more),
                 contentDescription = null,
-                tint = Color.Unspecified,
+                tint = WishBoardTheme.colors.gray200,
             )
         }
     }
