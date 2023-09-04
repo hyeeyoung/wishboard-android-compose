@@ -11,13 +11,16 @@ import com.hyeeyoung.wishboard.presentation.WebViewScreen
 fun NavGraphBuilder.webViewNavGraph(navController: NavHostController) = composable(
     route = WebView.routeWithArg,
     arguments = listOf(
-        navArgument(WebView.ARG_TITLE_RES) { type = NavType.IntType },
         navArgument(WebView.ARG_URL) { type = NavType.StringType },
+        navArgument(WebView.ARG_TITLE) {
+            type = NavType.StringType
+            nullable = true
+        },
     ),
 ) { backStackEntry ->
     backStackEntry.arguments?.let {
-        val titleRes = it.getInt(WebView.ARG_TITLE_RES) ?: throw NullPointerException("타이틀 없음")
         val url = it.getString(WebView.ARG_URL) ?: throw NullPointerException("url 없음")
-        WebViewScreen(navController = navController, url = url, title = titleRes)
+        val title = it.getString(WebView.ARG_TITLE)
+        WebViewScreen(navController = navController, url = url, title = title)
     }
 }
