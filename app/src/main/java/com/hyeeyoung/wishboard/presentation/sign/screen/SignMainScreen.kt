@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.hyeeyoung.wishboard.R
-import com.hyeeyoung.wishboard.config.navigation.screen.Sign
+import com.hyeeyoung.wishboard.config.navigation.screen.SignScreen
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
@@ -74,7 +74,7 @@ fun SignMainScreen(navController: NavHostController) {
                 WishBoardWideButton(
                     enabled = true,
                     onClick = {
-                        navController.navigate(Sign.SignUp.route)
+                        navController.navigate(SignScreen.SignUp.route)
                     },
                     text = stringResource(id = R.string.sign_up_title),
                 )
@@ -93,7 +93,7 @@ fun SignMainScreen(navController: NavHostController) {
 
                 Text(
                     modifier = Modifier
-                        .noRippleClickable { navController.navigate(Sign.Login.route) }
+                        .noRippleClickable { navController.navigate(SignScreen.Login.route) }
                         .padding(8.dp),
                     text = buildStringWithSpans(
                         spanStrings = listOf(

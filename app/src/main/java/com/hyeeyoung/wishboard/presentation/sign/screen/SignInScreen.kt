@@ -22,8 +22,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.hyeeyoung.wishboard.R
-import com.hyeeyoung.wishboard.config.navigation.screen.Main
-import com.hyeeyoung.wishboard.config.navigation.screen.Sign
+import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
+import com.hyeeyoung.wishboard.config.navigation.screen.SignScreen
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
 import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardTextField
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
@@ -76,6 +76,7 @@ fun SignInScreen(navController: NavHostController) {
                     input = passwordInput,
                     placeholder = stringResource(id = R.string.sign_password_placeholder),
                     onTextChange = {},
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                     visualTransformation = PasswordVisualTransformation(),
                 )
 
@@ -84,8 +85,8 @@ fun SignInScreen(navController: NavHostController) {
                 WishBoardWideButton(
                     enabled = false,
                     onClick = {
-                        navController.navigate(Main.Root.route) {
-                            popUpTo(route = Sign.Root.route) {
+                        navController.navigate(MainScreen.Root.route) {
+                            popUpTo(route = SignScreen.Root.route) {
                                 inclusive = true
                             }
                         }
@@ -99,7 +100,7 @@ fun SignInScreen(navController: NavHostController) {
                     modifier = Modifier
                         .padding(8.dp)
                         .align(Alignment.CenterHorizontally)
-                        .noRippleClickable { navController.navigate(Sign.EmailLogin.route) },
+                        .noRippleClickable { navController.navigate(SignScreen.EmailLogin.route) },
                     text = stringResource(id = R.string.sign_forget_password),
                     style = WishBoardTheme.typography.suitB3,
                     color = WishBoardTheme.colors.gray300,

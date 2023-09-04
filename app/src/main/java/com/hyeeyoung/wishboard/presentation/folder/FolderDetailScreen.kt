@@ -11,7 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.hyeeyoung.wishboard.config.navigation.screen.Main
+import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
@@ -53,7 +53,7 @@ fun FolderDetailScreen(navController: NavHostController, folderId: Long, folderN
                 items(wishList) { wishItem ->
                     WishItem(
                         modifier = Modifier.noRippleClickable {
-                            navController.navigate("${Main.WishItemDetail.route}/${wishItem.id}")
+                            navController.navigate("${MainScreen.WishItemDetail.route}/${wishItem.id}")
                         },
                         wishItem = wishItem,
                     )

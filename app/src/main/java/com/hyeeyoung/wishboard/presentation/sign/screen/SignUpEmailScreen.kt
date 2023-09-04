@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.hyeeyoung.wishboard.R
-import com.hyeeyoung.wishboard.config.navigation.screen.Sign
+import com.hyeeyoung.wishboard.config.navigation.screen.SignScreen
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
 import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardTextField
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBarWithStep
@@ -60,7 +60,7 @@ fun SignUpEmailScreen(navController: NavHostController) {
 
                 WishBoardWideButton(
                     enabled = true,
-                    onClick = { navController.navigate(Sign.Password.route) }, // 유효한 이메일인 경우에만 다음화면으로 이동
+                    onClick = { navController.navigate(SignScreen.Password.route) }, // 유효한 이메일인 경우에만 다음화면으로 이동
                     text = stringResource(id = R.string.next),
                 )
             }

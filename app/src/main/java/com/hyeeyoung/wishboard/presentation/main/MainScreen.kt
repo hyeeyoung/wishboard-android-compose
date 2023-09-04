@@ -10,7 +10,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.hyeeyoung.wishboard.config.navigation.navhost.BottomBarNavHost
-import com.hyeeyoung.wishboard.config.navigation.screen.Main
+import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.designsystem.component.bottombar.WishBoardBottomBar
 import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
 
@@ -30,11 +30,11 @@ fun MainScreen() {
 fun isVisibleBottomBar(navController: NavHostController): Boolean {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     return when (navBackStackEntry?.destination?.route) {
-        Main.Wishlist.route,
-        Main.Folder.makeStartRoute(),
-        Main.Add.route, Main.Noti.route,
-        Main.My.route,
-        Main.FolderDetail.routeWithArg,
+        MainScreen.Wishlist.route,
+        MainScreen.Folder.makeStartRoute(),
+        MainScreen.Add.route, MainScreen.Noti.route,
+        MainScreen.My.makeStartRoute(),
+        MainScreen.FolderDetail.routeWithArg,
         -> true
         else -> false
     }

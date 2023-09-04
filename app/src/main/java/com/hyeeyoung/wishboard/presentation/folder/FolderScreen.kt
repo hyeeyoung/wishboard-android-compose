@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.hyeeyoung.wishboard.R
-import com.hyeeyoung.wishboard.config.navigation.screen.Main
+import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.designsystem.component.ColoredImage
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardMainTopBar
@@ -65,7 +65,7 @@ fun FolderScreen(navController: NavHostController) {
                 FolderItem(
                     folder = folder,
                     onClickFolder = { folderId ->
-                        navController.navigate("${Main.FolderDetail.route}/$folderId/${folder.name}")
+                        navController.navigate("${MainScreen.FolderDetail.route}/$folderId/${folder.name}")
                     },
                 )
             }

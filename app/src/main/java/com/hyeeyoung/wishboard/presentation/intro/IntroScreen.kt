@@ -18,8 +18,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.config.navigation.screen.Intro
-import com.hyeeyoung.wishboard.config.navigation.screen.Main
-import com.hyeeyoung.wishboard.config.navigation.screen.Sign
+import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
+import com.hyeeyoung.wishboard.config.navigation.screen.SignScreen
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
 import kotlinx.coroutines.delay
@@ -47,7 +47,7 @@ fun IntroScreen(navController: NavHostController) {
 
 fun navigateToNext(navController: NavHostController) {
     val isLogin = false // TODO 로컬 디비에서 로그인 여부 가져오기
-    val nextScreen = if (isLogin) Main.Root.route else Sign.Root.route
+    val nextScreen = if (isLogin) MainScreen.Root.route else SignScreen.Root.route
     navController.navigate(nextScreen) { popUpTo(Intro.route) { inclusive = true } }
 }
 

@@ -1,5 +1,6 @@
 package com.hyeeyoung.wishboard.presentation.my
 
+import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -21,6 +22,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -28,6 +30,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.hyeeyoung.wishboard.BuildConfig
 import com.hyeeyoung.wishboard.R
+import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.designsystem.component.ColoredImage
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardToggleButton
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardMiniButton
@@ -38,10 +41,12 @@ import com.hyeeyoung.wishboard.presentation.model.MyMenuComponent
 import com.hyeeyoung.wishboard.presentation.util.constant.WishBoardUrl
 import com.hyeeyoung.wishboard.presentation.util.extension.moveToWebView
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
+import com.hyeeyoung.wishboard.presentation.util.extension.sendMail
 
 @Composable
 fun MyScreen(navController: NavHostController) {
     // TODO 클릭 이벤트 핸들링
+    val context = LocalContext.current
     val myMenuComponents =
         listOf(
             MyMenuComponent.Divider,
@@ -49,9 +54,24 @@ fun MyScreen(navController: NavHostController) {
                 var isSelected by remember { mutableStateOf(true) }
                 WishBoardToggleButton(selected = isSelected, onUpdate = { selected -> isSelected = selected })
             }),
-            MyMenuComponent.Menu(nameRes = R.string.my_menu_change_password, onClickMenu = {}),
+            MyMenuComponent.Menu(nameRes = R.string.my_menu_change_password, onClickMenu = {
+                navController.navigate(MainScreen.MyPasswordChange.route)
+            }),
             MyMenuComponent.Divider,
-            MyMenuComponent.Menu(nameRes = R.string.my_menu_inquiry, onClickMenu = {}),
+            MyMenuComponent.Menu(nameRes = R.string.my_menu_contact_us, onClickMenu = {
+                with(context) {
+                    sendMail(
+                        getString(R.string.my_contact_us_email_title),
+                        String.format(
+                            getString(R.string.my_contact_us_email_content),
+                            Build.BRAND,
+                            Build.DEVICE,
+                            BuildConfig.VERSION_NAME,
+                            Build.VERSION.SDK_INT,
+                        ),
+                    )
+                }
+            }),
             MyMenuComponent.Menu(nameRes = R.string.my_menu_manual, onClickMenu = {}),
             MyMenuComponent.Menu(
                 nameRes = R.string.my_menu_terms,
@@ -94,7 +114,7 @@ fun MyScreen(navController: NavHostController) {
                 .background(WishBoardTheme.colors.white)
                 .padding(top = paddingValues.calculateTopPadding()),
         ) {
-            item { Profile() }
+            item { Profile(onClickProfileEdit = { navController.navigate(MainScreen.MyProfile.route) }) }
             items(myMenuComponents) { menuComponent ->
                 when (menuComponent) {
                     is MyMenuComponent.Menu -> MenuItem(menu = menuComponent)
@@ -107,7 +127,7 @@ fun MyScreen(navController: NavHostController) {
 }
 
 @Composable
-fun Profile() {
+fun Profile(onClickProfileEdit: () -> Unit) {
     // TODO 서버 연동 후 더미데이터 삭제
     Row(
         modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 34.dp, bottom = 48.dp),
@@ -137,7 +157,7 @@ fun Profile() {
         Spacer(modifier = Modifier.weight(1f))
 
         WishBoardMiniButton(
-            onClick = { /*TODO*/ },
+            onClick = { onClickProfileEdit() },
             text = stringResource(id = R.string.edit),
         )
     }
