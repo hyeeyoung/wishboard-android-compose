@@ -21,6 +21,7 @@ sealed class Main(override val route: String) : Screen {
     object Noti : Main(route = "noti")
     object My : Main(route = "my")
     object MyProfile : Main(route = "myProfile")
+    object MyPasswordChange : Main(route = "myPasswordChange")
 
     /** NavGraphBuilder.navigation() 사용 시 파라미터 route + "start" 문자열을 합성해서 startDestination 경로를 만듦   */
     fun makeStartRoute() = when (this) {

@@ -80,6 +80,13 @@
     <string name="my_profile_nickname_placeholder">닉네임을 입력해 주세요.</string>
     <string name="my_profile_nickname_already_exist_error">이미 사용 중인 닉네임이에요!</string>
 
+    <string name="my_password_change_title">비밀번호 변경</string>
+    <string name="my_password_new_password">새 비밀번호</string>
+    <string name="my_password_new_re_password">새 비밀번호 재입력</string>
+    <string name="my_password_new_password_placeholder">새 비밀번호를 입력해 주세요.</string>
+    <string name="my_password_new_re_password_placeholder">새 비밀번호를 다시 입력해 주세요.</string>
+    <string name="my_password_incorrect_error">비밀번호가 일치하지 않아요!</string>
+
     <!-- Navigation Menu -->
     <string name="nav_menu_label_wishlist">WISHLIST</string>
     <string name="nav_menu_label_folder">FOLDER</string>

@@ -54,7 +54,9 @@ fun MyScreen(navController: NavHostController) {
                 var isSelected by remember { mutableStateOf(true) }
                 WishBoardToggleButton(selected = isSelected, onUpdate = { selected -> isSelected = selected })
             }),
-            MyMenuComponent.Menu(nameRes = R.string.my_menu_change_password, onClickMenu = {}),
+            MyMenuComponent.Menu(nameRes = R.string.my_menu_change_password, onClickMenu = {
+                navController.navigate(Main.MyPasswordChange.route)
+            }),
             MyMenuComponent.Divider,
             MyMenuComponent.Menu(nameRes = R.string.my_menu_contact_us, onClickMenu = {
                 with(context) {
