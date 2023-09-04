@@ -28,7 +28,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.config.navigation.screen.Main
-import com.hyeeyoung.wishboard.config.navigation.screen.Screen
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
@@ -55,9 +54,10 @@ fun WishBoardBottomBar(navController: NavController = rememberNavController()) {
                 BottomNavItem.values().forEach { navItem ->
                     BottomBarIconButton(
                         navItem = navItem,
-                        isSelected = currentRoute == navItem.screen.route,
+                        isSelected =
+                        currentRoute == navItem.Screen.route || currentRoute == navItem.Screen.makeStartRoute(),
                         onSelect = {
-                            navController.navigate(route = navItem.screen.route) {
+                            navController.navigate(route = navItem.Screen.route) {
                                 popUpTo(navController.graph.findStartDestination().id) {
                                     saveState = true
                                 }
@@ -76,7 +76,7 @@ fun WishBoardBottomBar(navController: NavController = rememberNavController()) {
 fun BottomBarIconButton(navItem: BottomNavItem, isSelected: Boolean, onSelect: (String) -> Unit) = Column(
     modifier = Modifier
         .fillMaxHeight()
-        .noRippleClickable { onSelect(navItem.screen.route) },
+        .noRippleClickable { onSelect(navItem.Screen.route) },
     horizontalAlignment = Alignment.CenterHorizontally,
     verticalArrangement = Arrangement.Center,
 ) {
@@ -89,7 +89,7 @@ fun BottomBarIconButton(navItem: BottomNavItem, isSelected: Boolean, onSelect: (
 enum class BottomNavItem(
     @StringRes val label: Int,
     @DrawableRes val icon: Int,
-    val screen: Screen,
+    val Screen: Main,
 ) {
     WishList(R.string.nav_menu_label_wishlist, R.drawable.ic_nav_wish_list, Main.Wishlist),
     Folder(R.string.nav_menu_label_folder, R.drawable.ic_nav_folder, Main.Folder),
