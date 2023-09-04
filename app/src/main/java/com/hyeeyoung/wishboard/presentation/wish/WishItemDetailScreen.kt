@@ -29,9 +29,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.component.ColoredImage
-import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
+import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
@@ -39,6 +39,8 @@ import com.hyeeyoung.wishboard.designsystem.util.buildStringWithSpans
 import com.hyeeyoung.wishboard.presentation.model.WishBoardString
 import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.model.WishItemDetail
+import com.hyeeyoung.wishboard.presentation.util.extension.getDomainName
+import com.hyeeyoung.wishboard.presentation.util.extension.moveToWebView
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.util.safeLet
 import com.hyeeyoung.wishboard.presentation.util.type.NotiType
@@ -77,7 +79,11 @@ fun WishItemDetailScreen(navController: NavHostController, itemId: Long) {
 
                 WishBoardWideButton(
                     enabled = itemDetail.site != null,
-                    onClick = { /*TODO*/ },
+                    onClick = {
+                        if (!itemDetail.site.isNullOrEmpty()) {
+                            navController.moveToWebView(title = itemDetail.site.getDomainName(), url = itemDetail.site)
+                        }
+                    },
                     text = stringResource(id = R.string.wish_item_detail_go_to_shop),
                     shape = RectangleShape,
                     isGreen = false,

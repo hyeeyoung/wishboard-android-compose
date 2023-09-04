@@ -31,6 +31,7 @@ import com.hyeeyoung.wishboard.presentation.model.WishBoardString
 import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.sign.component.SignDescription
 import com.hyeeyoung.wishboard.presentation.util.constant.WishBoardConstants
+import com.hyeeyoung.wishboard.presentation.util.extension.moveToWebView
 
 @Composable
 fun SignUpPasswordScreen(navController: NavHostController) {
@@ -63,7 +64,12 @@ fun SignUpPasswordScreen(navController: NavHostController) {
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                TermsAndPolicyText()
+                TermsAndPolicyText(onClickTermsOrPolicy = { url, title ->
+                    navController.moveToWebView(
+                        title = title,
+                        url = url,
+                    )
+                })
 
                 WishBoardWideButton(
                     enabled = false,
@@ -82,7 +88,7 @@ fun SignUpPasswordScreen(navController: NavHostController) {
 }
 
 @Composable
-fun TermsAndPolicyText() {
+fun TermsAndPolicyText(onClickTermsOrPolicy: (String, String) -> Unit) {
     val linkedSpanStyle = WishBoardTheme.typography.suitB4.run {
         SpanStyle(
             color = WishBoardTheme.colors.green700,
@@ -114,7 +120,15 @@ fun TermsAndPolicyText() {
         style = WishBoardTheme.typography.suitD3.copy(color = WishBoardTheme.colors.gray300),
         strings = linkedStrings,
         spanStyle = linkedSpanStyle,
-        onClick = { link -> /** TODO */ },
+        onClick = { link ->
+            val title =
+                when (link) {
+                    WishBoardConstants.TERMS -> "이용약관"
+                    WishBoardConstants.PRIVACY_POLICY -> "개인정보 처리방침"
+                    else -> throw IllegalStateException("유효하지 않은 링크")
+                }
+            onClickTermsOrPolicy(link, title)
+        },
     )
 }
 
