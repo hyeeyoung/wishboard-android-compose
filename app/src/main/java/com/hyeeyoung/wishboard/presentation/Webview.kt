@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.view.ViewGroup
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -49,7 +50,12 @@ fun WebViewScreen(
     }) { paddingValues ->
         Column(modifier = Modifier.padding(top = paddingValues.calculateTopPadding())) {
             WishBoardDivider()
-            WebView(webView = webView, modifier = Modifier.fillMaxSize(), url = url)
+            WebView(
+                webView = webView,
+                modifier = Modifier.fillMaxSize(),
+                url = url,
+                exitWebView = { navController.popBackStack() },
+            )
         }
     }
 }
@@ -68,6 +74,7 @@ fun WebView(
     webView: MutableState<WebView?>,
     modifier: Modifier = Modifier,
     url: String,
+    exitWebView: () -> Unit,
 ) {
     AndroidView(
         modifier = modifier,
@@ -96,6 +103,14 @@ fun WebView(
             webView.value = it
         },
     )
+
+    BackHandler() {
+        if (webView.value?.canGoBack() == true) {
+            webView.value?.goBack()
+        } else {
+            exitWebView()
+        }
+    }
 }
 
 @Preview
