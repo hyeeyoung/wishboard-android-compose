@@ -9,7 +9,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
@@ -17,6 +16,7 @@ import androidx.navigation.compose.rememberNavController
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardSnackbarHost
 import com.hyeeyoung.wishboard.designsystem.component.showSnackbar
+import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
 import com.hyeeyoung.wishboard.presentation.calendar.component.CalendarHeader
 import com.hyeeyoung.wishboard.presentation.calendar.component.CalendarSchedule
@@ -53,7 +53,7 @@ fun CalendarScreen(
         ) { paddingValues ->
             Column(
                 modifier = Modifier
-                    .background(Color.White)
+                    .background(WishBoardTheme.colors.white)
                     .padding(top = paddingValues.calculateTopPadding()),
             ) {
                 CalendarTable(

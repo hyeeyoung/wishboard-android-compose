@@ -13,7 +13,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -41,7 +40,7 @@ fun WishBoardSnackbar(message: String) {
                 .background(WishBoardTheme.colors.gray700, RoundedCornerShape(45.dp))
                 .padding(vertical = 16.dp, horizontal = 32.dp),
             text = message,
-            color = Color.White,
+            color = WishBoardTheme.colors.white,
             textAlign = TextAlign.Center,
             style = WishBoardTheme.typography.suitD2M,
         )

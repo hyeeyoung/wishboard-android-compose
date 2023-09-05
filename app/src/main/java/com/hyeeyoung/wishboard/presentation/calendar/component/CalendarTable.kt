@@ -13,7 +13,6 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -132,21 +131,15 @@ fun DateCell(
                 }
             }
 
-            val textStyle = WishBoardTheme.typography.suitD1.run {
-                TextStyle(
-                    fontFamily = fontFamily,
-                    fontWeight = if (selected) FontWeight.ExtraBold else FontWeight.Normal,
-                    fontSize = fontSize,
-                )
-            }
-
             Text(
                 modifier = Modifier
                     .padding(9.dp)
                     .align(Alignment.Center),
                 text = date.dayOfMonth.toString(),
                 color = WishBoardTheme.colors.gray700,
-                style = textStyle,
+                style = WishBoardTheme.typography.suitD1.copy(
+                    fontWeight = if (selected) FontWeight.ExtraBold else FontWeight.Normal,
+                ),
             )
         }
     } else {
