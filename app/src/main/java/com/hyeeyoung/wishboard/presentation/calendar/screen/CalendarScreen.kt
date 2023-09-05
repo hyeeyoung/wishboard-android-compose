@@ -12,6 +12,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardSnackbarHost
 import com.hyeeyoung.wishboard.designsystem.component.showSnackbar
@@ -30,9 +32,8 @@ private const val INITIAL_PAGE = PAGE_COUNT / 2
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CalendarScreen(
-    notiList: List<NotiItem>,
-    onClickBack: () -> Unit,
-    onClickNotiWithLink: (String) -> Unit,
+    notiList: List<NotiItem> = emptyList(),
+    navController: NavHostController,
 ) {
     WishboardTheme {
         var selectedDate by remember { mutableStateOf(LocalDate.now()) }
@@ -47,10 +48,14 @@ fun CalendarScreen(
         val snackbarMsgForNotiLink = stringResource(id = R.string.noti_item_url_snackbar_text)
 
         Scaffold(
-            topBar = { CalendarHeader(selectedDate = selectedDate, onClickBack = onClickBack) },
+            topBar = { CalendarHeader(selectedDate = selectedDate, onClickBack = { navController.popBackStack() }) },
             snackbarHost = { WishBoardSnackbarHost(hostState = snackbarHostState) },
         ) { paddingValues ->
-            Column(modifier = Modifier.background(Color.White).padding(top = paddingValues.calculateTopPadding())) {
+            Column(
+                modifier = Modifier
+                    .background(Color.White)
+                    .padding(top = paddingValues.calculateTopPadding()),
+            ) {
                 CalendarTable(
                     selectedDate = selectedDate,
                     onSelect = { selectedDate = it },
@@ -68,7 +73,7 @@ fun CalendarScreen(
                 CalendarSchedule(
                     selectedDate = selectedDate,
                     notiItems = curDateNoti,
-                    onClickNotiWithLink = onClickNotiWithLink,
+                    onClickNotiWithLink = { /*TODO*/ },
                     onClickNotiWithoutLink = {
                         snackbarHostState.showSnackbar(
                             snackbarMsgForNotiLink,
@@ -159,17 +164,12 @@ fun CalendarPreview() {
                 LocalDateTime.of(2024, 5, 18, 20, 0),
             ),
         ),
-        onClickBack = {},
-        onClickNotiWithLink = {},
+        navController = rememberNavController(),
     )
 }
 
 @Preview(showBackground = true)
 @Composable
 fun EmmptyCalendarPreview() {
-    CalendarScreen(
-        notiList = emptyList(),
-        onClickBack = {},
-        onClickNotiWithLink = {},
-    )
+    CalendarScreen(navController = rememberNavController())
 }

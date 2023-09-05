@@ -1,13 +1,13 @@
 package com.hyeeyoung.wishboard.config.navigation.screen
 
 sealed class MainScreen(override val route: String) : Screen {
-    object Root : MainScreen(route = "mainRoot")
+    object Root : MainScreen(route = "mainRoot") // TODO delete
     object Wishlist : MainScreen(route = "wishlist")
     object WishItemDetail : MainScreen(route = "wishItemDetail") {
         const val ARG_WISH_ITEM_ID: String = "wishItemId"
         val routeWithArg = "$route/{$ARG_WISH_ITEM_ID}"
     }
-
+    object Calendar : MainScreen(route = "calendar")
     object Folder : MainScreen(route = "folder")
     object FolderDetail : MainScreen(route = "folderDetail") {
         const val ARG_FOLDER_ID: String = "folderId"
