@@ -136,7 +136,7 @@ fun WishBoardTextField(
 
 @Preview(showBackground = true, backgroundColor = 0xFFFFFF)
 @Composable
-fun PreviewWishBoardBasicTextField() {
+fun PreviewWishBoardTextField() {
     val input = remember { mutableStateOf("") }
     WishBoardTextField(
         modifier = Modifier.fillMaxWidth(),
@@ -149,7 +149,7 @@ fun PreviewWishBoardBasicTextField() {
 
 @Preview(showBackground = true, backgroundColor = 0xFFFFFF)
 @Composable
-fun PreviewWishBoardBasicTextFieldWithTimer() {
+fun PreviewWishBoardTextFieldWithTimer() {
     val input = remember { mutableStateOf("") }
     WishBoardTextField(
         modifier = Modifier.fillMaxWidth(),
