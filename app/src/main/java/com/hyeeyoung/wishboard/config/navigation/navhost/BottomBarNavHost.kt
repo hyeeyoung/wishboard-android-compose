@@ -11,6 +11,7 @@ import com.hyeeyoung.wishboard.config.navigation.navgraph.folderNavGraph
 import com.hyeeyoung.wishboard.config.navigation.navgraph.myNavGraph
 import com.hyeeyoung.wishboard.config.navigation.navgraph.webViewNavGraph
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
+import com.hyeeyoung.wishboard.presentation.calendar.screen.CalendarScreen
 import com.hyeeyoung.wishboard.presentation.noti.NotiScreen
 import com.hyeeyoung.wishboard.presentation.wish.WishItemDetailScreen
 import com.hyeeyoung.wishboard.presentation.wish.WishlistScreen
@@ -19,9 +20,11 @@ import com.hyeeyoung.wishboard.presentation.wish.WishlistScreen
 fun BottomBarNavHost(modifier: Modifier = Modifier, navController: NavHostController) {
     NavHost(modifier = modifier, navController = navController, startDestination = MainScreen.Wishlist.route) {
         composable(route = MainScreen.Wishlist.route) {
-            WishlistScreen()
+            WishlistScreen(navController = navController)
         }
-
+        composable(route = MainScreen.Calendar.route) {
+            CalendarScreen(navController = navController)
+        }
         folderNavGraph(navController)
 
         composable(route = MainScreen.Add.route) {
