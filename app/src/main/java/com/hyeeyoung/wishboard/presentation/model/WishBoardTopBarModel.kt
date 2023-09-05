@@ -4,7 +4,7 @@ import androidx.annotation.DrawableRes
 import com.hyeeyoung.wishboard.R
 
 data class WishBoardTopBarModel( // TODO 네이밍 변경
-    val startIcons: List<TopBarIcon> = listOf(TopBarIcon.BACK),
+    val startIcon: TopBarIcon = TopBarIcon.BACK,
     val title: String? = null,
     val onClickStartIcon: () -> Unit = {},
 ) {
