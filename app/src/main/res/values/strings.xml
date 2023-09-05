@@ -11,6 +11,9 @@
     <string name="step">%d/%d 단계</string>
     <string name="timer_format">%d:%d</string>
 
+    <!-- Snackbar -->
+    <string name="noti_item_url_snackbar_text">쇼핑몰 링크를 등록해 주세요!🛍️️</string>
+
     <!-- Sign -->
     <string name="sign_email">이메일</string>
     <string name="sign_password">비밀번호</string>
@@ -59,6 +62,11 @@
 
     <!-- Noti -->
     <string name="noti">알림</string>
+    <string name="noti_item_type">%s 알림</string>
+    <string name="noti_no_item_view">앗, 일정이 없어요!\n상품 일정을 지정하고 알림을 받아보세요!</string>
+
+    <!-- Calendar -->
+    <string name="calendar_schedule_title">%d월 %d일 일정</string>
 
     <!-- My -->
     <string name="my">마이페이지</string>
