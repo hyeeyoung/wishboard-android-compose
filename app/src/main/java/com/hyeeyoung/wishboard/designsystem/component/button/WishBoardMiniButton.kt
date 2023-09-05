@@ -13,6 +13,7 @@ import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 
 @Composable
 fun WishBoardMiniButton(modifier: Modifier = Modifier, enabled: Boolean = true, onClick: () -> Unit, text: String) {
+    // TODO 전체 버튼 컴포넌트 리팩토링 필요
     Button(
         modifier = modifier.defaultMinSize(minWidth = 1.dp, minHeight = 1.dp),
         onClick = { onClick() },
