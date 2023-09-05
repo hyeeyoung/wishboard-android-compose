@@ -60,6 +60,16 @@
     <string name="folder">폴더</string>
     <string name="folder_wish_item_count">%d 아이템</string>
 
+    <!-- Upload -->
+    <string name="wish_item_upload_add_title">아이템 추가</string>
+    <string name="wish_item_upload_edit_title">아이템 수정</string>
+    <string name="wish_item_upload_item_name">상품명(필수)</string>
+    <string name="wish_item_upload_item_price">₩ 가격(필수)</string>
+    <string name="wish_item_upload_noti">상품 일정 알림</string>
+    <string name="wish_item_upload_shop_link">쇼핑몰 링크</string>
+    <string name="wish_item_upload_shop_link_guide">복사한 링크로 아이템을 불러올 수 있어요!</string>
+    <string name="wish_item_upload_memo">브랜드, 사이즈, 컬러 등 아이템 정보를 메모로 남겨보세요!😉</string>
+
     <!-- Noti -->
     <string name="noti">알림</string>
     <string name="noti_item_type">%s 알림</string>
