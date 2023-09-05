@@ -1,6 +1,7 @@
 package com.hyeeyoung.wishboard.presentation.my
 
 import android.os.Build
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -37,7 +38,6 @@ import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardMiniButton
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardThickDivider
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardMainTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
-import com.hyeeyoung.wishboard.presentation.model.MyMenuComponent
 import com.hyeeyoung.wishboard.presentation.util.constant.WishBoardUrl
 import com.hyeeyoung.wishboard.presentation.util.extension.moveToWebView
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
@@ -161,6 +161,16 @@ fun Profile(onClickProfileEdit: () -> Unit) {
             text = stringResource(id = R.string.edit),
         )
     }
+}
+
+sealed class MyMenuComponent {
+    data class Menu(
+        @StringRes val nameRes: Int,
+        val onClickMenu: (() -> Unit)? = null,
+        val endComponent: (@Composable () -> Unit)? = null,
+    ) : MyMenuComponent()
+
+    object Divider : MyMenuComponent()
 }
 
 @Composable
