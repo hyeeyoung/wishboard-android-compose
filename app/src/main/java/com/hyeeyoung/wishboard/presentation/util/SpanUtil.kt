@@ -1,4 +1,4 @@
-package com.hyeeyoung.wishboard.designsystem.util
+package com.hyeeyoung.wishboard.presentation.util
 
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
