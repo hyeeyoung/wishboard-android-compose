@@ -53,6 +53,11 @@ import kotlinx.datetime.LocalDateTime
 
 @Composable
 fun WishItemUploadScreen(navController: NavHostController, itemDetail: WishItemDetail? = null) {
+    val imageInput by remember { mutableStateOf<Uri?>(null) }
+    val nameInput = remember { mutableStateOf(itemDetail?.name ?: "") }
+    val priceInput = remember { mutableStateOf(itemDetail?.price?.toString() ?: "") }
+    val memoInput = remember { mutableStateOf(itemDetail?.memo ?: "") }
+
     WishboardTheme {
         Scaffold(topBar = {
             WishBoardTopBar(
@@ -69,8 +74,12 @@ fun WishItemUploadScreen(navController: NavHostController, itemDetail: WishItemD
                 ),
                 endComponent = { modifier ->
                     Row(modifier = modifier) {
+                        // TODO 뷰모델로 버튼 활성화 로직 옮기기
                         WishBoardNarrowButton(
-                            enabled = true,
+                            enabled = nameInput.value.isNotEmpty() &&
+                                nameInput.value.isNotBlank() &&
+                                priceInput.value.isNotEmpty() &&
+                                (imageInput != null || !itemDetail?.image.isNullOrEmpty()),
                             onClick = { /*TODO*/ },
                             text = stringResource(id = R.string.save),
                         )
@@ -79,11 +88,6 @@ fun WishItemUploadScreen(navController: NavHostController, itemDetail: WishItemD
                 },
             )
         }) { paddingValues ->
-            val imageInput by remember { mutableStateOf<Uri?>(null) }
-            val nameInput = remember { mutableStateOf(itemDetail?.name ?: "") }
-            val priceInput = remember { mutableStateOf(itemDetail?.price?.toString() ?: "") }
-            val memoInput = remember { mutableStateOf(itemDetail?.memo ?: "") }
-
             Column(
                 modifier = Modifier
                     .background(WishBoardTheme.colors.white)
