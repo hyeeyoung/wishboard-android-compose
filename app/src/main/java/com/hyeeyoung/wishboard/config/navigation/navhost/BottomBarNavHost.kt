@@ -44,14 +44,12 @@ fun BottomBarNavHost(modifier: Modifier = Modifier, navController: NavHostContro
                 val itemDetailStr = it.getString(ARG_ITEM_DETAIL)
                 val itemDetail =
                     if (!itemDetailStr.isNullOrEmpty()) {
-                        Json.decodeFromString<WishItemDetail.SerializableDetail>(
-                            itemDetailStr,
-                        )
+                        Json.decodeFromString<WishItemDetail>(itemDetailStr)
                     } else {
                         null
                     }
 
-                WishItemUploadScreen(navController = navController, itemDetail = itemDetail?.toWishItemDetail())
+                WishItemUploadScreen(navController = navController, itemDetail = itemDetail)
             }
         }
         composable(route = MainScreen.Noti.route) {

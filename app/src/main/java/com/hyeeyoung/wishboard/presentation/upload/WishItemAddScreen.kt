@@ -46,9 +46,10 @@ import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
 import com.hyeeyoung.wishboard.designsystem.util.PriceTransformation
 import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.model.WishItemDetail
+import com.hyeeyoung.wishboard.presentation.util.extension.getCurrentTime
 import com.hyeeyoung.wishboard.presentation.util.extension.makeValidPriceStr
 import com.hyeeyoung.wishboard.presentation.util.type.NotiType
-import java.time.LocalDateTime
+import kotlinx.datetime.LocalDateTime
 
 @Composable
 fun WishItemUploadScreen(navController: NavHostController, itemDetail: WishItemDetail? = null) {
@@ -198,7 +199,7 @@ fun PreviewWishItemUploadScreen() {
             name = "21SS SAGE SHIRT [4COLOR]",
             image = "https://url.kr/8vwf1e",
             price = 108000,
-            notiDate = LocalDateTime.now(),
+            notiDate = getCurrentTime(),
             notiType = NotiType.RESTOCK,
             site = "https://www.naver.com/",
             memo = "S사이즈",

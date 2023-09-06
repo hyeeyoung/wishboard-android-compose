@@ -45,15 +45,16 @@ import com.hyeeyoung.wishboard.presentation.model.WishBoardString
 import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.model.WishItemDetail
 import com.hyeeyoung.wishboard.presentation.util.buildStringWithSpans
+import com.hyeeyoung.wishboard.presentation.util.extension.getCurrentTime
 import com.hyeeyoung.wishboard.presentation.util.extension.getDomainName
 import com.hyeeyoung.wishboard.presentation.util.extension.moveToWebView
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.util.safeLet
 import com.hyeeyoung.wishboard.presentation.util.type.NotiType
 import com.hyeeyoung.wishboard.presentation.wish.component.PriceText
+import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import java.time.LocalDateTime
 
 @Composable
 fun WishItemDetailScreen(navController: NavHostController, itemId: Long) {
@@ -69,7 +70,7 @@ fun WishItemDetailScreen(navController: NavHostController, itemId: Long) {
         name = "21SS SAGE SHIRT [4COLOR]",
         image = "https://url.kr/8vwf1e",
         price = 108000,
-        notiDate = LocalDateTime.now(),
+        notiDate = getCurrentTime(),
         notiType = NotiType.RESTOCK,
         site = "https://www.naver.com/",
         memo = "S사이즈",
@@ -88,9 +89,7 @@ fun WishItemDetailScreen(navController: NavHostController, itemId: Long) {
                         onClickEdit = {
                             navController.navigate(
                                 "${MainScreen.Upload.route}?$ARG_ITEM_DETAIL=${
-                                    Json.encodeToString(
-                                        itemDetail.toSerializable(),
-                                    )
+                                    Json.encodeToString(itemDetail)
                                 }",
                             )
                         },
