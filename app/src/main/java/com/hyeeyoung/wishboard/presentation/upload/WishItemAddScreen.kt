@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
@@ -28,6 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -41,8 +43,10 @@ import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardSimpleT
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
+import com.hyeeyoung.wishboard.designsystem.util.PriceTransformation
 import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.model.WishItemDetail
+import com.hyeeyoung.wishboard.presentation.util.extension.makeValidPriceStr
 import com.hyeeyoung.wishboard.presentation.util.type.NotiType
 import java.time.LocalDateTime
 
@@ -116,7 +120,11 @@ fun WishItemUploadScreen(navController: NavHostController, itemDetail: WishItemD
                 WishBoardSimpleTextField(
                     input = priceInput,
                     placeholder = stringResource(id = R.string.wish_item_upload_item_price),
-                    onTextChange = {},
+                    onTextChange = { input ->
+                        priceInput.value = input.makeValidPriceStr() ?: ""
+                    },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    visualTransformation = PriceTransformation(),
                 )
                 WishBoardDivider()
                 ItemInfoRow(label = stringResource(id = R.string.folder))
