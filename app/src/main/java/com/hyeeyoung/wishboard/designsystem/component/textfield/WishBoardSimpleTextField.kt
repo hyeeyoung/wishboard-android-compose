@@ -19,6 +19,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hyeeyoung.wishboard.R
+import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 
 @Composable
@@ -33,7 +34,7 @@ fun WishBoardSimpleTextField(
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     visualTransformation: VisualTransformation = VisualTransformation.None,
 ) {
-    Column() {
+    Column {
         BasicTextField(
             value = input.value,
             onValueChange = {
@@ -67,6 +68,7 @@ fun WishBoardSimpleTextField(
                 }
             }
         }
+        WishBoardDivider()
     }
 }
 

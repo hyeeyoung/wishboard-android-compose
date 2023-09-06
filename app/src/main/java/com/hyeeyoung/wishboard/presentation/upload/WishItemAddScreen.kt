@@ -87,10 +87,7 @@ fun WishItemUploadScreen(navController: NavHostController, itemDetail: WishItemD
                 modifier = Modifier
                     .background(WishBoardTheme.colors.white)
                     .padding(top = paddingValues.calculateTopPadding(), bottom = 16.dp)
-                    .verticalScroll(
-                        rememberScrollState(),
-                    ),
-                horizontalAlignment = Alignment.CenterHorizontally,
+                    .verticalScroll(rememberScrollState()),
             ) {
                 val imageHeight = LocalConfiguration.current.screenWidthDp * 0.66
                 Box(
@@ -111,12 +108,12 @@ fun WishItemUploadScreen(navController: NavHostController, itemDetail: WishItemD
 
                     WishBoardIconButton(iconRes = R.drawable.ic_camera, onClick = { /*TODO*/ })
                 }
+
                 WishBoardSimpleTextField(
                     input = nameInput,
                     placeholder = stringResource(id = R.string.wish_item_upload_item_name),
                     onTextChange = {},
                 )
-                WishBoardDivider()
                 WishBoardSimpleTextField(
                     input = priceInput,
                     placeholder = stringResource(id = R.string.wish_item_upload_item_price),
@@ -126,24 +123,19 @@ fun WishItemUploadScreen(navController: NavHostController, itemDetail: WishItemD
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     visualTransformation = PriceTransformation(),
                 )
-                WishBoardDivider()
                 ItemInfoRow(label = stringResource(id = R.string.folder))
-                WishBoardDivider()
                 ItemInfoRow(label = stringResource(id = R.string.wish_item_upload_noti))
-                WishBoardDivider()
                 ItemInfoRow(
                     label = stringResource(id = R.string.wish_item_upload_shop_link),
                     guideText = stringResource(
                         id = R.string.wish_item_upload_shop_link_guide,
                     ),
                 )
-                WishBoardDivider()
                 WishBoardSimpleTextField(
                     input = memoInput,
                     placeholder = stringResource(id = R.string.wish_item_upload_memo),
                     onTextChange = {},
                 )
-                WishBoardDivider()
                 Spacer(modifier = Modifier.size(64.dp))
             }
         }
@@ -152,33 +144,36 @@ fun WishItemUploadScreen(navController: NavHostController, itemDetail: WishItemD
 
 @Composable
 fun ItemInfoRow(label: String, guideText: String? = null) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            text = label,
-            style = WishBoardTheme.typography.suitB3,
-            color = WishBoardTheme.colors.gray700,
-        )
+    Column {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = label,
+                style = WishBoardTheme.typography.suitB3,
+                color = WishBoardTheme.colors.gray700,
+            )
 
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            if (!guideText.isNullOrEmpty()) {
-                Text(
-                    text = guideText,
-                    style = WishBoardTheme.typography.suitD3,
-                    color = WishBoardTheme.colors.green700,
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (!guideText.isNullOrEmpty()) {
+                    Text(
+                        text = guideText,
+                        style = WishBoardTheme.typography.suitD3,
+                        color = WishBoardTheme.colors.green700,
+                    )
+                }
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_detail),
+                    contentDescription = null,
+                    tint = Color.Unspecified,
                 )
             }
-            Icon(
-                painter = painterResource(id = R.drawable.ic_detail),
-                contentDescription = null,
-                tint = Color.Unspecified,
-            )
         }
+        WishBoardDivider()
     }
 }
 
