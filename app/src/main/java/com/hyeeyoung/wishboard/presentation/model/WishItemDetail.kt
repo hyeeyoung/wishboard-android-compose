@@ -6,7 +6,7 @@ import java.time.LocalDateTime
 data class WishItemDetail(
     val id: Long,
     val name: String,
-    var image: String? = null,
+    var image: String,
     val price: Int,
     val notiDate: LocalDateTime? = null,
     val notiType: NotiType? = null,

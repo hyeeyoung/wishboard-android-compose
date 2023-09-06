@@ -1,11 +1,13 @@
 package com.hyeeyoung.wishboard.presentation.upload
 
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -17,6 +19,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -29,6 +32,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardNarrowButton
@@ -39,6 +43,8 @@ import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
 import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.model.WishItemDetail
+import com.hyeeyoung.wishboard.presentation.util.type.NotiType
+import java.time.LocalDateTime
 
 @Composable
 fun WishItemUploadScreen(navController: NavHostController, itemDetail: WishItemDetail? = null) {
@@ -68,9 +74,10 @@ fun WishItemUploadScreen(navController: NavHostController, itemDetail: WishItemD
                 },
             )
         }) { paddingValues ->
-            val nameInput = remember { mutableStateOf("") }
-            val priceInput = remember { mutableStateOf("") }
-            val memoInput = remember { mutableStateOf("") }
+            val imageInput by remember { mutableStateOf<Uri?>(null) }
+            val nameInput = remember { mutableStateOf(itemDetail?.name ?: "") }
+            val priceInput = remember { mutableStateOf(itemDetail?.price?.toString() ?: "") }
+            val memoInput = remember { mutableStateOf(itemDetail?.memo ?: "") }
 
             Column(
                 modifier = Modifier
@@ -92,6 +99,12 @@ fun WishItemUploadScreen(navController: NavHostController, itemDetail: WishItemD
                         ),
                     contentAlignment = Alignment.Center,
                 ) {
+                    AsyncImage(
+                        modifier = Modifier.fillMaxHeight(),
+                        model = imageInput ?: itemDetail,
+                        contentDescription = null,
+                    )
+
                     WishBoardIconButton(iconRes = R.drawable.ic_camera, onClick = { /*TODO*/ })
                 }
                 WishBoardSimpleTextField(
@@ -164,5 +177,20 @@ fun ItemInfoRow(label: String, guideText: String? = null) {
 @Preview
 @Composable
 fun PreviewWishItemUploadScreen() {
-    WishItemUploadScreen(rememberNavController())
+    WishItemUploadScreen(
+        navController = rememberNavController(),
+        itemDetail = WishItemDetail(
+            id = 1L,
+            name = "21SS SAGE SHIRT [4COLOR]",
+            image = "https://url.kr/8vwf1e",
+            price = 108000,
+            notiDate = LocalDateTime.now(),
+            notiType = NotiType.RESTOCK,
+            site = "https://www.naver.com/",
+            memo = "S사이즈",
+            folderId = 1L,
+            folderName = "상의",
+            createAt = "1주 전",
+        ),
+    )
 }
