@@ -58,7 +58,7 @@ fun WishItemUploadScreen(navController: NavHostController, itemDetail: WishItemD
                 topBarModel = WishBoardTopBarModel(
                     startIcon = WishBoardTopBarModel.TopBarIcon.CLOSE,
                     title = stringResource(
-                        id = if (itemDetail != null) {
+                        id = if (itemDetail == null) {
                             R.string.wish_item_upload_add_title
                         } else {
                             R.string.wish_item_upload_edit_title
@@ -102,7 +102,7 @@ fun WishItemUploadScreen(navController: NavHostController, itemDetail: WishItemD
                 ) {
                     AsyncImage(
                         modifier = Modifier.fillMaxHeight(),
-                        model = imageInput ?: itemDetail,
+                        model = imageInput ?: itemDetail?.image,
                         contentDescription = null,
                     )
 
@@ -123,8 +123,11 @@ fun WishItemUploadScreen(navController: NavHostController, itemDetail: WishItemD
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     visualTransformation = PriceTransformation(),
                 )
-                ItemInfoRow(label = stringResource(id = R.string.folder))
-                ItemInfoRow(label = stringResource(id = R.string.wish_item_upload_noti))
+                ItemInfoRow(label = itemDetail?.folderName ?: stringResource(id = R.string.folder))
+                ItemInfoRow(
+                    label = getNotiInfo(notiType = itemDetail?.notiType, notiDate = itemDetail?.notiDate)
+                        ?: stringResource(id = R.string.wish_item_upload_noti),
+                )
                 ItemInfoRow(
                     label = stringResource(id = R.string.wish_item_upload_shop_link),
                     guideText = stringResource(
@@ -176,6 +179,14 @@ fun ItemInfoRow(label: String, guideText: String? = null) {
         WishBoardDivider()
     }
 }
+
+@Composable
+fun getNotiInfo(notiType: NotiType?, notiDate: LocalDateTime?): String? =
+    if (notiType == null || notiDate == null) {
+        null
+    } else {
+        "[${stringResource(id = R.string.noti_item_type, formatArgs = arrayOf(notiType.str))}] $notiDate"
+    }
 
 @Preview
 @Composable

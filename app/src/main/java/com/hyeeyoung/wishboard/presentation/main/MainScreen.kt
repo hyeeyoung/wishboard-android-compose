@@ -32,7 +32,7 @@ fun isVisibleBottomBar(navController: NavHostController): Boolean {
     return when (navBackStackEntry?.destination?.route) {
         MainScreen.Wishlist.route,
         MainScreen.Folder.makeStartRoute(),
-        MainScreen.Add.route, MainScreen.Noti.route,
+        MainScreen.Upload.route, MainScreen.Noti.route,
         MainScreen.My.makeStartRoute(),
         MainScreen.FolderDetail.routeWithArg,
         -> true

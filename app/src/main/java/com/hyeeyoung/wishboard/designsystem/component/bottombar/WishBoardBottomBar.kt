@@ -93,7 +93,7 @@ enum class BottomNavItem(
 ) {
     WishList(R.string.nav_menu_label_wishlist, R.drawable.ic_nav_wish_list, MainScreen.Wishlist),
     Folder(R.string.nav_menu_label_folder, R.drawable.ic_nav_folder, MainScreen.Folder),
-    Add(R.string.nav_menu_label_add, R.drawable.ic_nav_write, MainScreen.Add),
+    Add(R.string.nav_menu_label_add, R.drawable.ic_nav_write, MainScreen.Upload),
     Notice(R.string.nav_menu_label_notice, R.drawable.ic_nav_notice, MainScreen.Noti),
     My(R.string.nav_menu_label_my, R.drawable.ic_nav_my, MainScreen.My),
 }
