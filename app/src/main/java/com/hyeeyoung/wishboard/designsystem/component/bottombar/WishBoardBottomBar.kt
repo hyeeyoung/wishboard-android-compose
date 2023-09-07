@@ -22,8 +22,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.hyeeyoung.wishboard.R
@@ -33,7 +33,7 @@ import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 
 @Composable
-fun WishBoardBottomBar(navController: NavController = rememberNavController()) {
+fun WishBoardBottomBar(navController: NavHostController = rememberNavController(), onClickAdd: () -> Unit = {}) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -54,21 +54,34 @@ fun WishBoardBottomBar(navController: NavController = rememberNavController()) {
                 BottomNavItem.values().forEach { navItem ->
                     BottomBarIconButton(
                         navItem = navItem,
-                        isSelected =
-                        currentRoute == navItem.Screen.route || currentRoute == navItem.Screen.makeStartRoute(),
+                        isSelected = isSelectedMenu(currentRoute = currentRoute, navItem = navItem),
                         onSelect = {
-                            navController.navigate(route = navItem.Screen.route) {
-                                popUpTo(navController.graph.findStartDestination().id) {
-                                    saveState = true
+                            if (navItem.Screen.route == BottomNavItem.Add.Screen.route) {
+                                onClickAdd()
+                            } else {
+                                navController.navigate(route = navItem.Screen.route) {
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
                                 }
-                                launchSingleTop = true
-                                restoreState = true
                             }
                         },
                     )
                 }
             }
         }
+    }
+}
+
+fun isSelectedMenu(currentRoute: String?, navItem: BottomNavItem): Boolean {
+    return when (navItem) {
+        BottomNavItem.Folder ->
+            currentRoute in listOf(navItem.Screen.getStartRouteForMainTab(), MainScreen.FolderDetail.routeWithArg)
+
+        else ->
+            currentRoute == navItem.Screen.getStartRouteForMainTab()
     }
 }
 

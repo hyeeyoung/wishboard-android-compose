@@ -91,7 +91,7 @@ fun WishItemUploadScreen(navController: NavHostController, itemDetail: WishItemD
             Column(
                 modifier = Modifier
                     .background(WishBoardTheme.colors.white)
-                    .padding(top = paddingValues.calculateTopPadding(), bottom = 16.dp)
+                    .padding(top = 6.dp + paddingValues.calculateTopPadding(), bottom = 16.dp)
                     .verticalScroll(rememberScrollState()),
             ) {
                 val imageHeight = LocalConfiguration.current.screenWidthDp * 0.66

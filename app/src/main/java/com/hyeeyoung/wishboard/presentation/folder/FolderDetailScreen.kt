@@ -21,7 +21,12 @@ import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.wish.component.WishItem
 
 @Composable
-fun FolderDetailScreen(navController: NavHostController, folderId: Long, folderName: String) {
+fun FolderDetailScreen(
+    bottomNavController: NavHostController,
+    wishNavController: NavHostController,
+    folderId: Long,
+    folderName: String,
+) {
     val wishItem = listOf(
         WishItem(
             1L,
@@ -38,7 +43,7 @@ fun FolderDetailScreen(navController: NavHostController, folderId: Long, folderN
             WishBoardTopBar(
                 topBarModel = WishBoardTopBarModel(
                     title = folderName,
-                    onClickStartIcon = { navController.popBackStack() },
+                    onClickStartIcon = { bottomNavController.popBackStack() },
                 ),
             )
         }) { paddingValues ->
@@ -53,7 +58,7 @@ fun FolderDetailScreen(navController: NavHostController, folderId: Long, folderN
                 items(wishList) { wishItem ->
                     WishItem(
                         modifier = Modifier.noRippleClickable {
-                            navController.navigate("${MainScreen.WishItemDetail.route}/${wishItem.id}")
+                            wishNavController.navigate("${MainScreen.WishItemDetail.route}/${wishItem.id}")
                         },
                         wishItem = wishItem,
                     )
@@ -66,5 +71,10 @@ fun FolderDetailScreen(navController: NavHostController, folderId: Long, folderN
 @Composable
 @Preview
 fun PreviewFolderDetailScreen() {
-    FolderDetailScreen(navController = rememberNavController(), folderId = 1L, folderName = "상의")
+    FolderDetailScreen(
+        bottomNavController = rememberNavController(),
+        wishNavController = rememberNavController(),
+        folderId = 1L,
+        folderName = "상의",
+    )
 }

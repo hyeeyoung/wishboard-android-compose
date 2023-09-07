@@ -5,10 +5,13 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.hyeeyoung.wishboard.config.navigation.navgraph.itemDetailNavGraph
 import com.hyeeyoung.wishboard.config.navigation.navgraph.signNavGraph
+import com.hyeeyoung.wishboard.config.navigation.navgraph.uploadNavGraph
 import com.hyeeyoung.wishboard.config.navigation.navgraph.webViewNavGraph
 import com.hyeeyoung.wishboard.config.navigation.screen.Intro
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
+import com.hyeeyoung.wishboard.presentation.calendar.screen.CalendarScreen
 import com.hyeeyoung.wishboard.presentation.intro.IntroScreen
 import com.hyeeyoung.wishboard.presentation.main.MainScreen
 
@@ -22,8 +25,16 @@ fun WishBoardNavHost(modifier: Modifier = Modifier, navController: NavHostContro
         signNavGraph(navController)
 
         composable(MainScreen.Root.route) {
-            MainScreen()
+            MainScreen(navController, onClickAdd = { navController.navigate(MainScreen.Upload.route) })
         }
+
+        composable(route = MainScreen.Calendar.route) {
+            CalendarScreen(navController = navController)
+        }
+
+        uploadNavGraph(navController)
+
+        itemDetailNavGraph(navController)
 
         webViewNavGraph(navController = navController)
     }
