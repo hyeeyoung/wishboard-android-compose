@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -90,6 +91,7 @@ fun WishItemUploadScreen(navController: NavHostController, itemDetail: WishItemD
         }) { paddingValues ->
             Column(
                 modifier = Modifier
+                    .fillMaxSize()
                     .background(WishBoardTheme.colors.white)
                     .padding(top = 6.dp + paddingValues.calculateTopPadding(), bottom = 16.dp)
                     .verticalScroll(rememberScrollState()),
