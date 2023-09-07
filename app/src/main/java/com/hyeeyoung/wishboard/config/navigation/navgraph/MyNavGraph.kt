@@ -10,8 +10,8 @@ import com.hyeeyoung.wishboard.presentation.my.PasswordChangeScreen
 import com.hyeeyoung.wishboard.presentation.my.ProfileEditScreen
 
 fun NavGraphBuilder.myNavGraph(navController: NavHostController) =
-    navigation(startDestination = MainScreen.My.makeStartRoute(), route = MainScreen.My.route) {
-        composable(route = MainScreen.My.makeStartRoute()) {
+    navigation(startDestination = MainScreen.My.getStartRouteForMainTab(), route = MainScreen.My.route) {
+        composable(route = MainScreen.My.getStartRouteForMainTab()) {
             MyScreen(navController = navController)
         }
 

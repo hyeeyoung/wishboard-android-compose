@@ -58,7 +58,7 @@ fun WebViewScreen(
 fun WebViewTopBar(title: String?, onClickClose: () -> Unit, onClickRefresh: () -> Unit) {
     WishBoardTopBar(
         topBarModel = WishBoardTopBarModel(
-            startIcons = listOf(WishBoardTopBarModel.TopBarIcon.CLOSE),
+            startIcon = WishBoardTopBarModel.TopBarIcon.CLOSE,
             title = title ?: "",
             onClickStartIcon = { onClickClose() },
         ),

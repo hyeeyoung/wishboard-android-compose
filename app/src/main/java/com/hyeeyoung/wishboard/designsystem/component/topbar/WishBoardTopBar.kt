@@ -29,27 +29,13 @@ fun WishBoardTopBar(topBarModel: WishBoardTopBarModel, endComponent: (@Composabl
     ) {
         // 시작 아이콘 영역
         Row(modifier = Modifier.align(Alignment.CenterStart), verticalAlignment = Alignment.CenterVertically) {
-            topBarModel.startIcons.forEachIndexed { idx, startIcon ->
-                if (idx == 0) {
-                    Spacer(modifier = Modifier.size(5.dp))
-                }
+            Spacer(modifier = Modifier.size(5.dp))
 
-                val onClick = when (startIcon) {
-                    WishBoardTopBarModel.TopBarIcon.BACK, WishBoardTopBarModel.TopBarIcon.CLOSE -> {
-                        { topBarModel.onClickStartIcon() }
-                    } // TODO 리팩토링 필요
-
-                    else -> {
-                        { /** TODO */ }
-                    }
-                }
-
-                WishBoardIconButton(
-                    iconRes = startIcon.iconRes,
-                    onClick = onClick,
-                    contentDescription = startIcon.contentDescription,
-                )
-            }
+            WishBoardIconButton(
+                iconRes = topBarModel.startIcon.iconRes,
+                onClick = { topBarModel.onClickStartIcon() },
+                contentDescription = topBarModel.startIcon.contentDescription,
+            )
         }
 
         // 타이틀 영역

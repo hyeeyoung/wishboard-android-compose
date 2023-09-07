@@ -31,6 +31,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.hyeeyoung.wishboard.R
+import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
+import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen.Upload.ARG_ITEM_DETAIL
 import com.hyeeyoung.wishboard.designsystem.component.ColoredImage
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
@@ -39,17 +41,20 @@ import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.designsystem.style.Gray700
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
-import com.hyeeyoung.wishboard.designsystem.util.buildStringWithSpans
 import com.hyeeyoung.wishboard.presentation.model.WishBoardString
 import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.model.WishItemDetail
+import com.hyeeyoung.wishboard.presentation.util.buildStringWithSpans
+import com.hyeeyoung.wishboard.presentation.util.extension.getCurrentTime
 import com.hyeeyoung.wishboard.presentation.util.extension.getDomainName
 import com.hyeeyoung.wishboard.presentation.util.extension.moveToWebView
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.util.safeLet
 import com.hyeeyoung.wishboard.presentation.util.type.NotiType
 import com.hyeeyoung.wishboard.presentation.wish.component.PriceText
-import java.time.LocalDateTime
+import kotlinx.datetime.LocalDateTime
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 @Composable
 fun WishItemDetailScreen(navController: NavHostController, itemId: Long) {
@@ -65,7 +70,7 @@ fun WishItemDetailScreen(navController: NavHostController, itemId: Long) {
         name = "21SS SAGE SHIRT [4COLOR]",
         image = "https://url.kr/8vwf1e",
         price = 108000,
-        notiDate = LocalDateTime.now(),
+        notiDate = getCurrentTime(),
         notiType = NotiType.RESTOCK,
         site = "https://www.naver.com/",
         memo = "S사이즈",
@@ -78,7 +83,18 @@ fun WishItemDetailScreen(navController: NavHostController, itemId: Long) {
         Scaffold(topBar = {
             WishBoardTopBar(
                 WishBoardTopBarModel(onClickStartIcon = { navController.popBackStack() }),
-                endComponent = { modifier -> TopBarEndIcons(modifier) },
+                endComponent = { modifier ->
+                    TopBarEndIcons(
+                        modifier,
+                        onClickEdit = {
+                            navController.navigate(
+                                "${MainScreen.Upload.route}?$ARG_ITEM_DETAIL=${
+                                    Json.encodeToString(itemDetail)
+                                }",
+                            )
+                        },
+                    )
+                },
             )
         }) { paddingValues ->
             Column(
@@ -158,7 +174,7 @@ private fun WishItemDetailContents(modifier: Modifier, itemDetail: WishItemDetai
             )
         }
 
-        itemDetail.site?.let { site ->
+        itemDetail.site?.getDomainName()?.let { site ->
             WishBoardDivider()
             Text(
                 modifier = Modifier.padding(16.dp),
@@ -188,10 +204,10 @@ private fun WishItemDetailContents(modifier: Modifier, itemDetail: WishItemDetai
 }
 
 @Composable
-private fun TopBarEndIcons(modifier: Modifier) {
+private fun TopBarEndIcons(modifier: Modifier, onClickEdit: () -> Unit) {
     Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
         WishBoardIconButton(iconRes = R.drawable.ic_trash, onClick = { /*TODO*/ })
-        WishBoardIconButton(iconRes = R.drawable.ic_edit, onClick = { /*TODO*/ })
+        WishBoardIconButton(iconRes = R.drawable.ic_edit, onClick = { onClickEdit() })
         Spacer(modifier = Modifier.size(8.dp))
     }
 }

@@ -11,6 +11,7 @@ plugins {
     id("com.google.dagger.hilt.android")
     id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics")
+    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.spotless)
 }
 
@@ -78,6 +79,7 @@ dependencies {
     implementation(libs.accompanist)
     implementation(platform(libs.okhttp.bom))
     implementation(libs.bundles.network)
+    implementation(libs.kotlinx.datetime)
     implementation(libs.bundles.app.update)
     implementation(libs.junit)
     implementation(libs.timber)

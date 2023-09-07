@@ -7,6 +7,7 @@ sealed class MainScreen(override val route: String) : Screen {
         const val ARG_WISH_ITEM_ID: String = "wishItemId"
         val routeWithArg = "$route/{$ARG_WISH_ITEM_ID}"
     }
+
     object Calendar : MainScreen(route = "calendar")
     object Folder : MainScreen(route = "folder")
     object FolderDetail : MainScreen(route = "folderDetail") {
@@ -15,15 +16,20 @@ sealed class MainScreen(override val route: String) : Screen {
         val routeWithArg = "$route/{$ARG_FOLDER_ID}/{$ARG_FOLDER_NAME}"
     }
 
-    object Add : MainScreen(route = "add")
+    object Upload : MainScreen(route = "upload") {
+        const val ARG_ITEM_DETAIL: String = "itemDetail"
+        val routeWithArg = "$route?$ARG_ITEM_DETAIL={$ARG_ITEM_DETAIL}"
+    }
+
     object Noti : MainScreen(route = "noti")
     object My : MainScreen(route = "my")
     object MyProfile : MainScreen(route = "myProfile")
     object MyPasswordChange : MainScreen(route = "myPasswordChange")
 
-    /** NavGraphBuilder.navigation() 사용 시 파라미터 route + "start" 문자열을 합성해서 startDestination 경로를 만듦   */
-    fun makeStartRoute() = when (this) {
-        Wishlist, Folder, Add, Noti, My -> this.route + "Start"
-        else -> throw IllegalStateException("루트 경로가 될 수 없음.")
+    /** 메인 바텀바 메뉴에서 해당 메뉴의 시작 루트를 반환. 단, NavGraphBuilder.navigation() 사용 시 startDestination 경로는 파라미터 route + "start" 합성 */
+    fun getStartRouteForMainTab(): String = when (this) {
+        Wishlist, Upload, Noti -> this.route
+        Folder, My -> this.route + "Start"
+        else -> throw IllegalStateException("StartDestination이 정의되어있지 않음.")
     }
 }
