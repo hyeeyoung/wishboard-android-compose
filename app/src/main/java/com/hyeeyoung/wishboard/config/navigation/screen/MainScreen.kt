@@ -9,6 +9,7 @@ sealed class MainScreen(override val route: String) : Screen {
     }
 
     object Calendar : MainScreen(route = "calendar")
+    object Cart : MainScreen(route = "cart")
     object Folder : MainScreen(route = "folder")
     object FolderDetail : MainScreen(route = "folderDetail") {
         const val ARG_FOLDER_ID: String = "folderId"

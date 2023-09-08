@@ -16,28 +16,45 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.hyeeyoung.wishboard.R
+import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.designsystem.component.ColoredImage
-import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
+import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
+import com.hyeeyoung.wishboard.designsystem.style.Green500
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.presentation.model.CartItem
 import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
+import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.wish.component.PriceText
 
 @Composable
-fun CartScreen(cartItems: List<CartItem> = emptyList()) {
+fun CartScreen(navController: NavHostController, cartItems: List<CartItem> = emptyList()) {
+    val systemUiController = rememberSystemUiController()
+    DisposableEffect(Unit) {
+        systemUiController.setNavigationBarColor(color = Green500)
+        onDispose { systemUiController.setNavigationBarColor(color = Color.Transparent) }
+    }
+
     Scaffold(topBar = {
         WishBoardTopBar(
-            topBarModel = WishBoardTopBarModel(title = stringResource(id = R.string.cart)),
+            topBarModel = WishBoardTopBarModel(
+                title = stringResource(id = R.string.cart),
+                onClickStartIcon = { navController.popBackStack() },
+            ),
         )
     }) { paddingValues ->
         Column(
@@ -49,7 +66,10 @@ fun CartScreen(cartItems: List<CartItem> = emptyList()) {
                 modifier = Modifier.weight(1f),
             ) {
                 itemsIndexed(cartItems) { idx, item ->
-                    CartItem(cartItem = item)
+                    CartItem(
+                        cartItem = item,
+                        moveToDetail = { id -> navController.navigate("${MainScreen.WishItemDetail.route}/$id") },
+                    )
                     if (idx < cartItems.lastIndex) WishBoardDivider()
                 }
             }
@@ -60,12 +80,13 @@ fun CartScreen(cartItems: List<CartItem> = emptyList()) {
 }
 
 @Composable
-fun CartItem(cartItem: CartItem) {
+fun CartItem(cartItem: CartItem, moveToDetail: (Long) -> Unit = {}) {
     val imageSize = 84
     Row(verticalAlignment = Alignment.CenterVertically) {
         ColoredImage(
             model = cartItem.image,
             modifier = Modifier
+                .noRippleClickable { moveToDetail(cartItem.id) }
                 .padding(start = 16.dp, top = 16.dp, bottom = 16.dp)
                 .size(imageSize.dp)
                 .clip(RoundedCornerShape(10.dp)),
@@ -74,6 +95,7 @@ fun CartItem(cartItem: CartItem) {
             Row() {
                 Text(
                     modifier = Modifier
+                        .noRippleClickable { moveToDetail(cartItem.id) }
                         .weight(1f)
                         .padding(start = 10.dp, top = 16.dp),
                     text = cartItem.name,
@@ -163,6 +185,7 @@ fun PreviewCartScreen() {
     val cartItems = List(7) { cartItem }.flatten()
 
     CartScreen(
+        navController = rememberNavController(),
         cartItems = cartItems,
     )
 }
