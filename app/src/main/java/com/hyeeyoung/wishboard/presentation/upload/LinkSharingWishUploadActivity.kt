@@ -5,7 +5,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 
-class LinkSharingUploadActivity : ComponentActivity() {
+class LinkSharingWishUploadActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -19,7 +19,7 @@ class LinkSharingUploadActivity : ComponentActivity() {
 
         setContent {
             if (url.isEmpty()) return@setContent
-            WishItemLinkSharingUploadScreen(url = url, onClickClose = { finish() })
+            LinkSharingWishUploadScreen(url = url, onClickClose = { finish() })
         }
     }
 }

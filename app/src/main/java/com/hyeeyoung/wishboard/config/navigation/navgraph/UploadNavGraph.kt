@@ -7,7 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.presentation.model.WishItemDetail
-import com.hyeeyoung.wishboard.presentation.upload.WishItemUploadScreen
+import com.hyeeyoung.wishboard.presentation.upload.WishUploadScreen
 import kotlinx.serialization.json.Json
 
 fun NavGraphBuilder.uploadNavGraph(navController: NavHostController) = composable(
@@ -28,6 +28,6 @@ fun NavGraphBuilder.uploadNavGraph(navController: NavHostController) = composabl
                 null
             }
 
-        WishItemUploadScreen(navController = navController, itemDetail = itemDetail)
+        WishUploadScreen(navController = navController, itemDetail = itemDetail)
     }
 }

@@ -56,7 +56,7 @@ import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 private const val IMAGE_SIZE = 80
 
 @Composable
-fun WishItemLinkSharingUploadScreen(url: String, onClickClose: () -> Unit = {}) {
+fun LinkSharingWishUploadScreen(url: String, onClickClose: () -> Unit = {}) {
     val nameInput = remember { mutableStateOf("") }
     val priceInput = remember { mutableStateOf("") }
     val image = "https://url.kr/8vwf1e" // TODO 서버 연동 필요
@@ -294,6 +294,6 @@ fun NewFolder() {
 
 @Preview
 @Composable
-fun PreviewWishItemLinkSharingUploadScreen() {
-    WishItemLinkSharingUploadScreen(url = "")
+fun PreviewLinkSharingWishUploadScreen() {
+    LinkSharingWishUploadScreen(url = "")
 }

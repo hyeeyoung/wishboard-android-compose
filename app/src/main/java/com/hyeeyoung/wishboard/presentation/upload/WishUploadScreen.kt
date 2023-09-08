@@ -53,7 +53,7 @@ import com.hyeeyoung.wishboard.presentation.util.type.NotiType
 import kotlinx.datetime.LocalDateTime
 
 @Composable
-fun WishItemUploadScreen(navController: NavHostController, itemDetail: WishItemDetail? = null) {
+fun WishUploadScreen(navController: NavHostController, itemDetail: WishItemDetail? = null) {
     val imageInput by remember { mutableStateOf<Uri?>(null) }
     val nameInput = remember { mutableStateOf(itemDetail?.name ?: "") }
     val priceInput = remember { mutableStateOf(itemDetail?.price?.toString() ?: "") }
@@ -197,8 +197,8 @@ fun getNotiInfo(notiType: NotiType?, notiDate: LocalDateTime?): String? =
 
 @Preview
 @Composable
-fun PreviewWishItemUploadScreen() {
-    WishItemUploadScreen(
+fun PreviewWishUploadScreen() {
+    WishUploadScreen(
         navController = rememberNavController(),
         itemDetail = WishItemDetail(
             id = 1L,
