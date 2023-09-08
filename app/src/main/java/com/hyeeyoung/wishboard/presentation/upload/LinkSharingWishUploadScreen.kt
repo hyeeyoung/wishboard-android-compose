@@ -42,8 +42,6 @@ import com.hyeeyoung.wishboard.designsystem.component.ColoredImage
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
 import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardMiniSingleTextField
-import com.hyeeyoung.wishboard.designsystem.style.BlackAlpha30
-import com.hyeeyoung.wishboard.designsystem.style.BlackAlpha70
 import com.hyeeyoung.wishboard.designsystem.style.MontserratFamily
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
@@ -225,7 +223,7 @@ fun FolderItem(
     isSelected: Boolean,
     folder: FolderSummary,
     onClickFolder: (FolderSummary) -> Unit,
-) { // TODO 알파 컬러 추출
+) {
     Box(
         modifier = Modifier
             .noRippleClickable { onClickFolder(folder) }
@@ -234,7 +232,7 @@ fun FolderItem(
         ColoredImage(
             model = folder.thumbnail,
             modifier = Modifier.size(IMAGE_SIZE.dp),
-            alphaColor = if (isSelected) BlackAlpha70 else BlackAlpha30,
+            alphaColor = if (isSelected) WishBoardTheme.colors.blackAlpha70 else WishBoardTheme.colors.blackAlpha30,
         )
 
         Column(
