@@ -9,6 +9,8 @@ import com.hyeeyoung.wishboard.config.navigation.navgraph.itemDetailNavGraph
 import com.hyeeyoung.wishboard.config.navigation.navgraph.signNavGraph
 import com.hyeeyoung.wishboard.config.navigation.navgraph.uploadNavGraph
 import com.hyeeyoung.wishboard.config.navigation.navgraph.webViewNavGraph
+import com.hyeeyoung.wishboard.config.navigation.screen.Calendar
+import com.hyeeyoung.wishboard.config.navigation.screen.Cart
 import com.hyeeyoung.wishboard.config.navigation.screen.Intro
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.presentation.calendar.screen.CalendarScreen
@@ -31,11 +33,11 @@ fun WishBoardNavHost(modifier: Modifier = Modifier, navController: NavHostContro
             MainScreen(navController, onClickAdd = { navController.navigate(MainScreen.Upload.route) })
         }
 
-        composable(route = MainScreen.Calendar.route) {
+        composable(route = Calendar.route) {
             CalendarScreen(navController = navController)
         }
 
-        composable(route = MainScreen.Cart.route) {
+        composable(route = Cart.route) {
             CartScreen(navController = navController)
         }
 

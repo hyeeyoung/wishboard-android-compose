@@ -21,6 +21,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.hyeeyoung.wishboard.R
+import com.hyeeyoung.wishboard.config.navigation.screen.Calendar
+import com.hyeeyoung.wishboard.config.navigation.screen.Cart
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
@@ -77,8 +79,8 @@ fun WishlistScreen(modifier: Modifier = Modifier, navController: NavHostControll
     WishboardTheme { // TODO Theme 사용 여부 고려
         Surface(modifier = modifier) {
             Scaffold(topBar = {
-                WishlistTopBar(onClickCart = { navController.navigate(MainScreen.Cart.route) }, onClickCalendar = {
-                    navController.navigate(MainScreen.Calendar.route)
+                WishlistTopBar(onClickCart = { navController.navigate(Cart.route) }, onClickCalendar = {
+                    navController.navigate(Calendar.route)
                 })
             }) { paddingValues ->
                 LazyVerticalGrid(
