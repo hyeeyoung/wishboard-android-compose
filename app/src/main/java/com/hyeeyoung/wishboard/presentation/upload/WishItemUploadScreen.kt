@@ -128,7 +128,7 @@ fun WishItemUploadScreen(navController: NavHostController, itemDetail: WishItemD
                         priceInput.value = input.makeValidPriceStr() ?: ""
                     },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    visualTransformation = PriceTransformation(),
+                    visualTransformation = PriceTransformation(prefix = "₩ "),
                 )
                 ItemInfoRow(label = itemDetail?.folderName ?: stringResource(id = R.string.folder))
                 ItemInfoRow(

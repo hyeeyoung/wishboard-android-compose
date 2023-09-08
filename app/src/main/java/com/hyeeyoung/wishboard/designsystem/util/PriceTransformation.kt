@@ -6,9 +6,15 @@ import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import com.hyeeyoung.wishboard.presentation.util.extension.applyPriceFormat
 
-class PriceTransformation : VisualTransformation {
+class PriceTransformation(val prefix: String? = null) : VisualTransformation {
     override fun filter(text: AnnotatedString): TransformedText {
-        val formattedString = text.text.applyPriceFormat().run { if (isNotEmpty()) "₩ $this" else this }
+        val formattedString = text.text.applyPriceFormat().run {
+            if (isNotEmpty() && prefix != null) {
+                "$prefix$this"
+            } else {
+                this
+            }
+        }
         return TransformedText(
             text = AnnotatedString(formattedString),
             offsetMapping = object : OffsetMapping {

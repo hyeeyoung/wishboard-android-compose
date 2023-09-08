@@ -26,6 +26,8 @@ val Gray600 = Color(0xFF474747)
 val Gray700 = Color(0xFF292929)
 
 val BlackAlpha5 = Color(0x0D000000)
+val BlackAlpha30 = Color(0x4D000000)
+val BlackAlpha70 = Color(0xB3000000)
 
 @Stable
 class WishBoardColors(

@@ -61,6 +61,13 @@
     <string name="folder_wish_item_count">%d 아이템</string>
 
     <!-- Upload -->
+    <string name="wish_item_link_sharing_upload">위시리스트에 추가</string>
+    <string name="wish_item_link_sharing_upload_after_login">로그인 후 이용해 주세요</string>
+    <string name="wish_item_link_sharing_upload_name">상품명을 입력해 주세요.</string>
+    <string name="wish_item_link_sharing_upload_price">가격을 입력해 주세요.</string>
+    <string name="wish_item_link_sharing_upload_noti_setting">상품 알림 설정하기</string>
+    <string name="wish_item_link_sharing_upload_new_folder">새 폴더 추가</string>
+
     <string name="wish_item_upload_add_title">아이템 추가</string>
     <string name="wish_item_upload_edit_title">아이템 수정</string>
     <string name="wish_item_upload_item_name">상품명(필수)</string>
