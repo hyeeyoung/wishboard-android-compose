@@ -9,8 +9,8 @@ class LinkSharingWishUploadActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        var url: String = ""
-        if (intent.action == Intent.ACTION_SEND) { // TODO 타입 널체크 앤해도 되는지 확인
+        var url = ""
+        if (intent.action == Intent.ACTION_SEND) {
             if (intent.type == "text/plain") {
                 url = intent.getStringExtra(Intent.EXTRA_TEXT) ?: throw NullPointerException("Url is null")
                 // TODO 서버 연동
