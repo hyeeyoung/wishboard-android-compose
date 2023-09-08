@@ -29,8 +29,8 @@ sealed class MainScreen(override val route: String) : Screen {
 
     /** 메인 바텀바 메뉴에서 해당 메뉴의 시작 루트를 반환. 단, NavGraphBuilder.navigation() 사용 시 startDestination 경로는 파라미터 route + "start" 합성 */
     fun getStartRouteForMainTab(): String = when (this) {
-        Wishlist, Upload, Noti -> this.route
-        Folder, My -> this.route + "Start"
+        Wishlist, Upload, Noti, My -> this.route
+        Folder -> this.route + "Start"
         else -> throw IllegalStateException("StartDestination이 정의되어있지 않음.")
     }
 }

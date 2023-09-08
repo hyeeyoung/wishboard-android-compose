@@ -15,6 +15,8 @@ import com.hyeeyoung.wishboard.presentation.calendar.screen.CalendarScreen
 import com.hyeeyoung.wishboard.presentation.cart.CartScreen
 import com.hyeeyoung.wishboard.presentation.intro.IntroScreen
 import com.hyeeyoung.wishboard.presentation.main.MainScreen
+import com.hyeeyoung.wishboard.presentation.my.PasswordChangeScreen
+import com.hyeeyoung.wishboard.presentation.my.ProfileEditScreen
 
 @Composable
 fun WishBoardNavHost(modifier: Modifier = Modifier, navController: NavHostController) {
@@ -40,6 +42,14 @@ fun WishBoardNavHost(modifier: Modifier = Modifier, navController: NavHostContro
         uploadNavGraph(navController)
 
         itemDetailNavGraph(navController)
+
+        composable(route = MainScreen.MyProfile.route) {
+            ProfileEditScreen(navController = navController)
+        }
+
+        composable(route = MainScreen.MyPasswordChange.route) {
+            PasswordChangeScreen(navController = navController)
+        }
 
         webViewNavGraph(navController = navController)
     }
