@@ -77,7 +77,7 @@ fun WishlistScreen(modifier: Modifier = Modifier, navController: NavHostControll
     WishboardTheme { // TODO Theme 사용 여부 고려
         Surface(modifier = modifier) {
             Scaffold(topBar = {
-                WishlistTopBar(onClickCalendar = {
+                WishlistTopBar(onClickCart = { navController.navigate(MainScreen.Cart.route) }, onClickCalendar = {
                     navController.navigate(MainScreen.Calendar.route)
                 })
             }) { paddingValues ->
@@ -89,7 +89,14 @@ fun WishlistScreen(modifier: Modifier = Modifier, navController: NavHostControll
                         ),
                     columns = GridCells.Fixed(2),
                 ) {
-                    items(wishList) { wishItem -> WishItem(wishItem = wishItem) }
+                    items(wishList) { wishItem ->
+                        WishItem(
+                            wishItem = wishItem,
+                            onClickItem = {
+                                navController.navigate("${MainScreen.WishItemDetail.route}/${wishItem.id}")
+                            },
+                        )
+                    }
                 }
             }
         }
@@ -97,7 +104,7 @@ fun WishlistScreen(modifier: Modifier = Modifier, navController: NavHostControll
 }
 
 @Composable
-fun WishlistTopBar(onClickCalendar: () -> Unit) { // TODO 공용 TopBar 추출
+fun WishlistTopBar(onClickCart: () -> Unit, onClickCalendar: () -> Unit) { // TODO 공용 TopBar 추출
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -111,7 +118,7 @@ fun WishlistTopBar(onClickCalendar: () -> Unit) { // TODO 공용 TopBar 추출
             contentDescription = null,
         )
         Row() {
-            WishBoardIconButton(iconRes = R.drawable.ic_cart, onClick = {})
+            WishBoardIconButton(iconRes = R.drawable.ic_cart, onClick = { onClickCart() })
             WishBoardIconButton(iconRes = R.drawable.ic_calendar, onClick = { onClickCalendar() })
         }
     }

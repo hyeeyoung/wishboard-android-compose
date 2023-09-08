@@ -17,7 +17,6 @@ import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
 import com.hyeeyoung.wishboard.domain.model.WishItem
 import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
-import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.wish.component.WishItem
 
 @Composable
@@ -57,10 +56,10 @@ fun FolderDetailScreen(
             ) {
                 items(wishList) { wishItem ->
                     WishItem(
-                        modifier = Modifier.noRippleClickable {
+                        wishItem = wishItem,
+                        onClickItem = {
                             wishNavController.navigate("${MainScreen.WishItemDetail.route}/${wishItem.id}")
                         },
-                        wishItem = wishItem,
                     )
                 }
             }
