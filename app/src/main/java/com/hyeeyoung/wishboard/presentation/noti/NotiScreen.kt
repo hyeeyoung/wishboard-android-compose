@@ -31,7 +31,19 @@ import com.hyeeyoung.wishboard.presentation.util.type.NotiType
 import java.time.LocalDateTime
 
 @Composable
-fun NotiScreen(notiList: List<Noti> = emptyList()) {
+fun NotiScreen() {
+    val noti = listOf(
+        Noti(
+            itemId = 1L,
+            itemName = "Bean Ring Gold",
+            itemImage = "https://url.kr/8vwf1e",
+            type = NotiType.RESTOCK,
+            date = LocalDateTime.now(),
+            false,
+        ),
+    )
+    val notiList = List(7) { noti }.flatten()
+
     Scaffold(topBar = {
         WishBoardMainTopBar(titleRes = R.string.noti)
     }) { paddingValues ->
@@ -97,21 +109,7 @@ fun NotiItem(noti: Noti) {
 @Composable
 @Preview
 fun PreviewNotiScreen() {
-    val noti = listOf(
-        Noti(
-            itemId = 1L,
-            itemName = "Bean Ring Gold",
-            itemImage = "https://url.kr/8vwf1e",
-            type = NotiType.RESTOCK,
-            date = LocalDateTime.now(),
-            false,
-        ),
-    )
-    val notiList = List(7) { noti }.flatten()
-
-    NotiScreen(
-        notiList = notiList,
-    )
+    NotiScreen()
 }
 
 @Preview(showBackground = true)

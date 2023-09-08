@@ -42,7 +42,19 @@ import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.wish.component.PriceText
 
 @Composable
-fun CartScreen(navController: NavHostController, cartItems: List<CartItem> = emptyList()) {
+fun CartScreen(navController: NavHostController) {
+    // TODO 서버 연동 시 삭제
+    val cartItem = listOf(
+        CartItem(
+            id = 1L,
+            name = "Bean Ring Gold",
+            image = "https://url.kr/8vwf1e",
+            price = 108000,
+            count = 1,
+        ),
+    )
+    val cartItems = List(7) { cartItem }.flatten()
+
     val systemUiController = rememberSystemUiController()
     DisposableEffect(Unit) {
         systemUiController.setNavigationBarColor(color = Green500)
@@ -173,21 +185,7 @@ fun CartTotalDisplay(totalCount: Int, totalPrice: Int) {
 @Composable
 @Preview
 fun PreviewCartScreen() {
-    val cartItem = listOf(
-        CartItem(
-            id = 1L,
-            name = "Bean Ring Gold",
-            image = "https://url.kr/8vwf1e",
-            price = 108000,
-            count = 1,
-        ),
-    )
-    val cartItems = List(7) { cartItem }.flatten()
-
-    CartScreen(
-        navController = rememberNavController(),
-        cartItems = cartItems,
-    )
+    CartScreen(navController = rememberNavController())
 }
 
 @Preview(showBackground = true)

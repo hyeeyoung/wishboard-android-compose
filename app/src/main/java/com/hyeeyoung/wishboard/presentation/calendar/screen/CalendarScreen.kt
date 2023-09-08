@@ -32,9 +32,84 @@ private const val INITIAL_PAGE = PAGE_COUNT / 2
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CalendarScreen(
-    notiList: List<NotiItem> = emptyList(),
     navController: NavHostController,
 ) {
+    // TODO 서버 연동 후 삭제
+    val notiList = listOf(
+        NotiItem(
+            1,
+            "https://image.msscdn.net/images/goods_img/20220222/2377269/2377269_16777177260753_500.jpg",
+            "W CLASSIC LOGO TEE white",
+            "https://www.musinsa.com/app/goods/2377269",
+            0,
+            NotiType.RESTOCK,
+            LocalDateTime.of(2023, 5, 27, 15, 0),
+        ),
+        NotiItem(
+            1,
+            "https://image.msscdn.net/images/goods_img/20220222/2377269/2377269_16777177260753_500.jpg",
+            "W CLASSIC LOGO TEE white",
+            "https://www.musinsa.com/app/goods/2377269",
+            0,
+            NotiType.RESTOCK,
+            LocalDateTime.of(2023, 6, 7, 15, 0),
+        ),
+        NotiItem(
+            1,
+            "https://image.msscdn.net/images/goods_img/20220222/2377269/2377269_16777177260753_500.jpg",
+            "W CLASSIC LOGO TEE white",
+            "https://www.musinsa.com/app/goods/2377269",
+            0,
+            NotiType.RESTOCK,
+            LocalDateTime.of(2023, 7, 3, 13, 30),
+        ),
+        NotiItem(
+            2,
+            "https://image.msscdn.net/images/goods_img/20230427/3267246/3267246_16825933559850_500.jpg",
+            "체리 자카드 패턴 숏 슬리브 가디건 [핑크]",
+            "https://www.musinsa.com/app/goods/3267246/0",
+            0,
+            NotiType.PREORDER,
+            LocalDateTime.of(2023, 7, 20, 0, 0),
+        ),
+        NotiItem(
+            2,
+            "https://image.msscdn.net/images/goods_img/20230427/3267246/3267246_16825933559850_500.jpg",
+            "체리 자카드 패턴 숏 슬리브 가디건 [핑크]",
+            "https://www.musinsa.com/app/goods/3267246/0",
+            0,
+            NotiType.PREORDER,
+            LocalDateTime.of(2023, 8, 10, 11, 0),
+        ),
+        NotiItem(
+            2,
+            "https://image.msscdn.net/images/goods_img/20230427/3267246/3267246_16825933559850_500.jpg",
+            "체리 자카드 패턴 숏 슬리브 가디건 [핑크]",
+            "https://www.musinsa.com/app/goods/3267246/0",
+            0,
+            NotiType.PREORDER,
+            LocalDateTime.of(2023, 8, 11, 14, 0),
+        ),
+        NotiItem(
+            2,
+            "https://image.msscdn.net/images/goods_img/20230427/3267246/3267246_16825933559850_500.jpg",
+            "체리 자카드 패턴 숏 슬리브 가디건 [핑크]",
+            "https://www.musinsa.com/app/goods/3267246/0",
+            0,
+            NotiType.PREORDER,
+            LocalDateTime.of(2023, 8, 22, 19, 0),
+        ),
+        NotiItem(
+            1,
+            "https://image.msscdn.net/images/goods_img/20220222/2377269/2377269_16777177260753_500.jpg",
+            "W CLASSIC LOGO TEE white",
+            "https://www.musinsa.com/app/goods/2377269",
+            0,
+            NotiType.RESTOCK,
+            LocalDateTime.of(2024, 5, 18, 20, 0),
+        ),
+    )
+
     WishboardTheme {
         var selectedDate by remember { mutableStateOf(LocalDate.now()) }
         var prevPage by remember { mutableStateOf(INITIAL_PAGE) }
@@ -89,87 +164,5 @@ fun CalendarScreen(
 @Preview(showBackground = true)
 @Composable
 fun CalendarPreview() {
-    CalendarScreen(
-        notiList = listOf(
-            NotiItem(
-                1,
-                "https://image.msscdn.net/images/goods_img/20220222/2377269/2377269_16777177260753_500.jpg",
-                "W CLASSIC LOGO TEE white",
-                "https://www.musinsa.com/app/goods/2377269",
-                0,
-                NotiType.RESTOCK,
-                LocalDateTime.of(2023, 5, 27, 15, 0),
-            ),
-            NotiItem(
-                1,
-                "https://image.msscdn.net/images/goods_img/20220222/2377269/2377269_16777177260753_500.jpg",
-                "W CLASSIC LOGO TEE white",
-                "https://www.musinsa.com/app/goods/2377269",
-                0,
-                NotiType.RESTOCK,
-                LocalDateTime.of(2023, 6, 7, 15, 0),
-            ),
-            NotiItem(
-                1,
-                "https://image.msscdn.net/images/goods_img/20220222/2377269/2377269_16777177260753_500.jpg",
-                "W CLASSIC LOGO TEE white",
-                "https://www.musinsa.com/app/goods/2377269",
-                0,
-                NotiType.RESTOCK,
-                LocalDateTime.of(2023, 7, 3, 13, 30),
-            ),
-            NotiItem(
-                2,
-                "https://image.msscdn.net/images/goods_img/20230427/3267246/3267246_16825933559850_500.jpg",
-                "체리 자카드 패턴 숏 슬리브 가디건 [핑크]",
-                "https://www.musinsa.com/app/goods/3267246/0",
-                0,
-                NotiType.PREORDER,
-                LocalDateTime.of(2023, 7, 20, 0, 0),
-            ),
-            NotiItem(
-                2,
-                "https://image.msscdn.net/images/goods_img/20230427/3267246/3267246_16825933559850_500.jpg",
-                "체리 자카드 패턴 숏 슬리브 가디건 [핑크]",
-                "https://www.musinsa.com/app/goods/3267246/0",
-                0,
-                NotiType.PREORDER,
-                LocalDateTime.of(2023, 8, 10, 11, 0),
-            ),
-            NotiItem(
-                2,
-                "https://image.msscdn.net/images/goods_img/20230427/3267246/3267246_16825933559850_500.jpg",
-                "체리 자카드 패턴 숏 슬리브 가디건 [핑크]",
-                "https://www.musinsa.com/app/goods/3267246/0",
-                0,
-                NotiType.PREORDER,
-                LocalDateTime.of(2023, 8, 11, 14, 0),
-            ),
-            NotiItem(
-                2,
-                "https://image.msscdn.net/images/goods_img/20230427/3267246/3267246_16825933559850_500.jpg",
-                "체리 자카드 패턴 숏 슬리브 가디건 [핑크]",
-                "https://www.musinsa.com/app/goods/3267246/0",
-                0,
-                NotiType.PREORDER,
-                LocalDateTime.of(2023, 8, 22, 19, 0),
-            ),
-            NotiItem(
-                1,
-                "https://image.msscdn.net/images/goods_img/20220222/2377269/2377269_16777177260753_500.jpg",
-                "W CLASSIC LOGO TEE white",
-                "https://www.musinsa.com/app/goods/2377269",
-                0,
-                NotiType.RESTOCK,
-                LocalDateTime.of(2024, 5, 18, 20, 0),
-            ),
-        ),
-        navController = rememberNavController(),
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun EmmptyCalendarPreview() {
     CalendarScreen(navController = rememberNavController())
 }
