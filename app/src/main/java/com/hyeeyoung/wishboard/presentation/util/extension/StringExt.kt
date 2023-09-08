@@ -4,6 +4,8 @@ import java.net.URL
 import java.text.NumberFormat
 import java.util.Locale
 
+fun String.isEmptyOrBlank() = this.isEmpty() || this.isBlank()
+
 /** url에서 도메인명 추출 */
 fun String.getDomainName(): String? {
     val host = URL(this).host
@@ -11,7 +13,10 @@ fun String.getDomainName(): String? {
 }
 
 /** 유효한 가격 문자열로 만들기 위해 적절하지 않는 문자를 제거 (ex. "123abc" -> "123", "000" -> "0") */
-fun String.makeValidPriceStr() = this.filter { it.isDigit() }.toIntOrNull()?.toString()
+fun String.makeValidPriceStr(): String? {
+    val input = if (this.length > 9) this.take(9) else this
+    return input.filter { it.isDigit() }.toIntOrNull()?.toString()
+}
 
 private const val EMPTY = -1
 

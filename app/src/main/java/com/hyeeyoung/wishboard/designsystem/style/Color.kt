@@ -26,6 +26,8 @@ val Gray600 = Color(0xFF474747)
 val Gray700 = Color(0xFF292929)
 
 val BlackAlpha5 = Color(0x0D000000)
+val BlackAlpha30 = Color(0x4D000000)
+val BlackAlpha70 = Color(0xB3000000)
 
 @Stable
 class WishBoardColors(
@@ -43,6 +45,8 @@ class WishBoardColors(
     gray600: Color,
     gray700: Color,
     blackAlpha5: Color,
+    blackAlpha30: Color,
+    blackAlpha70: Color,
 ) {
     var green200 by mutableStateOf(green200)
         private set
@@ -74,6 +78,12 @@ class WishBoardColors(
     var blackAlpha5 by mutableStateOf(blackAlpha5)
         private set
 
+    var blackAlpha30 by mutableStateOf(blackAlpha30)
+        private set
+
+    var blackAlpha70 by mutableStateOf(blackAlpha70)
+        private set
+
     fun copy(
         green200: Color = this.green200,
         green500: Color = this.green500,
@@ -89,6 +99,8 @@ class WishBoardColors(
         gray600: Color = this.gray600,
         gray700: Color = this.gray700,
         blackAlpha5: Color = this.blackAlpha5,
+        blackAlpha30: Color = this.blackAlpha30,
+        blackAlpha70: Color = this.blackAlpha70,
     ) = WishBoardColors(
         green200 = green200,
         green500 = green500,
@@ -104,6 +116,8 @@ class WishBoardColors(
         gray600 = gray600,
         gray700 = gray700,
         blackAlpha5 = blackAlpha5,
+        blackAlpha30 = blackAlpha30,
+        blackAlpha70 = blackAlpha70,
     )
 
     fun update(other: WishBoardColors) {
@@ -119,6 +133,8 @@ class WishBoardColors(
         gray600 = other.gray600
         gray700 = other.gray700
         blackAlpha5 = other.blackAlpha5
+        blackAlpha30 = other.blackAlpha30
+        blackAlpha70 = other.blackAlpha70
     }
 }
 
@@ -137,6 +153,8 @@ fun wishBoardLightColors(
     gray600: Color = Gray600,
     gray700: Color = Gray700,
     blackAlpha5: Color = BlackAlpha5,
+    blackAlpha30: Color = BlackAlpha30,
+    blackAlpha70: Color = BlackAlpha70,
 ) = WishBoardColors(
     green200,
     green500,
@@ -152,4 +170,6 @@ fun wishBoardLightColors(
     gray600,
     gray700,
     blackAlpha5,
+    blackAlpha30,
+    blackAlpha70,
 )
