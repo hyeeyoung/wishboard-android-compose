@@ -79,18 +79,19 @@ fun CartScreen(navController: NavHostController) {
                     CartItem(
                         cartItem = item,
                         moveToDetail = { id -> navController.navigate("${MainScreen.WishItemDetail.route}/$id") },
+                        onChangeItemCount = { count -> /*TODO*/ },
                     )
                     if (idx < cartItems.lastIndex) WishBoardDivider()
                 }
             }
 
-            CartTotalDisplay(totalCount = cartItems.size, totalPrice = 180000)
+            CartTotalDisplay(totalCount = cartItems.size, totalPrice = cartItems.sumOf { it.price * it.count })
         }
     }
 }
 
 @Composable
-fun CartItem(cartItem: CartItem, moveToDetail: (Long) -> Unit = {}) {
+fun CartItem(cartItem: CartItem, moveToDetail: (Long) -> Unit = {}, onChangeItemCount: (Int) -> Unit = {}) {
     val imageSize = 84
     Row(verticalAlignment = Alignment.CenterVertically) {
         ColoredImage(
@@ -121,10 +122,10 @@ fun CartItem(cartItem: CartItem, moveToDetail: (Long) -> Unit = {}) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.Bottom,
             ) {
-                ItemCountController(cartItem.count)
+                ItemCountController(count = cartItem.count, onChangeItemCount = { count -> onChangeItemCount(count) })
                 PriceText(
                     modifier = Modifier.padding(end = 16.dp, bottom = 16.dp),
-                    price = cartItem.price,
+                    price = cartItem.price * cartItem.count,
                     priceStyle = WishBoardTheme.typography.montserratH2,
                     wonStyle = WishBoardTheme.typography.suitD2,
                 )
@@ -134,11 +135,11 @@ fun CartItem(cartItem: CartItem, moveToDetail: (Long) -> Unit = {}) {
 }
 
 @Composable
-fun ItemCountController(count: Int) {
+fun ItemCountController(count: Int, onChangeItemCount: (Int) -> Unit) {
     Row(modifier = Modifier.padding(start = 2.dp, bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-        WishBoardIconButton(iconRes = R.drawable.ic_cart_minus, onClick = { /*TODO*/ })
+        WishBoardIconButton(iconRes = R.drawable.ic_cart_minus, onClick = { onChangeItemCount(-1) })
         Text(modifier = Modifier.width(18.dp), text = count.toString(), textAlign = TextAlign.Center)
-        WishBoardIconButton(iconRes = R.drawable.ic_cart_plus, onClick = { /*TODO*/ })
+        WishBoardIconButton(iconRes = R.drawable.ic_cart_plus, onClick = { onChangeItemCount(+1) })
     }
 }
 
