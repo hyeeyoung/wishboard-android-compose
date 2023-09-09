@@ -16,11 +16,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
@@ -59,10 +58,8 @@ import kotlinx.serialization.json.Json
 @Composable
 fun WishItemDetailScreen(navController: NavHostController, itemId: Long) {
     val systemUiController = rememberSystemUiController()
-
-    DisposableEffect(Unit) {
+    SideEffect {
         systemUiController.setNavigationBarColor(color = Gray700)
-        onDispose { systemUiController.setNavigationBarColor(color = Color.Transparent) }
     }
 
     val itemDetail = WishItemDetail(
