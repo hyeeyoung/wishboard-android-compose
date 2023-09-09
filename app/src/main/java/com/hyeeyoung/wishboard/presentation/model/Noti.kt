@@ -10,4 +10,5 @@ data class Noti(
     val type: NotiType,
     val date: LocalDateTime,
     val isRead: Boolean,
+    val site: String? = null,
 )

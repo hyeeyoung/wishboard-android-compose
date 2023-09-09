@@ -21,10 +21,11 @@ import com.hyeeyoung.wishboard.designsystem.component.ColoredImage
 import com.hyeeyoung.wishboard.designsystem.component.button.CartButton
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.domain.model.WishItem
+import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 
 @Composable
-fun WishItem(modifier: Modifier = Modifier, wishItem: WishItem) {
-    Column(modifier = modifier) {
+fun WishItem(modifier: Modifier = Modifier, wishItem: WishItem, onClickItem: () -> Unit = {}) {
+    Column(modifier = modifier.noRippleClickable { onClickItem() }) {
         var cartState by remember { mutableStateOf(wishItem.isInCart) }
         // 이미지 및 장바구니 버튼
         Box() {

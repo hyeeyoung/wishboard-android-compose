@@ -12,36 +12,78 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.component.ColoredImage
+import com.hyeeyoung.wishboard.designsystem.component.WishBoardSnackbarHost
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
+import com.hyeeyoung.wishboard.designsystem.component.showSnackbar
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardMainTopBar
 import com.hyeeyoung.wishboard.designsystem.style.Green500
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.presentation.model.Noti
+import com.hyeeyoung.wishboard.presentation.util.extension.getDomainName
+import com.hyeeyoung.wishboard.presentation.util.extension.moveToWebView
+import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.util.type.NotiType
 import java.time.LocalDateTime
 
 @Composable
-fun NotiScreen(notiList: List<Noti> = emptyList()) {
-    Scaffold(topBar = {
-        WishBoardMainTopBar(titleRes = R.string.noti)
-    }) { paddingValues ->
+fun NotiScreen(navController: NavHostController) {
+    val noti = listOf(
+        Noti(
+            itemId = 1L,
+            itemName = "Bean Ring Gold",
+            itemImage = "https://url.kr/8vwf1e",
+            type = NotiType.RESTOCK,
+            date = LocalDateTime.now(),
+            isRead = false,
+            site = "https://www.naver.com/",
+        ),
+    )
+    val notiList = List(7) { noti }.flatten()
+
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+    val snackbarMsgForNotiLink = stringResource(id = R.string.noti_item_url_snackbar_text)
+
+    Scaffold(
+        topBar = { WishBoardMainTopBar(titleRes = R.string.noti) },
+        snackbarHost = { WishBoardSnackbarHost(hostState = snackbarHostState) },
+    ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
                 .background(WishBoardTheme.colors.white)
                 .padding(top = paddingValues.calculateTopPadding()),
         ) {
             itemsIndexed(notiList) { idx, item ->
-                NotiItem(noti = item)
+                NotiItem(
+                    noti = item,
+                    onClickNotiWithLink = { site ->
+                        navController.moveToWebView(
+                            title = site.getDomainName(),
+                            url = site,
+                        )
+                    },
+                    onClickNotiWithoutLink = {
+                        snackbarHostState.showSnackbar(
+                            snackbarMsgForNotiLink,
+                            coroutineScope,
+                        )
+                    },
+                )
                 if (idx < notiList.lastIndex) WishBoardDivider()
             }
         }
@@ -49,12 +91,19 @@ fun NotiScreen(notiList: List<Noti> = emptyList()) {
 }
 
 @Composable
-fun NotiItem(noti: Noti) {
+fun NotiItem(noti: Noti, onClickNotiWithLink: (String) -> Unit = {}, onClickNotiWithoutLink: () -> Unit = {}) {
     val imageSize = 80
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(16.dp)
+            .noRippleClickable {
+                if (!noti.site.isNullOrEmpty()) {
+                    onClickNotiWithLink(noti.site)
+                } else {
+                    onClickNotiWithoutLink()
+                }
+            },
     ) {
         ColoredImage(
             model = noti.itemImage,
@@ -97,21 +146,7 @@ fun NotiItem(noti: Noti) {
 @Composable
 @Preview
 fun PreviewNotiScreen() {
-    val noti = listOf(
-        Noti(
-            itemId = 1L,
-            itemName = "Bean Ring Gold",
-            itemImage = "https://url.kr/8vwf1e",
-            type = NotiType.RESTOCK,
-            date = LocalDateTime.now(),
-            false,
-        ),
-    )
-    val notiList = List(7) { noti }.flatten()
-
-    NotiScreen(
-        notiList = notiList,
-    )
+    NotiScreen(rememberNavController())
 }
 
 @Preview(showBackground = true)
@@ -124,6 +159,7 @@ fun PreviewNotiItem() {
         type = NotiType.RESTOCK,
         date = LocalDateTime.now(),
         false,
+        site = "https://www.naver.com/",
     )
 
     Column() {

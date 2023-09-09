@@ -40,8 +40,7 @@ import java.time.LocalDateTime
 fun CalendarSchedule(
     selectedDate: LocalDate,
     notiItems: List<NotiItem>,
-    onClickNotiWithLink: (String) -> Unit,
-    onClickNotiWithoutLink: () -> Unit,
+    onClickSchedule: (Long) -> Unit,
 ) {
     Column(Modifier.padding(start = 16.dp, end = 16.dp, top = 32.dp)) {
         Text(
@@ -70,8 +69,7 @@ fun CalendarSchedule(
                 items(notiItems) { noti ->
                     ScheduleItem(
                         noti = noti,
-                        onClickNotiWithLink = onClickNotiWithLink,
-                        onClickNotiWithoutLink,
+                        onClickSchedule = onClickSchedule,
                     )
                 }
             }
@@ -104,18 +102,13 @@ fun EmptySchedule(modifier: Modifier) {
 @Composable
 fun ScheduleItem(
     noti: NotiItem,
-    onClickNotiWithLink: (String) -> Unit,
-    onClickNotiWithoutLink: () -> Unit,
+    onClickSchedule: (Long) -> Unit,
 ) {
     ConstraintLayout(
         modifier = Modifier
             .fillMaxWidth()
             .noRippleClickable {
-                if (noti.itemUrl.isNullOrEmpty()) {
-                    onClickNotiWithoutLink()
-                } else {
-                    onClickNotiWithLink(noti.itemUrl)
-                }
+                onClickSchedule(noti.itemId)
             }
             .background(color = WishBoardTheme.colors.gray50, RoundedCornerShape(24.dp))
             .padding(16.dp),
@@ -169,8 +162,7 @@ fun CalendarEmptySchedulePreview() {
     CalendarSchedule(
         selectedDate = LocalDate.now(),
         notiItems = emptyList(),
-        onClickNotiWithLink = {},
-        onClickNotiWithoutLink = {},
+        onClickSchedule = {},
     )
 }
 
@@ -199,7 +191,6 @@ fun CalendarSchedulePreview() {
                 LocalDateTime.of(2023, 7, 20, 0, 0),
             ),
         ),
-        onClickNotiWithLink = {},
-        onClickNotiWithoutLink = {},
+        onClickSchedule = {},
     )
 }

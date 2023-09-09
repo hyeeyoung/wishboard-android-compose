@@ -22,7 +22,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.hyeeyoung.wishboard.R
-import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
 import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardTextField
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
@@ -86,7 +85,7 @@ fun ProfileEditScreen(navController: NavHostController) {
 
                 WishBoardWideButton(
                     enabled = false,
-                    onClick = { navController.navigate(MainScreen.MyProfile.route) },
+                    onClick = { /*TODO*/ },
                     text = stringResource(id = R.string.complete),
                 )
             }

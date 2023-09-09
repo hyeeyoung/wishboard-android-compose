@@ -21,6 +21,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.hyeeyoung.wishboard.R
+import com.hyeeyoung.wishboard.config.navigation.screen.Calendar
+import com.hyeeyoung.wishboard.config.navigation.screen.Cart
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
@@ -77,8 +79,8 @@ fun WishlistScreen(modifier: Modifier = Modifier, navController: NavHostControll
     WishboardTheme { // TODO Theme 사용 여부 고려
         Surface(modifier = modifier) {
             Scaffold(topBar = {
-                WishlistTopBar(onClickCalendar = {
-                    navController.navigate(MainScreen.Calendar.route)
+                WishlistTopBar(onClickCart = { navController.navigate(Cart.route) }, onClickCalendar = {
+                    navController.navigate(Calendar.route)
                 })
             }) { paddingValues ->
                 LazyVerticalGrid(
@@ -89,7 +91,14 @@ fun WishlistScreen(modifier: Modifier = Modifier, navController: NavHostControll
                         ),
                     columns = GridCells.Fixed(2),
                 ) {
-                    items(wishList) { wishItem -> WishItem(wishItem = wishItem) }
+                    items(wishList) { wishItem ->
+                        WishItem(
+                            wishItem = wishItem,
+                            onClickItem = {
+                                navController.navigate("${MainScreen.WishItemDetail.route}/${wishItem.id}")
+                            },
+                        )
+                    }
                 }
             }
         }
@@ -97,7 +106,7 @@ fun WishlistScreen(modifier: Modifier = Modifier, navController: NavHostControll
 }
 
 @Composable
-fun WishlistTopBar(onClickCalendar: () -> Unit) { // TODO 공용 TopBar 추출
+fun WishlistTopBar(onClickCart: () -> Unit, onClickCalendar: () -> Unit) { // TODO 공용 TopBar 추출
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -111,7 +120,7 @@ fun WishlistTopBar(onClickCalendar: () -> Unit) { // TODO 공용 TopBar 추출
             contentDescription = null,
         )
         Row() {
-            WishBoardIconButton(iconRes = R.drawable.ic_cart, onClick = {})
+            WishBoardIconButton(iconRes = R.drawable.ic_cart, onClick = { onClickCart() })
             WishBoardIconButton(iconRes = R.drawable.ic_calendar, onClick = { onClickCalendar() })
         }
     }

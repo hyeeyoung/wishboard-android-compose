@@ -21,6 +21,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,6 +37,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardNarrowButton
@@ -54,6 +56,11 @@ import kotlinx.datetime.LocalDateTime
 
 @Composable
 fun WishUploadScreen(navController: NavHostController, itemDetail: WishItemDetail? = null) {
+    val systemUiController = rememberSystemUiController()
+    SideEffect {
+        systemUiController.setNavigationBarColor(color = Color.Transparent)
+    }
+
     val imageInput by remember { mutableStateOf<Uri?>(null) }
     val nameInput = remember { mutableStateOf(itemDetail?.name ?: "") }
     val priceInput = remember { mutableStateOf(itemDetail?.price?.toString() ?: "") }
