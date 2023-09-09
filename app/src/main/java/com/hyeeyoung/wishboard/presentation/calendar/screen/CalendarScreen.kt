@@ -6,16 +6,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.hyeeyoung.wishboard.R
-import com.hyeeyoung.wishboard.designsystem.component.WishBoardSnackbarHost
-import com.hyeeyoung.wishboard.designsystem.component.showSnackbar
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
 import com.hyeeyoung.wishboard.presentation.calendar.component.CalendarHeader
@@ -110,6 +108,11 @@ fun CalendarScreen(
         ),
     )
 
+    val systemUiController = rememberSystemUiController()
+    SideEffect {
+        systemUiController.setNavigationBarColor(Color.Transparent)
+    }
+
     WishboardTheme {
         var selectedDate by remember { mutableStateOf(LocalDate.now()) }
         var prevPage by remember { mutableStateOf(INITIAL_PAGE) }
@@ -118,13 +121,8 @@ fun CalendarScreen(
         val curDateNoti = curMonthNoti.filter { it.notiDate.dayOfMonth == selectedDate.dayOfMonth }
         val pagerState = rememberPagerState(initialPage = INITIAL_PAGE)
 
-        val snackbarHostState = remember { SnackbarHostState() }
-        val coroutineScope = rememberCoroutineScope()
-        val snackbarMsgForNotiLink = stringResource(id = R.string.noti_item_url_snackbar_text)
-
         Scaffold(
             topBar = { CalendarHeader(selectedDate = selectedDate, onClickBack = { navController.popBackStack() }) },
-            snackbarHost = { WishBoardSnackbarHost(hostState = snackbarHostState) },
         ) { paddingValues ->
             Column(
                 modifier = Modifier
@@ -148,12 +146,8 @@ fun CalendarScreen(
                 CalendarSchedule(
                     selectedDate = selectedDate,
                     notiItems = curDateNoti,
-                    onClickNotiWithLink = { /*TODO*/ },
-                    onClickNotiWithoutLink = {
-                        snackbarHostState.showSnackbar(
-                            snackbarMsgForNotiLink,
-                            coroutineScope,
-                        )
+                    onClickSchedule = { id ->
+                        navController.navigate("${MainScreen.WishItemDetail.route}/$id")
                     },
                 )
             }
