@@ -49,7 +49,8 @@ fun NotiScreen(navController: NavHostController) {
             itemImage = "https://url.kr/8vwf1e",
             type = NotiType.RESTOCK,
             date = LocalDateTime.now(),
-            false,
+            isRead = false,
+            site = "https://www.naver.com/",
         ),
     )
     val notiList = List(7) { noti }.flatten()
