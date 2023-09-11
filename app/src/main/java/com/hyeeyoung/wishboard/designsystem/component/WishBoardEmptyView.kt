@@ -1,4 +1,4 @@
-package com.hyeeyoung.wishboard.designsystem.component.text
+package com.hyeeyoung.wishboard.designsystem.component
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
