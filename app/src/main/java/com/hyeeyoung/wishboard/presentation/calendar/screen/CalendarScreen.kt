@@ -29,9 +29,7 @@ private const val INITIAL_PAGE = PAGE_COUNT / 2
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun CalendarScreen(
-    navController: NavHostController,
-) {
+fun CalendarScreen(navController: NavHostController) {
     // TODO 서버 연동 후 삭제
     val notiList = listOf(
         NotiItem(

@@ -1,6 +1,7 @@
 package com.hyeeyoung.wishboard.presentation.folder
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -11,7 +12,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
+import com.hyeeyoung.wishboard.designsystem.component.WishBoardEmptyView
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
@@ -46,21 +49,28 @@ fun FolderDetailScreen(
                 ),
             )
         }) { paddingValues ->
-            LazyVerticalGrid(
-                modifier = Modifier
-                    .background(WishBoardTheme.colors.white)
-                    .padding(
-                        top = paddingValues.calculateTopPadding(),
-                    ),
-                columns = GridCells.Fixed(2),
-            ) {
-                items(wishList) { wishItem ->
-                    WishItem(
-                        wishItem = wishItem,
-                        onClickItem = {
-                            wishNavController.navigate("${MainScreen.WishItemDetail.route}/${wishItem.id}")
-                        },
-                    )
+            val contentModifier = Modifier
+                .fillMaxSize()
+                .background(WishBoardTheme.colors.white)
+                .padding(
+                    top = paddingValues.calculateTopPadding(),
+                )
+
+            if (wishList.isEmpty()) {
+                WishBoardEmptyView(modifier = contentModifier, guideTextRes = R.string.empty_wishlist_guide_text)
+            } else {
+                LazyVerticalGrid(
+                    modifier = contentModifier,
+                    columns = GridCells.Fixed(2),
+                ) {
+                    items(wishList) { wishItem ->
+                        WishItem(
+                            wishItem = wishItem,
+                            onClickItem = {
+                                wishNavController.navigate("${MainScreen.WishItemDetail.route}/${wishItem.id}")
+                            },
+                        )
+                    }
                 }
             }
         }
