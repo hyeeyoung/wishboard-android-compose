@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -31,6 +32,7 @@ import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.designsystem.component.ColoredImage
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.dialog.WishBoardDialog
+import com.hyeeyoung.wishboard.designsystem.component.text.WishBoardEmptyView
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardMainTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.presentation.model.Folder
@@ -62,20 +64,27 @@ fun FolderScreen(navController: NavHostController) {
             },
         )
     }) { paddingValues ->
-        LazyVerticalGrid(
-            modifier = Modifier
-                .background(WishBoardTheme.colors.white)
-                .padding(top = paddingValues.calculateTopPadding(), start = 8.dp, end = 8.dp),
-            columns = GridCells.Fixed(2),
-        ) {
-            items(folders) { folder ->
-                FolderItem(
-                    folder = folder,
-                    onClickFolder = { folderId ->
-                        navController.navigate("${MainScreen.FolderDetail.route}/$folderId/${folder.name}")
-                    },
-                    onClickMore = { },
-                )
+        val contentModifier = Modifier
+            .fillMaxSize()
+            .background(WishBoardTheme.colors.white)
+            .padding(top = paddingValues.calculateTopPadding(), start = 8.dp, end = 8.dp)
+
+        if (folders.isEmpty()) {
+            WishBoardEmptyView(modifier = contentModifier, guideTextRes = R.string.empty_folder_guide_text)
+        } else {
+            LazyVerticalGrid(
+                modifier = contentModifier,
+                columns = GridCells.Fixed(2),
+            ) {
+                items(folders) { folder ->
+                    FolderItem(
+                        folder = folder,
+                        onClickFolder = { folderId ->
+                            navController.navigate("${MainScreen.FolderDetail.route}/$folderId/${folder.name}")
+                        },
+                        onClickMore = { },
+                    )
+                }
             }
         }
 

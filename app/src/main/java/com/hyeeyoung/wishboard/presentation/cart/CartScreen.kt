@@ -37,6 +37,7 @@ import com.hyeeyoung.wishboard.designsystem.component.ColoredImage
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.dialog.WishBoardDialog
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
+import com.hyeeyoung.wishboard.designsystem.component.text.WishBoardEmptyView
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.designsystem.style.Green500
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
@@ -79,20 +80,28 @@ fun CartScreen(navController: NavHostController) {
                 .background(WishBoardTheme.colors.white)
                 .padding(top = paddingValues.calculateTopPadding()),
         ) {
-            LazyColumn(
-                modifier = Modifier.weight(1f),
-            ) {
-                itemsIndexed(cartItems) { idx, item ->
-                    CartItem(
-                        cartItem = item,
-                        moveToDetail = { id -> navController.navigate("${MainScreen.WishItemDetail.route}/$id") },
-                        onChangeItemCount = { count -> /*TODO*/ },
-                        onClickDelete = { id -> isOpenDialog = true },
-                    )
-                    if (idx < cartItems.lastIndex) WishBoardDivider()
+            if (cartItems.isEmpty()) {
+                WishBoardEmptyView(
+                    modifier = Modifier
+                        .weight(1f)
+                        .align(Alignment.CenterHorizontally),
+                    guideTextRes = R.string.empty_cart_guide_text,
+                )
+            } else {
+                LazyColumn(
+                    modifier = Modifier.weight(1f),
+                ) {
+                    itemsIndexed(cartItems) { idx, item ->
+                        CartItem(
+                            cartItem = item,
+                            moveToDetail = { id -> navController.navigate("${MainScreen.WishItemDetail.route}/$id") },
+                            onChangeItemCount = { count -> /*TODO*/ },
+                            onClickDelete = { id -> isOpenDialog = true },
+                        )
+                        if (idx < cartItems.lastIndex) WishBoardDivider()
+                    }
                 }
             }
-
             CartTotalDisplay(totalCount = cartItems.size, totalPrice = cartItems.sumOf { it.price * it.count })
         }
 

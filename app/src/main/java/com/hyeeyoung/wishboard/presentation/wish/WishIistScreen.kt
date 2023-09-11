@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -11,7 +12,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,13 +25,14 @@ import com.hyeeyoung.wishboard.config.navigation.screen.Calendar
 import com.hyeeyoung.wishboard.config.navigation.screen.Cart
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
+import com.hyeeyoung.wishboard.designsystem.component.text.WishBoardEmptyView
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
 import com.hyeeyoung.wishboard.domain.model.WishItem
 import com.hyeeyoung.wishboard.presentation.wish.component.WishItem
 
 @Composable
-fun WishlistScreen(modifier: Modifier = Modifier, navController: NavHostController) {
+fun WishlistScreen(navController: NavHostController) {
     val wishList = listOf(
         WishItem(
             1L,
@@ -76,19 +77,23 @@ fun WishlistScreen(modifier: Modifier = Modifier, navController: NavHostControll
             false,
         ),
     )
-    WishboardTheme { // TODO Theme 사용 여부 고려
-        Surface(modifier = modifier) {
-            Scaffold(topBar = {
-                WishlistTopBar(onClickCart = { navController.navigate(Cart.route) }, onClickCalendar = {
-                    navController.navigate(Calendar.route)
-                })
-            }) { paddingValues ->
+
+    WishboardTheme {
+        Scaffold(topBar = {
+            WishlistTopBar(onClickCart = { navController.navigate(Cart.route) }, onClickCalendar = {
+                navController.navigate(Calendar.route)
+            })
+        }) { paddingValues ->
+            val contentModifier = Modifier
+                .fillMaxSize()
+                .background(WishBoardTheme.colors.white)
+                .padding(top = paddingValues.calculateTopPadding())
+
+            if (wishList.isEmpty()) {
+                WishBoardEmptyView(modifier = contentModifier, guideTextRes = R.string.empty_wishlist_guide_text)
+            } else {
                 LazyVerticalGrid(
-                    modifier = Modifier
-                        .background(WishBoardTheme.colors.white)
-                        .padding(
-                            top = paddingValues.calculateTopPadding(),
-                        ),
+                    modifier = contentModifier,
                     columns = GridCells.Fixed(2),
                 ) {
                     items(wishList) { wishItem ->

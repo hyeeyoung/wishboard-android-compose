@@ -4,6 +4,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -30,6 +31,7 @@ import com.hyeeyoung.wishboard.designsystem.component.ColoredImage
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardSnackbarHost
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
 import com.hyeeyoung.wishboard.designsystem.component.showSnackbar
+import com.hyeeyoung.wishboard.designsystem.component.text.WishBoardEmptyView
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardMainTopBar
 import com.hyeeyoung.wishboard.designsystem.style.Green500
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
@@ -63,28 +65,33 @@ fun NotiScreen(navController: NavHostController) {
         topBar = { WishBoardMainTopBar(titleRes = R.string.noti) },
         snackbarHost = { WishBoardSnackbarHost(hostState = snackbarHostState) },
     ) { paddingValues ->
-        LazyColumn(
-            modifier = Modifier
-                .background(WishBoardTheme.colors.white)
-                .padding(top = paddingValues.calculateTopPadding()),
-        ) {
-            itemsIndexed(notiList) { idx, item ->
-                NotiItem(
-                    noti = item,
-                    onClickNotiWithLink = { site ->
-                        navController.moveToWebView(
-                            title = site.getDomainName(),
-                            url = site,
-                        )
-                    },
-                    onClickNotiWithoutLink = {
-                        snackbarHostState.showSnackbar(
-                            snackbarMsgForNotiLink,
-                            coroutineScope,
-                        )
-                    },
-                )
-                if (idx < notiList.lastIndex) WishBoardDivider()
+        val contentModifier = Modifier
+            .fillMaxSize()
+            .background(WishBoardTheme.colors.white)
+            .padding(top = paddingValues.calculateTopPadding())
+
+        if (notiList.isEmpty()) {
+            WishBoardEmptyView(modifier = contentModifier, guideTextRes = R.string.empty_folder_guide_text)
+        } else {
+            LazyColumn(modifier = contentModifier) {
+                itemsIndexed(notiList) { idx, item ->
+                    NotiItem(
+                        noti = item,
+                        onClickNotiWithLink = { site ->
+                            navController.moveToWebView(
+                                title = site.getDomainName(),
+                                url = site,
+                            )
+                        },
+                        onClickNotiWithoutLink = {
+                            snackbarHostState.showSnackbar(
+                                snackbarMsgForNotiLink,
+                                coroutineScope,
+                            )
+                        },
+                    )
+                    if (idx < notiList.lastIndex) WishBoardDivider()
+                }
             }
         }
     }
