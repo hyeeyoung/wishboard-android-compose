@@ -7,7 +7,12 @@
     <string name="save">저장</string>
     <string name="next">다음</string>
     <string name="edit">편집</string>
+    <string name="later">나중에</string>
     <string name="complete">완료</string>
+    <string name="cancel">취소</string>
+    <string name="delete">삭제</string>
+
+    <!-- Format -->
     <string name="step">%d/%d 단계</string>
     <string name="timer_format">%d:%d</string>
 
@@ -118,4 +123,30 @@
     <string name="nav_menu_label_add">ADD</string>
     <string name="nav_menu_label_notice">NOTICE</string>
     <string name="nav_menu_label_my">MY</string>
+
+    <!-- Dialog -->
+    <string name="dialog_update_title">업데이트 안내</string>
+    <string name="dialog_update_description">위시보드가 유저분들에게 더 나은 경험을\n제공하기 위해 사용성을 개선했어요!\n더 새로워진 위시보드를 만나보세요 😆</string>
+    <string name="dialog_update_confirm_btn_text">업데이트</string>
+
+    <string name="dialog_noti_title">알림 허용</string>
+    <string name="dialog_noti_description">알림을 받아보시겠어요?\n직접 등록하신 아이템의 재입고 날짜 등의\n상품 일정 알림을 받으실 거에요.</string>
+    <string name="dialog_noti_dismiss_btn_text">나중에</string>
+    <string name="dialog_noti_confirm_btn_text">허용</string>
+
+    <string name="dialog_item_delete_title">아이템 삭제</string>
+    <string name="dialog_item_delete_description">정말 아이템을 삭제하시겠어요?\n삭제된 아이템은 다시 복구할 수 없어요!</string>
+
+    <string name="dialog_cart_title">장바구니에서 삭제</string>
+    <string name="dialog_cart_description">정말 장바구니에서 아이템을 삭제하시겠어요?</string>
+
+    <string name="dialog_folder_delete_title">폴더 삭제</string>
+    <string name="dialog_folder_delete_description">정말 폴더를 삭제하시겠어요?\n폴더가 삭제되어도 아이템은 사라지지 않아요</string>
+
+    <string name="dialog_logout_description">정말 로그아웃 하시겠어요?</string>
+
+    <string name="dialog_withdraw_title">회원 탈퇴</string>
+    <string name="dialog_withdraw_description">정말 탈퇴하시겠습니까?\n탈퇴 시 앱 내 모든 데이터가 사라집니다.\n서비스를 탈퇴하시려면 이메일을 입력해 주세요.</string>
+    <string name="dialog_withdraw_confirm_btn_text">탈퇴</string>
+
 </resources>

@@ -35,7 +35,7 @@ fun WishBoardDialog(
     textRes: WishBoardDialogTextRes,
     isWarningDialog: Boolean = true,
     onClickConfirm: () -> Unit,
-    onDismissRequest: () -> Unit
+    onDismissRequest: () -> Unit,
 ) {
     if (!isOpen) return
     Dialog(onDismissRequest = { onDismissRequest() }) {
@@ -43,19 +43,20 @@ fun WishBoardDialog(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(color = WishBoardTheme.colors.white, shape = RoundedCornerShape(16.dp))
-                .padding(top = 24.dp), horizontalAlignment = Alignment.CenterHorizontally
+                .padding(top = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
                 text = stringResource(textRes.titleRes),
                 style = WishBoardTheme.typography.suitH3,
-                color = WishBoardTheme.colors.gray600
+                color = WishBoardTheme.colors.gray600,
             )
             Text(
                 modifier = Modifier.padding(top = 8.dp, bottom = 32.dp, start = 16.dp, end = 16.dp),
                 text = stringResource(textRes.descriptionRes),
                 style = WishBoardTheme.typography.suitD2M,
                 color = WishBoardTheme.colors.gray300,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
             )
 
             WishBoardDivider()
@@ -65,14 +66,14 @@ fun WishBoardDialog(
                     modifier = Modifier
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
-                            indication = rememberRipple(color = WishBoardTheme.colors.gray150)
+                            indication = rememberRipple(color = WishBoardTheme.colors.gray150),
                         ) { onDismissRequest() }
                         .weight(1f)
                         .padding(vertical = 16.dp),
                     text = stringResource(id = textRes.dismissBtnTextRes),
                     style = WishBoardTheme.typography.suitB3,
                     color = WishBoardTheme.colors.gray600,
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
                 )
 
                 Divider(
@@ -86,7 +87,7 @@ fun WishBoardDialog(
                     modifier = Modifier
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
-                            indication = rememberRipple(color = WishBoardTheme.colors.gray150)
+                            indication = rememberRipple(color = WishBoardTheme.colors.gray150),
                         ) {
                             onClickConfirm()
                             onDismissRequest()
@@ -96,7 +97,7 @@ fun WishBoardDialog(
                     text = stringResource(id = textRes.confirmBtnTextRes),
                     style = WishBoardTheme.typography.suitB3,
                     color = if (isWarningDialog) WishBoardTheme.colors.pink700 else WishBoardTheme.colors.green700,
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
                 )
             }
         }
@@ -115,6 +116,6 @@ fun PreviewWishBoardDialog() {
             confirmBtnTextRes = R.string.dialog_noti_confirm_btn_text,
         ),
         onClickConfirm = {},
-        onDismissRequest = {}
+        onDismissRequest = {},
     )
 }
