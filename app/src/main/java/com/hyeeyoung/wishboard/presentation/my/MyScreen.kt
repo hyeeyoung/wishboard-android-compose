@@ -35,9 +35,11 @@ import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.designsystem.component.ColoredImage
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardToggleButton
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardMiniButton
+import com.hyeeyoung.wishboard.designsystem.component.dialog.WishBoardDialog
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardThickDivider
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardMainTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
+import com.hyeeyoung.wishboard.presentation.model.WishBoardDialogTextRes
 import com.hyeeyoung.wishboard.presentation.util.constant.WishBoardUrl
 import com.hyeeyoung.wishboard.presentation.util.extension.moveToWebView
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
@@ -46,7 +48,10 @@ import com.hyeeyoung.wishboard.presentation.util.extension.sendMail
 @Composable
 fun MyScreen(navController: NavHostController) {
     // TODO 클릭 이벤트 핸들링
+
     val context = LocalContext.current
+    var dialogType by remember { mutableStateOf<DialogType?>(null) }
+
     val myMenuComponents =
         listOf(
             MyMenuComponent.Divider,
@@ -102,8 +107,14 @@ fun MyScreen(navController: NavHostController) {
                 },
             ),
             MyMenuComponent.Divider,
-            MyMenuComponent.Menu(nameRes = R.string.my_menu_logout, onClickMenu = {}),
-            MyMenuComponent.Menu(nameRes = R.string.my_menu_withdraw, onClickMenu = {}),
+            MyMenuComponent.Menu(
+                nameRes = R.string.my_menu_logout,
+                onClickMenu = { dialogType = DialogType.LOGOUT },
+            ),
+            MyMenuComponent.Menu(
+                nameRes = R.string.my_menu_withdraw,
+                onClickMenu = { dialogType = DialogType.WITHDRAW },
+            ),
         )
 
     Scaffold(topBar = {
@@ -122,6 +133,16 @@ fun MyScreen(navController: NavHostController) {
                 }
             }
             item { Spacer(modifier = Modifier.size(64.dp)) }
+        }
+
+        dialogType?.let { type ->
+            WishBoardDialog(
+                isOpen = true,
+                textRes = type.dialogTextRes,
+                isWarningDialog = type.isWaringDialog,
+                onClickConfirm = {},
+                onDismissRequest = { dialogType = null },
+            )
         }
     }
 }
@@ -190,6 +211,27 @@ fun MenuItem(menu: MyMenuComponent.Menu) {
         )
         menu.endComponent?.let { endComponent -> endComponent() }
     }
+}
+
+enum class DialogType(val dialogTextRes: WishBoardDialogTextRes, val isWaringDialog: Boolean) {
+    LOGOUT(
+        WishBoardDialogTextRes(
+            titleRes = R.string.my_menu_logout,
+            descriptionRes = R.string.dialog_logout_description,
+            dismissBtnTextRes = R.string.cancel,
+            confirmBtnTextRes = R.string.my_menu_logout,
+        ),
+        true,
+    ),
+    WITHDRAW(
+        WishBoardDialogTextRes(
+            titleRes = R.string.dialog_withdraw_title,
+            descriptionRes = R.string.dialog_withdraw_description,
+            dismissBtnTextRes = R.string.cancel,
+            confirmBtnTextRes = R.string.dialog_withdraw_confirm_btn_text,
+        ),
+        true,
+    ),
 }
 
 @Composable

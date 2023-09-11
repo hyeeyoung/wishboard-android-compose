@@ -17,6 +17,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,11 +39,13 @@ import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen.Upload.ARG_IT
 import com.hyeeyoung.wishboard.designsystem.component.ColoredImage
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
+import com.hyeeyoung.wishboard.designsystem.component.dialog.WishBoardDialog
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.designsystem.style.Gray700
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
+import com.hyeeyoung.wishboard.presentation.model.WishBoardDialogTextRes
 import com.hyeeyoung.wishboard.presentation.model.WishBoardString
 import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.model.WishItemDetail
@@ -76,6 +82,8 @@ fun WishItemDetailScreen(navController: NavHostController, itemId: Long) {
         createAt = "1주 전",
     ) // TODO 시간 포맷 적용 및 서버 연동 시 삭제
 
+    var isOpenDialog by remember { mutableStateOf(false) }
+
     WishboardTheme { // TODO Theme 사용 여부 고려
         Scaffold(topBar = {
             WishBoardTopBar(
@@ -83,6 +91,7 @@ fun WishItemDetailScreen(navController: NavHostController, itemId: Long) {
                 endComponent = { modifier ->
                     TopBarEndIcons(
                         modifier,
+                        onClickDelete = { isOpenDialog = true },
                         onClickEdit = {
                             navController.navigate(
                                 "${MainScreen.Upload.route}?$ARG_ITEM_DETAIL=${
@@ -113,6 +122,18 @@ fun WishItemDetailScreen(navController: NavHostController, itemId: Long) {
                     isGreen = false,
                 ) // TODO 비활성화 처리
             }
+
+            WishBoardDialog(
+                isOpen = isOpenDialog,
+                textRes = WishBoardDialogTextRes(
+                    titleRes = R.string.dialog_item_delete_title,
+                    descriptionRes = R.string.dialog_item_delete_description,
+                    dismissBtnTextRes = R.string.cancel,
+                    confirmBtnTextRes = R.string.delete,
+                ),
+                onClickConfirm = {},
+                onDismissRequest = { isOpenDialog = false },
+            )
         }
     }
 }
@@ -201,9 +222,9 @@ private fun WishItemDetailContents(modifier: Modifier, itemDetail: WishItemDetai
 }
 
 @Composable
-private fun TopBarEndIcons(modifier: Modifier, onClickEdit: () -> Unit) {
+private fun TopBarEndIcons(modifier: Modifier, onClickDelete: () -> Unit, onClickEdit: () -> Unit) {
     Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
-        WishBoardIconButton(iconRes = R.drawable.ic_trash, onClick = { /*TODO*/ })
+        WishBoardIconButton(iconRes = R.drawable.ic_trash, onClick = { onClickDelete() })
         WishBoardIconButton(iconRes = R.drawable.ic_edit, onClick = { onClickEdit() })
         Spacer(modifier = Modifier.size(8.dp))
     }
