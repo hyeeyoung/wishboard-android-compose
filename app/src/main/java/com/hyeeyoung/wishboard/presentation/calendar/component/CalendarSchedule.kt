@@ -23,7 +23,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.component.ColoredImage
-import com.hyeeyoung.wishboard.designsystem.component.text.WishBoardEmptyView
+import com.hyeeyoung.wishboard.designsystem.component.WishBoardEmptyView
 import com.hyeeyoung.wishboard.designsystem.style.Gray700
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.presentation.model.NotiItem

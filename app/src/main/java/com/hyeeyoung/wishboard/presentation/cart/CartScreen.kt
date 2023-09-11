@@ -34,10 +34,10 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.designsystem.component.ColoredImage
+import com.hyeeyoung.wishboard.designsystem.component.WishBoardEmptyView
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.dialog.WishBoardDialog
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
-import com.hyeeyoung.wishboard.designsystem.component.text.WishBoardEmptyView
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.designsystem.style.Green500
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
