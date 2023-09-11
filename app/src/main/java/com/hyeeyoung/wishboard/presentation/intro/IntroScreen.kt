@@ -1,5 +1,6 @@
 package com.hyeeyoung.wishboard.presentation.intro
 
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -9,26 +10,44 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.google.android.play.core.appupdate.AppUpdateManagerFactory
+import com.google.android.play.core.install.model.AppUpdateType
+import com.google.android.play.core.install.model.UpdateAvailability
+import com.hyeeyoung.wishboard.BuildConfig
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.config.navigation.screen.Intro
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.config.navigation.screen.SignScreen
+import com.hyeeyoung.wishboard.designsystem.component.dialog.WishBoardDialog
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
+import com.hyeeyoung.wishboard.presentation.model.WishBoardDialogTextRes
 import kotlinx.coroutines.delay
 
 @Composable
 fun IntroScreen(navController: NavHostController) {
+    val context = LocalContext.current
+    var isOpenDialog by remember { mutableStateOf(false) }
+
     LaunchedEffect(Unit) {
         delay(2000L)
-        navigateToNext(navController)
+        checkForNewVersionUpdate(
+            context = context,
+            updateDialogState = { isOpenDialog = true },
+            moveToNext = { navigateToNext(navController) },
+        )
     }
 
     WishboardTheme {
@@ -42,6 +61,37 @@ fun IntroScreen(navController: NavHostController) {
             Image(painter = painterResource(id = R.drawable.ic_app_text_logo), contentDescription = null)
             Spacer(modifier = Modifier.size(10.dp))
         }
+
+        WishBoardDialog(
+            isOpen = isOpenDialog,
+            textRes = WishBoardDialogTextRes(
+                titleRes = R.string.dialog_update_title,
+                descriptionRes = R.string.dialog_update_description,
+                dismissBtnTextRes = R.string.later,
+                confirmBtnTextRes = R.string.dialog_update_confirm_btn_text,
+            ),
+            isWarningDialog = false,
+            onClickConfirm = {},
+            onDismissRequest = { isOpenDialog = false },
+        )
+    }
+}
+
+private fun checkForNewVersionUpdate(context: Context, updateDialogState: () -> Unit, moveToNext: () -> Unit) {
+    val appUpdateManager = AppUpdateManagerFactory.create(context)
+    val appUpdateInfoTask = appUpdateManager.appUpdateInfo
+
+    appUpdateInfoTask.addOnSuccessListener { appUpdateInfo ->
+        if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE &&
+            appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE) &&
+            appUpdateInfo.availableVersionCode() != BuildConfig.VERSION_CODE
+        ) {
+            updateDialogState()
+        } else {
+            moveToNext()
+        }
+    }.addOnFailureListener {
+        moveToNext()
     }
 }
 

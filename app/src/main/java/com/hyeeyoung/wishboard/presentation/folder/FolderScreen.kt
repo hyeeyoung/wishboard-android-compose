@@ -14,6 +14,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
@@ -26,9 +30,11 @@ import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.designsystem.component.ColoredImage
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
+import com.hyeeyoung.wishboard.designsystem.component.dialog.WishBoardDialog
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardMainTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.presentation.model.Folder
+import com.hyeeyoung.wishboard.presentation.model.WishBoardDialogTextRes
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 
 @Composable
@@ -42,6 +48,7 @@ fun FolderScreen(navController: NavHostController) {
         ),
     )
     val folders = List(8) { folder }.flatten() // TODO 서버 연동 후 삭제
+    var isOpenDialog by remember { mutableStateOf(false) }
 
     Scaffold(topBar = {
         WishBoardMainTopBar(
@@ -67,14 +74,27 @@ fun FolderScreen(navController: NavHostController) {
                     onClickFolder = { folderId ->
                         navController.navigate("${MainScreen.FolderDetail.route}/$folderId/${folder.name}")
                     },
+                    onClickMore = { },
                 )
             }
         }
+
+        WishBoardDialog(
+            isOpen = isOpenDialog,
+            textRes = WishBoardDialogTextRes(
+                titleRes = R.string.dialog_folder_delete_title,
+                descriptionRes = R.string.dialog_folder_delete_description,
+                dismissBtnTextRes = R.string.cancel,
+                confirmBtnTextRes = R.string.delete,
+            ),
+            onClickConfirm = {},
+            onDismissRequest = { isOpenDialog = false },
+        )
     }
 }
 
 @Composable
-fun FolderItem(folder: Folder, onClickFolder: (Long) -> Unit) {
+fun FolderItem(folder: Folder, onClickFolder: (Long) -> Unit, onClickMore: () -> Unit) {
     Column(
         modifier = Modifier
             .padding(horizontal = 8.dp)
@@ -108,7 +128,7 @@ fun FolderItem(folder: Folder, onClickFolder: (Long) -> Unit) {
 
             Icon(
                 modifier = Modifier
-                    .noRippleClickable { /*TODO*/ }
+                    .noRippleClickable { onClickMore() }
                     .padding(start = 4.dp),
                 painter = painterResource(id = R.drawable.ic_more),
                 contentDescription = null,
@@ -137,5 +157,6 @@ fun PreviewFolderItem() {
     FolderItem(
         folder = folder,
         onClickFolder = {},
+        onClickMore = {},
     )
 }

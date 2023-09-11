@@ -17,6 +17,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,11 +35,13 @@ import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.designsystem.component.ColoredImage
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
+import com.hyeeyoung.wishboard.designsystem.component.dialog.WishBoardDialog
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.designsystem.style.Green500
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.presentation.model.CartItem
+import com.hyeeyoung.wishboard.presentation.model.WishBoardDialogTextRes
 import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.wish.component.PriceText
@@ -53,8 +59,9 @@ fun CartScreen(navController: NavHostController) {
         ),
     )
     val cartItems = List(7) { cartItem }.flatten()
-
     val systemUiController = rememberSystemUiController()
+    var isOpenDialog by remember { mutableStateOf(false) }
+
     SideEffect {
         systemUiController.setNavigationBarColor(color = Green500)
     }
@@ -80,6 +87,7 @@ fun CartScreen(navController: NavHostController) {
                         cartItem = item,
                         moveToDetail = { id -> navController.navigate("${MainScreen.WishItemDetail.route}/$id") },
                         onChangeItemCount = { count -> /*TODO*/ },
+                        onClickDelete = { id -> isOpenDialog = true },
                     )
                     if (idx < cartItems.lastIndex) WishBoardDivider()
                 }
@@ -87,11 +95,28 @@ fun CartScreen(navController: NavHostController) {
 
             CartTotalDisplay(totalCount = cartItems.size, totalPrice = cartItems.sumOf { it.price * it.count })
         }
+
+        WishBoardDialog(
+            isOpen = isOpenDialog,
+            textRes = WishBoardDialogTextRes(
+                titleRes = R.string.dialog_cart_title,
+                descriptionRes = R.string.dialog_cart_description,
+                dismissBtnTextRes = R.string.cancel,
+                confirmBtnTextRes = R.string.delete,
+            ),
+            onClickConfirm = {},
+            onDismissRequest = { isOpenDialog = false },
+        )
     }
 }
 
 @Composable
-fun CartItem(cartItem: CartItem, moveToDetail: (Long) -> Unit = {}, onChangeItemCount: (Int) -> Unit = {}) {
+fun CartItem(
+    cartItem: CartItem,
+    moveToDetail: (Long) -> Unit = {},
+    onChangeItemCount: (Int) -> Unit = {},
+    onClickDelete: (Long) -> Unit = {},
+) {
     val imageSize = 84
     Row(verticalAlignment = Alignment.CenterVertically) {
         ColoredImage(
@@ -113,8 +138,12 @@ fun CartItem(cartItem: CartItem, moveToDetail: (Long) -> Unit = {}, onChangeItem
                     style = WishBoardTheme.typography.suitD2M,
                     color = WishBoardTheme.colors.gray700,
                 )
+
                 Surface(modifier = Modifier.padding(top = 6.dp, end = 4.dp)) {
-                    WishBoardIconButton(iconRes = R.drawable.ic_delete_small_gray, onClick = { /*TODO*/ })
+                    WishBoardIconButton(
+                        iconRes = R.drawable.ic_delete_small_gray,
+                        onClick = { onClickDelete(cartItem.id) },
+                    )
                 }
             }
             Row(
