@@ -37,7 +37,7 @@ fun WishBoardTextField(
     label: String? = null,
     errorMsg: String? = null,
     placeholder: String,
-    onTextChange: (String) -> Unit,
+    onTextChange: (String) -> Unit = {},
     isError: Boolean = false,
     singleLine: Boolean = true,
     maxLength: Int? = null,
@@ -142,7 +142,6 @@ fun PreviewWishBoardTextField() {
         modifier = Modifier.fillMaxWidth(),
         input = input,
         placeholder = stringResource(id = R.string.sign_email_placeholder),
-        onTextChange = {},
         label = stringResource(id = R.string.sign_email),
     )
 }
@@ -155,7 +154,6 @@ fun PreviewWishBoardTextFieldWithTimer() {
         modifier = Modifier.fillMaxWidth(),
         input = input,
         placeholder = stringResource(id = R.string.sign_in_verification_code_placeholder),
-        onTextChange = {},
         endComponent = WishBoardTextFieldComponent.Timer(4, 56),
     )
 }

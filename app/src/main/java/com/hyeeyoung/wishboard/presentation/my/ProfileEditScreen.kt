@@ -10,8 +10,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,6 +25,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
+import com.hyeeyoung.wishboard.designsystem.component.dialog.WishBoardTwoOptionModal
 import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardTextField
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
@@ -32,6 +35,8 @@ import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 
 @Composable
 fun ProfileEditScreen(navController: NavHostController) {
+    var isOpenModal by remember { mutableStateOf(false) }
+
     WishboardTheme {
         Scaffold(topBar = {
             WishBoardTopBar(
@@ -58,7 +63,10 @@ fun ProfileEditScreen(navController: NavHostController) {
                     Icon(
                         modifier = Modifier
                             .size(imageSize.dp)
-                            .align(Alignment.Center),
+                            .align(Alignment.Center)
+                            .noRippleClickable {
+                                isOpenModal = true
+                            },
                         painter = painterResource(id = R.drawable.ic_placeholder_user_profile),
                         contentDescription = null,
                         tint = Color.Unspecified,
@@ -89,6 +97,13 @@ fun ProfileEditScreen(navController: NavHostController) {
                     text = stringResource(id = R.string.complete),
                 )
             }
+
+            WishBoardTwoOptionModal(
+                isOpen = isOpenModal,
+                topOption = R.string.modal_image_upload_camera,
+                bottomOption = R.string.modal_image_upload_gallery,
+                onDismissRequest = { isOpenModal = false },
+            )
         }
     }
 }
