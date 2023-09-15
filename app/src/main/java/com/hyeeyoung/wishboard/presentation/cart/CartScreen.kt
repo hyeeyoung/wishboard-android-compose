@@ -150,6 +150,7 @@ fun CartItem(
 
                 Surface(modifier = Modifier.padding(top = 6.dp, end = 4.dp)) {
                     WishBoardIconButton(
+                        modifier = Modifier.background(WishBoardTheme.colors.white),
                         iconRes = R.drawable.ic_delete_small_gray,
                         onClick = { onClickDelete(cartItem.id) },
                     )
