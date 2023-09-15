@@ -72,6 +72,8 @@ dependencies {
     implementation(libs.bundles.androidx)
     implementation(composeBom)
     implementation(libs.bundles.compose)
+    implementation(libs.compose.material.three)
+
     implementation(libs.bundles.dagger.hilt)
     kapt(libs.bundles.compiler)
     implementation(platform(libs.firebase.bom))
