@@ -25,6 +25,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -41,16 +42,24 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardNarrowButton
+import com.hyeeyoung.wishboard.designsystem.component.dialog.WishBoardModal
+import com.hyeeyoung.wishboard.designsystem.component.dialog.WishBoardTwoOptionModal
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
 import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardSimpleTextField
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
 import com.hyeeyoung.wishboard.designsystem.util.PriceTransformation
+import com.hyeeyoung.wishboard.presentation.folder.FolderListModalContent
 import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.model.WishItemDetail
+import com.hyeeyoung.wishboard.presentation.noti.NotiModalContent
+import com.hyeeyoung.wishboard.presentation.upload.component.ShopLinkModalContent
+import com.hyeeyoung.wishboard.presentation.upload.model.ModalInfo
+import com.hyeeyoung.wishboard.presentation.upload.model.ModalRoute
 import com.hyeeyoung.wishboard.presentation.util.extension.getCurrentTime
 import com.hyeeyoung.wishboard.presentation.util.extension.makeValidPriceStr
+import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.util.type.NotiType
 import kotlinx.datetime.LocalDateTime
 
@@ -65,6 +74,9 @@ fun WishUploadScreen(navController: NavHostController, itemDetail: WishItemDetai
     val nameInput = remember { mutableStateOf(itemDetail?.name ?: "") }
     val priceInput = remember { mutableStateOf(itemDetail?.price?.toString() ?: "") }
     val memoInput = remember { mutableStateOf(itemDetail?.memo ?: "") }
+
+    var modalInfo by remember { mutableStateOf(ModalInfo(false)) }
+    var twoOptionModalInfo by remember { mutableStateOf(false) }
 
     WishboardTheme {
         Scaffold(topBar = {
@@ -120,7 +132,7 @@ fun WishUploadScreen(navController: NavHostController, itemDetail: WishItemDetai
                         contentDescription = null,
                     )
 
-                    WishBoardIconButton(iconRes = R.drawable.ic_camera, onClick = { /*TODO*/ })
+                    WishBoardIconButton(iconRes = R.drawable.ic_camera, onClick = { twoOptionModalInfo = true })
                 }
 
                 WishBoardSimpleTextField(
@@ -137,16 +149,21 @@ fun WishUploadScreen(navController: NavHostController, itemDetail: WishItemDetai
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     visualTransformation = PriceTransformation(prefix = "₩ "),
                 )
-                ItemInfoRow(label = itemDetail?.folderName ?: stringResource(id = R.string.folder))
+                ItemInfoRow(
+                    label = itemDetail?.folderName ?: stringResource(id = R.string.folder),
+                    onClickRow = { modalInfo = ModalInfo(true, ModalRoute.FOLDER) },
+                )
                 ItemInfoRow(
                     label = getNotiInfo(notiType = itemDetail?.notiType, notiDate = itemDetail?.notiDate)
                         ?: stringResource(id = R.string.wish_item_upload_noti),
+                    onClickRow = { modalInfo = ModalInfo(true, ModalRoute.NOTI) },
                 )
                 ItemInfoRow(
                     label = stringResource(id = R.string.wish_item_upload_shop_link),
                     guideText = stringResource(
                         id = R.string.wish_item_upload_shop_link_guide,
                     ),
+                    onClickRow = { modalInfo = ModalInfo(true, ModalRoute.SHOP) },
                 )
                 WishBoardSimpleTextField(
                     input = memoInput,
@@ -155,16 +172,36 @@ fun WishUploadScreen(navController: NavHostController, itemDetail: WishItemDetai
                 )
                 Spacer(modifier = Modifier.size(64.dp))
             }
+
+            WishBoardModal(
+                isOpen = modalInfo.isOpen,
+                titleRes = modalInfo.modalRoute?.titleRes ?: R.string.modal_folder_selection_title,
+                onDismissRequest = { modalInfo = ModalInfo(false) },
+            ) {
+                when (modalInfo.modalRoute) {
+                    ModalRoute.FOLDER -> FolderListModalContent(selectedFolderId = itemDetail?.id)
+                    ModalRoute.NOTI -> NotiModalContent(itemDetail?.notiType)
+                    else -> ShopLinkModalContent(link = itemDetail?.site, onClickBtn = { /*TODO*/ })
+                }
+            }
+
+            WishBoardTwoOptionModal(
+                isOpen = twoOptionModalInfo,
+                topOption = R.string.modal_image_upload_camera,
+                bottomOption = R.string.modal_image_upload_gallery,
+                onDismissRequest = { twoOptionModalInfo = false },
+            )
         }
     }
 }
 
 @Composable
-fun ItemInfoRow(label: String, guideText: String? = null) {
+fun ItemInfoRow(label: String, guideText: String? = null, onClickRow: () -> Unit) {
     Column {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .noRippleClickable { onClickRow() }
                 .padding(16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,

@@ -9,6 +9,7 @@
     <string name="edit">편집</string>
     <string name="later">나중에</string>
     <string name="complete">완료</string>
+    <string name="add">추가</string>
     <string name="cancel">취소</string>
     <string name="delete">삭제</string>
 
@@ -153,5 +154,26 @@
     <string name="empty_cart_guide_text">앗, 장바구니가 비어있어요!\n구매할 아이템을 장바구니에 담아보세요!</string>
     <string name="empty_folder_guide_text">앗, 폴더가 없어요!\n폴더를 추가해서 아이템을 정리해 보세요!</string>
     <string name="empty_noti_guide_text">앗, 일정이 없어요!\n상품 일정을 지정하고 알림을 받아보세요!</string>
+
+    <!-- Modal -->
+    <string name="modal_folder_selection_title">폴더 선택</string>
+
+    <string name="modal_noti_setting_title">상품 알림 설정</string>
+    <string name="modal_noti_setting_guide">30분 전에 일정을 알려드려요. 시간은 30분 단위로 설정 가능해요!</string>
+    <string name="modal_noti_setting_time_delimiter">:</string>
+
+    <string name="modal_shop_link_title">쇼핑몰 링크로 아이템 불러오기</string>
+    <string name="modal_shop_link_item_load_btn_text">아이템 불러오기</string>
+    <string name="modal_shop_link_placeholder">쇼핑몰 링크를 입력해 주세요.</string>
+    <string name="modal_shop_link_error">쇼핑몰 링크를 다시 확인해 주세요.</string>
+
+    <string name="modal_new_folder_title">새 폴더 추가</string>
+    <string name="modal_folder_name_edit_title">폴더명 수정</string>
+    <string name="modal_folder_name_edit_btn_text">수정</string>
+    <string name="modal_folder_upload_placeholder">폴더명을 입력해 주세요.</string>
+    <string name="modal_folder_upload_error">동일 이름의 폴더가 있어요!</string>
+
+    <string name="modal_image_upload_camera">사진 촬영</string>
+    <string name="modal_image_upload_gallery">사진 선택</string>
 
 </resources>

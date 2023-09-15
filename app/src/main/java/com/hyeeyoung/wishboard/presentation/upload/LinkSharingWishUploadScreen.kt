@@ -41,12 +41,17 @@ import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.component.ColoredImage
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
+import com.hyeeyoung.wishboard.designsystem.component.dialog.WishBoardModal
 import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardMiniSingleTextField
 import com.hyeeyoung.wishboard.designsystem.style.MontserratFamily
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
 import com.hyeeyoung.wishboard.designsystem.util.PriceTransformation
+import com.hyeeyoung.wishboard.presentation.folder.FolderUploadModalContent
 import com.hyeeyoung.wishboard.presentation.model.FolderSummary
+import com.hyeeyoung.wishboard.presentation.noti.NotiModalContent
+import com.hyeeyoung.wishboard.presentation.upload.model.ModalInfo
+import com.hyeeyoung.wishboard.presentation.upload.model.ModalRoute
 import com.hyeeyoung.wishboard.presentation.util.extension.isEmptyOrBlank
 import com.hyeeyoung.wishboard.presentation.util.extension.makeValidPriceStr
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
@@ -58,6 +63,8 @@ fun LinkSharingWishUploadScreen(url: String, onClickClose: () -> Unit = {}) {
     val nameInput = remember { mutableStateOf("") }
     val priceInput = remember { mutableStateOf("") }
     val image = "https://url.kr/8vwf1e" // TODO 서버 연동 필요
+
+    var modalInfo by remember { mutableStateOf(ModalInfo(false)) }
 
     WishboardTheme {
         Column(
@@ -118,7 +125,7 @@ fun LinkSharingWishUploadScreen(url: String, onClickClose: () -> Unit = {}) {
 
                     Row(
                         modifier = Modifier
-                            .noRippleClickable { /*TODO*/ }
+                            .noRippleClickable { modalInfo = ModalInfo(true, ModalRoute.NOTI) }
                             .padding(8.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
@@ -164,7 +171,7 @@ fun LinkSharingWishUploadScreen(url: String, onClickClose: () -> Unit = {}) {
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
                     ) {
                         item {
-                            NewFolder()
+                            NewFolder(onClickNew = { modalInfo = ModalInfo(true, ModalRoute.FOLDER) })
                         }
                         items(folders) {
                             FolderItem(
@@ -215,6 +222,17 @@ fun LinkSharingWishUploadScreen(url: String, onClickClose: () -> Unit = {}) {
                 }
             }
         }
+
+        WishBoardModal(
+            isOpen = modalInfo.isOpen,
+            titleRes = modalInfo.modalRoute?.titleRes ?: R.string.modal_folder_selection_title,
+            onDismissRequest = { modalInfo = ModalInfo(false) },
+        ) {
+            when (modalInfo.modalRoute) {
+                ModalRoute.FOLDER -> FolderUploadModalContent()
+                else -> NotiModalContent()
+            }
+        }
     }
 }
 
@@ -260,11 +278,11 @@ fun FolderItem(
 }
 
 @Composable
-fun NewFolder() {
+fun NewFolder(onClickNew: () -> Unit) {
     Column(
         modifier = Modifier
             .size(IMAGE_SIZE.dp)
-            .noRippleClickable { /*TODO*/ }
+            .noRippleClickable { onClickNew() }
             .border(width = 1.dp, color = WishBoardTheme.colors.gray100, shape = RoundedCornerShape(10.dp)),
         verticalArrangement = Arrangement.Bottom,
     ) {

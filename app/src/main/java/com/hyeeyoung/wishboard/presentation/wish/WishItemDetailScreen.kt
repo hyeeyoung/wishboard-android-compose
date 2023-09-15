@@ -16,7 +16,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,12 +39,15 @@ import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen.Upload.ARG_IT
 import com.hyeeyoung.wishboard.designsystem.component.ColoredImage
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
+import com.hyeeyoung.wishboard.designsystem.component.dialog.WishBoardModal
 import com.hyeeyoung.wishboard.designsystem.component.dialog.WishBoardDialog
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.designsystem.style.Gray700
+import com.hyeeyoung.wishboard.designsystem.style.White
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
+import com.hyeeyoung.wishboard.presentation.folder.FolderListModalContent
 import com.hyeeyoung.wishboard.presentation.model.WishBoardDialogTextRes
 import com.hyeeyoung.wishboard.presentation.model.WishBoardString
 import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
@@ -63,9 +66,12 @@ import kotlinx.serialization.json.Json
 
 @Composable
 fun WishItemDetailScreen(navController: NavHostController, itemId: Long) {
+    var isOpenDialog by remember { mutableStateOf(false) }
+    var isOpenFolderModal by remember { mutableStateOf(false) }
+
     val systemUiController = rememberSystemUiController()
-    SideEffect {
-        systemUiController.setNavigationBarColor(color = Gray700)
+    LaunchedEffect(isOpenFolderModal) {
+        systemUiController.setNavigationBarColor(color = if (isOpenFolderModal) White else Gray700)
     }
 
     val itemDetail = WishItemDetail(
@@ -81,8 +87,6 @@ fun WishItemDetailScreen(navController: NavHostController, itemId: Long) {
         folderName = "상의",
         createAt = "1주 전",
     ) // TODO 시간 포맷 적용 및 서버 연동 시 삭제
-
-    var isOpenDialog by remember { mutableStateOf(false) }
 
     WishboardTheme { // TODO Theme 사용 여부 고려
         Scaffold(topBar = {
@@ -108,7 +112,11 @@ fun WishItemDetailScreen(navController: NavHostController, itemId: Long) {
                     .background(WishBoardTheme.colors.white)
                     .padding(top = paddingValues.calculateTopPadding()),
             ) {
-                WishItemDetailContents(modifier = Modifier.weight(1f), itemDetail = itemDetail)
+                WishItemDetailContents(
+                    modifier = Modifier.weight(1f),
+                    itemDetail = itemDetail,
+                    onClickFolder = { isOpenFolderModal = true },
+                )
 
                 WishBoardWideButton(
                     enabled = itemDetail.site != null,
@@ -134,12 +142,25 @@ fun WishItemDetailScreen(navController: NavHostController, itemId: Long) {
                 onClickConfirm = {},
                 onDismissRequest = { isOpenDialog = false },
             )
+
+//            FolderListBottomSheet(
+//                isOpenDialog = isOpenFolderModal,
+//                selectedFolderId = itemDetail.folderId,
+//                onDismissRequest = { isOpenFolderModal = false })
+
+            WishBoardModal(
+                isOpen = isOpenFolderModal,
+                titleRes = R.string.modal_folder_selection_title,
+                onDismissRequest = { isOpenFolderModal = false },
+            ) {
+                FolderListModalContent(selectedFolderId = itemDetail.folderId)
+            }
         }
     }
 }
 
 @Composable
-private fun WishItemDetailContents(modifier: Modifier, itemDetail: WishItemDetail) {
+private fun WishItemDetailContents(modifier: Modifier, itemDetail: WishItemDetail, onClickFolder: () -> Unit) {
     Column(modifier = modifier.verticalScroll(rememberScrollState())) {
         Box(modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 8.dp)) {
             ColoredImage(
@@ -168,7 +189,7 @@ private fun WishItemDetailContents(modifier: Modifier, itemDetail: WishItemDetai
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            FolderGuideString()
+            FolderGuideString(onClickFolder)
             Text(
                 text = itemDetail.createAt,
                 style = WishBoardTheme.typography.suitD3,
@@ -256,7 +277,7 @@ private fun NotiInfoLabel(modifier: Modifier, type: NotiType, date: LocalDateTim
 }
 
 @Composable
-private fun FolderGuideString() {
+private fun FolderGuideString(onClickFolder: () -> Unit) {
     val spanStrings = listOf(
         WishBoardString.SpanString(value = stringResource(id = R.string.wish_item_detail_folder_guild)),
         WishBoardString.NormalString(value = " >"),
@@ -265,7 +286,7 @@ private fun FolderGuideString() {
     Text(
         modifier = Modifier
             .padding(vertical = 8.dp)
-            .noRippleClickable { /*TODO*/ },
+            .noRippleClickable { onClickFolder() },
         text = buildStringWithSpans(
             spanStrings = spanStrings,
             spanStyle = SpanStyle(textDecoration = TextDecoration.Underline),

@@ -33,6 +33,8 @@ import com.hyeeyoung.wishboard.designsystem.component.ColoredImage
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardEmptyView
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.dialog.WishBoardDialog
+import com.hyeeyoung.wishboard.designsystem.component.dialog.WishBoardModal
+import com.hyeeyoung.wishboard.designsystem.component.dialog.WishBoardTwoOptionModal
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardMainTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.presentation.model.Folder
@@ -50,7 +52,9 @@ fun FolderScreen(navController: NavHostController) {
         ),
     )
     val folders = List(8) { folder }.flatten() // TODO 서버 연동 후 삭제
-    var isOpenDialog by remember { mutableStateOf(false) }
+    var deleteDialogInfo by remember { mutableStateOf(FolderDialogInfo(false)) }
+    var uploadModalIndo by remember { mutableStateOf(FolderDialogInfo(false)) }
+    var moreModalIndo by remember { mutableStateOf(FolderDialogInfo(false)) }
 
     Scaffold(topBar = {
         WishBoardMainTopBar(
@@ -59,7 +63,7 @@ fun FolderScreen(navController: NavHostController) {
                 WishBoardIconButton(
                     modifier = Modifier.padding(end = 8.dp),
                     iconRes = R.drawable.ic_plus,
-                    onClick = { /*TODO*/ },
+                    onClick = { uploadModalIndo = FolderDialogInfo(true) },
                 )
             },
         )
@@ -82,28 +86,52 @@ fun FolderScreen(navController: NavHostController) {
                         onClickFolder = { folderId ->
                             navController.navigate("${MainScreen.FolderDetail.route}/$folderId/${folder.name}")
                         },
-                        onClickMore = { },
+                        onClickMore = { selectedFolder -> moreModalIndo = FolderDialogInfo(true, selectedFolder) },
                     )
                 }
             }
         }
 
         WishBoardDialog(
-            isOpen = isOpenDialog,
+            isOpen = deleteDialogInfo.isOpen,
             textRes = WishBoardDialogTextRes(
                 titleRes = R.string.dialog_folder_delete_title,
                 descriptionRes = R.string.dialog_folder_delete_description,
                 dismissBtnTextRes = R.string.cancel,
                 confirmBtnTextRes = R.string.delete,
             ),
-            onClickConfirm = {},
-            onDismissRequest = { isOpenDialog = false },
+            onClickConfirm = {}, // TODO 폴더 삭제 요청
+            onDismissRequest = { deleteDialogInfo = FolderDialogInfo(false) },
+        )
+
+        WishBoardModal(
+            isOpen = uploadModalIndo.isOpen,
+            titleRes =
+            if (uploadModalIndo.selectedFolder == null) {
+                R.string.modal_new_folder_title
+            } else {
+                R.string.modal_folder_name_edit_title
+            },
+            onDismissRequest = { uploadModalIndo = FolderDialogInfo(false, null) },
+        ) {
+            val folderInfo =
+                if (uploadModalIndo.selectedFolder == null) null else Pair(1L, uploadModalIndo.selectedFolder!!.name)
+            FolderUploadModalContent(folderInfo)
+        }
+
+        WishBoardTwoOptionModal(
+            isOpen = moreModalIndo.isOpen,
+            topOption = R.string.modal_folder_name_edit_title,
+            bottomOption = R.string.dialog_folder_delete_title,
+            onDismissRequest = { moreModalIndo = FolderDialogInfo(false, null) },
+            onClickTop = { uploadModalIndo = FolderDialogInfo(true, moreModalIndo.selectedFolder) },
+            onClickBottom = { deleteDialogInfo = FolderDialogInfo(true, moreModalIndo.selectedFolder) },
         )
     }
 }
 
 @Composable
-fun FolderItem(folder: Folder, onClickFolder: (Long) -> Unit, onClickMore: () -> Unit) {
+fun FolderItem(folder: Folder, onClickFolder: (Long) -> Unit, onClickMore: (Folder) -> Unit) {
     Column(
         modifier = Modifier
             .padding(horizontal = 8.dp)
@@ -137,7 +165,7 @@ fun FolderItem(folder: Folder, onClickFolder: (Long) -> Unit, onClickMore: () ->
 
             Icon(
                 modifier = Modifier
-                    .noRippleClickable { onClickMore() }
+                    .noRippleClickable { onClickMore(folder) }
                     .padding(start = 4.dp),
                 painter = painterResource(id = R.drawable.ic_more),
                 contentDescription = null,
@@ -146,6 +174,11 @@ fun FolderItem(folder: Folder, onClickFolder: (Long) -> Unit, onClickMore: () ->
         }
     }
 }
+
+private data class FolderDialogInfo(
+    val isOpen: Boolean,
+    val selectedFolder: Folder? = null,
+)
 
 @Composable
 @Preview
