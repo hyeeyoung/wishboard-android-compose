@@ -6,10 +6,12 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ripple.rememberRipple
@@ -36,6 +38,7 @@ fun WishBoardDialog(
     isWarningDialog: Boolean = true,
     onClickConfirm: () -> Unit,
     onDismissRequest: () -> Unit,
+    content: (@Composable () -> Unit)? = null,
 ) {
     if (!isOpen) return
     Dialog(onDismissRequest = { onDismissRequest() }) {
@@ -52,12 +55,18 @@ fun WishBoardDialog(
                 color = WishBoardTheme.colors.gray600,
             )
             Text(
-                modifier = Modifier.padding(top = 8.dp, bottom = 32.dp, start = 16.dp, end = 16.dp),
+                modifier = Modifier.padding(top = 8.dp, bottom = 0.dp, start = 16.dp, end = 16.dp),
                 text = stringResource(textRes.descriptionRes),
                 style = WishBoardTheme.typography.suitD2M,
                 color = WishBoardTheme.colors.gray300,
                 textAlign = TextAlign.Center,
             )
+
+            if (content == null) {
+                Spacer(modifier = Modifier.size(32.dp))
+            } else {
+                content()
+            }
 
             WishBoardDivider()
 
