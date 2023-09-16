@@ -37,6 +37,7 @@ import com.hyeeyoung.wishboard.designsystem.component.WishBoardToggleButton
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardMiniButton
 import com.hyeeyoung.wishboard.designsystem.component.dialog.WishBoardDialog
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardThickDivider
+import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardTextField
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardMainTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.presentation.model.WishBoardDialogTextRes
@@ -135,6 +136,8 @@ fun MyScreen(navController: NavHostController) {
             item { Spacer(modifier = Modifier.size(64.dp)) }
         }
 
+        val emailInput = remember { mutableStateOf("") }
+
         dialogType?.let { type ->
             WishBoardDialog(
                 isOpen = true,
@@ -142,6 +145,22 @@ fun MyScreen(navController: NavHostController) {
                 isWarningDialog = type.isWaringDialog,
                 onClickConfirm = {},
                 onDismissRequest = { dialogType = null },
+                content =
+                if (type == DialogType.WITHDRAW) {
+                    {
+                        Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 20.dp, bottom = 14.dp)) {
+                            WishBoardTextField(
+                                input = emailInput,
+                                placeholder = stringResource(id = R.string.sign_email_placeholder),
+                                errorMsg = stringResource(
+                                    id = R.string.dialog_withdraw_email_error,
+                                ),
+                            )
+                        }
+                    }
+                } else {
+                    null
+                },
             )
         }
     }
