@@ -26,21 +26,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
-import com.hyeeyoung.wishboard.presentation.model.WishBoardDialogTextRes
+import com.hyeeyoung.wishboard.presentation.dialog.DialogData
 
 @Composable
 fun WishBoardDialog(
-    isOpen: Boolean,
-    textRes: WishBoardDialogTextRes,
-    isWarningDialog: Boolean = true,
+    dialogData: DialogData?,
     onClickConfirm: () -> Unit,
     onDismissRequest: () -> Unit,
     content: (@Composable () -> Unit)? = null,
 ) {
-    if (!isOpen) return
+    if (dialogData == null) return
     Dialog(onDismissRequest = { onDismissRequest() }) {
         Column(
             modifier = Modifier
@@ -50,13 +47,13 @@ fun WishBoardDialog(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
-                text = stringResource(textRes.titleRes),
+                text = stringResource(dialogData.dialogTextRes.titleRes),
                 style = WishBoardTheme.typography.suitH3,
                 color = WishBoardTheme.colors.gray600,
             )
             Text(
                 modifier = Modifier.padding(top = 8.dp, bottom = 0.dp, start = 16.dp, end = 16.dp),
-                text = stringResource(textRes.descriptionRes),
+                text = stringResource(dialogData.dialogTextRes.descriptionRes),
                 style = WishBoardTheme.typography.suitD2M,
                 color = WishBoardTheme.colors.gray300,
                 textAlign = TextAlign.Center,
@@ -79,7 +76,7 @@ fun WishBoardDialog(
                         ) { onDismissRequest() }
                         .weight(1f)
                         .padding(vertical = 16.dp),
-                    text = stringResource(id = textRes.dismissBtnTextRes),
+                    text = stringResource(id = dialogData.dialogTextRes.dismissBtnTextRes),
                     style = WishBoardTheme.typography.suitB3,
                     color = WishBoardTheme.colors.gray600,
                     textAlign = TextAlign.Center,
@@ -103,9 +100,14 @@ fun WishBoardDialog(
                         }
                         .weight(1f)
                         .padding(vertical = 16.dp),
-                    text = stringResource(id = textRes.confirmBtnTextRes),
+                    text = stringResource(id = dialogData.dialogTextRes.confirmBtnTextRes),
                     style = WishBoardTheme.typography.suitB3,
-                    color = if (isWarningDialog) WishBoardTheme.colors.pink700 else WishBoardTheme.colors.green700,
+                    color =
+                    if (dialogData.isWarningDialog) {
+                        WishBoardTheme.colors.pink700
+                    } else {
+                        WishBoardTheme.colors.green700
+                    },
                     textAlign = TextAlign.Center,
                 )
             }
@@ -117,13 +119,7 @@ fun WishBoardDialog(
 @Composable
 fun PreviewWishBoardDialog() {
     WishBoardDialog(
-        isOpen = true,
-        textRes = WishBoardDialogTextRes(
-            titleRes = R.string.dialog_noti_title,
-            descriptionRes = R.string.dialog_noti_description,
-            dismissBtnTextRes = R.string.later,
-            confirmBtnTextRes = R.string.dialog_noti_confirm_btn_text,
-        ),
+        dialogData = DialogData.WishItemDelete(1L),
         onClickConfirm = {},
         onDismissRequest = {},
     )

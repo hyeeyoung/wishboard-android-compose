@@ -1,20 +1,18 @@
-package com.hyeeyoung.wishboard.designsystem.component.dialog
+package com.hyeeyoung.wishboard.presentation.dialog
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -23,32 +21,30 @@ import androidx.compose.ui.unit.dp
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
-import com.hyeeyoung.wishboard.presentation.noti.NotiModalContent
-import kotlinx.coroutines.launch
+import com.hyeeyoung.wishboard.presentation.folder.FolderUploadModalContent
+import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WishBoardModal(
-    isOpen: Boolean,
-    @StringRes titleRes: Int,
-    onDismissRequest: () -> Unit,
-    content: @Composable () -> Unit,
-) {
-    val sheetState = rememberModalBottomSheetState()
-    val scope = rememberCoroutineScope()
-
-    if (!isOpen) return
-    ModalBottomSheet(
-        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
-        onDismissRequest = { onDismissRequest() },
-        sheetState = sheetState,
-        containerColor = WishBoardTheme.colors.white,
-        dragHandle = null,
+fun WishBoardModal(@StringRes titleRes: Int, onDismissRequest: () -> Unit = {}, content: @Composable () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize(),
     ) {
+        Spacer(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .noRippleClickable { onDismissRequest() },
+        )
         Box(
             modifier = Modifier
                 .heightIn(max = 317.dp)
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .background(
+                    color = WishBoardTheme.colors.white,
+                    shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
+                ),
+            contentAlignment = Alignment.TopCenter,
         ) {
             Surface(
                 modifier = Modifier
@@ -58,13 +54,7 @@ fun WishBoardModal(
                 WishBoardIconButton(
                     modifier = Modifier.background(WishBoardTheme.colors.white),
                     iconRes = R.drawable.ic_close,
-                    onClick = {
-                        scope.launch { sheetState.hide() }.invokeOnCompletion {
-                            if (!sheetState.isVisible) {
-                                onDismissRequest()
-                            }
-                        }
-                    },
+                    onClick = { onDismissRequest() },
                 )
             }
 
@@ -85,11 +75,8 @@ fun WishBoardModal(
 
 @Preview
 @Composable
-fun PreviewWishBoardModal() {
-    WishBoardModal(
-        isOpen = true,
-        titleRes = R.string.wish_item_link_sharing_upload_noti_setting,
-        onDismissRequest = {},
-        content = { NotiModalContent(onClickComplete = {}) },
-    )
+fun PreviewFolderUploadModal() {
+    WishBoardModal(titleRes = R.string.modal_new_folder_title) {
+        FolderUploadModalContent(onClickComplete = {})
+    }
 }

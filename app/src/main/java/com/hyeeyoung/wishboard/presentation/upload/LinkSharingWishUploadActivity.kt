@@ -4,6 +4,9 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.graphics.Color
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 class LinkSharingWishUploadActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -18,6 +21,11 @@ class LinkSharingWishUploadActivity : ComponentActivity() {
         }
 
         setContent {
+            val systemUiController = rememberSystemUiController()
+            SideEffect {
+                systemUiController.setNavigationBarColor(Color.White)
+            }
+
             if (url.isEmpty()) return@setContent
             LinkSharingWishUploadScreen(url = url, onClickClose = { finish() })
         }

@@ -29,13 +29,13 @@ import kotlinx.datetime.LocalDateTime
 private val notiType = NotiType.values().map { it.str }
 
 @Composable
-fun NotiModalContent(type: NotiType? = null, date: LocalDateTime? = null) {
+fun NotiModalContent(type: NotiType? = null, date: LocalDateTime? = null, onClickComplete: () -> Unit) {
     val selectedType = remember { mutableStateOf("") }
     val selectedDate = remember { mutableStateOf("") }
     val selectedHour = remember { mutableStateOf("") }
     val selectedMinute = remember { mutableStateOf("") }
 
-    Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 32.dp)) {
+    Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)) {
         Box(modifier = Modifier.weight(1f)) {
             Canvas(
                 modifier = Modifier
@@ -91,12 +91,14 @@ fun NotiModalContent(type: NotiType? = null, date: LocalDateTime? = null) {
             style = WishBoardTheme.typography.suitD3,
             color = WishBoardTheme.colors.gray300,
         )
-        WishBoardWideButton(enabled = true, onClick = { /*TODO*/ }, text = stringResource(id = R.string.complete))
+        WishBoardWideButton(enabled = true, onClick = {
+            onClickComplete()
+        }, text = stringResource(id = R.string.complete))
     }
 }
 
 @Composable
 @Preview(showSystemUi = true)
 fun PreviewNotiModalContent() {
-    NotiModalContent()
+    NotiModalContent(onClickComplete = {})
 }

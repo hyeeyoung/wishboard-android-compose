@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -40,7 +41,7 @@ import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardThickDivi
 import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardTextField
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardMainTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
-import com.hyeeyoung.wishboard.presentation.model.WishBoardDialogTextRes
+import com.hyeeyoung.wishboard.presentation.dialog.DialogData
 import com.hyeeyoung.wishboard.presentation.util.constant.WishBoardUrl
 import com.hyeeyoung.wishboard.presentation.util.extension.moveToWebView
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
@@ -51,7 +52,7 @@ fun MyScreen(navController: NavHostController) {
     // TODO 클릭 이벤트 핸들링
 
     val context = LocalContext.current
-    var dialogType by remember { mutableStateOf<DialogType?>(null) }
+    var dialogData by remember { mutableStateOf<DialogData?>(null) }
 
     val myMenuComponents =
         listOf(
@@ -110,11 +111,11 @@ fun MyScreen(navController: NavHostController) {
             MyMenuComponent.Divider,
             MyMenuComponent.Menu(
                 nameRes = R.string.my_menu_logout,
-                onClickMenu = { dialogType = DialogType.LOGOUT },
+                onClickMenu = { dialogData = DialogData.Logout },
             ),
             MyMenuComponent.Menu(
                 nameRes = R.string.my_menu_withdraw,
-                onClickMenu = { dialogType = DialogType.WITHDRAW },
+                onClickMenu = { dialogData = DialogData.Withdraw },
             ),
         )
 
@@ -136,33 +137,16 @@ fun MyScreen(navController: NavHostController) {
             item { Spacer(modifier = Modifier.size(64.dp)) }
         }
 
-        val emailInput = remember { mutableStateOf("") }
-
-        dialogType?.let { type ->
-            WishBoardDialog(
-                isOpen = true,
-                textRes = type.dialogTextRes,
-                isWarningDialog = type.isWaringDialog,
-                onClickConfirm = {},
-                onDismissRequest = { dialogType = null },
-                content =
-                if (type == DialogType.WITHDRAW) {
-                    {
-                        Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 20.dp, bottom = 14.dp)) {
-                            WishBoardTextField(
-                                input = emailInput,
-                                placeholder = stringResource(id = R.string.sign_email_placeholder),
-                                errorMsg = stringResource(
-                                    id = R.string.dialog_withdraw_email_error,
-                                ),
-                            )
-                        }
-                    }
-                } else {
-                    null
-                },
-            )
-        }
+        WishBoardDialog(
+            dialogData = dialogData,
+            onClickConfirm = {},
+            onDismissRequest = { dialogData = null },
+            content = if (dialogData is DialogData.Withdraw) {
+                { WithdrawDialogContent() }
+            } else {
+                null
+            },
+        )
     }
 }
 
@@ -203,6 +187,24 @@ fun Profile(onClickProfileEdit: () -> Unit) {
     }
 }
 
+@Composable
+fun WithdrawDialogContent() {
+    val emailInput = remember { mutableStateOf("") }
+    Column(
+        modifier = Modifier
+            .padding(start = 16.dp, end = 16.dp, top = 20.dp, bottom = 14.dp)
+            .height(60.dp),
+    ) {
+        WishBoardTextField(
+            input = emailInput,
+            placeholder = stringResource(id = R.string.sign_email_placeholder),
+            errorMsg = stringResource(
+                id = R.string.dialog_withdraw_email_error,
+            ),
+        )
+    }
+}
+
 sealed class MyMenuComponent {
     data class Menu(
         @StringRes val nameRes: Int,
@@ -230,27 +232,6 @@ fun MenuItem(menu: MyMenuComponent.Menu) {
         )
         menu.endComponent?.let { endComponent -> endComponent() }
     }
-}
-
-enum class DialogType(val dialogTextRes: WishBoardDialogTextRes, val isWaringDialog: Boolean) {
-    LOGOUT(
-        WishBoardDialogTextRes(
-            titleRes = R.string.my_menu_logout,
-            descriptionRes = R.string.dialog_logout_description,
-            dismissBtnTextRes = R.string.cancel,
-            confirmBtnTextRes = R.string.my_menu_logout,
-        ),
-        true,
-    ),
-    WITHDRAW(
-        WishBoardDialogTextRes(
-            titleRes = R.string.dialog_withdraw_title,
-            descriptionRes = R.string.dialog_withdraw_description,
-            dismissBtnTextRes = R.string.cancel,
-            confirmBtnTextRes = R.string.dialog_withdraw_confirm_btn_text,
-        ),
-        true,
-    ),
 }
 
 @Composable

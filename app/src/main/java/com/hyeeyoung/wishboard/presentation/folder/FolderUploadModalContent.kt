@@ -16,10 +16,10 @@ import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
 import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardTextField
 
 @Composable
-fun FolderUploadModalContent(folder: Pair<Long, String>? = null) {
+fun FolderUploadModalContent(folder: Pair<Long, String>? = null, onClickComplete: (String) -> Unit) {
     val nameInput = remember { mutableStateOf(folder?.second ?: "") }
 
-    Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 32.dp)) {
+    Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)) {
         Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
             WishBoardTextField(
                 input = nameInput,
@@ -30,7 +30,7 @@ fun FolderUploadModalContent(folder: Pair<Long, String>? = null) {
 
         WishBoardWideButton(
             enabled = true,
-            onClick = { /*TODO*/ },
+            onClick = { onClickComplete(nameInput.value) },
             text = stringResource(id = if (folder == null) R.string.add else R.string.modal_folder_name_edit_btn_text),
         )
     }
@@ -39,11 +39,11 @@ fun FolderUploadModalContent(folder: Pair<Long, String>? = null) {
 @Composable
 @Preview
 fun PreviewNewFolderModalContent() {
-    FolderUploadModalContent()
+    FolderUploadModalContent(onClickComplete = {})
 }
 
 @Composable
 @Preview
 fun PreviewFolderEditModalContent() {
-    FolderUploadModalContent(Pair(1L, "셀린느"))
+    FolderUploadModalContent(Pair(1L, "셀린느"), onClickComplete = {})
 }

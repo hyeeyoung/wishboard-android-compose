@@ -56,10 +56,10 @@ fun WishBoardBottomBar(navController: NavHostController = rememberNavController(
                         navItem = navItem,
                         isSelected = isSelectedMenu(currentRoute = currentRoute, navItem = navItem),
                         onSelect = {
-                            if (navItem.Screen.route == BottomNavItem.Add.Screen.route) {
+                            if (navItem.screen.route == BottomNavItem.Add.screen.route) {
                                 onClickAdd()
                             } else {
-                                navController.navigate(route = navItem.Screen.route) {
+                                navController.navigate(route = navItem.screen.route) {
                                     popUpTo(navController.graph.findStartDestination().id) {
                                         saveState = true
                                     }
@@ -78,10 +78,10 @@ fun WishBoardBottomBar(navController: NavHostController = rememberNavController(
 fun isSelectedMenu(currentRoute: String?, navItem: BottomNavItem): Boolean {
     return when (navItem) {
         BottomNavItem.Folder ->
-            currentRoute in listOf(navItem.Screen.getStartRouteForMainTab(), MainScreen.FolderDetail.routeWithArg)
+            currentRoute in listOf(MainScreen.Folder.getStartRouteForMainTab(), MainScreen.FolderDetail.routeWithArg)
 
         else ->
-            currentRoute == navItem.Screen.getStartRouteForMainTab()
+            currentRoute == navItem.screen.getStartRouteForMainTab()
     }
 }
 
@@ -89,7 +89,7 @@ fun isSelectedMenu(currentRoute: String?, navItem: BottomNavItem): Boolean {
 fun BottomBarIconButton(navItem: BottomNavItem, isSelected: Boolean, onSelect: (String) -> Unit) = Column(
     modifier = Modifier
         .fillMaxHeight()
-        .noRippleClickable { onSelect(navItem.Screen.route) },
+        .noRippleClickable { onSelect(navItem.screen.route) },
     horizontalAlignment = Alignment.CenterHorizontally,
     verticalArrangement = Arrangement.Center,
 ) {
@@ -102,7 +102,7 @@ fun BottomBarIconButton(navItem: BottomNavItem, isSelected: Boolean, onSelect: (
 enum class BottomNavItem(
     @StringRes val label: Int,
     @DrawableRes val icon: Int,
-    val Screen: MainScreen,
+    val screen: MainScreen,
 ) {
     WishList(R.string.nav_menu_label_wishlist, R.drawable.ic_nav_wish_list, MainScreen.Wishlist),
     Folder(R.string.nav_menu_label_folder, R.drawable.ic_nav_folder, MainScreen.Folder),

@@ -15,12 +15,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -33,12 +35,12 @@ import com.hyeeyoung.wishboard.designsystem.component.ColoredImage
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardEmptyView
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.dialog.WishBoardDialog
-import com.hyeeyoung.wishboard.designsystem.component.dialog.WishBoardModal
-import com.hyeeyoung.wishboard.designsystem.component.dialog.WishBoardTwoOptionModal
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardMainTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
+import com.hyeeyoung.wishboard.presentation.dialog.DialogData
+import com.hyeeyoung.wishboard.presentation.dialog.ModalData
 import com.hyeeyoung.wishboard.presentation.model.Folder
-import com.hyeeyoung.wishboard.presentation.model.WishBoardDialogTextRes
+import com.hyeeyoung.wishboard.presentation.util.extension.rememberModalLauncher
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 
 @Composable
@@ -52,9 +54,33 @@ fun FolderScreen(navController: NavHostController) {
         ),
     )
     val folders = List(8) { folder }.flatten() // TODO 서버 연동 후 삭제
-    var deleteDialogInfo by remember { mutableStateOf(FolderDialogInfo(false)) }
-    var uploadModalIndo by remember { mutableStateOf(FolderDialogInfo(false)) }
-    var moreModalIndo by remember { mutableStateOf(FolderDialogInfo(false)) }
+    var dialogData by remember { mutableStateOf<DialogData?>(null) }
+    var modalData by remember { mutableStateOf<ModalData?>(null) }
+    val context = LocalContext.current
+
+    val modalLauncher = rememberModalLauncher { isTopOption, data ->
+        when (data) {
+            is ModalData.OptionModal.FolderMore -> {
+                if (isTopOption) {
+                    modalData = ModalData.Modal.FolderNameEdit(data.folderId, data.folderName)
+                } else {
+                    dialogData = DialogData.FolderDelete(folderId = data.folderId)
+                }
+            }
+
+            else -> {}
+        }
+    }
+
+    LaunchedEffect(modalData) {
+        modalData?.openModal(context, modalLauncher)
+    }
+
+    WishBoardDialog(
+        dialogData = dialogData,
+        onClickConfirm = { /*TODO*/ },
+        onDismissRequest = { dialogData = null },
+    )
 
     Scaffold(topBar = {
         WishBoardMainTopBar(
@@ -63,7 +89,7 @@ fun FolderScreen(navController: NavHostController) {
                 WishBoardIconButton(
                     modifier = Modifier.padding(end = 8.dp),
                     iconRes = R.drawable.ic_plus,
-                    onClick = { uploadModalIndo = FolderDialogInfo(true) },
+                    onClick = { ModalData.Modal.NewFolder().openModal(context, modalLauncher) },
                 )
             },
         )
@@ -86,47 +112,13 @@ fun FolderScreen(navController: NavHostController) {
                         onClickFolder = { folderId ->
                             navController.navigate("${MainScreen.FolderDetail.route}/$folderId/${folder.name}")
                         },
-                        onClickMore = { selectedFolder -> moreModalIndo = FolderDialogInfo(true, selectedFolder) },
+                        onClickMore = { selectedFolder ->
+                            modalData = ModalData.OptionModal.FolderMore(selectedFolder.id, selectedFolder.name)
+                        },
                     )
                 }
             }
         }
-
-        WishBoardDialog(
-            isOpen = deleteDialogInfo.isOpen,
-            textRes = WishBoardDialogTextRes(
-                titleRes = R.string.dialog_folder_delete_title,
-                descriptionRes = R.string.dialog_folder_delete_description,
-                dismissBtnTextRes = R.string.cancel,
-                confirmBtnTextRes = R.string.delete,
-            ),
-            onClickConfirm = {}, // TODO 폴더 삭제 요청
-            onDismissRequest = { deleteDialogInfo = FolderDialogInfo(false) },
-        )
-
-        WishBoardModal(
-            isOpen = uploadModalIndo.isOpen,
-            titleRes =
-            if (uploadModalIndo.selectedFolder == null) {
-                R.string.modal_new_folder_title
-            } else {
-                R.string.modal_folder_name_edit_title
-            },
-            onDismissRequest = { uploadModalIndo = FolderDialogInfo(false, null) },
-        ) {
-            val folderInfo =
-                if (uploadModalIndo.selectedFolder == null) null else Pair(1L, uploadModalIndo.selectedFolder!!.name)
-            FolderUploadModalContent(folderInfo)
-        }
-
-        WishBoardTwoOptionModal(
-            isOpen = moreModalIndo.isOpen,
-            topOption = R.string.modal_folder_name_edit_title,
-            bottomOption = R.string.dialog_folder_delete_title,
-            onDismissRequest = { moreModalIndo = FolderDialogInfo(false, null) },
-            onClickTop = { uploadModalIndo = FolderDialogInfo(true, moreModalIndo.selectedFolder) },
-            onClickBottom = { deleteDialogInfo = FolderDialogInfo(true, moreModalIndo.selectedFolder) },
-        )
     }
 }
 
@@ -157,7 +149,10 @@ fun FolderItem(folder: Folder, onClickFolder: (Long) -> Unit, onClickMore: (Fold
                 )
                 Text(
                     modifier = Modifier.padding(top = 6.dp),
-                    text = stringResource(id = R.string.folder_wish_item_count, formatArgs = arrayOf(folder.itemCount)),
+                    text = stringResource(
+                        id = R.string.folder_wish_item_count,
+                        formatArgs = arrayOf(folder.itemCount),
+                    ),
                     style = WishBoardTheme.typography.suitD3,
                     color = WishBoardTheme.colors.gray300,
                 )
@@ -175,13 +170,8 @@ fun FolderItem(folder: Folder, onClickFolder: (Long) -> Unit, onClickMore: (Fold
     }
 }
 
-private data class FolderDialogInfo(
-    val isOpen: Boolean,
-    val selectedFolder: Folder? = null,
-)
-
-@Composable
 @Preview
+@Composable
 fun PreviewFolderScreen() {
     FolderScreen(navController = rememberNavController())
 }
