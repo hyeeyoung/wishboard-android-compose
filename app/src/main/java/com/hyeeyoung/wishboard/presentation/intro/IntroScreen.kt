@@ -33,19 +33,19 @@ import com.hyeeyoung.wishboard.config.navigation.screen.SignScreen
 import com.hyeeyoung.wishboard.designsystem.component.dialog.WishBoardDialog
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
-import com.hyeeyoung.wishboard.presentation.model.WishBoardDialogTextRes
+import com.hyeeyoung.wishboard.presentation.dialog.DialogData
 import kotlinx.coroutines.delay
 
 @Composable
 fun IntroScreen(navController: NavHostController) {
     val context = LocalContext.current
-    var isOpenDialog by remember { mutableStateOf(false) }
+    var dialogData by remember { mutableStateOf<DialogData?>(null) }
 
     LaunchedEffect(Unit) {
         delay(2000L)
         checkForNewVersionUpdate(
             context = context,
-            updateDialogState = { isOpenDialog = true },
+            showDialog = { dialogData = DialogData.Intro },
             moveToNext = { navigateToNext(navController) },
         )
     }
@@ -63,21 +63,14 @@ fun IntroScreen(navController: NavHostController) {
         }
 
         WishBoardDialog(
-            isOpen = isOpenDialog,
-            textRes = WishBoardDialogTextRes(
-                titleRes = R.string.dialog_update_title,
-                descriptionRes = R.string.dialog_update_description,
-                dismissBtnTextRes = R.string.later,
-                confirmBtnTextRes = R.string.dialog_update_confirm_btn_text,
-            ),
-            isWarningDialog = false,
+            dialogData = dialogData,
             onClickConfirm = {},
-            onDismissRequest = { isOpenDialog = false },
+            onDismissRequest = { dialogData = null },
         )
     }
 }
 
-private fun checkForNewVersionUpdate(context: Context, updateDialogState: () -> Unit, moveToNext: () -> Unit) {
+private fun checkForNewVersionUpdate(context: Context, showDialog: () -> Unit, moveToNext: () -> Unit) {
     val appUpdateManager = AppUpdateManagerFactory.create(context)
     val appUpdateInfoTask = appUpdateManager.appUpdateInfo
 
@@ -86,7 +79,7 @@ private fun checkForNewVersionUpdate(context: Context, updateDialogState: () -> 
             appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE) &&
             appUpdateInfo.availableVersionCode() != BuildConfig.VERSION_CODE
         ) {
-            updateDialogState()
+            showDialog()
         } else {
             moveToNext()
         }

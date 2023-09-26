@@ -42,8 +42,8 @@ import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.designsystem.style.Green500
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
+import com.hyeeyoung.wishboard.presentation.dialog.DialogData
 import com.hyeeyoung.wishboard.presentation.model.CartItem
-import com.hyeeyoung.wishboard.presentation.model.WishBoardDialogTextRes
 import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.wish.component.PriceText
@@ -61,9 +61,10 @@ fun CartScreen(navController: NavHostController) {
         ),
     )
     val cartItems = List(7) { cartItem }.flatten()
-    val systemUiController = rememberSystemUiController()
-    var isOpenDialog by remember { mutableStateOf(false) }
 
+    var dialogData by remember { mutableStateOf<DialogData?>(null) }
+
+    val systemUiController = rememberSystemUiController()
     SideEffect {
         systemUiController.setNavigationBarColor(color = Green500)
     }
@@ -97,7 +98,7 @@ fun CartScreen(navController: NavHostController) {
                             cartItem = item,
                             moveToDetail = { id -> navController.navigate("${MainScreen.WishItemDetail.route}/$id") },
                             onChangeItemCount = { count -> /*TODO*/ },
-                            onClickDelete = { id -> isOpenDialog = true },
+                            onClickDelete = { dialogData = DialogData.CartDelete() },
                         )
                         if (idx < cartItems.lastIndex) WishBoardDivider()
                     }
@@ -107,15 +108,9 @@ fun CartScreen(navController: NavHostController) {
         }
 
         WishBoardDialog(
-            isOpen = isOpenDialog,
-            textRes = WishBoardDialogTextRes(
-                titleRes = R.string.dialog_cart_title,
-                descriptionRes = R.string.dialog_cart_description,
-                dismissBtnTextRes = R.string.cancel,
-                confirmBtnTextRes = R.string.delete,
-            ),
+            dialogData = dialogData,
             onClickConfirm = {},
-            onDismissRequest = { isOpenDialog = false },
+            onDismissRequest = { dialogData = null },
         )
     }
 }
@@ -125,7 +120,7 @@ fun CartItem(
     cartItem: CartItem,
     moveToDetail: (Long) -> Unit = {},
     onChangeItemCount: (Int) -> Unit = {},
-    onClickDelete: (Long) -> Unit = {},
+    onClickDelete: () -> Unit = {},
 ) {
     val imageSize = 84
     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -155,7 +150,7 @@ fun CartItem(
                     WishBoardIconButton(
                         modifier = Modifier.background(WishBoardTheme.colors.white),
                         iconRes = R.drawable.ic_delete_small_gray,
-                        onClick = { onClickDelete(cartItem.id) },
+                        onClick = { onClickDelete() },
                     )
                 }
             }

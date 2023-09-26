@@ -34,7 +34,7 @@
             android:name=".presentation.upload.LinkSharingWishUploadActivity"
             android:exported="true"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.WishLinkSharing"
+            android:theme="@style/Theme.Modal"
             android:windowSoftInputMode="adjustResize"
             tools:ignore="LockedOrientationActivity">
             <intent-filter>
@@ -44,6 +44,12 @@
                 <data android:mimeType="image/*" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".presentation.dialog.ModalActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Modal"
+            android:windowSoftInputMode="adjustResize"/>
     </application>
 
 </manifest>

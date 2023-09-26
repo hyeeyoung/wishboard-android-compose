@@ -16,9 +16,9 @@ import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
 import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardTextField
 
 @Composable
-fun ShopLinkModalContent(link: String? = null, onClickBtn: () -> Unit = {}) {
+fun ShopLinkModalContent(link: String? = null, onClickComplete: (String) -> Unit) {
     val linkInput = remember { mutableStateOf(link ?: "") }
-    Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 32.dp)) {
+    Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)) {
         Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
             WishBoardTextField(
                 input = linkInput,
@@ -29,7 +29,7 @@ fun ShopLinkModalContent(link: String? = null, onClickBtn: () -> Unit = {}) {
 
         WishBoardWideButton(
             enabled = true,
-            onClick = { onClickBtn() },
+            onClick = { onClickComplete(linkInput.value) },
             text = stringResource(id = R.string.modal_shop_link_item_load_btn_text),
         )
     }
@@ -38,5 +38,5 @@ fun ShopLinkModalContent(link: String? = null, onClickBtn: () -> Unit = {}) {
 @Composable
 @Preview
 fun PreviewShopLinkModalContent() {
-    ShopLinkModalContent()
+    ShopLinkModalContent(onClickComplete = {})
 }

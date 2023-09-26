@@ -3,11 +3,11 @@
 
     <style name="Theme.Wishboard" parent="android:Theme.Material.Light.NoActionBar" />
 
-    <style name="Theme.WishLinkSharing" parent="Theme.Wishboard">
+    <style name="Theme.Modal" parent="Theme.Wishboard">
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="android:navigationBarColor">@android:color/white</item>
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:backgroundDimEnabled">true</item>
     </style>
+
 </resources>

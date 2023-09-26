@@ -30,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -42,21 +43,17 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardNarrowButton
-import com.hyeeyoung.wishboard.designsystem.component.dialog.WishBoardModal
-import com.hyeeyoung.wishboard.designsystem.component.dialog.WishBoardTwoOptionModal
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
 import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardSimpleTextField
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
 import com.hyeeyoung.wishboard.designsystem.util.PriceTransformation
-import com.hyeeyoung.wishboard.presentation.folder.FolderListModalContent
+import com.hyeeyoung.wishboard.presentation.dialog.ModalData
 import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.model.WishItemDetail
-import com.hyeeyoung.wishboard.presentation.noti.NotiModalContent
-import com.hyeeyoung.wishboard.presentation.upload.component.ShopLinkModalContent
-import com.hyeeyoung.wishboard.presentation.upload.model.ModalInfo
-import com.hyeeyoung.wishboard.presentation.upload.model.ModalRoute
+import com.hyeeyoung.wishboard.presentation.upload.model.SelectedFolder
+import com.hyeeyoung.wishboard.presentation.util.extension.rememberModalLauncher
 import com.hyeeyoung.wishboard.presentation.util.extension.getCurrentTime
 import com.hyeeyoung.wishboard.presentation.util.extension.makeValidPriceStr
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
@@ -74,9 +71,31 @@ fun WishUploadScreen(navController: NavHostController, itemDetail: WishItemDetai
     val nameInput = remember { mutableStateOf(itemDetail?.name ?: "") }
     val priceInput = remember { mutableStateOf(itemDetail?.price?.toString() ?: "") }
     val memoInput = remember { mutableStateOf(itemDetail?.memo ?: "") }
+    val shopLinkInput = remember { mutableStateOf(itemDetail?.site ?: "") }
+    var selectedFolder by remember { mutableStateOf(SelectedFolder(itemDetail?.folderId, itemDetail?.folderName)) }
 
-    var modalInfo by remember { mutableStateOf(ModalInfo(false)) }
-    var twoOptionModalInfo by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val modalLauncher = rememberModalLauncher { isTopOption, data ->
+        when (data) {
+            is ModalData.OptionModal.ImageSelection -> {
+                if (isTopOption) {
+                    /*TODO*/
+                } else {
+                    /*TODO*/
+                }
+            }
+
+            is ModalData.Modal.Noti -> {}
+
+            is ModalData.Modal.FolderList -> {
+                selectedFolder = SelectedFolder(data.selectedFolderId, data.selectedFolderName)
+            }
+
+            is ModalData.Modal.ShopLink -> {}
+
+            else -> {}
+        }
+    }
 
     WishboardTheme {
         Scaffold(topBar = {
@@ -132,7 +151,10 @@ fun WishUploadScreen(navController: NavHostController, itemDetail: WishItemDetai
                         contentDescription = null,
                     )
 
-                    WishBoardIconButton(iconRes = R.drawable.ic_camera, onClick = { twoOptionModalInfo = true })
+                    WishBoardIconButton(
+                        iconRes = R.drawable.ic_camera,
+                        onClick = { ModalData.OptionModal.ImageSelection.openModal(context, modalLauncher) },
+                    )
                 }
 
                 WishBoardSimpleTextField(
@@ -150,20 +172,20 @@ fun WishUploadScreen(navController: NavHostController, itemDetail: WishItemDetai
                     visualTransformation = PriceTransformation(prefix = "₩ "),
                 )
                 ItemInfoRow(
-                    label = itemDetail?.folderName ?: stringResource(id = R.string.folder),
-                    onClickRow = { modalInfo = ModalInfo(true, ModalRoute.FOLDER) },
+                    label = selectedFolder.name ?: stringResource(id = R.string.folder),
+                    onClickRow = { ModalData.Modal.FolderList(selectedFolder.id).openModal(context, modalLauncher) },
                 )
                 ItemInfoRow(
                     label = getNotiInfo(notiType = itemDetail?.notiType, notiDate = itemDetail?.notiDate)
                         ?: stringResource(id = R.string.wish_item_upload_noti),
-                    onClickRow = { modalInfo = ModalInfo(true, ModalRoute.NOTI) },
+                    onClickRow = { ModalData.Modal.Noti().openModal(context, modalLauncher) },
                 )
                 ItemInfoRow(
                     label = stringResource(id = R.string.wish_item_upload_shop_link),
                     guideText = stringResource(
                         id = R.string.wish_item_upload_shop_link_guide,
                     ),
-                    onClickRow = { modalInfo = ModalInfo(true, ModalRoute.SHOP) },
+                    onClickRow = { ModalData.Modal.ShopLink(shopLinkInput.value).openModal(context, modalLauncher) },
                 )
                 WishBoardSimpleTextField(
                     input = memoInput,
@@ -172,25 +194,6 @@ fun WishUploadScreen(navController: NavHostController, itemDetail: WishItemDetai
                 )
                 Spacer(modifier = Modifier.size(64.dp))
             }
-
-            WishBoardModal(
-                isOpen = modalInfo.isOpen,
-                titleRes = modalInfo.modalRoute?.titleRes ?: R.string.modal_folder_selection_title,
-                onDismissRequest = { modalInfo = ModalInfo(false) },
-            ) {
-                when (modalInfo.modalRoute) {
-                    ModalRoute.FOLDER -> FolderListModalContent(selectedFolderId = itemDetail?.id)
-                    ModalRoute.NOTI -> NotiModalContent(itemDetail?.notiType)
-                    else -> ShopLinkModalContent(link = itemDetail?.site, onClickBtn = { /*TODO*/ })
-                }
-            }
-
-            WishBoardTwoOptionModal(
-                isOpen = twoOptionModalInfo,
-                topOption = R.string.modal_image_upload_camera,
-                bottomOption = R.string.modal_image_upload_gallery,
-                onDismissRequest = { twoOptionModalInfo = false },
-            )
         }
     }
 }
