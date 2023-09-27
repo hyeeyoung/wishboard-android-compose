@@ -30,6 +30,10 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        val contentProviderAuthority = "${applicationId}.fileprovier"
+        manifestPlaceholders["FILE_PROVIDER"] = contentProviderAuthority
+        buildConfigField("String", "FILE_PROVIDER", "\"$contentProviderAuthority\"")
     }
 
     buildTypes {
