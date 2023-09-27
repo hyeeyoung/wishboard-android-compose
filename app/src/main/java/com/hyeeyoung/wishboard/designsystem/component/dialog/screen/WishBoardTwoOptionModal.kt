@@ -1,4 +1,4 @@
-package com.hyeeyoung.wishboard.presentation.dialog
+package com.hyeeyoung.wishboard.designsystem.component.dialog.screen
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background

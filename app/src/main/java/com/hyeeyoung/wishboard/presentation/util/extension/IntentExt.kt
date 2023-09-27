@@ -5,8 +5,8 @@ import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
-import com.hyeeyoung.wishboard.presentation.dialog.ModalActivity
-import com.hyeeyoung.wishboard.presentation.dialog.ModalData
+import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.ModalActivity
+import com.hyeeyoung.wishboard.designsystem.component.dialog.model.ModalData
 import java.io.Serializable
 
 fun <T : Serializable> Intent.getSerializable(name: String, clazz: Class<T>): T? {

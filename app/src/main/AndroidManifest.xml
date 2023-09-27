@@ -46,7 +46,7 @@
         </activity>
 
         <activity
-            android:name=".presentation.dialog.ModalActivity"
+            android:name=".designsystem.component.dialog.screen.ModalActivity"
             android:exported="false"
             android:theme="@style/Theme.Modal"
             android:windowSoftInputMode="adjustResize"/>

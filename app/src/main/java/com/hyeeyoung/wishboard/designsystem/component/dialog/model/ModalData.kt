@@ -1,4 +1,4 @@
-package com.hyeeyoung.wishboard.presentation.dialog
+package com.hyeeyoung.wishboard.designsystem.component.dialog.model
 
 import android.content.Context
 import android.content.Intent
@@ -6,6 +6,7 @@ import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.result.ActivityResult
 import androidx.annotation.StringRes
 import com.hyeeyoung.wishboard.R
+import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.ModalActivity
 import com.hyeeyoung.wishboard.presentation.util.type.NotiType
 import kotlinx.datetime.LocalDateTime
 import java.io.Serializable

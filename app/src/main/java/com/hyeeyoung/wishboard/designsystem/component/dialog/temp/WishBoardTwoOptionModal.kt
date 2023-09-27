@@ -1,4 +1,4 @@
-package com.hyeeyoung.wishboard.designsystem.component.dialog
+package com.hyeeyoung.wishboard.designsystem.component.dialog.temp
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
@@ -29,7 +29,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WishBoardTwoOptionModal(
+fun WishBoardTwoOptionModal( // TODO stable 버전 되면 사용 고려
     isOpen: Boolean,
     @StringRes topOption: Int,
     @StringRes bottomOption: Int,

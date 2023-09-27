@@ -1,4 +1,4 @@
-package com.hyeeyoung.wishboard.presentation.dialog
+package com.hyeeyoung.wishboard.designsystem.component.dialog.model
 
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.presentation.model.WishBoardDialogTextRes
