@@ -1,6 +1,9 @@
 package com.hyeeyoung.wishboard.presentation.upload
 
 import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -53,10 +56,11 @@ import com.hyeeyoung.wishboard.presentation.dialog.ModalData
 import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.model.WishItemDetail
 import com.hyeeyoung.wishboard.presentation.upload.model.SelectedFolder
-import com.hyeeyoung.wishboard.presentation.util.extension.rememberModalLauncher
+import com.hyeeyoung.wishboard.presentation.util.extension.createImageUri
 import com.hyeeyoung.wishboard.presentation.util.extension.getCurrentTime
 import com.hyeeyoung.wishboard.presentation.util.extension.makeValidPriceStr
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
+import com.hyeeyoung.wishboard.presentation.util.extension.rememberModalLauncher
 import com.hyeeyoung.wishboard.presentation.util.type.NotiType
 import kotlinx.datetime.LocalDateTime
 
@@ -67,21 +71,33 @@ fun WishUploadScreen(navController: NavHostController, itemDetail: WishItemDetai
         systemUiController.setNavigationBarColor(color = Color.Transparent)
     }
 
-    val imageInput by remember { mutableStateOf<Uri?>(null) }
+    var imageInput by remember { mutableStateOf<Uri?>(null) }
     val nameInput = remember { mutableStateOf(itemDetail?.name ?: "") }
     val priceInput = remember { mutableStateOf(itemDetail?.price?.toString() ?: "") }
     val memoInput = remember { mutableStateOf(itemDetail?.memo ?: "") }
     val shopLinkInput = remember { mutableStateOf(itemDetail?.site ?: "") }
     var selectedFolder by remember { mutableStateOf(SelectedFolder(itemDetail?.folderId, itemDetail?.folderName)) }
 
+    var cameraUri: Uri? = null
+    val albumLauncher = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+        uri?.let {
+            imageInput = it
+        }
+    }
+    val cameraLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { isSuccess ->
+            if (isSuccess) imageInput = cameraUri
+        }
+
     val context = LocalContext.current
     val modalLauncher = rememberModalLauncher { isTopOption, data ->
         when (data) {
             is ModalData.OptionModal.ImageSelection -> {
                 if (isTopOption) {
-                    /*TODO*/
+                    cameraUri = context.createImageUri("youngjin7wishboard") // TODO 실 토큰값 넣기
+                    cameraLauncher.launch(cameraUri)
                 } else {
-                    /*TODO*/
+                    albumLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
                 }
             }
 

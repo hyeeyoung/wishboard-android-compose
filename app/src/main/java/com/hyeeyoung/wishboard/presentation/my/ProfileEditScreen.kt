@@ -1,5 +1,9 @@
 package com.hyeeyoung.wishboard.presentation.my
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -7,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -16,7 +21,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -24,18 +31,47 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.hyeeyoung.wishboard.R
+import com.hyeeyoung.wishboard.designsystem.component.ColoredImage
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
-import com.hyeeyoung.wishboard.designsystem.component.dialog.WishBoardTwoOptionModal
 import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardTextField
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
+import com.hyeeyoung.wishboard.presentation.dialog.ModalData
 import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
+import com.hyeeyoung.wishboard.presentation.util.extension.createImageUri
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
+import com.hyeeyoung.wishboard.presentation.util.extension.rememberModalLauncher
 
 @Composable
 fun ProfileEditScreen(navController: NavHostController) {
-    var isOpenModal by remember { mutableStateOf(false) }
+    var imageInput by remember { mutableStateOf<Uri?>(null) }
+    var cameraUri: Uri? = null
+    val albumLauncher = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+        uri?.let {
+            imageInput = it
+        }
+    }
+    val cameraLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { isSuccess ->
+            if (isSuccess) imageInput = cameraUri
+        }
+
+    val context = LocalContext.current
+    val modalLauncher = rememberModalLauncher { isTopOption, data ->
+        when (data) {
+            is ModalData.OptionModal.ImageSelection -> {
+                if (isTopOption) {
+                    cameraUri = context.createImageUri("youngjin7wishboard") // TODO 실 토큰값 넣기
+                    cameraLauncher.launch(cameraUri)
+                } else {
+                    albumLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                }
+            }
+
+            else -> {}
+        }
+    }
 
     WishboardTheme {
         Scaffold(topBar = {
@@ -58,19 +94,26 @@ fun ProfileEditScreen(navController: NavHostController) {
                 Box(
                     modifier = Modifier
                         .width((imageSize + 12).dp)
-                        .noRippleClickable { /*TODO*/ },
+                        .noRippleClickable { ModalData.OptionModal.ImageSelection.openModal(context, modalLauncher) },
                 ) {
-                    Icon(
-                        modifier = Modifier
-                            .size(imageSize.dp)
-                            .align(Alignment.Center)
-                            .noRippleClickable {
-                                isOpenModal = true
-                            },
-                        painter = painterResource(id = R.drawable.ic_placeholder_user_profile),
-                        contentDescription = null,
-                        tint = Color.Unspecified,
-                    )
+                    if (imageInput != null) {
+                        ColoredImage(
+                            model = imageInput,
+                            modifier = Modifier
+                                .size(imageSize.dp)
+                                .align(Alignment.Center).clip(CircleShape),
+                        )
+                    } else {
+                        Icon(
+                            modifier = Modifier
+                                .size(imageSize.dp)
+                                .align(Alignment.Center),
+                            painter = painterResource(id = R.drawable.ic_placeholder_user_profile),
+                            contentDescription = null,
+                            tint = Color.Unspecified,
+                        )
+                    }
+
                     Icon(
                         modifier = Modifier
                             .align(Alignment.BottomEnd)
@@ -97,13 +140,6 @@ fun ProfileEditScreen(navController: NavHostController) {
                     text = stringResource(id = R.string.complete),
                 )
             }
-
-            WishBoardTwoOptionModal(
-                isOpen = isOpenModal,
-                topOption = R.string.modal_image_upload_camera,
-                bottomOption = R.string.modal_image_upload_gallery,
-                onDismissRequest = { isOpenModal = false },
-            )
         }
     }
 }
