@@ -1,4 +1,4 @@
-package com.hyeeyoung.wishboard.presentation.upload
+package com.hyeeyoung.wishboard.presentation.upload.screen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

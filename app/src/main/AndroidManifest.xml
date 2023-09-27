@@ -31,7 +31,7 @@
         </activity>
 
         <activity
-            android:name=".presentation.upload.LinkSharingWishUploadActivity"
+            android:name=".presentation.upload.screen.LinkSharingWishUploadActivity"
             android:exported="true"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.Modal"

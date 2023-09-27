@@ -1,4 +1,4 @@
-package com.hyeeyoung.wishboard.presentation.upload
+package com.hyeeyoung.wishboard.presentation.upload.screen
 
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
