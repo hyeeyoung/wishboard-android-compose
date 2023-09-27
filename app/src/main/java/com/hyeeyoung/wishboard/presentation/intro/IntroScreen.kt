@@ -30,10 +30,10 @@ import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.config.navigation.screen.Intro
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.config.navigation.screen.SignScreen
-import com.hyeeyoung.wishboard.designsystem.component.dialog.WishBoardDialog
+import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.WishBoardDialog
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
-import com.hyeeyoung.wishboard.presentation.dialog.DialogData
+import com.hyeeyoung.wishboard.designsystem.component.dialog.model.DialogData
 import kotlinx.coroutines.delay
 
 @Composable

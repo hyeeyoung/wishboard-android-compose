@@ -9,7 +9,7 @@ import com.hyeeyoung.wishboard.config.navigation.navgraph.folderNavGraph
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.presentation.my.MyScreen
 import com.hyeeyoung.wishboard.presentation.noti.NotiScreen
-import com.hyeeyoung.wishboard.presentation.wish.WishlistScreen
+import com.hyeeyoung.wishboard.presentation.wish.screen.WishlistScreen
 
 /** 바텀바가 보이는 화면 전용 네비게이션 그래프를 정의 */
 @Composable

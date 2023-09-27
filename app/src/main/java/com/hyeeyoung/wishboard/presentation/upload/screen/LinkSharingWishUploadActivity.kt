@@ -1,4 +1,4 @@
-package com.hyeeyoung.wishboard.presentation.upload
+package com.hyeeyoung.wishboard.presentation.upload.screen
 
 import android.content.Intent
 import android.os.Bundle
