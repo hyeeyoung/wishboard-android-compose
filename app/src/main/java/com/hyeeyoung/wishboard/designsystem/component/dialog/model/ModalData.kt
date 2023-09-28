@@ -34,6 +34,10 @@ sealed class ModalData : Serializable {
         ) : Modal(title = R.string.modal_shop_link_title)
     }
 
+    sealed class FullModal : ModalData() {
+        object Onboarding : FullModal()
+    }
+
     sealed class OptionModal(
         @StringRes val topOption: Int,
         @StringRes val bottomOption: Int,
@@ -54,12 +58,16 @@ sealed class ModalData : Serializable {
         )
     }
 
-    fun openModal(context: Context, resultLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>) {
+    fun openModal(context: Context, resultLauncher: ManagedActivityResultLauncher<Intent, ActivityResult>? = null) {
         val intent = Intent(
             context,
             ModalActivity::class.java,
         ).apply { putExtra(ModalActivity.ARG_MODAL_DATA, this@ModalData) }
 
-        resultLauncher.launch(intent)
+        if (resultLauncher != null) {
+            resultLauncher.launch(intent)
+        } else {
+            context.startActivity(intent)
+        }
     }
 }
