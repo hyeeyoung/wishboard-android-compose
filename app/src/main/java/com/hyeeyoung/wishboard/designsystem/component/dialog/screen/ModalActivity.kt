@@ -12,6 +12,7 @@ import com.hyeeyoung.wishboard.designsystem.component.dialog.model.ModalData
 import com.hyeeyoung.wishboard.presentation.folder.FolderListModalContent
 import com.hyeeyoung.wishboard.presentation.folder.FolderUploadModalContent
 import com.hyeeyoung.wishboard.presentation.noti.NotiModalContent
+import com.hyeeyoung.wishboard.presentation.onboarding.OnboardingModalContent
 import com.hyeeyoung.wishboard.presentation.upload.component.ShopLinkModalContent
 import com.hyeeyoung.wishboard.presentation.util.extension.getSerializable
 
@@ -35,7 +36,7 @@ class ModalActivity : ComponentActivity() {
                 is ModalData.Modal -> {
                     WishBoardModal(
                         titleRes = modalData.title,
-                        onDismissRequest = { this.finish() },
+                        onDismissRequest = { finish() },
                         content = { ModalContent(modalData = modalData) },
                     )
                 }
@@ -49,6 +50,12 @@ class ModalActivity : ComponentActivity() {
                         onClickBottom = { moveToPrevious(modalData, false) },
                         onDismissRequest = { finish() },
                     )
+                }
+
+                is ModalData.FullModal -> {
+                    when (modalData) {
+                        is ModalData.FullModal.Onboarding -> OnboardingModalContent(onDismissRequest = { finish() })
+                    }
                 }
 
                 else -> {}

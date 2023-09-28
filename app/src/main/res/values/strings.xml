@@ -47,6 +47,15 @@
     <string name="sign_up_already_member_error">앗, 이미 가입된 계정이에요! 로그인으로 진행해 주세요.</string>
     <string name="sign_up_password_format_error">8자리 이상의 영문자, 숫자, 특수 문자 조합으로 입력해 주세요.</string>
 
+    <!-- Onboarding -->
+    <string name="onboarding_yes_btn_text">네! 알겠어요</string>
+    <string name="onboarding_save_item_title">아이템 저장</string>
+    <string name="onboarding_folder_setting_title">폴더 지정</string>
+    <string name="onboarding_noti_setting_title">알림 설정</string>
+    <string name="onboarding_save_item_description">웹 브라우저에서 사고 싶은 아이템이 있다면\n“공유하기”로 아이템을 위시보드에 저장해 보세요!</string>
+    <string name="onboarding_folder_setting_description">아이템에 폴더를 지정해 보세요\n원하는 폴더가 없다면 새 폴더를 추가할 수 있어요.</string>
+    <string name="onboarding_noti_setting_description">상품의 재입고, 프리오더, 세일 알림을 설정해 보세요.\n설정한 시간 30분 전에 알림 보내드려요!</string>
+
     <!-- WishItem Global -->
     <string name="memo">메모</string>
 
