@@ -43,7 +43,7 @@ fun CalendarTable(
         }
     }
 
-    Column() {
+    Column {
         WishBoardDivider()
         HorizontalPager(pageCount = pageCount, state = pagerState) {
             DateTable(selectedDate, onSelect, notiDateList)
@@ -67,9 +67,9 @@ fun DateTable(
     val cellSize = screenWidth / COL_SIZE
     val dateCellModifier = Modifier.size(cellSize)
 
-    Column() {
+    Column {
         repeat(rowSize) { r ->
-            Row() {
+            Row {
                 repeat(COL_SIZE) { c ->
                     if (day > lastDay) return
                     val dateOrNull =
@@ -156,7 +156,7 @@ fun CalendarTablePreview() {
         onSelect = {},
         notiDateList = listOf(LocalDate.of(2023, 7, 3), LocalDate.of(2023, 7, 20)),
         pagerState = rememberPagerState(),
-        pageCount = 1,
+        pageCount = 24,
         onChangePage = {},
     )
 }
