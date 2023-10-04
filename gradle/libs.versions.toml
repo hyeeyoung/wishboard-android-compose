@@ -9,7 +9,7 @@ androidx-test-espresso = "3.5.1"
 junit = "4.13.2"
 
 compose-compiler = "1.4.4"
-compose-bom = "2023.05.01"
+compose-bom = "2023.01.00"
 material = "1.1.1"
 compose-navigation = "2.5.3"
 compose-constraintlayout = "1.0.1"
