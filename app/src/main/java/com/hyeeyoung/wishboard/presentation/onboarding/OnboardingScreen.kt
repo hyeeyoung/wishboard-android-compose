@@ -34,14 +34,14 @@ import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 @Composable
 fun OnboardingModalContent(onDismissRequest: () -> Unit) {
     val onboardingRes = OnboardingRes.values()
-    val pagerState = rememberPagerState()
+    val pagerState = rememberPagerState(pageCount = { onboardingRes.size })
 
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Bottom,
     ) {
         Column(modifier = Modifier.clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))) {
-            HorizontalPager(pageCount = onboardingRes.size, state = pagerState) {
+            HorizontalPager(state = pagerState) {
                 OnboardingItem(onboardingRes[pagerState.currentPage])
             }
             Column(

@@ -10,6 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -112,18 +113,18 @@ fun CalendarScreen(navController: NavHostController, viewModel: CalendarViewMode
     }
 
     WishboardTheme {
-        val selectedDate = viewModel.selectedDate.collectAsState()
+        val selectedDate by viewModel.selectedDate.collectAsStateWithLifecycle()
         val curMonthNoti =
             notiList.filter {
-                it.notiDate.year == selectedDate.value.year && it.notiDate.month == selectedDate.value.month
+                it.notiDate.year == selectedDate.year && it.notiDate.month == selectedDate.month
             }
-        val curDateNoti = curMonthNoti.filter { it.notiDate.dayOfMonth == selectedDate.value.dayOfMonth }
-        val pagerState = rememberPagerState(initialPage = INITIAL_PAGE)
+        val curDateNoti = curMonthNoti.filter { it.notiDate.dayOfMonth == selectedDate.dayOfMonth }
+        val pagerState = rememberPagerState(initialPage = INITIAL_PAGE, pageCount = { PAGE_COUNT })
 
         Scaffold(
             topBar = {
                 CalendarHeader(
-                    selectedDate = selectedDate.value,
+                    selectedDate = selectedDate,
                     onClickBack = { navController.popBackStack() },
                 )
             },
@@ -134,7 +135,7 @@ fun CalendarScreen(navController: NavHostController, viewModel: CalendarViewMode
                     .padding(top = paddingValues.calculateTopPadding()),
             ) {
                 CalendarTable(
-                    selectedDate = selectedDate.value,
+                    selectedDate = selectedDate,
                     onSelect = { date -> viewModel.updateSelectedDate(date) },
                     notiDateList = curMonthNoti.map { it.notiDate.toLocalDate() },
                     pagerState = pagerState,
@@ -142,7 +143,7 @@ fun CalendarScreen(navController: NavHostController, viewModel: CalendarViewMode
                     onChangePage = { page -> viewModel.changeCalendarPage(page) },
                 )
                 CalendarSchedule(
-                    selectedDate = selectedDate.value,
+                    selectedDate = selectedDate,
                     notiItems = curDateNoti,
                     onClickSchedule = { id ->
                         navController.navigate("${MainScreen.WishItemDetail.route}/$id")
