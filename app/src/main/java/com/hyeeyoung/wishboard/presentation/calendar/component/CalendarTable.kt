@@ -45,7 +45,7 @@ fun CalendarTable(
 
     Column {
         WishBoardDivider()
-        HorizontalPager(pageCount = pageCount, state = pagerState) {
+        HorizontalPager(state = pagerState) {
             DateTable(selectedDate, onSelect, notiDateList)
         }
         WishBoardDivider()
@@ -155,7 +155,7 @@ fun CalendarTablePreview() {
         selectedDate = LocalDate.now(),
         onSelect = {},
         notiDateList = listOf(LocalDate.of(2023, 7, 3), LocalDate.of(2023, 7, 20)),
-        pagerState = rememberPagerState(),
+        pagerState = rememberPagerState(pageCount = { 1 }),
         pageCount = 24,
         onChangePage = {},
     )
