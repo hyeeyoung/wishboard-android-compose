@@ -72,7 +72,7 @@ fun MyScreen(navController: NavHostController) {
                         String.format(
                             getString(R.string.my_contact_us_email_content),
                             Build.BRAND,
-                            Build.DEVICE,
+                            Build.MODEL,
                             BuildConfig.VERSION_NAME,
                             Build.VERSION.SDK_INT,
                         ),
