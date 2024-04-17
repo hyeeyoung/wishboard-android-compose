@@ -17,12 +17,12 @@ plugins {
 
 android {
     namespace = "com.hyeeyoung.wishboard"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.hyeeyoung.wishboard"
         minSdk = 24
-        targetSdk = 33
+        targetSdk = 34
         versionCode = 30
         versionName = "1.2.1"
 

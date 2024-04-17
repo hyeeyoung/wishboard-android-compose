@@ -112,7 +112,7 @@
     <string name="my_menu_logout">로그아웃</string>
     <string name="my_menu_withdraw">회원 탈퇴</string>
     <string name="my_contact_us_email_title">위시보드에게 문의하기</string>
-    <string name="my_contact_us_email_content">Device: %s %s\nApp version: %s\nOS Version: %d\n-------------\n내용 :</string>
+    <string name="my_contact_us_email_content">안녕하세요. 위시보드 입니다. 🔫\n문의 내용을 하단에 작성해 주세요.\n답변은 전송주신 메일로 회신드리겠습니다. 💌\n감사합니다. 😉\n-------------\n\n\n\n\n\n-------------\nDevice: %s %s\nApp version: %s\nOS Version: %d</string>
 
     <string name="my_profile_edit_title">프로필 수정</string>
     <string name="my_profile_nickname">닉네임</string>
