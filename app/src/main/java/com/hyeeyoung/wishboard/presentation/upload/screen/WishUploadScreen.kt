@@ -113,103 +113,101 @@ fun WishUploadScreen(navController: NavHostController, itemDetail: WishItemDetai
         }
     }
 
-    WishboardTheme {
-        Scaffold(topBar = {
-            WishBoardTopBar(
-                topBarModel = WishBoardTopBarModel(
-                    startIcon = WishBoardTopBarModel.TopBarIcon.CLOSE,
-                    title = stringResource(
-                        id = if (itemDetail == null) {
-                            R.string.wish_item_upload_add_title
-                        } else {
-                            R.string.wish_item_upload_edit_title
-                        },
-                    ),
-                    onClickStartIcon = { navController.popBackStack() },
+    Scaffold(topBar = {
+        WishBoardTopBar(
+            topBarModel = WishBoardTopBarModel(
+                startIcon = WishBoardTopBarModel.TopBarIcon.CLOSE,
+                title = stringResource(
+                    id = if (itemDetail == null) {
+                        R.string.wish_item_upload_add_title
+                    } else {
+                        R.string.wish_item_upload_edit_title
+                    },
                 ),
-                endComponent = { modifier ->
-                    Row(modifier = modifier) {
-                        // TODO 뷰모델로 버튼 활성화 로직 옮기기
-                        WishBoardNarrowButton(
-                            enabled = nameInput.value.isNotEmpty() &&
+                onClickStartIcon = { navController.popBackStack() },
+            ),
+            endComponent = { modifier ->
+                Row(modifier = modifier) {
+                    // TODO 뷰모델로 버튼 활성화 로직 옮기기
+                    WishBoardNarrowButton(
+                        enabled = nameInput.value.isNotEmpty() &&
                                 nameInput.value.isNotBlank() &&
                                 priceInput.value.isNotEmpty() &&
                                 (imageInput != null || !itemDetail?.image.isNullOrEmpty()),
-                            onClick = { /*TODO*/ },
-                            text = stringResource(id = R.string.save),
-                        )
-                        Spacer(modifier = Modifier.size(16.dp))
-                    }
-                },
-            )
-        }) { paddingValues ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(WishBoardTheme.colors.white)
-                    .padding(top = 6.dp + paddingValues.calculateTopPadding(), bottom = 16.dp)
-                    .verticalScroll(rememberScrollState()),
-            ) {
-                val imageHeight = LocalConfiguration.current.screenWidthDp * 0.66
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(imageHeight.dp)
-                        .background(
-                            color = WishBoardTheme.colors.gray100,
-                            shape = RoundedCornerShape(32.dp),
-                        ),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    AsyncImage(
-                        modifier = Modifier.fillMaxHeight(),
-                        model = imageInput ?: itemDetail?.image,
-                        contentDescription = null,
+                        onClick = { /*TODO*/ },
+                        text = stringResource(id = R.string.save),
                     )
-
-                    WishBoardIconButton(
-                        iconRes = R.drawable.ic_camera,
-                        onClick = { ModalData.OptionModal.ImageSelection.openModal(context, modalLauncher) },
-                    )
+                    Spacer(modifier = Modifier.size(16.dp))
                 }
-
-                WishBoardSimpleTextField(
-                    input = nameInput,
-                    placeholder = stringResource(id = R.string.wish_item_upload_item_name),
-                    onTextChange = {},
-                )
-                WishBoardSimpleTextField(
-                    input = priceInput,
-                    placeholder = stringResource(id = R.string.wish_item_upload_item_price),
-                    onTextChange = { input ->
-                        priceInput.value = input.makeValidPriceStr() ?: ""
-                    },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    visualTransformation = PriceTransformation(prefix = "₩ "),
-                )
-                ItemInfoRow(
-                    label = selectedFolder.name ?: stringResource(id = R.string.folder),
-                    onClickRow = { ModalData.Modal.FolderList(selectedFolder.id).openModal(context, modalLauncher) },
-                )
-                ItemInfoRow(
-                    label = getNotiInfo(notiType = itemDetail?.notiType, notiDate = itemDetail?.notiDate)
-                        ?: stringResource(id = R.string.wish_item_upload_noti),
-                    onClickRow = { ModalData.Modal.Noti().openModal(context, modalLauncher) },
-                )
-                ItemInfoRow(
-                    label = stringResource(id = R.string.wish_item_upload_shop_link),
-                    guideText = stringResource(
-                        id = R.string.wish_item_upload_shop_link_guide,
+            },
+        )
+    }) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(WishBoardTheme.colors.white)
+                .padding(top = 6.dp + paddingValues.calculateTopPadding(), bottom = 16.dp)
+                .verticalScroll(rememberScrollState()),
+        ) {
+            val imageHeight = LocalConfiguration.current.screenWidthDp * 0.66
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(imageHeight.dp)
+                    .background(
+                        color = WishBoardTheme.colors.gray100,
+                        shape = RoundedCornerShape(32.dp),
                     ),
-                    onClickRow = { ModalData.Modal.ShopLink(shopLinkInput.value).openModal(context, modalLauncher) },
+                contentAlignment = Alignment.Center,
+            ) {
+                AsyncImage(
+                    modifier = Modifier.fillMaxHeight(),
+                    model = imageInput ?: itemDetail?.image,
+                    contentDescription = null,
                 )
-                WishBoardSimpleTextField(
-                    input = memoInput,
-                    placeholder = stringResource(id = R.string.wish_item_upload_memo),
-                    onTextChange = {},
+
+                WishBoardIconButton(
+                    iconRes = R.drawable.ic_camera,
+                    onClick = { ModalData.OptionModal.ImageSelection.openModal(context, modalLauncher) },
                 )
-                Spacer(modifier = Modifier.size(64.dp))
             }
+
+            WishBoardSimpleTextField(
+                input = nameInput,
+                placeholder = stringResource(id = R.string.wish_item_upload_item_name),
+                onTextChange = {},
+            )
+            WishBoardSimpleTextField(
+                input = priceInput,
+                placeholder = stringResource(id = R.string.wish_item_upload_item_price),
+                onTextChange = { input ->
+                    priceInput.value = input.makeValidPriceStr() ?: ""
+                },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                visualTransformation = PriceTransformation(prefix = "₩ "),
+            )
+            ItemInfoRow(
+                label = selectedFolder.name ?: stringResource(id = R.string.folder),
+                onClickRow = { ModalData.Modal.FolderList(selectedFolder.id).openModal(context, modalLauncher) },
+            )
+            ItemInfoRow(
+                label = getNotiInfo(notiType = itemDetail?.notiType, notiDate = itemDetail?.notiDate)
+                    ?: stringResource(id = R.string.wish_item_upload_noti),
+                onClickRow = { ModalData.Modal.Noti().openModal(context, modalLauncher) },
+            )
+            ItemInfoRow(
+                label = stringResource(id = R.string.wish_item_upload_shop_link),
+                guideText = stringResource(
+                    id = R.string.wish_item_upload_shop_link_guide,
+                ),
+                onClickRow = { ModalData.Modal.ShopLink(shopLinkInput.value).openModal(context, modalLauncher) },
+            )
+            WishBoardSimpleTextField(
+                input = memoInput,
+                placeholder = stringResource(id = R.string.wish_item_upload_memo),
+                onTextChange = {},
+            )
+            Spacer(modifier = Modifier.size(64.dp))
         }
     }
 }

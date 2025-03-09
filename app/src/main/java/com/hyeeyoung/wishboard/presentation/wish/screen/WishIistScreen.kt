@@ -78,32 +78,30 @@ fun WishlistScreen(navController: NavHostController) {
         ),
     )
 
-    WishboardTheme {
-        Scaffold(topBar = {
-            WishlistTopBar(onClickCart = { navController.navigate(Cart.route) }, onClickCalendar = {
-                navController.navigate(Calendar.route)
-            })
-        }) { paddingValues ->
-            val contentModifier = Modifier
-                .fillMaxSize()
-                .background(WishBoardTheme.colors.white)
-                .padding(top = paddingValues.calculateTopPadding())
+    Scaffold(topBar = {
+        WishlistTopBar(onClickCart = { navController.navigate(Cart.route) }, onClickCalendar = {
+            navController.navigate(Calendar.route)
+        })
+    }) { paddingValues ->
+        val contentModifier = Modifier
+            .fillMaxSize()
+            .background(WishBoardTheme.colors.white)
+            .padding(top = paddingValues.calculateTopPadding())
 
-            if (wishList.isEmpty()) {
-                WishBoardEmptyView(modifier = contentModifier, guideTextRes = R.string.empty_wishlist_guide_text)
-            } else {
-                LazyVerticalGrid(
-                    modifier = contentModifier,
-                    columns = GridCells.Fixed(2),
-                ) {
-                    items(wishList) { wishItem ->
-                        WishItem(
-                            wishItem = wishItem,
-                            onClickItem = {
-                                navController.navigate("${MainScreen.WishItemDetail.route}/${wishItem.id}")
-                            },
-                        )
-                    }
+        if (wishList.isEmpty()) {
+            WishBoardEmptyView(modifier = contentModifier, guideTextRes = R.string.empty_wishlist_guide_text)
+        } else {
+            LazyVerticalGrid(
+                modifier = contentModifier,
+                columns = GridCells.Fixed(2),
+            ) {
+                items(wishList) { wishItem ->
+                    WishItem(
+                        wishItem = wishItem,
+                        onClickItem = {
+                            navController.navigate("${MainScreen.WishItemDetail.route}/${wishItem.id}")
+                        },
+                    )
                 }
             }
         }

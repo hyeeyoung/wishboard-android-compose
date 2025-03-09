@@ -73,73 +73,72 @@ fun ProfileEditScreen(navController: NavHostController) {
         }
     }
 
-    WishboardTheme {
-        Scaffold(topBar = {
-            WishBoardTopBar(
-                topBarModel = WishBoardTopBarModel(
-                    title = stringResource(id = R.string.my_profile_edit_title),
-                    onClickStartIcon = { navController.popBackStack() },
-                ),
-            )
-        }) { paddingValues ->
-            val nicknameInput = remember { mutableStateOf("") }
-            Column(
+    Scaffold(topBar = {
+        WishBoardTopBar(
+            topBarModel = WishBoardTopBarModel(
+                title = stringResource(id = R.string.my_profile_edit_title),
+                onClickStartIcon = { navController.popBackStack() },
+            ),
+        )
+    }) { paddingValues ->
+        val nicknameInput = remember { mutableStateOf("") }
+        Column(
+            modifier = Modifier
+                .background(WishBoardTheme.colors.white)
+                .padding(top = paddingValues.calculateTopPadding(), bottom = 16.dp, start = 16.dp, end = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Spacer(modifier = Modifier.size(32.dp))
+            val imageSize = 106
+            Box(
                 modifier = Modifier
-                    .background(WishBoardTheme.colors.white)
-                    .padding(top = paddingValues.calculateTopPadding(), bottom = 16.dp, start = 16.dp, end = 16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
+                    .width((imageSize + 12).dp)
+                    .noRippleClickable { ModalData.OptionModal.ImageSelection.openModal(context, modalLauncher) },
             ) {
-                Spacer(modifier = Modifier.size(32.dp))
-                val imageSize = 106
-                Box(
-                    modifier = Modifier
-                        .width((imageSize + 12).dp)
-                        .noRippleClickable { ModalData.OptionModal.ImageSelection.openModal(context, modalLauncher) },
-                ) {
-                    if (imageInput != null) {
-                        ColoredImage(
-                            model = imageInput,
-                            modifier = Modifier
-                                .size(imageSize.dp)
-                                .align(Alignment.Center).clip(CircleShape),
-                        )
-                    } else {
-                        Icon(
-                            modifier = Modifier
-                                .size(imageSize.dp)
-                                .align(Alignment.Center),
-                            painter = painterResource(id = R.drawable.ic_placeholder_user_profile),
-                            contentDescription = null,
-                            tint = Color.Unspecified,
-                        )
-                    }
-
+                if (imageInput != null) {
+                    ColoredImage(
+                        model = imageInput,
+                        modifier = Modifier
+                            .size(imageSize.dp)
+                            .align(Alignment.Center)
+                            .clip(CircleShape),
+                    )
+                } else {
                     Icon(
                         modifier = Modifier
-                            .align(Alignment.BottomEnd)
-                            .padding(bottom = 5.dp),
-                        painter = painterResource(id = R.drawable.ic_camera),
+                            .size(imageSize.dp)
+                            .align(Alignment.Center),
+                        painter = painterResource(id = R.drawable.ic_placeholder_user_profile),
                         contentDescription = null,
                         tint = Color.Unspecified,
                     )
                 }
-                Spacer(modifier = Modifier.size(32.dp))
-                WishBoardTextField(
-                    input = nicknameInput,
-                    label = stringResource(id = R.string.my_profile_nickname),
-                    placeholder = stringResource(id = R.string.my_profile_nickname_placeholder),
-                    errorMsg = stringResource(id = R.string.my_profile_nickname_already_exist_error),
-                    onTextChange = {},
-                )
 
-                Spacer(modifier = Modifier.weight(1f))
-
-                WishBoardWideButton(
-                    enabled = false,
-                    onClick = { /*TODO*/ },
-                    text = stringResource(id = R.string.complete),
+                Icon(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(bottom = 5.dp),
+                    painter = painterResource(id = R.drawable.ic_camera),
+                    contentDescription = null,
+                    tint = Color.Unspecified,
                 )
             }
+            Spacer(modifier = Modifier.size(32.dp))
+            WishBoardTextField(
+                input = nicknameInput,
+                label = stringResource(id = R.string.my_profile_nickname),
+                placeholder = stringResource(id = R.string.my_profile_nickname_placeholder),
+                errorMsg = stringResource(id = R.string.my_profile_nickname_already_exist_error),
+                onTextChange = {},
+            )
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            WishBoardWideButton(
+                enabled = false,
+                onClick = { /*TODO*/ },
+                text = stringResource(id = R.string.complete),
+            )
         }
     }
 }

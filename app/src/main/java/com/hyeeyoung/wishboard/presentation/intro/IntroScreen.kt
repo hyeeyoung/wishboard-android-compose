@@ -20,6 +20,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
@@ -27,13 +28,11 @@ import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.UpdateAvailability
 import com.hyeeyoung.wishboard.BuildConfig
 import com.hyeeyoung.wishboard.R
-import com.hyeeyoung.wishboard.config.navigation.screen.Intro
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.config.navigation.screen.SignScreen
+import com.hyeeyoung.wishboard.designsystem.component.dialog.model.DialogData
 import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.WishBoardDialog
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
-import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
-import com.hyeeyoung.wishboard.designsystem.component.dialog.model.DialogData
 import kotlinx.coroutines.delay
 
 @Composable
@@ -50,24 +49,22 @@ fun IntroScreen(navController: NavHostController) {
         )
     }
 
-    WishboardTheme {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(WishBoardTheme.colors.white),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Image(painter = painterResource(id = R.drawable.ic_app_text_logo), contentDescription = null)
-            Spacer(modifier = Modifier.size(10.dp))
-        }
-
-        WishBoardDialog(
-            dialogData = dialogData,
-            onClickConfirm = {},
-            onDismissRequest = { dialogData = null },
-        )
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(WishBoardTheme.colors.white),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Image(painter = painterResource(id = R.drawable.ic_app_text_logo), contentDescription = null)
+        Spacer(modifier = Modifier.size(10.dp))
     }
+
+    WishBoardDialog(
+        dialogData = dialogData,
+        onClickConfirm = {},
+        onDismissRequest = { dialogData = null },
+    )
 }
 
 private fun checkForNewVersionUpdate(context: Context, showDialog: () -> Unit, moveToNext: () -> Unit) {
@@ -88,10 +85,14 @@ private fun checkForNewVersionUpdate(context: Context, showDialog: () -> Unit, m
     }
 }
 
-fun navigateToNext(navController: NavHostController) {
+fun navigateToNext(navController: NavController) {
     val isLogin = false // TODO 로컬 디비에서 로그인 여부 가져오기
     val nextScreen = if (isLogin) MainScreen.Root.route else SignScreen.Root.route
-    navController.navigate(nextScreen) { popUpTo(Intro.route) { inclusive = true } }
+    navController.navigate(nextScreen) {
+        popUpTo(navController.graph.id) {
+            inclusive = true
+        }
+    }
 }
 
 @Preview

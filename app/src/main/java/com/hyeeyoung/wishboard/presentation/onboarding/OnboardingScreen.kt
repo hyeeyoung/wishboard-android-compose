@@ -30,7 +30,6 @@ import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun OnboardingModalContent(onDismissRequest: () -> Unit) {
     val onboardingRes = OnboardingRes.values()

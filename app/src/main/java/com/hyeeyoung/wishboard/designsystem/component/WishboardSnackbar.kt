@@ -11,15 +11,62 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
+import com.hyeeyoung.wishboard.presentation.main.MainActivity
+import com.hyeeyoung.wishboard.presentation.model.snackbar.WishBoardSnackbarVisuals
+import com.hyeeyoung.wishboard.presentation.util.extension.toMillis
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.withTimeoutOrNull
+
+@Composable
+@Stable
+fun WishBoardSnackbarMessage(snackbarChannel: Channel<WishBoardSnackbarVisuals>) {
+    val snackbarHostState = MainActivity.wishBoardSnackbarHostState
+    LaunchedEffect(Unit) {
+        snackbarChannel.receiveAsFlow().collectLatest { snackBar ->
+            if (snackBar.message.isNotEmpty()) {
+                snackbarHostState.currentSnackbarData?.dismiss()
+
+                withTimeoutOrNull(snackBar.duration.toMillis()) {
+                    snackbarHostState.showSnackbar(snackBar)
+                }
+            }
+        }
+    }
+}
+
+/**
+ * 메인 액티비티 위 화면에서 사용하는 스낵바
+ * 메인 액티비티의 snackbarChannel만 업데이트하면 PlusMainSnackbarMessage를 통해 스낵바 보임.
+ * @param snackbarChannel 스낵바 시각 정보
+ * */
+@Composable
+@Stable
+fun PlusGlobalSnackbarMessage(
+    snackbarChannel: Channel<WishBoardSnackbarVisuals>,
+) {
+    val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        snackbarChannel.receiveAsFlow().collectLatest { snackBar ->
+            (context as? MainActivity)?.sendSnackbarVisualChannel(snackBar)
+        }
+    }
+}
 
 @Composable
 fun WishBoardSnackbarHost(hostState: SnackbarHostState) =
@@ -54,6 +101,10 @@ fun SnackbarHostState.showSnackbar(message: String, coroutineScope: CoroutineSco
             showSnackbar(message)
         }
     }
+
+val LocalSnackbarHostState = compositionLocalOf<SnackbarHostState> {
+    error("No SnackbarHostState provided")
+}
 
 @Preview(showSystemUi = true)
 @Composable

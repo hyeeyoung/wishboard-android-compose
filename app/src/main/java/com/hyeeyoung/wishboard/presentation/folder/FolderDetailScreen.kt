@@ -40,37 +40,35 @@ fun FolderDetailScreen(
     )
     val wishList = List(8) { wishItem }.flatten() // TODO 서버 연동 후 삭제
 
-    WishboardTheme {
-        Scaffold(topBar = {
-            WishBoardTopBar(
-                topBarModel = WishBoardTopBarModel(
-                    title = folderName,
-                    onClickStartIcon = { bottomNavController.popBackStack() },
-                ),
+    Scaffold(topBar = {
+        WishBoardTopBar(
+            topBarModel = WishBoardTopBarModel(
+                title = folderName,
+                onClickStartIcon = { bottomNavController.popBackStack() },
+            ),
+        )
+    }) { paddingValues ->
+        val contentModifier = Modifier
+            .fillMaxSize()
+            .background(WishBoardTheme.colors.white)
+            .padding(
+                top = paddingValues.calculateTopPadding(),
             )
-        }) { paddingValues ->
-            val contentModifier = Modifier
-                .fillMaxSize()
-                .background(WishBoardTheme.colors.white)
-                .padding(
-                    top = paddingValues.calculateTopPadding(),
-                )
 
-            if (wishList.isEmpty()) {
-                WishBoardEmptyView(modifier = contentModifier, guideTextRes = R.string.empty_wishlist_guide_text)
-            } else {
-                LazyVerticalGrid(
-                    modifier = contentModifier,
-                    columns = GridCells.Fixed(2),
-                ) {
-                    items(wishList) { wishItem ->
-                        WishItem(
-                            wishItem = wishItem,
-                            onClickItem = {
-                                wishNavController.navigate("${MainScreen.WishItemDetail.route}/${wishItem.id}")
-                            },
-                        )
-                    }
+        if (wishList.isEmpty()) {
+            WishBoardEmptyView(modifier = contentModifier, guideTextRes = R.string.empty_wishlist_guide_text)
+        } else {
+            LazyVerticalGrid(
+                modifier = contentModifier,
+                columns = GridCells.Fixed(2),
+            ) {
+                items(wishList) { wishItem ->
+                    WishItem(
+                        wishItem = wishItem,
+                        onClickItem = {
+                            wishNavController.navigate("${MainScreen.WishItemDetail.route}/${wishItem.id}")
+                        },
+                    )
                 }
             }
         }

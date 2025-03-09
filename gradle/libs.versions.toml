@@ -38,6 +38,7 @@ desugar = "2.1.2"
 gradlePlugin = "8.2.2"
 kotlin = "1.9.10"
 spotless = "6.20.0"
+devtools-ksp = "1.9.10-1.0.13"
 
 [libraries]
 core-ktx = { module = "androidx.core:core-ktx", version.ref = "core-ktx" }
@@ -68,7 +69,7 @@ compose-foundation = { module = "androidx.compose.foundation:foundation", versio
 
 hilt = { module = "com.google.dagger:hilt-android", version.ref = "dagger-hilt" }
 hilt-navigation = { module = "androidx.hilt:hilt-navigation-compose", version.ref = "hilt-navigation" }
-hilt-kapt = { module = "com.google.dagger:hilt-compiler", version.ref = "dagger-hilt" }
+dagger-hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "dagger-hilt" }
 app-update = { module = "com.google.android.play:app-update", version.ref = "app-update" }
 app-update-ktx = { module = "com.google.android.play:app-update", version.ref = "app-update" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase" }
@@ -98,6 +99,9 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 dagger-hilt = { id = "com.google.dagger.hilt.android", version.ref = "dagger-hilt" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
+devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "devtools-ksp" }
+#google-services = { id = "com.google.gms.google-services", version.ref = "google-services" }
+#firebase-crashlytics-gradle = { id = "com.google.firebase.crashlytics", version.ref = "firebase-crashlytics-gradle" }
 
 [bundles]
 androidx = ["core-ktx", "lifecycle", "appcompat", "security"]
@@ -106,7 +110,7 @@ dagger-hilt = ["hilt", "hilt-navigation"]
 firebase = ["firebase-messeging", "firebase-analytics", "firebase-crashlytics"]
 network = ["okhttp", "okhttp-logging-interceptor", "retrofit", "kotlinx-serialization-json", "kotlinx-serialization-converter"]
 app-update = ["app-update", "app-update-ktx"]
-compiler = ["hilt-kapt"]
+compiler = ["dagger-hilt-compiler"]
 debug = ["compose-ui-tooling", "compose-test-manifest"]
 test = ["junit"]
 android-test = ["compose-test-junit", "androidx-test-junit", "androidx-test-espresso"]

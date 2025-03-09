@@ -4,13 +4,13 @@ val properties = Properties()
 properties.load(project.rootProject.file("local.properties").inputStream())
 
 plugins {
-    id("com.android.application")
-    id("org.jetbrains.kotlin.android")
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
     id("kotlin-kapt")
-    id("kotlin-parcelize")
-    id("com.google.dagger.hilt.android")
+    alias(libs.plugins.dagger.hilt)
     id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics")
+    alias(libs.plugins.devtools.ksp)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.spotless)
 }
@@ -63,7 +63,7 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = libs.versions.kotlin.complier.get()
     }
-    packagingOptions {
+    packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
@@ -79,7 +79,7 @@ dependencies {
     implementation(libs.compose.material.three)
 
     implementation(libs.bundles.dagger.hilt)
-    kapt(libs.bundles.compiler)
+    ksp(libs.bundles.compiler)
     implementation(platform(libs.firebase.bom))
     implementation(libs.bundles.firebase)
     implementation(libs.accompanist)
@@ -95,10 +95,6 @@ dependencies {
     testImplementation(libs.bundles.test)
     androidTestImplementation(composeBom)
     androidTestImplementation(libs.bundles.android.test)
-}
-
-kapt {
-    correctErrorTypes = true
 }
 
 spotless {

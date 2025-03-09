@@ -73,92 +73,91 @@ fun LinkSharingWishUploadScreen(url: String, onClickClose: () -> Unit = {}) {
         }
     }
 
-    WishboardTheme {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-        ) {
-            Spacer(
+    Column(
+        modifier = Modifier.fillMaxSize(),
+    ) {
+        Spacer(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .noRippleClickable { onClickClose() },
+        )
+        Box(contentAlignment = Alignment.TopCenter) {
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f)
-                    .noRippleClickable { onClickClose() },
-            )
-            Box(contentAlignment = Alignment.TopCenter) {
-                Column(
+                    .padding(top = (IMAGE_SIZE / 2).dp)
+                    .background(
+                        color = WishBoardTheme.colors.white,
+                        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
+                    )
+                    .padding(bottom = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Surface(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = (IMAGE_SIZE / 2).dp)
-                        .background(
-                            color = WishBoardTheme.colors.white,
-                            shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
-                        )
-                        .padding(bottom = 16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
+                        .align(Alignment.End)
+                        .padding(top = 5.dp, end = 8.dp),
                 ) {
-                    Surface(
-                        modifier = Modifier
-                            .align(Alignment.End)
-                            .padding(top = 5.dp, end = 8.dp),
-                    ) {
-                        WishBoardIconButton(
-                            modifier = Modifier.background(WishBoardTheme.colors.white),
-                            iconRes = R.drawable.ic_close,
-                            onClick = { onClickClose() },
-                        )
-                    }
+                    WishBoardIconButton(
+                        modifier = Modifier.background(WishBoardTheme.colors.white),
+                        iconRes = R.drawable.ic_close,
+                        onClick = { onClickClose() },
+                    )
+                }
 
-                    Spacer(modifier = Modifier.size(7.dp))
+                Spacer(modifier = Modifier.size(7.dp))
 
-                    val textFieldModifier = Modifier.padding(horizontal = 16.dp, vertical = 3.dp)
-                    WishBoardMiniSingleTextField(
-                        modifier = textFieldModifier,
-                        input = nameInput,
-                        placeholder = stringResource(id = R.string.wish_item_link_sharing_upload_name),
-                        onTextChange = {},
+                val textFieldModifier = Modifier.padding(horizontal = 16.dp, vertical = 3.dp)
+                WishBoardMiniSingleTextField(
+                    modifier = textFieldModifier,
+                    input = nameInput,
+                    placeholder = stringResource(id = R.string.wish_item_link_sharing_upload_name),
+                    onTextChange = {},
+                )
+
+                WishBoardMiniSingleTextField(
+                    modifier = textFieldModifier,
+                    input = priceInput,
+                    style = TextStyle(
+                        fontFamily = MontserratFamily,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp,
+                    ),
+                    placeholder = stringResource(id = R.string.wish_item_link_sharing_upload_price),
+                    onTextChange = { input ->
+                        priceInput.value = input.makeValidPriceStr() ?: ""
+                    },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    visualTransformation = PriceTransformation(),
+                )
+
+                Spacer(modifier = Modifier.size(5.dp))
+
+                Row(
+                    modifier = Modifier
+                        .noRippleClickable {
+                            ModalData.Modal
+                                .Noti()
+                                .openModal(context, modalLauncher)
+                        }
+                        .padding(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(
+                        modifier = Modifier.size(12.dp),
+                        painter = painterResource(id = R.drawable.ic_nav_notice),
+                        contentDescription = null,
+                        tint = WishBoardTheme.colors.gray700,
+                    )
+                    Text(
+                        modifier = Modifier.padding(start = 4.dp),
+                        text = stringResource(id = R.string.wish_item_link_sharing_upload_noti_setting),
+                        style = WishBoardTheme.typography.suitD3,
+                        color = WishBoardTheme.colors.gray700,
                     )
 
-                    WishBoardMiniSingleTextField(
-                        modifier = textFieldModifier,
-                        input = priceInput,
-                        style = TextStyle(
-                            fontFamily = MontserratFamily,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 14.sp,
-                        ),
-                        placeholder = stringResource(id = R.string.wish_item_link_sharing_upload_price),
-                        onTextChange = { input ->
-                            priceInput.value = input.makeValidPriceStr() ?: ""
-                        },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        visualTransformation = PriceTransformation(),
-                    )
-
-                    Spacer(modifier = Modifier.size(5.dp))
-
-                    Row(
-                        modifier = Modifier
-                            .noRippleClickable {
-                                ModalData.Modal
-                                    .Noti()
-                                    .openModal(context, modalLauncher)
-                            }
-                            .padding(8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Icon(
-                            modifier = Modifier.size(12.dp),
-                            painter = painterResource(id = R.drawable.ic_nav_notice),
-                            contentDescription = null,
-                            tint = WishBoardTheme.colors.gray700,
-                        )
-                        Text(
-                            modifier = Modifier.padding(start = 4.dp),
-                            text = stringResource(id = R.string.wish_item_link_sharing_upload_noti_setting),
-                            style = WishBoardTheme.typography.suitD3,
-                            color = WishBoardTheme.colors.gray700,
-                        )
-
-                        // TODO 사용자 입력 알림 데이터 여부에 따른 visibility 조절
+                    // TODO 사용자 입력 알림 데이터 여부에 따른 visibility 조절
 //                        Spacer(modifier = Modifier.size(2.dp))
 //                        Icon(
 //                            modifier = Modifier
@@ -168,74 +167,73 @@ fun LinkSharingWishUploadScreen(url: String, onClickClose: () -> Unit = {}) {
 //                            contentDescription = null,
 //                            tint = Color.Unspecified
 //                        )
+                }
+
+                val folders = listOf(
+                    FolderSummary(1L, "아우터", "https://url.kr/8vwf1e"),
+                    FolderSummary(2L, "상의", "https://url.kr/8vwf1e"),
+                    FolderSummary(3L, "하ㅑ", "https://url.kr/8vwf1e"),
+                    FolderSummary(4L, "악세사리", "https://url.kr/8vwf1e"),
+                    FolderSummary(5L, "케이스", "https://url.kr/8vwf1e"),
+                )
+
+                var selectedFolder by remember { mutableStateOf(folders.first()) }
+
+                LazyRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 16.dp, top = 8.dp, bottom = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    item {
+                        NewFolder(onClickNew = { ModalData.Modal.NewFolder().openModal(context, modalLauncher) })
+                    }
+                    items(folders) {
+                        FolderItem(
+                            isSelected = selectedFolder == it,
+                            folder = it,
+                            onClickFolder = { folder -> selectedFolder = folder },
+                        ) // TODO 상태 관리
+                    }
+                    item {
+                        Spacer(modifier = Modifier.size(16.dp))
+                    }
+                }
+
+                val isLogin = true // TODO 로컬 디비 연결
+                val buttonTextRes =
+                    if (isLogin) {
+                        R.string.wish_item_link_sharing_upload
+                    } else {
+                        R.string.wish_item_link_sharing_upload_after_login
                     }
 
-                    val folders = listOf(
-                        FolderSummary(1L, "아우터", "https://url.kr/8vwf1e"),
-                        FolderSummary(2L, "상의", "https://url.kr/8vwf1e"),
-                        FolderSummary(3L, "하ㅑ", "https://url.kr/8vwf1e"),
-                        FolderSummary(4L, "악세사리", "https://url.kr/8vwf1e"),
-                        FolderSummary(5L, "케이스", "https://url.kr/8vwf1e"),
-                    )
-
-                    var selectedFolder by remember { mutableStateOf(folders.first()) }
-
-                    LazyRow(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 16.dp, top = 8.dp, bottom = 16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    ) {
-                        item {
-                            NewFolder(onClickNew = { ModalData.Modal.NewFolder().openModal(context, modalLauncher) })
-                        }
-                        items(folders) {
-                            FolderItem(
-                                isSelected = selectedFolder == it,
-                                folder = it,
-                                onClickFolder = { folder -> selectedFolder = folder },
-                            ) // TODO 상태 관리
-                        }
-                        item {
-                            Spacer(modifier = Modifier.size(16.dp))
-                        }
-                    }
-
-                    val isLogin = true // TODO 로컬 디비 연결
-                    val buttonTextRes =
-                        if (isLogin) {
-                            R.string.wish_item_link_sharing_upload
-                        } else {
-                            R.string.wish_item_link_sharing_upload_after_login
-                        }
-
-                    WishBoardWideButton(
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                        enabled = isLogin &&
+                WishBoardWideButton(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    enabled = isLogin &&
                             !nameInput.value.isEmptyOrBlank() &&
                             !priceInput.value.isEmptyOrBlank() &&
                             !image.isEmptyOrBlank(),
-                        onClick = { /*TODO*/ },
-                        text = stringResource(id = buttonTextRes),
-                    )
-                }
+                    onClick = { /*TODO*/ },
+                    text = stringResource(id = buttonTextRes),
+                )
+            }
 
-                val imageModifier = Modifier
-                    .size(IMAGE_SIZE.dp)
-                    .clip(CircleShape)
-                if (!image.isNullOrEmpty()) {
-                    ColoredImage(
-                        modifier = imageModifier,
-                        model = image,
-                        contentDescription = null,
-                    )
-                } else {
-                    Image(
-                        modifier = imageModifier,
-                        painter = painterResource(id = R.drawable.ic_black_logo),
-                        contentDescription = null,
-                    )
-                }
+            val imageModifier = Modifier
+                .size(IMAGE_SIZE.dp)
+                .clip(CircleShape)
+            if (!image.isNullOrEmpty()) {
+                ColoredImage(
+                    modifier = imageModifier,
+                    model = image,
+                    contentDescription = null,
+                )
+            } else {
+                Image(
+                    modifier = imageModifier,
+                    painter = painterResource(id = R.drawable.ic_black_logo),
+                    contentDescription = null,
+                )
             }
         }
     }

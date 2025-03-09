@@ -1,22 +1,29 @@
 package com.hyeeyoung.wishboard.presentation.sign.screen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.config.navigation.screen.SignScreen
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
@@ -25,45 +32,85 @@ import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBarWith
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
 import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
+import com.hyeeyoung.wishboard.presentation.model.auth.SignUiModel
+import com.hyeeyoung.wishboard.presentation.sign.SignViewModel
 import com.hyeeyoung.wishboard.presentation.sign.component.SignDescription
+import kotlinx.coroutines.delay
 
 @Composable
-fun SignUpEmailScreen(navController: NavHostController) {
-    WishboardTheme {
-        Scaffold(topBar = {
-            WishBoardTopBarWithStep(
-                topBarModel = WishBoardTopBarModel(
-                    title = stringResource(id = R.string.sign_up_title),
-                    onClickStartIcon = { navController.popBackStack() },
+fun SignUpEmailScreen(
+    navController: NavHostController,
+    viewModel: SignViewModel = hiltViewModel()
+) {
+    val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
+
+    SignUpEmailScreen(
+        uiModel = uiModel,
+        onEmailChange = viewModel::onEmailChange,
+        onClickNext = {
+            viewModel.checkRegisteredUser(afterSuccess = {
+                navController.navigate(SignScreen.Password.route)
+            })
+        },
+        onClickBack = navController::popBackStack
+    )
+}
+
+@Composable
+fun SignUpEmailScreen(
+    uiModel: SignUiModel,
+    onEmailChange: (String) -> Unit,
+    onClickNext: () -> Unit,
+    onClickBack: () -> Unit
+) {
+    val focusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val isRegisteredEmail by remember(uiModel.email, uiModel.registeredEmail) {
+        mutableStateOf(uiModel.email == uiModel.registeredEmail)
+    }
+
+    LaunchedEffect(Unit) {
+        delay(300L)
+        focusRequester.requestFocus()
+        keyboardController?.show()
+    }
+
+    Scaffold(topBar = {
+        WishBoardTopBarWithStep(
+            topBarModel = WishBoardTopBarModel(
+                title = stringResource(id = R.string.sign_up_title),
+                onClickStartIcon = { onClickBack() },
+            ),
+            step = Pair(1, 2),
+        )
+    }) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .background(WishBoardTheme.colors.white)
+                .padding(top = paddingValues.calculateTopPadding(), bottom = 16.dp, start = 16.dp, end = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            SignDescription(descriptionRes = R.string.sign_up_email_description, iconRes = R.drawable.ic_email)
+
+            WishBoardTextField(
+                modifier = Modifier.focusRequester(focusRequester).focusable(),
+                input = uiModel.email,
+                placeholder = stringResource(id = R.string.sign_email_placeholder),
+                errorMsg = if (uiModel.isValidEmail == false) stringResource(id = R.string.sign_in_email_error) else stringResource(
+                    id = R.string.sign_up_already_member_error
                 ),
-                step = Pair(1, 2),
+                isError = uiModel.isValidEmail == false || isRegisteredEmail,
+                onTextChange = onEmailChange,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             )
-        }) { paddingValues ->
-            val emailInput = remember { mutableStateOf("") }
-            Column(
-                modifier = Modifier
-                    .background(WishBoardTheme.colors.white)
-                    .padding(top = paddingValues.calculateTopPadding(), bottom = 16.dp, start = 16.dp, end = 16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                SignDescription(descriptionRes = R.string.sign_up_email_description, iconRes = R.drawable.ic_email)
 
-                WishBoardTextField(
-                    input = emailInput,
-                    placeholder = stringResource(id = R.string.sign_email_placeholder),
-                    errorMsg = stringResource(id = R.string.sign_in_email_error), // TODO 기존 가입자 에러 메세지 추가
-                    onTextChange = {},
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                )
+            Spacer(modifier = Modifier.weight(1f))
 
-                Spacer(modifier = Modifier.weight(1f))
-
-                WishBoardWideButton(
-                    enabled = true,
-                    onClick = { navController.navigate(SignScreen.Password.route) }, // 유효한 이메일인 경우에만 다음화면으로 이동
-                    text = stringResource(id = R.string.next),
-                )
-            }
+            WishBoardWideButton(
+                enabled = uiModel.isValidEmail == true && !isRegisteredEmail,
+                onClick = onClickNext,
+                text = stringResource(id = R.string.next),
+            )
         }
     }
 }
@@ -71,5 +118,14 @@ fun SignUpEmailScreen(navController: NavHostController) {
 @Preview
 @Composable
 fun PreviewSignUpEmailScreen() {
-    SignUpEmailScreen(rememberNavController())
+    SignUpEmailScreen(
+        uiModel = SignUiModel(
+            email = "",
+            registeredEmail = "cyjin6@naver.com",
+            isValidEmail = null
+        ),
+        onEmailChange = {},
+        onClickNext = {},
+        onClickBack = {}
+    )
 }

@@ -1,16 +1,19 @@
 package com.hyeeyoung.wishboard.config.navigation.navgraph
 
+import androidx.compose.material3.SnackbarHostState
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.hyeeyoung.wishboard.config.navigation.navhost.snackbarComposable
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.presentation.model.WishItemDetail
 import com.hyeeyoung.wishboard.presentation.upload.screen.WishUploadScreen
 import kotlinx.serialization.json.Json
 
-fun NavGraphBuilder.uploadNavGraph(navController: NavHostController) = composable(
+fun NavGraphBuilder.uploadNavGraph(navController: NavHostController, snackbarHostState: SnackbarHostState,) = snackbarComposable(
+    snackbarHostState = snackbarHostState,
     route = MainScreen.Upload.routeWithArg,
     arguments = listOf(
         navArgument(MainScreen.Upload.ARG_ITEM_DETAIL) {

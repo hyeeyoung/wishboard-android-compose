@@ -23,60 +23,57 @@ import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
 import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardTextField
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
-import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
 import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
 
 @Composable
 fun PasswordChangeScreen(navController: NavHostController) {
-    WishboardTheme {
-        Scaffold(topBar = {
-            WishBoardTopBar(
-                topBarModel = WishBoardTopBarModel(
-                    title = stringResource(id = R.string.my_password_change_title),
-                    onClickStartIcon = { navController.popBackStack() },
-                ),
+    Scaffold(topBar = {
+        WishBoardTopBar(
+            topBarModel = WishBoardTopBarModel(
+                title = stringResource(id = R.string.my_password_change_title),
+                onClickStartIcon = { navController.popBackStack() },
+            ),
+        )
+    }) { paddingValues ->
+        val passwordInput = remember { mutableStateOf("") }
+        val rePasswordInput = remember { mutableStateOf("") }
+
+        Column(
+            modifier = Modifier
+                .background(WishBoardTheme.colors.white)
+                .padding(top = paddingValues.calculateTopPadding(), bottom = 16.dp, start = 16.dp, end = 16.dp),
+        ) {
+            Spacer(modifier = Modifier.size(32.dp))
+
+            WishBoardTextField(
+                label = stringResource(id = R.string.my_password_new_password),
+                input = passwordInput,
+                placeholder = stringResource(id = R.string.my_password_new_password_placeholder),
+                errorMsg = stringResource(id = R.string.sign_up_password_format_error),
+                onTextChange = {},
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                visualTransformation = PasswordVisualTransformation(),
             )
-        }) { paddingValues ->
-            val passwordInput = remember { mutableStateOf("") }
-            val rePasswordInput = remember { mutableStateOf("") }
 
-            Column(
-                modifier = Modifier
-                    .background(WishBoardTheme.colors.white)
-                    .padding(top = paddingValues.calculateTopPadding(), bottom = 16.dp, start = 16.dp, end = 16.dp),
-            ) {
-                Spacer(modifier = Modifier.size(32.dp))
+            Spacer(modifier = Modifier.size(32.dp))
 
-                WishBoardTextField(
-                    label = stringResource(id = R.string.my_password_new_password),
-                    input = passwordInput,
-                    placeholder = stringResource(id = R.string.my_password_new_password_placeholder),
-                    errorMsg = stringResource(id = R.string.sign_up_password_format_error),
-                    onTextChange = {},
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                    visualTransformation = PasswordVisualTransformation(),
-                )
+            WishBoardTextField(
+                label = stringResource(id = R.string.my_password_new_re_password),
+                input = rePasswordInput,
+                placeholder = stringResource(id = R.string.my_password_new_re_password_placeholder),
+                errorMsg = stringResource(id = R.string.my_password_incorrect_error),
+                onTextChange = {},
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                visualTransformation = PasswordVisualTransformation(),
+            )
 
-                Spacer(modifier = Modifier.size(32.dp))
+            Spacer(modifier = Modifier.weight(1f))
 
-                WishBoardTextField(
-                    label = stringResource(id = R.string.my_password_new_re_password),
-                    input = rePasswordInput,
-                    placeholder = stringResource(id = R.string.my_password_new_re_password_placeholder),
-                    errorMsg = stringResource(id = R.string.my_password_incorrect_error),
-                    onTextChange = {},
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                    visualTransformation = PasswordVisualTransformation(),
-                )
-
-                Spacer(modifier = Modifier.weight(1f))
-
-                WishBoardWideButton(
-                    enabled = false,
-                    onClick = { /*TODO*/ },
-                    text = stringResource(id = R.string.complete),
-                )
-            }
+            WishBoardWideButton(
+                enabled = false,
+                onClick = { /*TODO*/ },
+                text = stringResource(id = R.string.complete),
+            )
         }
     }
 }

@@ -21,7 +21,7 @@ fun WishBoardWideButton(
     enabled: Boolean,
     onClick: () -> Unit,
     text: String,
-    shape: Shape = RoundedCornerShape(24.dp),
+    shape: Shape = RoundedCornerShape(12.dp),
     isGreen: Boolean = true,
 ) {
     val color = if (isGreen) {
@@ -47,7 +47,7 @@ fun WishBoardWideButton(
         shape = shape,
         enabled = enabled,
         colors = color,
-        contentPadding = PaddingValues(vertical = 15.dp),
+        contentPadding = PaddingValues(vertical = 16.dp),
     ) {
         Text(
             text = text,

@@ -12,7 +12,6 @@ import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.hyeeyoung.wishboard.config.navigation.navhost.BottomBarNavHost
 import com.hyeeyoung.wishboard.designsystem.component.bottombar.WishBoardBottomBar
-import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
 
 @Composable
 fun MainScreen(wishNavController: NavHostController, onClickAdd: () -> Unit = {}) {
@@ -43,7 +42,5 @@ fun PreviewWishBoardBottomBar() {
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
-    WishboardTheme {
-        MainScreen(wishNavController = rememberNavController())
-    }
+    MainScreen(wishNavController = rememberNavController())
 }

@@ -102,60 +102,58 @@ fun WishItemDetailScreen(navController: NavHostController, itemId: Long) {
         systemUiController.setNavigationBarColor(color = Gray700)
     }
 
-    WishboardTheme { // TODO Theme 사용 여부 고려
-        Scaffold(topBar = {
-            WishBoardTopBar(
-                WishBoardTopBarModel(onClickStartIcon = { navController.popBackStack() }),
-                endComponent = { modifier ->
-                    TopBarEndIcons(
-                        modifier,
-                        onClickDelete = { dialogData = DialogData.WishItemDelete() },
-                        onClickEdit = {
-                            navController.navigate(
-                                "${MainScreen.Upload.route}?$ARG_ITEM_DETAIL=${
-                                    Json.encodeToString(itemDetail)
-                                }",
-                            )
-                        },
-                    )
-                },
-            )
-        }) { paddingValues ->
-            Column(
-                modifier = Modifier
-                    .background(WishBoardTheme.colors.white)
-                    .padding(top = paddingValues.calculateTopPadding()),
-            ) {
-                WishItemDetailContents(
-                    modifier = Modifier.weight(1f),
-                    itemDetail = itemDetail,
-                    onClickFolder = {
-                        ModalData.Modal.FolderList(itemDetail.folderId).openModal(context, modalLauncher)
+    Scaffold(topBar = {
+        WishBoardTopBar(
+            WishBoardTopBarModel(onClickStartIcon = { navController.popBackStack() }),
+            endComponent = { modifier ->
+                TopBarEndIcons(
+                    modifier,
+                    onClickDelete = { dialogData = DialogData.WishItemDelete() },
+                    onClickEdit = {
+                        navController.navigate(
+                            "${MainScreen.Upload.route}?$ARG_ITEM_DETAIL=${
+                                Json.encodeToString(itemDetail)
+                            }",
+                        )
                     },
                 )
-
-                WishBoardWideButton(
-                    enabled = itemDetail.site != null,
-                    onClick = {
-                        if (!itemDetail.site.isNullOrEmpty()) {
-                            navController.moveToWebView(
-                                title = itemDetail.site!!.getDomainName(),
-                                url = itemDetail.site!!,
-                            )
-                        }
-                    },
-                    text = stringResource(id = R.string.wish_item_detail_go_to_shop),
-                    shape = RectangleShape,
-                    isGreen = false,
-                ) // TODO 비활성화 처리
-            }
-
-            WishBoardDialog(
-                dialogData = dialogData,
-                onClickConfirm = {},
-                onDismissRequest = { dialogData = null },
+            },
+        )
+    }) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .background(WishBoardTheme.colors.white)
+                .padding(top = paddingValues.calculateTopPadding()),
+        ) {
+            WishItemDetailContents(
+                modifier = Modifier.weight(1f),
+                itemDetail = itemDetail,
+                onClickFolder = {
+                    ModalData.Modal.FolderList(itemDetail.folderId).openModal(context, modalLauncher)
+                },
             )
+
+            WishBoardWideButton(
+                enabled = itemDetail.site != null,
+                onClick = {
+                    if (!itemDetail.site.isNullOrEmpty()) {
+                        navController.moveToWebView(
+                            title = itemDetail.site!!.getDomainName(),
+                            url = itemDetail.site!!,
+                        )
+                    }
+                },
+                text = stringResource(id = R.string.wish_item_detail_go_to_shop),
+                shape = RectangleShape,
+                isGreen = false,
+            ) // TODO 비활성화 처리
         }
+
+        WishBoardDialog(
+            dialogData = dialogData,
+            onClickConfirm = {},
+            onDismissRequest = { dialogData = null },
+        )
     }
 }
 
