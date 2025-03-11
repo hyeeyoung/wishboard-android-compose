@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,6 +41,10 @@ fun SignInVerificationCodeScreen(
     )
 ) {
     val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
+
+    LaunchedEffect(true) {
+        viewModel.startTimer()
+    }
 
     SignInVerificationCodeScreen(
         uiModel = uiModel,
@@ -92,7 +97,7 @@ fun SignInVerificationCodeScreen(
                 onTextChange = onAuthCodeChange,
                 maxLength = VERIFICATION_CODE_MAX_LENGTH,
                 isError = uiModel.isCorrectAuthCode == false,
-                endComponent = WishBoardTextFieldComponent.Timer(4, 56), // TODO 실제 타이머에서 시간 데이터 가져오기
+                endComponent = WishBoardTextFieldComponent.Timer(uiModel.timer),
             )
 
             Spacer(modifier = Modifier.weight(1f))

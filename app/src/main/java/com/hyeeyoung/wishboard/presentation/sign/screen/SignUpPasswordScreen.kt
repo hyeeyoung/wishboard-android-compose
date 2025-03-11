@@ -108,7 +108,9 @@ fun SignUpPasswordScreen(
             SignDescription(descriptionRes = R.string.sign_up_password_description, iconRes = R.drawable.ic_lock)
 
             WishBoardTextField(
-                modifier = Modifier.focusRequester(focusRequester).focusable(),
+                modifier = Modifier
+                    .focusRequester(focusRequester)
+                    .focusable(),
                 input = uiModel.password,
                 placeholder = stringResource(id = R.string.sign_password_placeholder),
                 errorMsg = stringResource(id = R.string.sign_up_password_format_error), // TODO 기존 가입자 에러 메세지 추가

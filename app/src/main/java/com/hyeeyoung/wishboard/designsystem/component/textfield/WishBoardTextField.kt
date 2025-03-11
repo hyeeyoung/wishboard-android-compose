@@ -215,10 +215,7 @@ private fun DecorationBox(
                 is WishBoardTextFieldComponent.Timer -> {
                     Spacer(modifier = Modifier.size(10.dp))
                     Text(
-                        text = stringResource(
-                            id = R.string.timer_format,
-                            formatArgs = arrayOf(endComponent.minute, endComponent.second),
-                        ),
+                        text = endComponent.time,
                         color = WishBoardTheme.colors.pink700,
                         style = WishBoardTheme.typography.suitD2,
                     )
@@ -249,6 +246,6 @@ fun PreviewWishBoardTextFieldWithTimer() {
         modifier = Modifier.fillMaxWidth(),
         input = input,
         placeholder = stringResource(id = R.string.sign_in_verification_code_placeholder),
-        endComponent = WishBoardTextFieldComponent.Timer(4, 56),
+        endComponent = WishBoardTextFieldComponent.Timer("5:00"),
     )
 }

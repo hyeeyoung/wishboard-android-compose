@@ -16,6 +16,8 @@ import com.hyeeyoung.wishboard.presentation.model.auth.SignUiModel
 import com.hyeeyoung.wishboard.presentation.model.snackbar.SnackbarMessage
 import com.hyeeyoung.wishboard.presentation.util.WishBoardFormat
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -34,6 +36,7 @@ class SignViewModel @Inject constructor(
 ) : BaseViewModel() {
     private var _uiModel = MutableStateFlow(SignUiModel())
     val uiModel = _uiModel.asStateFlow()
+    private var timerJob: Job? = null
 
     private fun initFCMToken(onSuccess: (String) -> Unit) {
         FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
@@ -176,6 +179,22 @@ class SignViewModel @Inject constructor(
         val trimmedAuthCode = authCode.trim()
         _uiModel.update {
             it.copy(authCode = trimmedAuthCode, isCorrectAuthCode = false)
+        }
+    }
+
+    fun startTimer() {
+        timerJob?.cancel()
+        timerJob = viewModelScope.launch {
+            var totalSeconds = 5 * 60
+            while (totalSeconds >= 0) {
+                val minutes = totalSeconds / 60
+                val seconds = totalSeconds % 60
+                _uiModel.update {
+                    it.copy(timer = String.format("%d:%02d", minutes, seconds))
+                }
+                delay(1000L)
+                totalSeconds--
+            }
         }
     }
 }
