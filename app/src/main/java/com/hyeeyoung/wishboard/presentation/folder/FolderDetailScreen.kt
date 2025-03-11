@@ -35,7 +35,6 @@ fun FolderDetailScreen(
             "21SS SAGE SHIRT [4COLOR]",
             "https://url.kr/8vwf1e",
             108000,
-            true,
         ),
     )
     val wishList = List(8) { wishItem }.flatten() // TODO 서버 연동 후 삭제

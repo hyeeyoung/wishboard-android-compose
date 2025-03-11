@@ -1,6 +1,7 @@
 package com.hyeeyoung.wishboard.di
 
 import com.hyeeyoung.wishboard.data.remote.service.AuthService
+import com.hyeeyoung.wishboard.data.remote.service.ItemService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -15,4 +16,9 @@ object ServiceModule {
     @Provides
     fun provideAuthService(retrofit: Retrofit): AuthService =
         retrofit.create(AuthService::class.java)
+
+    @Singleton
+    @Provides
+    fun provideItemService(retrofit: Retrofit): ItemService =
+        retrofit.create(ItemService::class.java)
 }

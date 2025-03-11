@@ -82,7 +82,7 @@ dependencies {
     ksp(libs.bundles.compiler)
     implementation(platform(libs.firebase.bom))
     implementation(libs.bundles.firebase)
-    implementation(libs.accompanist)
+    implementation(libs.accompanist.ui.controller)
     implementation(platform(libs.okhttp.bom))
     implementation(libs.bundles.network)
     implementation(libs.kotlinx.datetime)

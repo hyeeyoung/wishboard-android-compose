@@ -51,7 +51,7 @@ fun WishBoardBottomBar(navController: NavHostController = rememberNavController(
                     .padding(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                BottomNavItem.values().forEach { navItem ->
+                BottomNavItem.entries.forEach { navItem ->
                     BottomBarIconButton(
                         navItem = navItem,
                         isSelected = isSelectedMenu(currentRoute = currentRoute, navItem = navItem),
