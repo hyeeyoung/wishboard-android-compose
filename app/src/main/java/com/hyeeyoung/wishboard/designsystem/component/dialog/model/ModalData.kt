@@ -7,7 +7,7 @@ import androidx.activity.result.ActivityResult
 import androidx.annotation.StringRes
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.ModalActivity
-import com.hyeeyoung.wishboard.presentation.util.type.NotiType
+import com.hyeeyoung.wishboard.domain.model.noti.NotiType
 import kotlinx.datetime.LocalDateTime
 import java.io.Serializable
 

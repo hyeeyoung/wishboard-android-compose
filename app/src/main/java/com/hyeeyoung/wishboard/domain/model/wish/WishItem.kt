@@ -1,8 +1,8 @@
-package com.hyeeyoung.wishboard.domain.model
+package com.hyeeyoung.wishboard.domain.model.wish
 
 data class WishItem(
     val id: Long,
     val name: String,
     val imageUrl: String?,
-    val price: Int?,
+    val price: Long?,
 )

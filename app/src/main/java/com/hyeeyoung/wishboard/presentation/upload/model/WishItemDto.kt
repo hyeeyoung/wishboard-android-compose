@@ -1,6 +1,6 @@
 package com.hyeeyoung.wishboard.presentation.upload.model
 
-import com.hyeeyoung.wishboard.domain.model.WishItem
+import com.hyeeyoung.wishboard.domain.model.wish.WishItem
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -15,7 +15,7 @@ data class WishItemDto(
     @SerialName("item_name")
     val name: String,
     @SerialName("item_price")
-    val price: Int? = null,
+    val price: Long? = null,
 ) {
     fun toDomain(): WishItem = WishItem(
         id = id, name = name, imageUrl = image, price = price,

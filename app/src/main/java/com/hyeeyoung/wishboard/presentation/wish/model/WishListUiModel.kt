@@ -1,6 +1,6 @@
-package com.hyeeyoung.wishboard.presentation.wish
+package com.hyeeyoung.wishboard.presentation.wish.model
 
-import com.hyeeyoung.wishboard.domain.model.WishItem
+import com.hyeeyoung.wishboard.domain.model.wish.WishItem
 import com.hyeeyoung.wishboard.presentation.model.WishBoardState
 
 data class WishListUiModel(

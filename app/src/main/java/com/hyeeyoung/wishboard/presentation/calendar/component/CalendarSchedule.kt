@@ -26,10 +26,10 @@ import com.hyeeyoung.wishboard.designsystem.component.ColoredImage
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardEmptyView
 import com.hyeeyoung.wishboard.designsystem.style.Gray700
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
+import com.hyeeyoung.wishboard.domain.model.noti.NotiType
 import com.hyeeyoung.wishboard.presentation.model.NotiItem
 import com.hyeeyoung.wishboard.presentation.util.extension.getScheduleTimeFormat
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
-import com.hyeeyoung.wishboard.presentation.util.type.NotiType
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -102,7 +102,7 @@ fun ScheduleItem(
                 start.linkTo(image.end, margin = 10.dp)
                 top.linkTo(parent.top)
             },
-            text = stringResource(id = R.string.noti_item_type, noti.notiType.str),
+            text = stringResource(id = R.string.noti_item_type, noti.notiType.label),
             color = WishBoardTheme.colors.gray700,
             style = WishBoardTheme.typography.suitH5,
         )

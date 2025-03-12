@@ -1,11 +1,12 @@
 package com.hyeeyoung.wishboard.domain.repository
 
-import com.hyeeyoung.wishboard.domain.model.WishItem
+import com.hyeeyoung.wishboard.domain.model.wish.WishItem
+import com.hyeeyoung.wishboard.domain.model.wish.WishItemDetail
 
 interface ItemRepository {
     suspend fun fetchWishList(): Result<List<WishItem>>
-//    suspend fun fetchLatestWishItem(): WishItem?
-//    suspend fun fetchWishItemDetail(itemId: Long): List<ItemDetail>?
+    suspend fun fetchWishItemDetail(itemId: Long): Result<List<WishItemDetail>>
+
 //    suspend fun uploadWishItem(
 //        folderId: RequestBody?,
 //        itemName: RequestBody,
@@ -15,7 +16,7 @@ interface ItemRepository {
 //        itemNotificationDate: RequestBody?,
 //        image: MultipartBody.Part?,
 //        itemMemo: RequestBody? = null,
-//    ): Boolean
+//    ): Result<Boolean>
 //
 //    suspend fun updateWishItem(
 //        itemId: Long,
@@ -27,9 +28,9 @@ interface ItemRepository {
 //        itemNotificationType: RequestBody?,
 //        itemNotificationDate: RequestBody?,
 //        itemImage: MultipartBody.Part?
-//    ): Pair<Boolean, Int>?
+//    ): Result<Pair<Boolean, Int>?>
 //
-//    suspend fun updateFolderOfWishItem(itemId: Long, folderId: Long): Boolean
-//    suspend fun deleteWishItem(itemId: Long): Boolean
-//    suspend fun getItemParsingInfo(site: String): Pair<ItemInfo?, Int>?
+//    suspend fun updateFolderOfWishItem(itemId: Long, folderId: Long): Result<Boolean>
+//    suspend fun deleteWishItem(itemId: Long): Result<Boolean>
+//    suspend fun getItemParsingInfo(site: String): Result<Pair<ItemInfo?, Int>?>
 }

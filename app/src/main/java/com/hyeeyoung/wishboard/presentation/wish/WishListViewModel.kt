@@ -2,9 +2,10 @@ package com.hyeeyoung.wishboard.presentation.wish
 
 import androidx.lifecycle.viewModelScope
 import com.hyeeyoung.wishboard.core.extension.onFailure
-import com.hyeeyoung.wishboard.domain.usecase.item.GetWishItemUseCase
+import com.hyeeyoung.wishboard.domain.usecase.item.GetWishListUseCase
 import com.hyeeyoung.wishboard.presentation.common.BaseViewModel
 import com.hyeeyoung.wishboard.presentation.model.WishBoardState
+import com.hyeeyoung.wishboard.presentation.wish.model.WishListUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,7 +15,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class WishListViewModel @Inject constructor(
-    private val getWishItemUseCase: GetWishItemUseCase,
+    private val getWishListUseCase: GetWishListUseCase,
 ) : BaseViewModel() {
     private var _uiModel = MutableStateFlow(WishListUiModel())
     val uiModel = _uiModel.asStateFlow()
@@ -30,7 +31,7 @@ class WishListViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            getWishItemUseCase().onSuccess { items ->
+            getWishListUseCase().onSuccess { items ->
                 _uiModel.update {
                     it.copy(withItems = items, fetchState = WishBoardState.Success(Unit), isRefreshing = false)
                 }

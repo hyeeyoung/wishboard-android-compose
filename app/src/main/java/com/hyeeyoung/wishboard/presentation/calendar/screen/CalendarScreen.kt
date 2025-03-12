@@ -19,6 +19,7 @@ import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
+import com.hyeeyoung.wishboard.domain.model.noti.NotiType
 import com.hyeeyoung.wishboard.presentation.calendar.CalendarViewModel
 import com.hyeeyoung.wishboard.presentation.calendar.CalendarViewModel.Companion.INITIAL_PAGE
 import com.hyeeyoung.wishboard.presentation.calendar.CalendarViewModel.Companion.PAGE_COUNT
@@ -26,7 +27,6 @@ import com.hyeeyoung.wishboard.presentation.calendar.component.CalendarHeader
 import com.hyeeyoung.wishboard.presentation.calendar.component.CalendarSchedule
 import com.hyeeyoung.wishboard.presentation.calendar.component.CalendarTable
 import com.hyeeyoung.wishboard.presentation.model.NotiItem
-import com.hyeeyoung.wishboard.presentation.util.type.NotiType
 import java.time.LocalDateTime
 
 @OptIn(ExperimentalFoundationApi::class)

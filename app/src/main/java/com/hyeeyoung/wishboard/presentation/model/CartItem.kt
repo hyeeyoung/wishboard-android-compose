@@ -4,6 +4,6 @@ data class CartItem(
     val id: Long,
     val name: String,
     val image: String,
-    val price: Int,
+    val price: Long,
     var count: Int,
 )

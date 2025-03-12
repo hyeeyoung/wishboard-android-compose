@@ -1,6 +1,6 @@
 package com.hyeeyoung.wishboard.presentation.model
 
-import com.hyeeyoung.wishboard.presentation.util.type.NotiType
+import com.hyeeyoung.wishboard.domain.model.noti.NotiType
 import java.time.LocalDateTime
 
 data class NotiItem(

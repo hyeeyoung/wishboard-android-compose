@@ -181,7 +181,7 @@ fun ItemCountController(count: Int, onChangeItemCount: (Int) -> Unit) {
 }
 
 @Composable
-fun CartTotalDisplay(totalCount: Int, totalPrice: Int) {
+fun CartTotalDisplay(totalCount: Int, totalPrice: Long) {
     Row(
         modifier = Modifier
             .fillMaxWidth()

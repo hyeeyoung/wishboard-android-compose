@@ -36,11 +36,11 @@ import com.hyeeyoung.wishboard.designsystem.component.showSnackbar
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardMainTopBar
 import com.hyeeyoung.wishboard.designsystem.style.Green500
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
+import com.hyeeyoung.wishboard.domain.model.noti.NotiType
 import com.hyeeyoung.wishboard.presentation.model.Noti
 import com.hyeeyoung.wishboard.presentation.util.extension.getDomainName
 import com.hyeeyoung.wishboard.presentation.util.extension.moveToWebView
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
-import com.hyeeyoung.wishboard.presentation.util.type.NotiType
 import java.time.LocalDateTime
 
 @Composable
@@ -127,7 +127,7 @@ fun NotiItem(noti: Noti, onClickNotiWithLink: (String) -> Unit = {}, onClickNoti
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     modifier = Modifier.padding(end = 4.dp),
-                    text = "${noti.type.str} ${stringResource(id = R.string.noti)}",
+                    text = "${noti.type.label} ${stringResource(id = R.string.noti)}",
                     style = WishBoardTheme.typography.suitH5,
                     color = WishBoardTheme.colors.gray700,
                 )

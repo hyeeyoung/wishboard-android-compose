@@ -23,10 +23,10 @@ import com.hyeeyoung.wishboard.designsystem.component.Picker
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
 import com.hyeeyoung.wishboard.designsystem.style.Gray100
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
-import com.hyeeyoung.wishboard.presentation.util.type.NotiType
+import com.hyeeyoung.wishboard.domain.model.noti.NotiType
 import kotlinx.datetime.LocalDateTime
 
-private val notiType = NotiType.values().map { it.str }
+private val notiType = NotiType.entries.map { it.label }
 
 @Composable
 fun NotiModalContent(type: NotiType? = null, date: LocalDateTime? = null, onClickComplete: () -> Unit) {

@@ -31,8 +31,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
+import com.hyeeyoung.wishboard.domain.model.noti.NotiType
 import com.hyeeyoung.wishboard.presentation.util.extension.pxToDp
-import com.hyeeyoung.wishboard.presentation.util.type.NotiType
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import timber.log.Timber
@@ -40,7 +40,6 @@ import timber.log.Timber
 private const val EMPTY = " "
 private const val VISIBLE_ITEM_COUNT = 3
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Picker(
     modifier: Modifier = Modifier,
@@ -134,5 +133,5 @@ private fun Modifier.fadingEdge(brush: Brush) = this
 @Preview(showSystemUi = true)
 @Composable
 fun PreviewPicker() {
-    Picker(itemList = NotiType.values().map { it.str }, startIdx = 2, selectedItem = remember { mutableStateOf("") })
+    Picker(itemList = NotiType.values().map { it.label }, startIdx = 2, selectedItem = remember { mutableStateOf("") })
 }

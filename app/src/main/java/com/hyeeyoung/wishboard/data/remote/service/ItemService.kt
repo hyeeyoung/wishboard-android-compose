@@ -1,20 +1,19 @@
 package com.hyeeyoung.wishboard.data.remote.service
 
+import com.hyeeyoung.wishboard.data.remote.model.wish.WishItemDetailDto
 import com.hyeeyoung.wishboard.presentation.upload.model.WishItemDto
 import retrofit2.http.GET
+import retrofit2.http.Path
 
 interface ItemService {
     @GET("item")
     suspend fun fetchWishList(): List<WishItemDto>
 
-//    @GET("item/latest")
-//    suspend fun fetchLatestWishItem(): Response<List<WishItem>>?
-//
-//    @GET("item/{item_id}")
-//    suspend fun fetchWishItemDetail(
-//        @Path("item_id") itemId: Long
-//    ): Response<List<ItemDetail>>
-//
+    @GET("item/{item_id}")
+    suspend fun fetchWishItemDetail(
+        @Path("item_id") itemId: Long
+    ): List<WishItemDetailDto>
+
 //    @Multipart
 //    @POST("/item")
 //    suspend fun uploadWishItem(

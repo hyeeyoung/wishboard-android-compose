@@ -46,13 +46,13 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardNarrowButton
+import com.hyeeyoung.wishboard.designsystem.component.dialog.model.ModalData
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
 import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardSimpleTextField
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
-import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
 import com.hyeeyoung.wishboard.designsystem.util.PriceTransformation
-import com.hyeeyoung.wishboard.designsystem.component.dialog.model.ModalData
+import com.hyeeyoung.wishboard.domain.model.noti.NotiType
 import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.model.WishItemDetail
 import com.hyeeyoung.wishboard.presentation.upload.model.SelectedFolder
@@ -61,7 +61,6 @@ import com.hyeeyoung.wishboard.presentation.util.extension.getCurrentTime
 import com.hyeeyoung.wishboard.presentation.util.extension.makeValidPriceStr
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.util.extension.rememberModalLauncher
-import com.hyeeyoung.wishboard.presentation.util.type.NotiType
 import kotlinx.datetime.LocalDateTime
 
 @Composable
@@ -253,7 +252,7 @@ fun getNotiInfo(notiType: NotiType?, notiDate: LocalDateTime?): String? =
     if (notiType == null || notiDate == null) {
         null
     } else {
-        "[${stringResource(id = R.string.noti_item_type, formatArgs = arrayOf(notiType.str))}] $notiDate"
+        "[${stringResource(id = R.string.noti_item_type, formatArgs = arrayOf(notiType.label))}] $notiDate"
     }
 
 @Preview

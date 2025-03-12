@@ -1,7 +1,8 @@
 package com.hyeeyoung.wishboard.data.remote.repository
 
 import com.hyeeyoung.wishboard.data.remote.service.ItemService
-import com.hyeeyoung.wishboard.domain.model.WishItem
+import com.hyeeyoung.wishboard.domain.model.wish.WishItem
+import com.hyeeyoung.wishboard.domain.model.wish.WishItemDetail
 import com.hyeeyoung.wishboard.domain.repository.ItemRepository
 import javax.inject.Inject
 
@@ -12,27 +13,10 @@ class ItemRepositoryImpl @Inject constructor(
         itemService.fetchWishList().map { it.toDomain() }
     }
 
-//    override suspend fun fetchLatestWishItem(): WishItem? =
-//        runCatching {
-//            wishItemService.fetchLatestWishItem()
-//        }.fold({
-//            Timber.d("가장 최근 등록된 아이템 가져오기 성공(${it?.code()})")
-//            it?.body()?.get(0)
-//        }, {
-//            Timber.e("가장 최근 등록된 아이템 가져오기 실패: ${it.message}")
-//            null
-//        })
-//
-//    override suspend fun fetchWishItemDetail(itemId: Long): List<ItemDetail>? =
-//        runCatching {
-//            wishItemService.fetchWishItemDetail(itemId)
-//        }.fold({
-//            Timber.d("아이템 상세정보 가져오기 성공(${it.code()})")
-//            it.body()
-//        }, {
-//            Timber.e("아이템 상세정보 가져오기 실패: ${it.message}")
-//            null
-//        })
+    override suspend fun fetchWishItemDetail(itemId: Long): Result<List<WishItemDetail>> =
+        runCatching {
+            itemService.fetchWishItemDetail(itemId).map { it.toDomain() }
+        }
 //
 //    override suspend fun uploadWishItem(
 //        folderId: RequestBody?,
@@ -43,7 +27,7 @@ class ItemRepositoryImpl @Inject constructor(
 //        itemNotificationDate: RequestBody?,
 //        image: MultipartBody.Part?,
 //        itemMemo: RequestBody?,
-//    ): Boolean = runCatching {
+//    ): Result<Boolean> = runCatching {
 //        wishItemService.uploadWishItem(
 //            folderId,
 //            itemName,
@@ -72,7 +56,7 @@ class ItemRepositoryImpl @Inject constructor(
 //        itemNotificationType: RequestBody?,
 //        itemNotificationDate: RequestBody?,
 //        itemImage: MultipartBody.Part?
-//    ): Pair<Boolean, Int>? = runCatching {
+//    ): Result<Pair<Boolean, Int>?> = runCatching {
 //        wishItemService.updateToWishItem(
 //            itemId, folderId,
 //            itemName,
@@ -91,7 +75,7 @@ class ItemRepositoryImpl @Inject constructor(
 //        null
 //    })
 //
-//    override suspend fun updateFolderOfWishItem(itemId: Long, folderId: Long): Boolean =
+//    override suspend fun updateFolderOfWishItem(itemId: Long, folderId: Long): Result<Boolean> =
 //        runCatching {
 //            wishItemService.updateFolderOfItem(itemId, folderId)
 //        }.fold({
@@ -102,7 +86,7 @@ class ItemRepositoryImpl @Inject constructor(
 //            false
 //        })
 //
-//    override suspend fun deleteWishItem(itemId: Long): Boolean = runCatching {
+//    override suspend fun deleteWishItem(itemId: Long): Result<Boolean> = runCatching {
 //        wishItemService.deleteWishItem(itemId)
 //    }.fold({
 //        Timber.d("아이템 삭제 성공(${it.code()})")
@@ -113,7 +97,7 @@ class ItemRepositoryImpl @Inject constructor(
 //    })
 //
 //    // TODO need refactoring
-//    override suspend fun getItemParsingInfo(site: String): Pair<ItemInfo?, Int>? {
+//    override suspend fun getItemParsingInfo(site: String): Result<Pair<ItemInfo?, Int>?> {
 //        return runCatching {
 //            wishItemService.getItemParsingInfo(site)
 //        }.fold({
