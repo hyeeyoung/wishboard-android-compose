@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
-    <style name="Theme.Wishboard" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.Wishboard" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowSplashScreenAnimatedIcon" tools:targetApi="s">
+            @android:color/transparent
+        </item>
+    </style>
 
     <style name="Theme.Modal" parent="Theme.Wishboard">
         <item name="android:windowBackground">@android:color/transparent</item>
