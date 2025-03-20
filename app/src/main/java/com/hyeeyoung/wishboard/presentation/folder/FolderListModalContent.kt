@@ -24,24 +24,20 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hyeeyoung.wishboard.R
-import com.hyeeyoung.wishboard.designsystem.component.image.Image
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardEmptyView
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
+import com.hyeeyoung.wishboard.designsystem.component.image.Image
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
-import com.hyeeyoung.wishboard.presentation.sign.model.Folder
-import com.hyeeyoung.wishboard.presentation.upload.model.SelectedFolder
+import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 
 @Composable
-fun FolderListModalContent(selectedFolderId: Long?, onClickFolder: (SelectedFolder) -> Unit) {
-    val folder = Folder(
-        id = 1L,
-        name = "아우터",
-        thumbnail = "https://url.kr/8vwf1e",
-        itemCount = 1,
-    )
-    val folders = List(8) { folder.copy(id = it.toLong()) } // TODO 서버 연동 후 삭제
-    var selectedId by remember { mutableStateOf(selectedFolderId) }
+fun FolderListModalContent(
+    selectedFolder: FolderItem?,
+    folders: List<FolderItem>,
+    onClickFolder: (FolderItem) -> Unit
+) {
+    var selectedId by remember { mutableStateOf(selectedFolder?.id) }
 
     if (folders.isEmpty()) {
         WishBoardEmptyView(
@@ -75,11 +71,11 @@ fun FolderListModalContent(selectedFolderId: Long?, onClickFolder: (SelectedFold
 }
 
 @Composable
-fun HorizontalFolderItem(folder: Folder, isSelected: Boolean, onClickFolder: (SelectedFolder) -> Unit) {
+fun HorizontalFolderItem(folder: FolderItem, isSelected: Boolean, onClickFolder: (FolderItem) -> Unit) {
     Row(
         modifier = Modifier
             .padding(horizontal = 16.dp, vertical = 8.dp)
-            .noRippleClickable { onClickFolder(SelectedFolder(folder.id, folder.name)) },
+            .noRippleClickable { onClickFolder(folder) },
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Image(
@@ -114,5 +110,11 @@ fun HorizontalFolderItem(folder: Folder, isSelected: Boolean, onClickFolder: (Se
 @Composable
 @Preview
 fun PreviewFolderListModalContent() {
-    FolderListModalContent(1L, onClickFolder = {})
+    val folder = FolderItem(
+        id = 0L,
+        name = "아우터",
+        thumbnail = "https://url.kr/8vwf1e",
+    )
+    val folders = List(8) { index: Int ->  folder.copy(id = index.toLong()) }
+    FolderListModalContent(folder, folders = folders, onClickFolder = {})
 }

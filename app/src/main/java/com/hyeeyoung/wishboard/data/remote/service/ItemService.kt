@@ -1,8 +1,11 @@
 package com.hyeeyoung.wishboard.data.remote.service
 
+import com.hyeeyoung.wishboard.data.remote.model.base.BaseResponse
+import com.hyeeyoung.wishboard.data.remote.model.base.BaseResponseWithoutData
 import com.hyeeyoung.wishboard.data.remote.model.wish.WishItemDetailDto
 import com.hyeeyoung.wishboard.presentation.upload.model.WishItemDto
 import retrofit2.http.GET
+import retrofit2.http.PUT
 import retrofit2.http.Path
 
 interface ItemService {
@@ -41,11 +44,11 @@ interface ItemService {
 //        @Part itemImg: MultipartBody.Part?,
 //    ): Response<BaseResponseResult<BaseResponseData?>>
 //
-//    @PUT("item/{item_id}/folder/{folder_id}")
-//    suspend fun updateFolderOfItem(
-//        @Path("item_id") itemId: Long,
-//        @Path("folder_id") folderId: Long
-//    ): Response<BaseResponseResult<BaseResponseData?>>
+    @PUT("item/{item_id}/folder/{folder_id}")
+    suspend fun updateFolderOfItem(
+        @Path("item_id") itemId: Long,
+        @Path("folder_id") folderId: Long
+    ): BaseResponseWithoutData
 //
 //    @DELETE("item/{item_id}")
 //    suspend fun deleteWishItem(@Path("item_id") itemId: Long): Response<BaseResponseResult<BaseResponseData?>>

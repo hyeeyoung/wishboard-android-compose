@@ -15,6 +15,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,6 +29,7 @@ import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.config.navigation.screen.Calendar
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardEmptyView
+import com.hyeeyoung.wishboard.designsystem.component.WishBoardGlobalSnackbarMessage
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.domain.model.wish.WishItem
@@ -40,10 +42,16 @@ import com.hyeeyoung.wishboard.presentation.wish.component.WishItem
 fun WishListScreen(navController: NavHostController, viewModel: WishListViewModel = hiltViewModel()) {
     val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
 
+    WishBoardGlobalSnackbarMessage(snackbarChannel = viewModel.snackBarChannel)
+
+    LaunchedEffect(Unit) {
+        viewModel.getWishItem()
+    }
+
     PullToRefreshBox(
         isRefreshing = uiModel.isRefreshing,
         onRefresh = {
-            viewModel.getWishItem()
+            viewModel.getWishItem(true)
         },
     ) {
         WishlistScreen(

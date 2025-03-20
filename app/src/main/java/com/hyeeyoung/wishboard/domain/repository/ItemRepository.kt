@@ -30,7 +30,8 @@ interface ItemRepository {
 //        itemImage: MultipartBody.Part?
 //    ): Result<Pair<Boolean, Int>?>
 //
-//    suspend fun updateFolderOfWishItem(itemId: Long, folderId: Long): Result<Boolean>
+    suspend fun updateFolderOfWishItem(itemId: Long, folderId: Long): Result<Unit>
+
 //    suspend fun deleteWishItem(itemId: Long): Result<Boolean>
 //    suspend fun getItemParsingInfo(site: String): Result<Pair<ItemInfo?, Int>?>
 }

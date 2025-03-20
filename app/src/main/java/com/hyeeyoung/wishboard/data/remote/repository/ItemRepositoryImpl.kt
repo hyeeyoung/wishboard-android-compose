@@ -75,16 +75,10 @@ class ItemRepositoryImpl @Inject constructor(
 //        null
 //    })
 //
-//    override suspend fun updateFolderOfWishItem(itemId: Long, folderId: Long): Result<Boolean> =
-//        runCatching {
-//            wishItemService.updateFolderOfItem(itemId, folderId)
-//        }.fold({
-//            Timber.d("아이템 폴더 수정 성공(${it.code()})")
-//            it.isSuccessful
-//        }, {
-//            Timber.e("아이템 폴더 수정 실패: ${it.message}")
-//            false
-//        })
+    override suspend fun updateFolderOfWishItem(itemId: Long, folderId: Long): Result<Unit> =
+        runCatching {
+            itemService.updateFolderOfItem(itemId, folderId)
+        }
 //
 //    override suspend fun deleteWishItem(itemId: Long): Result<Boolean> = runCatching {
 //        wishItemService.deleteWishItem(itemId)

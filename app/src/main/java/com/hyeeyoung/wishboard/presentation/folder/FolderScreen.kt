@@ -11,9 +11,11 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -27,33 +29,54 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
-import com.hyeeyoung.wishboard.designsystem.component.image.Image
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardEmptyView
+import com.hyeeyoung.wishboard.designsystem.component.WishBoardGlobalSnackbarMessage
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
-import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.WishBoardDialog
-import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardMainTopBar
-import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.DialogData
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.ModalData
-import com.hyeeyoung.wishboard.presentation.sign.model.Folder
-import com.hyeeyoung.wishboard.presentation.util.extension.rememberModalLauncher
+import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.WishBoardDialog
+import com.hyeeyoung.wishboard.designsystem.component.image.Image
+import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardMainTopBar
+import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
+import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
+import com.hyeeyoung.wishboard.presentation.folder.model.FolderListUiModel
+import com.hyeeyoung.wishboard.presentation.folder.model.FolderTabUiModel
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
+import com.hyeeyoung.wishboard.presentation.util.extension.rememberModalLauncher
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun FolderScreen(navController: NavHostController, viewModel: FolderViewModel = hiltViewModel()) {
+    val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
+
+    WishBoardGlobalSnackbarMessage(snackbarChannel = viewModel.snackBarChannel)
+
+    LaunchedEffect(Unit) {
+        viewModel.getFolders()
+    }
+
+    PullToRefreshBox(
+        isRefreshing = uiModel.isRefreshing,
+        onRefresh = {
+            viewModel.getFolders(true)
+        },
+    ) {
+        FolderScreen(
+            uiModel = uiModel,
+            onClickFolder = { folder ->
+                navController.navigate("${MainScreen.FolderDetail.route}/${folder.id}/${folder.name}")
+            }
+        )
+    }
+}
 
 @Composable
-fun FolderScreen(navController: NavHostController) {
-    val folder = listOf(
-        Folder(
-            id = 1L,
-            name = "아우터",
-            thumbnail = "https://url.kr/8vwf1e",
-            itemCount = 1,
-        ),
-    )
-    val folders = List(8) { folder }.flatten() // TODO 서버 연동 후 삭제
+fun FolderScreen(uiModel: FolderTabUiModel, onClickFolder: (FolderItem) -> Unit) {
     var dialogData by remember { mutableStateOf<DialogData?>(null) }
     var modalData by remember { mutableStateOf<ModalData?>(null) }
     val context = LocalContext.current
@@ -99,18 +122,18 @@ fun FolderScreen(navController: NavHostController) {
             .background(WishBoardTheme.colors.white)
             .padding(top = paddingValues.calculateTopPadding(), start = 8.dp, end = 8.dp)
 
-        if (folders.isEmpty()) {
+        if (uiModel.folders.isEmpty()) {
             WishBoardEmptyView(modifier = contentModifier, guideTextRes = R.string.empty_folder_guide_text)
         } else {
             LazyVerticalGrid(
                 modifier = contentModifier,
                 columns = GridCells.Fixed(2),
             ) {
-                items(folders) { folder ->
+                items(uiModel.folders) { folder ->
                     FolderItem(
                         folder = folder,
-                        onClickFolder = { folderId ->
-                            navController.navigate("${MainScreen.FolderDetail.route}/$folderId/${folder.name}")
+                        onClickFolder = {
+                            onClickFolder(folder)
                         },
                         onClickMore = { selectedFolder ->
                             modalData = ModalData.OptionModal.FolderMore(selectedFolder.id, selectedFolder.name)
@@ -123,11 +146,11 @@ fun FolderScreen(navController: NavHostController) {
 }
 
 @Composable
-fun FolderItem(folder: Folder, onClickFolder: (Long) -> Unit, onClickMore: (Folder) -> Unit) {
+fun FolderItem(folder: FolderItem, onClickFolder: () -> Unit, onClickMore: (FolderItem) -> Unit) {
     Column(
         modifier = Modifier
             .padding(horizontal = 8.dp)
-            .noRippleClickable { onClickFolder(folder.id) },
+            .noRippleClickable { onClickFolder() },
     ) {
         Image(
             model = folder.thumbnail,
@@ -151,7 +174,7 @@ fun FolderItem(folder: Folder, onClickFolder: (Long) -> Unit, onClickMore: (Fold
                     modifier = Modifier.padding(top = 6.dp),
                     text = stringResource(
                         id = R.string.folder_wish_item_count,
-                        formatArgs = arrayOf(folder.itemCount),
+                        formatArgs = arrayOf(folder.numOfWishItem),
                     ),
                     style = WishBoardTheme.typography.suitD3,
                     color = WishBoardTheme.colors.gray300,
@@ -173,17 +196,28 @@ fun FolderItem(folder: Folder, onClickFolder: (Long) -> Unit, onClickMore: (Fold
 @Preview
 @Composable
 fun PreviewFolderScreen() {
-    FolderScreen(navController = rememberNavController())
+    val folder = FolderItem(
+        id = 1L,
+        name = "아우터",
+        thumbnail = "https://url.kr/8vwf1e",
+        numOfWishItem = 1,
+    )
+
+    val folders = List(8) { index: Int ->
+        folder.copy(id = index.toLong())
+    }
+
+    FolderScreen(FolderTabUiModel(folders = folders), onClickFolder = {})
 }
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewFolderItem() {
-    val folder = Folder(
+    val folder = FolderItem(
         id = 1L,
         name = "Bean Ring Gold",
         thumbnail = "https://url.kr/8vwf1e",
-        itemCount = 1,
+        numOfWishItem = 1,
     )
 
     FolderItem(

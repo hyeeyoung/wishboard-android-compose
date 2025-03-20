@@ -26,6 +26,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.config.navigation.screen.SignScreen
+import com.hyeeyoung.wishboard.designsystem.component.WishBoardGlobalSnackbarMessage
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
 import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardTextField
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBarWithStep
@@ -42,6 +43,8 @@ fun SignInEmailScreen(
     viewModel: SignViewModel = hiltViewModel()
 ) {
     val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
+
+    WishBoardGlobalSnackbarMessage(snackbarChannel = viewModel.snackBarChannel)
 
     SignInEmailScreen(
         uiModel = uiModel,
@@ -93,7 +96,9 @@ fun SignInEmailScreen(
             SignDescription(descriptionRes = R.string.sign_in_email_description, iconRes = R.drawable.ic_email)
 
             WishBoardTextField(
-                modifier = Modifier.focusRequester(focusRequester).focusable(),
+                modifier = Modifier
+                    .focusRequester(focusRequester)
+                    .focusable(),
                 input = emailInput,
                 placeholder = stringResource(id = R.string.sign_email_placeholder),
                 errorMsg = if (uiModel.isValidEmail == false) stringResource(id = R.string.sign_in_email_error) else stringResource(

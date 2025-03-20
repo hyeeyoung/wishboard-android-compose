@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -82,10 +83,8 @@ fun WishBoardDialog(
                     textAlign = TextAlign.Center,
                 )
 
-                Divider(
-                    modifier = Modifier
-                        .width(1.dp)
-                        .fillMaxHeight(),
+                VerticalDivider(
+                    modifier = Modifier.fillMaxHeight(),
                     color = WishBoardTheme.colors.gray100,
                 )
 

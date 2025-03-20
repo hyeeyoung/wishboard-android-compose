@@ -1,6 +1,7 @@
 package com.hyeeyoung.wishboard.di
 
 import com.hyeeyoung.wishboard.data.remote.service.AuthService
+import com.hyeeyoung.wishboard.data.remote.service.FolderService
 import com.hyeeyoung.wishboard.data.remote.service.ItemService
 import dagger.Module
 import dagger.Provides
@@ -21,4 +22,9 @@ object ServiceModule {
     @Provides
     fun provideItemService(retrofit: Retrofit): ItemService =
         retrofit.create(ItemService::class.java)
+
+    @Singleton
+    @Provides
+    fun provideFolderService(retrofit: Retrofit): FolderService =
+        retrofit.create(FolderService::class.java)
 }

@@ -52,15 +52,16 @@ import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardSimpleT
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.designsystem.util.PriceTransformation
+import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
 import com.hyeeyoung.wishboard.domain.model.noti.NotiType
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.sign.model.WishItemDetail
-import com.hyeeyoung.wishboard.presentation.upload.model.SelectedFolder
 import com.hyeeyoung.wishboard.presentation.util.extension.createImageUri
 import com.hyeeyoung.wishboard.presentation.util.extension.getCurrentTime
 import com.hyeeyoung.wishboard.presentation.util.extension.makeValidPriceStr
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.util.extension.rememberModalLauncher
+import com.hyeeyoung.wishboard.presentation.util.safeLet
 import kotlinx.datetime.LocalDateTime
 
 @Composable
@@ -75,7 +76,14 @@ fun WishUploadScreen(navController: NavHostController, itemDetail: WishItemDetai
     val priceInput = remember { mutableStateOf(itemDetail?.price?.toString() ?: "") }
     val memoInput = remember { mutableStateOf(itemDetail?.memo ?: "") }
     val shopLinkInput = remember { mutableStateOf(itemDetail?.site ?: "") }
-    var selectedFolder by remember { mutableStateOf(SelectedFolder(itemDetail?.folderId, itemDetail?.folderName)) }
+    var selectedFolder by remember(itemDetail) {
+        mutableStateOf(
+            safeLet(
+                itemDetail?.folderId,
+                itemDetail?.folderName
+            ) { id, name -> FolderItem(id = id, name = name) }
+        )
+    }
 
     var cameraUri: Uri? = null
     val albumLauncher = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
@@ -103,7 +111,7 @@ fun WishUploadScreen(navController: NavHostController, itemDetail: WishItemDetai
             is ModalData.Modal.Noti -> {}
 
             is ModalData.Modal.FolderList -> {
-                selectedFolder = SelectedFolder(data.selectedFolderId, data.selectedFolderName)
+                selectedFolder = data.selectedFolder
             }
 
             is ModalData.Modal.ShopLink -> {}
@@ -186,8 +194,11 @@ fun WishUploadScreen(navController: NavHostController, itemDetail: WishItemDetai
                 visualTransformation = PriceTransformation(prefix = "₩ "),
             )
             ItemInfoRow(
-                label = selectedFolder.name ?: stringResource(id = R.string.folder),
-                onClickRow = { ModalData.Modal.FolderList(selectedFolder.id).openModal(context, modalLauncher) },
+                label = selectedFolder?.name ?: stringResource(id = R.string.folder),
+                onClickRow = {
+                    ModalData.Modal.FolderList(selectedFolder = selectedFolder, folders = emptyList()) // TODO
+                        .openModal(context, modalLauncher)
+                },
             )
             ItemInfoRow(
                 label = getNotiInfo(notiType = itemDetail?.notiType, notiDate = itemDetail?.notiDate)

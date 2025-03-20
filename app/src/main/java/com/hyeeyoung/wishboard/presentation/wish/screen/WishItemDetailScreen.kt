@@ -39,21 +39,22 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen.Upload.ARG_ITEM_DETAIL
-import com.hyeeyoung.wishboard.designsystem.component.image.Image
+import com.hyeeyoung.wishboard.designsystem.component.WishBoardGlobalSnackbarMessage
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.DialogData
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.ModalData
 import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.WishBoardDialog
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
+import com.hyeeyoung.wishboard.designsystem.component.image.Image
 import com.hyeeyoung.wishboard.designsystem.component.image.WishBoardPlaceHolder
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.designsystem.style.Gray700
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
+import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
 import com.hyeeyoung.wishboard.domain.model.noti.NotiType
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardString
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
-import com.hyeeyoung.wishboard.presentation.upload.model.SelectedFolder
 import com.hyeeyoung.wishboard.presentation.util.buildStringWithSpans
 import com.hyeeyoung.wishboard.presentation.util.extension.getDomainName
 import com.hyeeyoung.wishboard.presentation.util.extension.moveToWebView
@@ -64,8 +65,6 @@ import com.hyeeyoung.wishboard.presentation.util.safeLet
 import com.hyeeyoung.wishboard.presentation.wish.component.PriceText
 import com.hyeeyoung.wishboard.presentation.wish.model.WishItemDetailUiModel
 import kotlinx.datetime.LocalDateTime
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 
 @Composable
 fun WishItemDetailScreen(
@@ -75,19 +74,21 @@ fun WishItemDetailScreen(
 ) {
     val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
 
+    WishBoardGlobalSnackbarMessage(snackbarChannel = viewModel.snackBarChannel)
+
     LaunchedEffect(Unit) {
         viewModel.getWishItemDetail(itemId)
     }
 
     WishItemDetailScreen(
         uiModel = uiModel,
-        updateFolder = { id, name ->
-
+        updateFolder = {
+            viewModel.updateFolder(it)
         },
         onClickEdit = {
             navController.navigate(
                 "${MainScreen.Upload.route}?$ARG_ITEM_DETAIL=${
-                    uiModel.toBase64Json() // 수정 화면 데이터 타입이랑 맞워야함
+                    uiModel.toBase64Json()
                 }",
             )
         },
@@ -100,24 +101,28 @@ fun WishItemDetailScreen(
             }
         },
         onClickBack = navController::popBackStack,
-        )
+        onClickFolder = { afterSuccess ->
+            viewModel.getFolders(afterSuccess)
+        }
+    )
 }
 
 @Composable
 fun WishItemDetailScreen(
     uiModel: WishItemDetailUiModel,
-    updateFolder: (id: Long?, name: String?) -> Unit,
+    updateFolder: (FolderItem) -> Unit,
+    onClickFolder: ((List<FolderItem>) -> Unit) -> Unit,
     onClickEdit: () -> Unit,
     onClickShop: () -> Unit,
     onClickBack: () -> Unit,
-
 ) {
     val context = LocalContext.current
     val modalLauncher = rememberModalLauncher { _, data ->
         when (data) {
             is ModalData.Modal.FolderList -> {
-                updateFolder(data.selectedFolderId, data.selectedFolderName)
+                data.selectedFolder?.let(updateFolder)
             }
+
             else -> {}
         }
     }
@@ -149,7 +154,13 @@ fun WishItemDetailScreen(
                 modifier = Modifier.weight(1f),
                 itemDetail = uiModel,
                 onClickFolder = {
-                    ModalData.Modal.FolderList(uiModel.folderId).openModal(context, modalLauncher)
+                    onClickFolder { folders ->
+                        ModalData.Modal.FolderList(
+                            selectedFolder = uiModel.folderId?.let { FolderItem(id = it) },
+                            folders = folders
+                        )
+                            .openModal(context, modalLauncher)
+                    }
                 },
             )
 
@@ -161,7 +172,7 @@ fun WishItemDetailScreen(
                 text = stringResource(id = R.string.wish_item_detail_go_to_shop),
                 shape = RectangleShape,
                 isGreen = false,
-            ) // TODO 비활성화 처리
+            )
         }
 
         WishBoardDialog(
@@ -208,7 +219,7 @@ private fun WishItemDetailContents(modifier: Modifier, itemDetail: WishItemDetai
             verticalAlignment = Alignment.CenterVertically,
         ) {
             FolderGuideString(
-                folder = SelectedFolder(itemDetail.folderId, itemDetail.folderName),
+                folderName = itemDetail.folderName,
                 onClickFolder = onClickFolder,
             )
             Text(
@@ -298,12 +309,12 @@ private fun NotiInfoLabel(modifier: Modifier, type: NotiType, date: LocalDateTim
 }
 
 @Composable
-private fun FolderGuideString(folder: SelectedFolder?, onClickFolder: () -> Unit) {
+private fun FolderGuideString(folderName: String?, onClickFolder: () -> Unit) {
     val folderNameOrGuide =
-        if (folder?.name.isNullOrEmpty()) {
+        if (folderName.isNullOrEmpty()) {
             stringResource(id = R.string.wish_item_detail_folder_guild)
         } else {
-            folder!!.name!!
+            folderName
         }
     val spanStrings = listOf(
         WishBoardString.SpanString(value = folderNameOrGuide),
@@ -332,7 +343,7 @@ fun PreviewWishItemDetailScreen() {
             name = "21SS SAGE SHIRT [4COLOR]",
             image = "https://url.kr/8vwf1e",
             price = 108000,
-            notiDate = LocalDateTime(2024,1,13,1,13),
+            notiDate = LocalDateTime(2024, 1, 13, 1, 13),
             notiType = NotiType.RESTOCK,
             site = "https://www.naver.com/",
             memo = "S사이즈",
@@ -340,9 +351,10 @@ fun PreviewWishItemDetailScreen() {
             folderName = "상의",
             createAt = "1주 전",
         ),
-        updateFolder = {_, _ -> },
+        updateFolder = {},
         onClickShop = {},
         onClickEdit = {},
         onClickBack = {},
+        onClickFolder = {},
     )
 }

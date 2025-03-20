@@ -12,8 +12,6 @@ import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.presentation.sign.model.WishItemDetail
 import com.hyeeyoung.wishboard.presentation.upload.screen.WishUploadScreen
 import com.hyeeyoung.wishboard.presentation.util.extension.getBase64Json
-import com.hyeeyoung.wishboard.presentation.util.extension.toBase64Json
-import kotlinx.serialization.json.Json
 
 fun NavGraphBuilder.uploadNavGraph(navController: NavHostController, snackbarHostState: SnackbarHostState) =
     snackbarComposable(

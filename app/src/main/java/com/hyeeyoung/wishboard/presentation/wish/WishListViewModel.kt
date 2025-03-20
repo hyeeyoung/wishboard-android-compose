@@ -20,10 +20,6 @@ class WishListViewModel @Inject constructor(
     private var _uiModel = MutableStateFlow(WishListUiModel())
     val uiModel = _uiModel.asStateFlow()
 
-    init {
-        getWishItem()
-    }
-
     fun getWishItem(didRefresh: Boolean = false) {
         if (_uiModel.value.fetchState is WishBoardState.Loading) return
         _uiModel.update {

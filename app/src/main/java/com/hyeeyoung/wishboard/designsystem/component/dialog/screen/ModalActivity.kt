@@ -67,8 +67,15 @@ class ModalActivity : ComponentActivity() {
     fun ModalContent(modalData: ModalData.Modal) {
         when (modalData) {
             is ModalData.Modal.FolderList -> FolderListModalContent(
-                selectedFolderId = modalData.selectedFolderId,
-                onClickFolder = { folder -> moveToPrevious(modalData.copy(selectedFolderId = folder.id, folder.name)) },
+                selectedFolder = modalData.selectedFolder,
+                folders = modalData.folders,
+                onClickFolder = { folder ->
+                    moveToPrevious(
+                        modalData.copy(
+                            selectedFolder = folder,
+                        )
+                    )
+                },
             )
 
             is ModalData.Modal.Noti -> NotiModalContent(
