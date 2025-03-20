@@ -16,11 +16,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,11 +42,11 @@ import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.DialogData
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.ModalData
 import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.WishBoardDialog
+import com.hyeeyoung.wishboard.designsystem.component.dialog.temp.WishBoardModal
 import com.hyeeyoung.wishboard.designsystem.component.image.Image
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardMainTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
-import com.hyeeyoung.wishboard.presentation.folder.model.FolderListUiModel
 import com.hyeeyoung.wishboard.presentation.folder.model.FolderTabUiModel
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.util.extension.rememberModalLauncher
@@ -53,6 +55,7 @@ import com.hyeeyoung.wishboard.presentation.util.extension.rememberModalLauncher
 @Composable
 fun FolderScreen(navController: NavHostController, viewModel: FolderViewModel = hiltViewModel()) {
     val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
+    var modalData by remember { mutableStateOf<ModalData.Modal?>(null) }
 
     WishBoardGlobalSnackbarMessage(snackbarChannel = viewModel.snackBarChannel)
 
@@ -70,22 +73,65 @@ fun FolderScreen(navController: NavHostController, viewModel: FolderViewModel = 
             uiModel = uiModel,
             onClickFolder = { folder ->
                 navController.navigate("${MainScreen.FolderDetail.route}/${folder.id}/${folder.name}")
+            },
+            showModal = { modal: ModalData.Modal ->
+                modalData = modal
             }
         )
     }
+
+    WishBoardModal(
+        isOpen = modalData != null,
+        titleRes = modalData?.title ?: return,
+        onDismissRequest = {
+            modalData = null
+        },
+        content = {
+            when (modalData) {
+                is ModalData.Modal.NewFolder -> {
+                    FolderUploadModalContent(
+                        folderName = null,
+                        uploadState = uiModel.addState,
+                        existingFolderName = uiModel.existingFolderName,
+                        onClickComplete = { name ->
+                            viewModel.createFolder(name)
+                            modalData = null
+                        })
+                }
+
+                is ModalData.Modal.FolderNameEdit -> {
+                    val data = modalData as ModalData.Modal.FolderNameEdit
+                    FolderUploadModalContent(
+                        folderName = data.folderName,
+                        uploadState = uiModel.updateState,
+                        existingFolderName = uiModel.existingFolderName,
+                        onClickComplete = { name ->
+                            viewModel.updateFolder(folderId = data.folderId, folderName = name)
+                            modalData = null
+                        },
+                    )
+                }
+
+                else -> {}
+            }
+        }
+    )
 }
 
 @Composable
-fun FolderScreen(uiModel: FolderTabUiModel, onClickFolder: (FolderItem) -> Unit) {
+fun FolderScreen(
+    uiModel: FolderTabUiModel,
+    onClickFolder: (FolderItem) -> Unit,
+    showModal: (ModalData.Modal) -> Unit,
+) {
     var dialogData by remember { mutableStateOf<DialogData?>(null) }
-    var modalData by remember { mutableStateOf<ModalData?>(null) }
     val context = LocalContext.current
-
     val modalLauncher = rememberModalLauncher { isTopOption, data ->
         when (data) {
             is ModalData.OptionModal.FolderMore -> {
                 if (isTopOption) {
-                    modalData = ModalData.Modal.FolderNameEdit(data.folderId, data.folderName)
+                    showModal(ModalData.Modal.FolderNameEdit(folderId = data.folderId, folderName = data.folderName))
+
                 } else {
                     dialogData = DialogData.FolderDelete(folderId = data.folderId)
                 }
@@ -93,10 +139,6 @@ fun FolderScreen(uiModel: FolderTabUiModel, onClickFolder: (FolderItem) -> Unit)
 
             else -> {}
         }
-    }
-
-    LaunchedEffect(modalData) {
-        modalData?.openModal(context, modalLauncher)
     }
 
     WishBoardDialog(
@@ -112,7 +154,9 @@ fun FolderScreen(uiModel: FolderTabUiModel, onClickFolder: (FolderItem) -> Unit)
                 WishBoardIconButton(
                     modifier = Modifier.padding(end = 8.dp),
                     iconRes = R.drawable.ic_plus,
-                    onClick = { ModalData.Modal.NewFolder().openModal(context, modalLauncher) },
+                    onClick = {
+                        showModal(ModalData.Modal.NewFolder(folderName = ""))
+                    },
                 )
             },
         )
@@ -136,7 +180,8 @@ fun FolderScreen(uiModel: FolderTabUiModel, onClickFolder: (FolderItem) -> Unit)
                             onClickFolder(folder)
                         },
                         onClickMore = { selectedFolder ->
-                            modalData = ModalData.OptionModal.FolderMore(selectedFolder.id, selectedFolder.name)
+                            ModalData.OptionModal.FolderMore(selectedFolder.id, selectedFolder.name)
+                                .openModal(context = context, resultLauncher = modalLauncher)
                         },
                     )
                 }
@@ -207,7 +252,11 @@ fun PreviewFolderScreen() {
         folder.copy(id = index.toLong())
     }
 
-    FolderScreen(FolderTabUiModel(folders = folders), onClickFolder = {})
+    FolderScreen(
+        uiModel = FolderTabUiModel(folders = folders),
+        onClickFolder = {},
+        showModal = {},
+    )
 }
 
 @Preview(showBackground = true)

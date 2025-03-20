@@ -48,6 +48,7 @@ import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.designsystem.util.PriceTransformation
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.ModalData
 import com.hyeeyoung.wishboard.presentation.sign.model.FolderSummary
+import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
 import com.hyeeyoung.wishboard.presentation.util.extension.rememberModalLauncher
 import com.hyeeyoung.wishboard.presentation.util.extension.isEmptyOrBlank
 import com.hyeeyoung.wishboard.presentation.util.extension.makeValidPriceStr
@@ -185,7 +186,9 @@ fun LinkSharingWishUploadScreen(url: String, onClickClose: () -> Unit = {}) {
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
                     item {
-                        NewFolder(onClickNew = { ModalData.Modal.NewFolder().openModal(context, modalLauncher) })
+                        NewFolder(onClickNew = { ModalData.Modal.NewFolder(
+                            folderName = "",
+                        ).openModal(context, modalLauncher) })
                     }
                     items(folders) {
                         FolderItem(

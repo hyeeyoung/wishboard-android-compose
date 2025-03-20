@@ -26,7 +26,9 @@ sealed class ModalData : Serializable {
             title = R.string.modal_folder_selection_title,
         )
 
-        data class NewFolder(val folderName: String = "") : Modal(title = R.string.modal_new_folder_title) /*TODO*/
+        data class NewFolder(
+            val folderName: String,
+        ) : Modal(title = R.string.modal_new_folder_title)
 
         data class FolderNameEdit(
             val folderId: Long,

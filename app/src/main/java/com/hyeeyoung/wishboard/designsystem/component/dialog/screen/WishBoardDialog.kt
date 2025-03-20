@@ -34,6 +34,7 @@ import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 @Composable
 fun WishBoardDialog(
     dialogData: DialogData?,
+    dismissOnConfirm: Boolean = true,
     onClickConfirm: () -> Unit,
     onDismissRequest: () -> Unit,
     content: (@Composable () -> Unit)? = null,
@@ -95,7 +96,9 @@ fun WishBoardDialog(
                             indication = ripple(color = WishBoardTheme.colors.gray150),
                         ) {
                             onClickConfirm()
-                            onDismissRequest()
+                            if (dismissOnConfirm) {
+                                onDismissRequest()
+                            }
                         }
                         .weight(1f)
                         .padding(vertical = 16.dp),

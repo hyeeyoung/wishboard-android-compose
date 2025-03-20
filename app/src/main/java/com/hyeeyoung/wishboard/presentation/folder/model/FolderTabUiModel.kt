@@ -7,4 +7,8 @@ data class FolderTabUiModel(
     val folders: List<FolderItem> = emptyList(),
     val fetchState: WishBoardState<Unit> = WishBoardState.Idle,
     val isRefreshing: Boolean = false,
+    val existingFolderName: String? = null,
+    val addState: WishBoardState<Unit> = WishBoardState.Idle,
+    val updateState: WishBoardState<Unit> = WishBoardState.Idle,
+    val deleteState: WishBoardState<Unit> = WishBoardState.Idle,
 )

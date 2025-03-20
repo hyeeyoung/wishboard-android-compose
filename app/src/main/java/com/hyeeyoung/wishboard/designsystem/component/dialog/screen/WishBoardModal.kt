@@ -22,6 +22,7 @@ import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.presentation.folder.FolderUploadModalContent
+import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 
 @Composable
@@ -77,6 +78,6 @@ fun WishBoardModal(@StringRes titleRes: Int, onDismissRequest: () -> Unit = {}, 
 @Composable
 fun PreviewFolderUploadModal() {
     WishBoardModal(titleRes = R.string.modal_new_folder_title) {
-        FolderUploadModalContent(onClickComplete = {})
+        FolderUploadModalContent(folderName = "", uploadState = WishBoardState.Idle, existingFolderName = null, onClickComplete = {})
     }
 }

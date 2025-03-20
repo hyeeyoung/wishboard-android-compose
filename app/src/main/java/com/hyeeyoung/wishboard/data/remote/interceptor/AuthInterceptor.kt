@@ -3,7 +3,8 @@ package com.hyeeyoung.wishboard.data.remote.interceptor
 import com.hyeeyoung.wishboard.BuildConfig
 import com.hyeeyoung.wishboard.config.GlobalState
 import com.hyeeyoung.wishboard.data.local.WishBoardPreference
-import com.hyeeyoung.wishboard.data.remote.model.auth.ResponseRefresh
+import com.hyeeyoung.wishboard.data.remote.model.auth.ResponseToken
+import com.hyeeyoung.wishboard.data.remote.model.base.BaseResponse
 import com.hyeeyoung.wishboard.domain.util.JsonUtil
 import okhttp3.FormBody
 import okhttp3.Interceptor
@@ -27,12 +28,13 @@ class AuthInterceptor @Inject constructor(
                 val refreshRequest =
                     originRequest.newBuilder().url("${BuildConfig.BASE_URL}auth/refresh").post(requestBody).build()
                 val refreshResponse = chain.proceed(refreshRequest)
+                val responseBody = refreshResponse.body?.string()
 
                 if (refreshResponse.isSuccessful) {
                     Timber.d("토큰 리프레시 성공")
-                    val refreshData = JsonUtil.json.decodeFromString<ResponseRefresh>(
-                        refreshResponse.body?.toString() ?: throw NullPointerException("refreshResponse.body is null"),
-                    ).data ?: throw NullPointerException("ResponseRefresh.data is null")
+                    val refreshData = JsonUtil.json.decodeFromString<BaseResponse<ResponseToken>>(
+                        responseBody ?: throw NullPointerException("refreshResponse.body is null"),
+                    ).data
 
                     localStorage.updateToken(
                         accessToken = refreshData.token.accessToken,

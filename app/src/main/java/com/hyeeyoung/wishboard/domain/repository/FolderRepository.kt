@@ -7,4 +7,10 @@ interface FolderRepository {
     suspend fun fetchFolders(): Result<List<FolderItem>>
 
     suspend fun fetchFolderDetail(folderId: Long): Result<List<WishItem>>
+
+    suspend fun createFolder(folderName: String): Result<Unit>
+
+    suspend fun updateName(folderId: Long, folderName: String): Result<Unit>
+
+    suspend fun deleteFolder(folderId: Long): Result<Unit>
 }

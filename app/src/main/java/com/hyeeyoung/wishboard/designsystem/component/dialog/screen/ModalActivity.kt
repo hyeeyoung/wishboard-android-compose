@@ -10,13 +10,13 @@ import androidx.compose.ui.graphics.Color
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.ModalData
 import com.hyeeyoung.wishboard.presentation.folder.FolderListModalContent
-import com.hyeeyoung.wishboard.presentation.folder.FolderUploadModalContent
 import com.hyeeyoung.wishboard.presentation.noti.NotiModalContent
 import com.hyeeyoung.wishboard.presentation.onboarding.OnboardingModalContent
 import com.hyeeyoung.wishboard.presentation.upload.component.ShopLinkModalContent
 import com.hyeeyoung.wishboard.presentation.util.extension.getSerializable
 
 class ModalActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -84,17 +84,9 @@ class ModalActivity : ComponentActivity() {
                 onClickComplete = {},
             )
 
-            is ModalData.Modal.NewFolder -> FolderUploadModalContent(onClickComplete = { name ->
-                moveToPrevious(modalData.copy(folderName = name))
-            })
+            is ModalData.Modal.NewFolder -> {}
 
-            is ModalData.Modal.FolderNameEdit -> FolderUploadModalContent(
-                folder = Pair(
-                    modalData.folderId,
-                    modalData.folderName,
-                ),
-                onClickComplete = { name -> moveToPrevious(modalData.copy(folderName = name)) },
-            )
+            is ModalData.Modal.FolderNameEdit -> {}
 
             is ModalData.Modal.ShopLink -> ShopLinkModalContent(
                 link = modalData.link,
