@@ -8,5 +8,5 @@ interface AuthRepository {
     suspend fun requestVerificationMail(email: String): Result<String>
     suspend fun signInEmail(authInfo: AuthInfo): Result<Unit>
     suspend fun checkRegisteredUser(email: String): Result<Unit>
-    suspend fun logout(): Result<Boolean?>
+    suspend fun logout(): Result<Unit>
 }

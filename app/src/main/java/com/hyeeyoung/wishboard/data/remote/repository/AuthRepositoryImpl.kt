@@ -59,7 +59,9 @@ class AuthRepositoryImpl @Inject constructor(
         authService.checkRegisteredUser(EmailCheckRequestDto(email))
     }
 
-    override suspend fun logout(): Result<Boolean?> {
-        TODO("Not yet implemented")
-    }
+    override suspend fun logout(): Result<Unit> = runCatching {
+        authService.logout()
+    }.onSuccess {
+        localStorage.clear()
+    }.map {  }
 }

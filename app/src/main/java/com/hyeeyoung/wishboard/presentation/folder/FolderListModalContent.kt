@@ -24,11 +24,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hyeeyoung.wishboard.R
-import com.hyeeyoung.wishboard.designsystem.component.ColoredImage
+import com.hyeeyoung.wishboard.designsystem.component.image.Image
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardEmptyView
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
-import com.hyeeyoung.wishboard.presentation.model.Folder
+import com.hyeeyoung.wishboard.presentation.sign.model.Folder
 import com.hyeeyoung.wishboard.presentation.upload.model.SelectedFolder
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 
@@ -82,7 +82,7 @@ fun HorizontalFolderItem(folder: Folder, isSelected: Boolean, onClickFolder: (Se
             .noRippleClickable { onClickFolder(SelectedFolder(folder.id, folder.name)) },
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        ColoredImage(
+        Image(
             model = folder.thumbnail,
             modifier = Modifier
                 .size(40.dp)

@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.dp
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
-import com.hyeeyoung.wishboard.presentation.model.WishBoardTextFieldComponent
+import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTextFieldComponent
 
 @Composable
 fun WishBoardTextField(

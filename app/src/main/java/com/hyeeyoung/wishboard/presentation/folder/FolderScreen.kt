@@ -31,7 +31,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
-import com.hyeeyoung.wishboard.designsystem.component.ColoredImage
+import com.hyeeyoung.wishboard.designsystem.component.image.Image
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardEmptyView
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.WishBoardDialog
@@ -39,7 +39,7 @@ import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardMainTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.DialogData
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.ModalData
-import com.hyeeyoung.wishboard.presentation.model.Folder
+import com.hyeeyoung.wishboard.presentation.sign.model.Folder
 import com.hyeeyoung.wishboard.presentation.util.extension.rememberModalLauncher
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 
@@ -129,7 +129,7 @@ fun FolderItem(folder: Folder, onClickFolder: (Long) -> Unit, onClickMore: (Fold
             .padding(horizontal = 8.dp)
             .noRippleClickable { onClickFolder(folder.id) },
     ) {
-        ColoredImage(
+        Image(
             model = folder.thumbnail,
             modifier = Modifier
                 .fillMaxWidth()

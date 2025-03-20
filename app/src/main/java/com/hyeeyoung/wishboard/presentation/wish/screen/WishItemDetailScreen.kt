@@ -39,25 +39,27 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen.Upload.ARG_ITEM_DETAIL
-import com.hyeeyoung.wishboard.designsystem.component.ColoredImage
+import com.hyeeyoung.wishboard.designsystem.component.image.Image
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.DialogData
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.ModalData
 import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.WishBoardDialog
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
+import com.hyeeyoung.wishboard.designsystem.component.image.WishBoardPlaceHolder
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.designsystem.style.Gray700
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.domain.model.noti.NotiType
-import com.hyeeyoung.wishboard.presentation.model.WishBoardString
-import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
+import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardString
+import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.upload.model.SelectedFolder
 import com.hyeeyoung.wishboard.presentation.util.buildStringWithSpans
 import com.hyeeyoung.wishboard.presentation.util.extension.getDomainName
 import com.hyeeyoung.wishboard.presentation.util.extension.moveToWebView
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.util.extension.rememberModalLauncher
+import com.hyeeyoung.wishboard.presentation.util.extension.toBase64Json
 import com.hyeeyoung.wishboard.presentation.util.safeLet
 import com.hyeeyoung.wishboard.presentation.wish.component.PriceText
 import com.hyeeyoung.wishboard.presentation.wish.model.WishItemDetailUiModel
@@ -85,7 +87,7 @@ fun WishItemDetailScreen(
         onClickEdit = {
             navController.navigate(
                 "${MainScreen.Upload.route}?$ARG_ITEM_DETAIL=${
-                    Json.encodeToString(uiModel) // 수정 화면 데이터 타입이랑 맞워야함
+                    uiModel.toBase64Json() // 수정 화면 데이터 타입이랑 맞워야함
                 }",
             )
         },
@@ -172,14 +174,19 @@ fun WishItemDetailScreen(
 
 @Composable
 private fun WishItemDetailContents(modifier: Modifier, itemDetail: WishItemDetailUiModel, onClickFolder: () -> Unit) {
+    val imageModifier = Modifier
+        .fillMaxWidth()
+        .clip(RoundedCornerShape(32.dp))
+        .aspectRatio(1f / 1.15f)
+
     Column(modifier = modifier.verticalScroll(rememberScrollState())) {
         Box(modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 8.dp)) {
-            ColoredImage(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(32.dp))
-                    .aspectRatio(1f / 1.15f),
+            Image(
+                modifier = imageModifier,
                 model = itemDetail.image,
+                placeHolder = {
+                    WishBoardPlaceHolder(modifier = imageModifier)
+                }
             )
 
             safeLet(itemDetail.notiType, itemDetail.notiDate) { type, date ->

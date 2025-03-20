@@ -53,8 +53,8 @@ import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.designsystem.util.PriceTransformation
 import com.hyeeyoung.wishboard.domain.model.noti.NotiType
-import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
-import com.hyeeyoung.wishboard.presentation.model.WishItemDetail
+import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
+import com.hyeeyoung.wishboard.presentation.sign.model.WishItemDetail
 import com.hyeeyoung.wishboard.presentation.upload.model.SelectedFolder
 import com.hyeeyoung.wishboard.presentation.util.extension.createImageUri
 import com.hyeeyoung.wishboard.presentation.util.extension.getCurrentTime
@@ -67,7 +67,7 @@ import kotlinx.datetime.LocalDateTime
 fun WishUploadScreen(navController: NavHostController, itemDetail: WishItemDetail? = null) {
     val systemUiController = rememberSystemUiController()
     SideEffect {
-        systemUiController.setNavigationBarColor(color = Color.Transparent)
+        systemUiController.setNavigationBarColor(color = Color.White)
     }
 
     var imageInput by remember { mutableStateOf<Uri?>(null) }

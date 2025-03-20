@@ -11,10 +11,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.hyeeyoung.wishboard.config.navigation.navhost.WishBoardNavHost
+import com.hyeeyoung.wishboard.config.navigation.screen.SignScreen
 import com.hyeeyoung.wishboard.designsystem.component.LocalSnackbarHostState
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardSnackbarMessage
 import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
-import com.hyeeyoung.wishboard.presentation.model.snackbar.WishBoardSnackbarVisuals
+import com.hyeeyoung.wishboard.presentation.sign.model.snackbar.WishBoardSnackbarVisuals
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -24,9 +25,11 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+            val navController = rememberNavController()
+            val systemUiController = rememberSystemUiController()
+
             WishboardTheme {
                 CompositionLocalProvider(LocalSnackbarHostState provides wishBoardSnackbarHostState) {
-                    val systemUiController = rememberSystemUiController()
                     SideEffect {
                         systemUiController.setSystemBarsColor(
                             color = Color.White,
@@ -35,7 +38,15 @@ class MainActivity : ComponentActivity() {
                     }
 
                     WishBoardSnackbarMessage(viewModel.globalSnackbarChannel)
-                    WishBoardNavHost(navController = rememberNavController())
+                    WishBoardNavHost(navController = navController)
+                }
+            }
+
+            viewModel.checkAuthLoginState {
+                navController.navigate(SignScreen.Main.route) {
+                    popUpTo(navController.graph.id) {
+                        inclusive = true
+                    }
                 }
             }
         }

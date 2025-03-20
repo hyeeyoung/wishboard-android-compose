@@ -30,9 +30,8 @@ import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
 import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardTextField
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBarWithStep
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
-import com.hyeeyoung.wishboard.domain.model.auth.AuthInfo
-import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
-import com.hyeeyoung.wishboard.presentation.model.auth.SignUiModel
+import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
+import com.hyeeyoung.wishboard.presentation.sign.model.auth.SignUiModel
 import com.hyeeyoung.wishboard.presentation.sign.SignViewModel
 import com.hyeeyoung.wishboard.presentation.sign.component.SignDescription
 import kotlinx.coroutines.delay

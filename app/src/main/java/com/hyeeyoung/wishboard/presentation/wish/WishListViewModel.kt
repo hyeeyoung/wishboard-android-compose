@@ -4,7 +4,7 @@ import androidx.lifecycle.viewModelScope
 import com.hyeeyoung.wishboard.core.extension.onFailure
 import com.hyeeyoung.wishboard.domain.usecase.item.GetWishListUseCase
 import com.hyeeyoung.wishboard.presentation.common.BaseViewModel
-import com.hyeeyoung.wishboard.presentation.model.WishBoardState
+import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
 import com.hyeeyoung.wishboard.presentation.wish.model.WishListUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

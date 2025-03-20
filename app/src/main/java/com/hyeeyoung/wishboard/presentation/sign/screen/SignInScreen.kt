@@ -30,13 +30,13 @@ import androidx.navigation.NavHostController
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.config.navigation.screen.SignScreen
-import com.hyeeyoung.wishboard.designsystem.component.PlusGlobalSnackbarMessage
+import com.hyeeyoung.wishboard.designsystem.component.WishBoardGlobalSnackbarMessage
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
 import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardTextField
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
-import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
-import com.hyeeyoung.wishboard.presentation.model.auth.SignUiModel
+import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
+import com.hyeeyoung.wishboard.presentation.sign.model.auth.SignUiModel
 import com.hyeeyoung.wishboard.presentation.sign.SignViewModel
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import kotlinx.coroutines.delay
@@ -45,7 +45,7 @@ import kotlinx.coroutines.delay
 fun SignInScreen(navController: NavHostController, viewModel: SignViewModel = hiltViewModel()) {
     val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
 
-    PlusGlobalSnackbarMessage(viewModel.snackBarChannel)
+    WishBoardGlobalSnackbarMessage(viewModel.snackBarChannel)
 
     SignInScreen(
         uiModel = uiModel,

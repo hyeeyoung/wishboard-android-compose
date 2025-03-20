@@ -2,6 +2,9 @@ package com.hyeeyoung.wishboard.config.navigation.navhost
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -70,9 +73,32 @@ fun NavGraphBuilder.snackbarComposable(
     snackbarHostState: SnackbarHostState,
     route: String,
     arguments: List<NamedNavArgument> = emptyList(),
+    enterTransition:
+    (@JvmSuppressWildcards
+    AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?)? =
+        null,
+    exitTransition:
+    (@JvmSuppressWildcards
+    AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?)? =
+        null,
+    popEnterTransition:
+    (@JvmSuppressWildcards
+    AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?)? =
+        enterTransition,
+    popExitTransition:
+    (@JvmSuppressWildcards
+    AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?)? =
+        exitTransition,
     content: @Composable AnimatedContentScope.(NavBackStackEntry) -> Unit
 ) {
-    composable(route = route, arguments = arguments) { navBackStackEntry ->
+    composable(
+        route = route,
+        arguments = arguments,
+        enterTransition = enterTransition,
+        exitTransition = exitTransition,
+        popEnterTransition = popEnterTransition,
+        popExitTransition = popExitTransition
+    ) { navBackStackEntry ->
         Scaffold(
             snackbarHost = { WishBoardSnackbarHost(hostState = snackbarHostState) },
             content = { content(navBackStackEntry) })

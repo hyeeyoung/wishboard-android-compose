@@ -28,29 +28,56 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.hyeeyoung.wishboard.BuildConfig
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
-import com.hyeeyoung.wishboard.designsystem.component.ColoredImage
+import com.hyeeyoung.wishboard.config.navigation.screen.SignScreen
+import com.hyeeyoung.wishboard.designsystem.component.image.Image
+import com.hyeeyoung.wishboard.designsystem.component.WishBoardGlobalSnackbarMessage
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardToggleButton
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardMiniButton
+import com.hyeeyoung.wishboard.designsystem.component.dialog.model.DialogData
 import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.WishBoardDialog
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardThickDivider
 import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardTextField
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardMainTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
-import com.hyeeyoung.wishboard.designsystem.component.dialog.model.DialogData
 import com.hyeeyoung.wishboard.presentation.util.constant.WishBoardUrl
 import com.hyeeyoung.wishboard.presentation.util.extension.moveToWebView
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.util.extension.sendMail
 
 @Composable
-fun MyScreen(navController: NavHostController) {
-    // TODO 클릭 이벤트 핸들링
+fun MyScreen(navController: NavHostController, viewModel: MyViewModel = hiltViewModel()) {
+    WishBoardGlobalSnackbarMessage(snackbarChannel = viewModel.snackBarChannel)
 
+    MyScreen(
+        navigate = { route ->
+            navController.navigate(route)
+        },
+        logout = {
+            viewModel.logout {
+                navController.navigate(SignScreen.Main.route) {
+                    popUpTo(navController.graph.id) {
+                        inclusive = true
+                    }
+                }
+            }
+        },
+        moveToWebView = { title, url ->
+            navController.moveToWebView(title = title, url = url)
+        }
+    )
+}
+
+@Composable
+fun MyScreen(
+    navigate: (route: String) -> Unit,
+    logout: () -> Unit,
+    moveToWebView: (title: String?, url: String) -> Unit,
+) {
     val context = LocalContext.current
     var dialogData by remember { mutableStateOf<DialogData?>(null) }
 
@@ -62,7 +89,7 @@ fun MyScreen(navController: NavHostController) {
                 WishBoardToggleButton(selected = isSelected, onUpdate = { selected -> isSelected = selected })
             }),
             MyMenuComponent.Menu(nameRes = R.string.my_menu_change_password, onClickMenu = {
-                navController.navigate(MainScreen.MyPasswordChange.route)
+                navigate(MainScreen.MyPasswordChange.route)
             }),
             MyMenuComponent.Divider,
             MyMenuComponent.Menu(nameRes = R.string.my_menu_contact_us, onClickMenu = {
@@ -83,19 +110,19 @@ fun MyScreen(navController: NavHostController) {
             MyMenuComponent.Menu(
                 nameRes = R.string.my_menu_terms,
                 onClickMenu = {
-                    navController.moveToWebView(WishBoardUrl.TERMS.title, WishBoardUrl.TERMS.url)
+                    moveToWebView(WishBoardUrl.TERMS.title, WishBoardUrl.TERMS.url)
                 },
             ),
             MyMenuComponent.Menu(
                 nameRes = R.string.my_menu_privacy,
                 onClickMenu = {
-                    navController.moveToWebView(WishBoardUrl.PRIVACY_POLICY.title, WishBoardUrl.PRIVACY_POLICY.url)
+                    moveToWebView(WishBoardUrl.PRIVACY_POLICY.title, WishBoardUrl.PRIVACY_POLICY.url)
                 },
             ),
             MyMenuComponent.Menu(
                 nameRes = R.string.my_menu_open_source,
                 onClickMenu = {
-                    navController.moveToWebView(WishBoardUrl.OPEN_SOURCE.title, WishBoardUrl.OPEN_SOURCE.url)
+                    moveToWebView(WishBoardUrl.OPEN_SOURCE.title, WishBoardUrl.OPEN_SOURCE.url)
                 },
             ),
             MyMenuComponent.Menu(
@@ -127,7 +154,7 @@ fun MyScreen(navController: NavHostController) {
                 .background(WishBoardTheme.colors.white)
                 .padding(top = paddingValues.calculateTopPadding()),
         ) {
-            item { Profile(onClickProfileEdit = { navController.navigate(MainScreen.MyProfile.route) }) }
+            item { Profile(onClickProfileEdit = { navigate(MainScreen.MyProfile.route) }) }
             items(myMenuComponents) { menuComponent ->
                 when (menuComponent) {
                     is MyMenuComponent.Menu -> MenuItem(menu = menuComponent)
@@ -139,7 +166,12 @@ fun MyScreen(navController: NavHostController) {
 
         WishBoardDialog(
             dialogData = dialogData,
-            onClickConfirm = {},
+            onClickConfirm = {
+                when (dialogData) {
+                    DialogData.Logout -> logout()
+                    else -> {}
+                }
+            },
             onDismissRequest = { dialogData = null },
             content = if (dialogData is DialogData.Withdraw) {
                 { WithdrawDialogContent() }
@@ -157,7 +189,7 @@ fun Profile(onClickProfileEdit: () -> Unit) {
         modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 34.dp, bottom = 48.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        ColoredImage(
+        Image(
             model = "https://url.kr/8vwf1e",
             modifier = Modifier
                 .size(60.dp)
@@ -237,7 +269,7 @@ fun MenuItem(menu: MyMenuComponent.Menu) {
 @Composable
 @Preview
 fun PreviewMyScreen() {
-    MyScreen(rememberNavController())
+    MyScreen(navigate = {}, logout = {}, moveToWebView = { _, _ -> })
 }
 
 @Preview(showBackground = true)

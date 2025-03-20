@@ -11,9 +11,9 @@ import com.hyeeyoung.wishboard.domain.usecase.auth.PostSignUpEmailUseCase
 import com.hyeeyoung.wishboard.domain.usecase.auth.PostSignUpUseCase
 import com.hyeeyoung.wishboard.domain.usecase.auth.PostVerificationMailUseCase
 import com.hyeeyoung.wishboard.presentation.common.BaseViewModel
-import com.hyeeyoung.wishboard.presentation.model.WishBoardState
-import com.hyeeyoung.wishboard.presentation.model.auth.SignUiModel
-import com.hyeeyoung.wishboard.presentation.model.snackbar.SnackbarMessage
+import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
+import com.hyeeyoung.wishboard.presentation.sign.model.auth.SignUiModel
+import com.hyeeyoung.wishboard.presentation.sign.model.snackbar.SnackbarMessage
 import com.hyeeyoung.wishboard.presentation.util.WishBoardFormat
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -91,7 +91,10 @@ class SignViewModel @Inject constructor(
                     afterSuccess()
                 }.onFailure { _, errorCode, errorBody ->
                     when {
-                        errorCode == 400 && errorBody?.contains("아이디 혹은 비밀번호를 다시 확인") == true -> updateSnackbarMessage("아이디 또는 비밀번호를 다시 확인해 주세요.")
+                        errorCode == 400 && errorBody?.contains("입력하신 비밀번호가 올바르지 않음") == true
+                                || errorCode == 404 && errorBody?.contains("존재하지 않는 유저") == true
+                        -> updateSnackbarMessage("아이디 또는 비밀번호를 다시 확인해 주세요.")
+
                         else -> updateSnackbarMessage(SnackbarMessage.DEFAULT)
                     }
                 }

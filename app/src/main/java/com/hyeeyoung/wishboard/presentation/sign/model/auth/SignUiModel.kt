@@ -1,6 +1,6 @@
-package com.hyeeyoung.wishboard.presentation.model.auth
+package com.hyeeyoung.wishboard.presentation.sign.model.auth
 
-import com.hyeeyoung.wishboard.presentation.model.WishBoardState
+import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
 
 data class SignUiModel(
     val signProcessStatus: WishBoardState<Unit> = WishBoardState.Idle,

@@ -1,4 +1,4 @@
-package com.hyeeyoung.wishboard.presentation.model
+package com.hyeeyoung.wishboard.presentation.sign.model
 
 import androidx.annotation.DrawableRes
 import com.hyeeyoung.wishboard.R

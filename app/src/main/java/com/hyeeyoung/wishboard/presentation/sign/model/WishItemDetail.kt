@@ -1,4 +1,4 @@
-package com.hyeeyoung.wishboard.presentation.model
+package com.hyeeyoung.wishboard.presentation.sign.model
 
 import com.hyeeyoung.wishboard.domain.model.noti.NotiType
 import kotlinx.datetime.LocalDateTime

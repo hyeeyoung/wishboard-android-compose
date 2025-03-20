@@ -22,7 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.presentation.main.MainActivity
-import com.hyeeyoung.wishboard.presentation.model.snackbar.WishBoardSnackbarVisuals
+import com.hyeeyoung.wishboard.presentation.sign.model.snackbar.WishBoardSnackbarVisuals
 import com.hyeeyoung.wishboard.presentation.util.extension.toMillis
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
@@ -56,7 +56,7 @@ fun WishBoardSnackbarMessage(snackbarChannel: Channel<WishBoardSnackbarVisuals>)
  * */
 @Composable
 @Stable
-fun PlusGlobalSnackbarMessage(
+fun WishBoardGlobalSnackbarMessage(
     snackbarChannel: Channel<WishBoardSnackbarVisuals>,
 ) {
     val context = LocalContext.current

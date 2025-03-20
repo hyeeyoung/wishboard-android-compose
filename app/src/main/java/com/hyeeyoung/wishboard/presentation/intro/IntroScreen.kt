@@ -20,7 +20,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
@@ -36,16 +37,27 @@ import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import kotlinx.coroutines.delay
 
 @Composable
-fun IntroScreen(navController: NavHostController) {
+fun IntroScreen(navController: NavHostController, viewModel: IntroViewModel = hiltViewModel()) {
     val context = LocalContext.current
     var dialogData by remember { mutableStateOf<DialogData?>(null) }
+    val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
 
-    LaunchedEffect(Unit) {
+
+    LaunchedEffect(uiModel.isLogin) {
+        if (uiModel.isLogin == null) return@LaunchedEffect
         delay(2000L)
+
         checkForNewVersionUpdate(
             context = context,
             showDialog = { dialogData = DialogData.Intro },
-            moveToNext = { navigateToNext(navController) },
+            moveToNext = {
+                val nextScreen = if (uiModel.isLogin!!) MainScreen.Root.route else SignScreen.Root.route
+                navController.navigate(nextScreen) {
+                    popUpTo(navController.graph.id) {
+                        inclusive = true
+                    }
+                }
+            },
         )
     }
 
@@ -82,16 +94,6 @@ private fun checkForNewVersionUpdate(context: Context, showDialog: () -> Unit, m
         }
     }.addOnFailureListener {
         moveToNext()
-    }
-}
-
-fun navigateToNext(navController: NavController) {
-    val isLogin = false // TODO 로컬 디비에서 로그인 여부 가져오기
-    val nextScreen = if (isLogin) MainScreen.Root.route else SignScreen.Root.route
-    navController.navigate(nextScreen) {
-        popUpTo(navController.graph.id) {
-            inclusive = true
-        }
     }
 }
 

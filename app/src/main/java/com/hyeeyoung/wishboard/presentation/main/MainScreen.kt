@@ -17,7 +17,7 @@ import com.hyeeyoung.wishboard.designsystem.component.bottombar.WishBoardBottomB
 fun MainScreen(wishNavController: NavHostController, onClickAdd: () -> Unit = {}) {
     val systemUiController = rememberSystemUiController()
     SideEffect {
-        systemUiController.setNavigationBarColor(color = Color.Transparent)
+        systemUiController.setNavigationBarColor(color = Color.White)
     }
 
     val bottomBarNavController = rememberNavController()

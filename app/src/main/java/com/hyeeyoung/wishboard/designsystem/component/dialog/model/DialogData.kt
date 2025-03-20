@@ -1,7 +1,7 @@
 package com.hyeeyoung.wishboard.designsystem.component.dialog.model
 
 import com.hyeeyoung.wishboard.R
-import com.hyeeyoung.wishboard.presentation.model.WishBoardDialogTextRes
+import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardDialogTextRes
 import java.io.Serializable
 
 sealed class DialogData(val dialogTextRes: WishBoardDialogTextRes, val isWarningDialog: Boolean = true) : Serializable {

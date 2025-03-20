@@ -1,4 +1,4 @@
-package com.hyeeyoung.wishboard.presentation.model.snackbar
+package com.hyeeyoung.wishboard.presentation.sign.model.snackbar
 
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarVisuals

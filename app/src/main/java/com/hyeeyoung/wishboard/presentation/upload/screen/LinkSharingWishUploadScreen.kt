@@ -39,16 +39,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hyeeyoung.wishboard.R
-import com.hyeeyoung.wishboard.designsystem.component.ColoredImage
+import com.hyeeyoung.wishboard.designsystem.component.image.Image
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
 import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardMiniSingleTextField
 import com.hyeeyoung.wishboard.designsystem.style.MontserratFamily
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
-import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
 import com.hyeeyoung.wishboard.designsystem.util.PriceTransformation
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.ModalData
-import com.hyeeyoung.wishboard.presentation.model.FolderSummary
+import com.hyeeyoung.wishboard.presentation.sign.model.FolderSummary
 import com.hyeeyoung.wishboard.presentation.util.extension.rememberModalLauncher
 import com.hyeeyoung.wishboard.presentation.util.extension.isEmptyOrBlank
 import com.hyeeyoung.wishboard.presentation.util.extension.makeValidPriceStr
@@ -223,7 +222,7 @@ fun LinkSharingWishUploadScreen(url: String, onClickClose: () -> Unit = {}) {
                 .size(IMAGE_SIZE.dp)
                 .clip(CircleShape)
             if (!image.isNullOrEmpty()) {
-                ColoredImage(
+                Image(
                     modifier = imageModifier,
                     model = image,
                     contentDescription = null,
@@ -250,7 +249,7 @@ fun FolderItem(
             .noRippleClickable { onClickFolder(folder) }
             .clip((RoundedCornerShape(10.dp))),
     ) {
-        ColoredImage(
+        Image(
             model = folder.thumbnail,
             modifier = Modifier.size(IMAGE_SIZE.dp),
             alphaColor = if (isSelected) WishBoardTheme.colors.blackAlpha70 else WishBoardTheme.colors.blackAlpha30,

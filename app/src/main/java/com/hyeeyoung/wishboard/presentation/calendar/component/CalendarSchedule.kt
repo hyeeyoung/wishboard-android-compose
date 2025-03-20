@@ -22,12 +22,12 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.hyeeyoung.wishboard.R
-import com.hyeeyoung.wishboard.designsystem.component.ColoredImage
+import com.hyeeyoung.wishboard.designsystem.component.image.Image
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardEmptyView
 import com.hyeeyoung.wishboard.designsystem.style.Gray700
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.domain.model.noti.NotiType
-import com.hyeeyoung.wishboard.presentation.model.NotiItem
+import com.hyeeyoung.wishboard.presentation.sign.model.NotiItem
 import com.hyeeyoung.wishboard.presentation.util.extension.getScheduleTimeFormat
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import java.time.LocalDate
@@ -90,7 +90,7 @@ fun ScheduleItem(
             .padding(16.dp),
     ) {
         val (image, notiType, notiDate, itemName) = createRefs()
-        ColoredImage(
+        Image(
             modifier = Modifier
                 .constrainAs(image) { start.linkTo(parent.start) }
                 .size(72.dp)

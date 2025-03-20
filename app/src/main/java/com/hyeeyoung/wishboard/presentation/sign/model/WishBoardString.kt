@@ -1,4 +1,4 @@
-package com.hyeeyoung.wishboard.presentation.model
+package com.hyeeyoung.wishboard.presentation.sign.model
 
 /** 스타일, 하이퍼링크 등의 속성을 적용할 스트링  */
 sealed class WishBoardString {

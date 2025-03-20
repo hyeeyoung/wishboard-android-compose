@@ -1,9 +1,10 @@
 package com.hyeeyoung.wishboard.data.remote.interceptor
 
 import com.hyeeyoung.wishboard.BuildConfig
+import com.hyeeyoung.wishboard.config.GlobalState
 import com.hyeeyoung.wishboard.data.local.WishBoardPreference
 import com.hyeeyoung.wishboard.data.remote.model.auth.ResponseRefresh
-import kotlinx.serialization.json.Json
+import com.hyeeyoung.wishboard.domain.util.JsonUtil
 import okhttp3.FormBody
 import okhttp3.Interceptor
 import okhttp3.Request
@@ -12,7 +13,6 @@ import timber.log.Timber
 import javax.inject.Inject
 
 class AuthInterceptor @Inject constructor(
-    private val json: Json,
     private val localStorage: WishBoardPreference,
 ) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
@@ -30,7 +30,7 @@ class AuthInterceptor @Inject constructor(
 
                 if (refreshResponse.isSuccessful) {
                     Timber.d("토큰 리프레시 성공")
-                    val refreshData = json.decodeFromString<ResponseRefresh>(
+                    val refreshData = JsonUtil.json.decodeFromString<ResponseRefresh>(
                         refreshResponse.body?.toString() ?: throw NullPointerException("refreshResponse.body is null"),
                     ).data ?: throw NullPointerException("ResponseRefresh.data is null")
 
@@ -43,8 +43,7 @@ class AuthInterceptor @Inject constructor(
                     return chain.proceed(originRequest.newAuthBuilder().build())
                 } else {
                     Timber.e("토큰 리프레시 실패(${refreshResponse.message})")
-                    localStorage.clear()
-                    // TODO 온보딩 화면 보여주기
+                    handleAutoLoginExpiration()
                 }
             }
         }
@@ -56,6 +55,12 @@ class AuthInterceptor @Inject constructor(
         this.newBuilder()
             .addHeader(AUTHORIZATION, "$TOKEN_PREF${localStorage.accessToken}")
             .addHeader(USER_AGENT, "wishboard-aos/${if (BuildConfig.DEBUG) "dev" else "prod"}")
+
+    private fun handleAutoLoginExpiration() {
+        Timber.d("Token refresh failed, clearing token info")
+        localStorage.clear()
+        GlobalState.isExpiredAuthLogin.value = true
+    }
 
     companion object {
         private const val AUTHORIZATION = "Authorization"

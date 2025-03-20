@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
 data class WishItemDto(
     @SerialName("item_id")
     val id: Long,
-    @SerialName("item_img")
+    @SerialName("item_img_url")
     var image: String? = null,
     @SerialName("item_url")
     var site: String? = null,

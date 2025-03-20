@@ -39,4 +39,7 @@ interface AuthService {
     suspend fun requestVerificationMail(
         @Body email: VerificationMailRequestDto,
     ): BaseResponse<VerificationMailDto>
+
+    @POST("auth/logout")
+    suspend fun logout(): BaseResponseWithoutData
 }

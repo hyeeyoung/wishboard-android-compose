@@ -1,6 +1,5 @@
 package com.hyeeyoung.wishboard.presentation.calendar.screen
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -26,10 +25,9 @@ import com.hyeeyoung.wishboard.presentation.calendar.CalendarViewModel.Companion
 import com.hyeeyoung.wishboard.presentation.calendar.component.CalendarHeader
 import com.hyeeyoung.wishboard.presentation.calendar.component.CalendarSchedule
 import com.hyeeyoung.wishboard.presentation.calendar.component.CalendarTable
-import com.hyeeyoung.wishboard.presentation.model.NotiItem
+import com.hyeeyoung.wishboard.presentation.sign.model.NotiItem
 import java.time.LocalDateTime
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CalendarScreen(navController: NavHostController, viewModel: CalendarViewModel = viewModel()) {
     // TODO 서버 연동 후 삭제
@@ -110,7 +108,7 @@ fun CalendarScreen(navController: NavHostController, viewModel: CalendarViewMode
 
     val systemUiController = rememberSystemUiController()
     SideEffect {
-        systemUiController.setNavigationBarColor(Color.Transparent)
+        systemUiController.setNavigationBarColor(Color.White)
     }
 
     val selectedDate by viewModel.selectedDate.collectAsStateWithLifecycle()

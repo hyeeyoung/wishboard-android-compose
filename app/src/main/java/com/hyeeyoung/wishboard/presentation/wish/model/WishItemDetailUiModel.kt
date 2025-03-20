@@ -5,7 +5,9 @@ import com.hyeeyoung.wishboard.domain.model.wish.WishItemDetail
 import com.hyeeyoung.wishboard.presentation.util.WishBoardDateFormat
 import com.hyeeyoung.wishboard.presentation.util.WishBoardDateFormat.applyFormat
 import kotlinx.datetime.LocalDateTime
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class WishItemDetailUiModel(
     val id: Long = 0L,
     var folderId: Long? = 0L,
