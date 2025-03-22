@@ -81,7 +81,14 @@ class ModalActivity : ComponentActivity() {
             is ModalData.Modal.Noti -> NotiModalContent(
                 type = modalData.notiType,
                 date = modalData.notiDate,
-                onClickComplete = {},
+                onClickComplete = {
+                    moveToPrevious(
+                        modalData.copy(
+                            notiType = modalData.notiType,
+                            notiDate = modalData.notiDate
+                        )
+                    )
+                },
             )
 
             is ModalData.Modal.NewFolder -> {}

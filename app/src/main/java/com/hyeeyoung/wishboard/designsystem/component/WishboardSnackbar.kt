@@ -1,5 +1,6 @@
 package com.hyeeyoung.wishboard.designsystem.component
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -34,8 +35,10 @@ import kotlinx.coroutines.withTimeoutOrNull
 
 @Composable
 @Stable
-fun WishBoardSnackbarMessage(snackbarChannel: Channel<WishBoardSnackbarVisuals>) {
-    val snackbarHostState = MainActivity.wishBoardSnackbarHostState
+fun WishBoardSnackbarMessage(
+    snackbarHostState: SnackbarHostState = MainActivity.wishBoardSnackbarHostState,
+    snackbarChannel: Channel<WishBoardSnackbarVisuals>
+) {
     LaunchedEffect(Unit) {
         snackbarChannel.receiveAsFlow().collectLatest { snackBar ->
             if (snackBar.message.isNotEmpty()) {
@@ -58,19 +61,19 @@ fun WishBoardSnackbarMessage(snackbarChannel: Channel<WishBoardSnackbarVisuals>)
 @Stable
 fun WishBoardGlobalSnackbarMessage(
     snackbarChannel: Channel<WishBoardSnackbarVisuals>,
+    context: Context = LocalContext.current,
+    sendSnackbarChannel: (WishBoardSnackbarVisuals) -> Unit = { (context as? MainActivity)?.sendSnackbarVisualChannel(it) }
 ) {
-    val context = LocalContext.current
-
     LaunchedEffect(Unit) {
         snackbarChannel.receiveAsFlow().collectLatest { snackBar ->
-            (context as? MainActivity)?.sendSnackbarVisualChannel(snackBar)
+            sendSnackbarChannel(snackBar)
         }
     }
 }
 
 @Composable
-fun WishBoardSnackbarHost(hostState: SnackbarHostState) =
-    SnackbarHost(hostState = hostState) { data ->
+fun WishBoardSnackbarHost(modifier: Modifier = Modifier, hostState: SnackbarHostState) =
+    SnackbarHost(modifier = modifier, hostState = hostState) { data ->
         WishBoardSnackbar(message = data.visuals.message)
     }
 
@@ -109,5 +112,5 @@ val LocalSnackbarHostState = compositionLocalOf<SnackbarHostState> {
 @Preview(showSystemUi = true)
 @Composable
 fun WishBoardSnackbarPreview() {
-    WishBoardSnackbar("네트워크 연결 상태를 확인해 주세요.")
+    WishBoardSnackbar(message = "네트워크 연결 상태를 확인해 주세요.")
 }

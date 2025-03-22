@@ -10,7 +10,10 @@ import com.hyeeyoung.wishboard.config.navigation.navhost.snackbarComposable
 import com.hyeeyoung.wishboard.config.navigation.screen.WebView
 import com.hyeeyoung.wishboard.presentation.WebViewScreen
 
-fun NavGraphBuilder.webViewNavGraph(navController: NavHostController, snackbarHostState: SnackbarHostState,) = snackbarComposable(
+fun NavGraphBuilder.webViewNavGraph(
+    navController: NavHostController,
+    snackbarHostState: SnackbarHostState
+) = snackbarComposable(
     snackbarHostState = snackbarHostState,
     route = WebView.routeWithArg,
     arguments = listOf(

@@ -55,6 +55,8 @@ import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
 import com.hyeeyoung.wishboard.domain.model.noti.NotiType
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardString
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
+import com.hyeeyoung.wishboard.presentation.util.WishBoardDateFormat
+import com.hyeeyoung.wishboard.presentation.util.WishBoardDateFormat.getFormattedDateStr
 import com.hyeeyoung.wishboard.presentation.util.buildStringWithSpans
 import com.hyeeyoung.wishboard.presentation.util.extension.getDomainName
 import com.hyeeyoung.wishboard.presentation.util.extension.moveToWebView
@@ -100,6 +102,11 @@ fun WishItemDetailScreen(
                 )
             }
         },
+        onClickDelete = { itemId ->
+            viewModel.deleteWishItem(itemId = itemId) {
+                navController.popBackStack()
+            }
+        },
         onClickBack = navController::popBackStack,
         onClickFolder = { afterSuccess ->
             viewModel.getFolders(afterSuccess)
@@ -115,6 +122,7 @@ fun WishItemDetailScreen(
     onClickEdit: () -> Unit,
     onClickShop: () -> Unit,
     onClickBack: () -> Unit,
+    onClickDelete: (itemId: Long?) -> Unit,
 ) {
     val context = LocalContext.current
     val modalLauncher = rememberModalLauncher { _, data ->
@@ -139,7 +147,7 @@ fun WishItemDetailScreen(
             endComponent = { modifier ->
                 TopBarEndIcons(
                     modifier,
-                    onClickDelete = { dialogData = DialogData.WishItemDelete() },
+                    onClickDelete = { dialogData = DialogData.WishItemDelete(uiModel.id) },
                     onClickEdit = onClickEdit,
                 )
             },
@@ -177,7 +185,16 @@ fun WishItemDetailScreen(
 
         WishBoardDialog(
             dialogData = dialogData,
-            onClickConfirm = {},
+            onClickConfirm = {
+                when (dialogData) {
+                    is DialogData.WishItemDelete -> {
+                        val itemId = (dialogData as DialogData.WishItemDelete).itemId
+                        onClickDelete(itemId)
+                    }
+
+                    else -> {}
+                }
+            },
             onDismissRequest = { dialogData = null },
         )
     }
@@ -301,7 +318,7 @@ private fun NotiInfoLabel(modifier: Modifier, type: NotiType, date: LocalDateTim
         )
         Text(
             modifier = labelModifier,
-            text = date.toString(), // TODO 시간 포맷 적용
+            text = date.getFormattedDateStr(WishBoardDateFormat.YY_M_D_KR),
             style = WishBoardTheme.typography.suitB5,
             color = WishBoardTheme.colors.gray700,
         )
@@ -354,6 +371,7 @@ fun PreviewWishItemDetailScreen() {
         updateFolder = {},
         onClickShop = {},
         onClickEdit = {},
+        onClickDelete = {},
         onClickBack = {},
         onClickFolder = {},
     )

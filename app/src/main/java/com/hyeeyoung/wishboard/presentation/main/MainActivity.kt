@@ -37,7 +37,7 @@ class MainActivity : ComponentActivity() {
                         )
                     }
 
-                    WishBoardSnackbarMessage(viewModel.globalSnackbarChannel)
+                    WishBoardSnackbarMessage(snackbarChannel = viewModel.globalSnackbarChannel)
                     WishBoardNavHost(navController = navController)
                 }
             }

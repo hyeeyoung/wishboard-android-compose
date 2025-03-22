@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
 data class WishItemDetail(
     val id: Long,
     val name: String,
-    var image: String,
+    var image: String? = null,
     val price: Int,
     val notiDate: LocalDateTime? = null,
     val notiType: NotiType? = null,

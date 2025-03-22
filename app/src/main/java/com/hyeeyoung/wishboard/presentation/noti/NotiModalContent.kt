@@ -29,7 +29,7 @@ import kotlinx.datetime.LocalDateTime
 private val notiType = NotiType.entries.map { it.label }
 
 @Composable
-fun NotiModalContent(type: NotiType? = null, date: LocalDateTime? = null, onClickComplete: () -> Unit) {
+fun NotiModalContent(type: NotiType? = null, date: LocalDateTime? = null, onClickComplete: () -> Unit) { // NotiType, LocalDateTime
     val selectedType = remember { mutableStateOf("") }
     val selectedDate = remember { mutableStateOf("") }
     val selectedHour = remember { mutableStateOf("") }

@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import com.hyeeyoung.wishboard.core.extension.onFailure
 import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
 import com.hyeeyoung.wishboard.domain.usecase.folder.GetFoldersUseCase
+import com.hyeeyoung.wishboard.domain.usecase.item.DeleteWishItemUseCase
 import com.hyeeyoung.wishboard.domain.usecase.item.GetWishItemDetailUseCase
 import com.hyeeyoung.wishboard.domain.usecase.item.PutFolderOfWishItemUseCase
 import com.hyeeyoung.wishboard.presentation.common.BaseViewModel
@@ -23,6 +24,7 @@ class WishItemViewModel @Inject constructor(
     private val getWishItemUseCase: GetWishItemDetailUseCase,
     private val getFoldersUseCase: GetFoldersUseCase,
     private val putFolderOfWishItemUseCase: PutFolderOfWishItemUseCase,
+    private val deleteWishItemUseCase: DeleteWishItemUseCase,
 ) : BaseViewModel() {
     private var _uiModel = MutableStateFlow(WishItemDetailUiModel())
     val uiModel = _uiModel.asStateFlow()
@@ -67,6 +69,22 @@ class WishItemViewModel @Inject constructor(
                 _uiModel.update {
                     it.copy(folderId = folder.id, folderName = folder.name)
                 }
+            }.onFailure { _, _, _ ->
+                updateSnackbarMessage(SnackbarMessage.DEFAULT)
+            }
+        }
+    }
+
+    fun deleteWishItem(itemId: Long?, afterSuccess: () -> Unit) {
+        if (itemId == null) {
+            updateSnackbarMessage(SnackbarMessage.DEFAULT)
+            return
+        }
+
+        viewModelScope.launch {
+            deleteWishItemUseCase(itemId).onSuccess {
+                updateSnackbarMessage("아이템을 위시리스트에서 삭제했어요!🗑️")
+                afterSuccess()
             }.onFailure { _, _, _ ->
                 updateSnackbarMessage(SnackbarMessage.DEFAULT)
             }

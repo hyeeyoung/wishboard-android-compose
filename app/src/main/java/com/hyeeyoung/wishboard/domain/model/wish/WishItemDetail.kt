@@ -1,7 +1,9 @@
 package com.hyeeyoung.wishboard.domain.model.wish
 
 import com.hyeeyoung.wishboard.domain.model.noti.NotiType
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class WishItemDetail(
     val id: Long,
     var folderId: Long?,

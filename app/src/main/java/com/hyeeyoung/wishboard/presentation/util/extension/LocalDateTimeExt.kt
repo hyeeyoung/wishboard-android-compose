@@ -14,6 +14,20 @@ fun LocalDateTime.getScheduleTimeFormat(): String {
     return "$isAM $hour $minute"
 }
 
+fun kotlinx.datetime.LocalDateTime.toNotiDateStr(): String {
+    val year = this.year % 100  // 2022 → 22
+    val month = this.monthNumber
+    val day = this.dayOfMonth
+    val hour = this.hour
+    val minute = this.minute
+
+    return if (minute == 0) {
+        "%02d년 %d월 %d일 %d시".format(year, month, day, hour)
+    } else {
+        "%02d년 %d월 %d일 %d시 %d분".format(year, month, day, hour, minute)
+    }
+}
+
 // TODO 추후 삭제 또는 다른 파일로 이동
 private const val ZONE_ID = "Asia/Seoul"
 fun getCurrentTime() = Clock.System.now().toLocalDateTime(TimeZone.of(ZONE_ID))
