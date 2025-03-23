@@ -190,7 +190,7 @@ class WishItemUploadViewModel @Inject constructor(
         }
     }
 
-    fun createFolder(folderName: String) {
+    fun createFolder(folderName: String, afterSuccess: () -> Unit) {
         if (uiModel.value.folderAddState is WishBoardState.Loading) return
 
         val trimmedName = folderName.trim()
@@ -200,6 +200,7 @@ class WishItemUploadViewModel @Inject constructor(
             postNewFolderUseCase(trimmedName)
                 .onSuccess {
                     _uiModel.update { it.copy(folderAddState = WishBoardState.Success(Unit), existingFolderName = "") }
+                    afterSuccess()
                 }.onFailure { _, errorCode, _ ->
                     when (errorCode) {
                         409 -> _uiModel.update { it.copy(existingFolderName = trimmedName) }

@@ -74,7 +74,7 @@ class FolderViewModel @Inject constructor(
         }
     }
 
-    fun updateFolder(folderId: Long, folderName: String, afterSuccess: () -> Unit,) {
+    fun updateFolder(folderId: Long, folderName: String, afterSuccess: () -> Unit) {
         if (uiModel.value.updateState is WishBoardState.Loading) return
 
         val trimmedName = folderName.trim()
@@ -133,7 +133,7 @@ class FolderViewModel @Inject constructor(
         }
     }
 
-    fun clearDialogData() {
+    fun clearModalData() {
         _uiModel.update {
             it.copy(
                 addState = WishBoardState.Idle,

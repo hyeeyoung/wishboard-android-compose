@@ -77,6 +77,9 @@ fun FolderScreen(navController: NavHostController, viewModel: FolderViewModel = 
             },
             showModal = { modal: ModalData.Modal ->
                 modalData = modal
+            },
+            clearModalData = {
+                viewModel.clearModalData()
             }
         )
     }
@@ -127,10 +130,13 @@ fun FolderScreen(
     onClickFolder: (FolderItem) -> Unit,
     deleteFolder: (id: Long?) -> Unit,
     showModal: (ModalData.Modal) -> Unit,
+    clearModalData: () -> Unit,
 ) {
     var dialogData by remember { mutableStateOf<DialogData?>(null) }
     val context = LocalContext.current
     val modalLauncher = rememberModalLauncher { isTopOption, data ->
+        clearModalData()
+
         when (data) {
             is ModalData.OptionModal.FolderMore -> {
                 if (isTopOption) {
@@ -168,6 +174,7 @@ fun FolderScreen(
                     modifier = Modifier.padding(end = 8.dp),
                     iconRes = R.drawable.ic_plus,
                     onClick = {
+                        clearModalData()
                         showModal(ModalData.Modal.NewFolder(folderName = ""))
                     },
                 )
@@ -270,6 +277,7 @@ fun PreviewFolderScreen() {
         onClickFolder = {},
         deleteFolder = {},
         showModal = {},
+        clearModalData = {}
     )
 }
 

@@ -24,6 +24,10 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,6 +47,7 @@ import com.hyeeyoung.wishboard.designsystem.component.WishBoardSnackbarHost
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.ModalData
+import com.hyeeyoung.wishboard.designsystem.component.dialog.temp.WishBoardModal
 import com.hyeeyoung.wishboard.designsystem.component.image.Image
 import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardMiniSingleTextField
 import com.hyeeyoung.wishboard.designsystem.style.MontserratFamily
@@ -51,6 +56,7 @@ import com.hyeeyoung.wishboard.designsystem.util.PriceTransformation
 import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
 import com.hyeeyoung.wishboard.domain.model.noti.NotiInfo
 import com.hyeeyoung.wishboard.domain.model.noti.NotiType
+import com.hyeeyoung.wishboard.presentation.folder.FolderUploadModalContent
 import com.hyeeyoung.wishboard.presentation.upload.model.UploadInputType
 import com.hyeeyoung.wishboard.presentation.upload.model.WishItemUploadUiModel
 import com.hyeeyoung.wishboard.presentation.util.extension.fromJson
@@ -73,17 +79,14 @@ fun LinkSharingWishUploadScreen(
     onSelectFolder: (FolderItem) -> Unit,
     onClickSave: () -> Unit,
     onClickClose: () -> Unit = {},
-    createFolder: (String) -> Unit,
+    createFolder: (name: String, afterSuccess: () -> Unit) -> Unit,
 ) {
     val context = LocalContext.current
+    var modalData by remember { mutableStateOf<ModalData.Modal?>(null) }
     val modalLauncher = rememberModalLauncher { _, data ->
         when (data) {
             is ModalData.Modal.Noti -> {
                 setNotiInfo(data.notiInfo.fromJson<NotiInfo>())
-            }
-
-            is ModalData.Modal.NewFolder -> {
-                createFolder(data.folderName)
             }
 
             else -> {}
@@ -156,7 +159,12 @@ fun LinkSharingWishUploadScreen(
                         modifier = Modifier
                             .noRippleClickable {
                                 ModalData.Modal
-                                    .Noti(NotiInfo(notiType = uiModel.itemNotiType, notiDate = uiModel.itemNotiDate).toJson())
+                                    .Noti(
+                                        NotiInfo(
+                                            notiType = uiModel.itemNotiType,
+                                            notiDate = uiModel.itemNotiDate
+                                        ).toJson()
+                                    )
                                     .openModal(context, modalLauncher)
                             }
                             .padding(8.dp),
@@ -201,9 +209,7 @@ fun LinkSharingWishUploadScreen(
                     ) {
                         item {
                             NewFolder(onClickNew = {
-                                ModalData.Modal.NewFolder(
-                                    folderName = "",
-                                ).openModal(context, modalLauncher)
+                                modalData = ModalData.Modal.NewFolder(folderName = "")
                             })
                         }
                         items(uiModel.folders) {
@@ -261,6 +267,23 @@ fun LinkSharingWishUploadScreen(
             hostState = snackbarHostState
         )
     }
+
+    WishBoardModal(
+        isOpen = modalData != null,
+        titleRes = modalData?.title,
+        onDismissRequest = {
+            modalData = null
+        },
+        content = {
+            FolderUploadModalContent(
+                folderName = null,
+                uploadState = uiModel.folderAddState,
+                existingFolderName = uiModel.existingFolderName,
+                onClickComplete = { name ->
+                    createFolder(name) { modalData = null }
+                })
+        }
+    )
 }
 
 @Composable
@@ -349,6 +372,6 @@ fun PreviewLinkSharingWishUploadScreen() {
         onSelectFolder = {},
         onClickSave = {},
         onClickClose = {},
-        createFolder = {},
+        createFolder = { _, _ -> },
     )
 }

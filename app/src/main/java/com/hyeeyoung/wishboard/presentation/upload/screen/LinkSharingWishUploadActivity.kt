@@ -66,7 +66,9 @@ class LinkSharingWishUploadActivity : ComponentActivity() {
                 LinkSharingWishUploadScreen(
                     uiModel = uiModel,
                     snackbarHostState = snackbarHostState,
-                    createFolder = { viewModel.createFolder(it) },
+                    createFolder = { name, afterSuccess -> viewModel.createFolder(name) {
+                        afterSuccess()
+                    }},
                     onTextChange = { type, input ->
                         when (type) {
                             UploadInputType.ITEM_NAME -> viewModel.onItemNameChanged(input)

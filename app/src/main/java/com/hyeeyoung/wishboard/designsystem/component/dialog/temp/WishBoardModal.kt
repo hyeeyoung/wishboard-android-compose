@@ -4,10 +4,8 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -23,20 +21,20 @@ import androidx.compose.ui.unit.dp
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
-import com.hyeeyoung.wishboard.domain.model.noti.NotiInfo
-import com.hyeeyoung.wishboard.presentation.noti.NotiModalContent
+import com.hyeeyoung.wishboard.presentation.folder.FolderUploadModalContent
+import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
 
 // https://medium.com/@zekromvishwa56789/handling-keyboard-overlap-in-modalbottomsheet-with-jetpack-compose-a-practical-approach-e68db28ff66e
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WishBoardModal(
     isOpen: Boolean,
-    @StringRes titleRes: Int,
+    @StringRes titleRes: Int?,
     onDismissRequest: () -> Unit,
     content: @Composable () -> Unit,
 ) {
-    val sheetState = rememberModalBottomSheetState()
-    
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
     if (!isOpen) return
     ModalBottomSheet(
         sheetState = sheetState,
@@ -67,14 +65,12 @@ fun WishBoardModal(
                     modifier = Modifier
                         .padding(top = 16.dp)
                         .align(Alignment.CenterHorizontally),
-                    text = stringResource(titleRes),
+                    text = if (titleRes != null) stringResource(titleRes) else "",
                     style = WishBoardTheme.typography.suitH3,
                     color = WishBoardTheme.colors.gray700,
                 )
 
                 content()
-                
-                Spacer(modifier = Modifier.navigationBarsPadding())
             }
         }
     }
@@ -85,8 +81,14 @@ fun WishBoardModal(
 fun PreviewWishBoardModal() {
     WishBoardModal(
         isOpen = true,
-        titleRes = R.string.wish_item_link_sharing_upload_noti_setting,
+        titleRes = R.string.modal_new_folder_title,
         onDismissRequest = {},
-        content = { NotiModalContent(notiInfo = NotiInfo(), onClickComplete = {_, _ ->}) },
+        content = {
+            FolderUploadModalContent(
+                folderName = null,
+                uploadState = WishBoardState.Idle,
+                existingFolderName = null,
+                onClickComplete = { })
+        },
     )
 }
