@@ -29,8 +29,8 @@ import com.hyeeyoung.wishboard.designsystem.component.WishBoardSnackbarHost
 import com.hyeeyoung.wishboard.presentation.calendar.screen.CalendarScreen
 import com.hyeeyoung.wishboard.presentation.intro.IntroScreen
 import com.hyeeyoung.wishboard.presentation.main.MainScreen
-import com.hyeeyoung.wishboard.presentation.my.PasswordChangeScreen
-import com.hyeeyoung.wishboard.presentation.my.ProfileEditScreen
+import com.hyeeyoung.wishboard.presentation.my.screen.PasswordChangeScreen
+import com.hyeeyoung.wishboard.presentation.my.screen.ProfileEditScreen
 import com.hyeeyoung.wishboard.presentation.noti.NotiScreen
 
 @Composable

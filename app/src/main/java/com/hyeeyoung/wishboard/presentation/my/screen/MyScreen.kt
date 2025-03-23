@@ -1,4 +1,4 @@
-package com.hyeeyoung.wishboard.presentation.my
+package com.hyeeyoung.wishboard.presentation.my.screen
 
 import android.os.Build
 import androidx.annotation.StringRes
@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,6 +16,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,40 +26,66 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.hyeeyoung.wishboard.BuildConfig
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.config.navigation.screen.SignScreen
-import com.hyeeyoung.wishboard.designsystem.component.image.Image
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardGlobalSnackbarMessage
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardToggleButton
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardMiniButton
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.DialogData
 import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.WishBoardDialog
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardThickDivider
+import com.hyeeyoung.wishboard.designsystem.component.image.Image
 import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardTextField
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardMainTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
+import com.hyeeyoung.wishboard.domain.model.noti.UserInfo
+import com.hyeeyoung.wishboard.presentation.my.MyViewModel
+import com.hyeeyoung.wishboard.presentation.my.model.MyUiModel
 import com.hyeeyoung.wishboard.presentation.util.constant.WishBoardUrl
 import com.hyeeyoung.wishboard.presentation.util.extension.moveToWebView
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.util.extension.sendMail
+import timber.log.Timber
 
 @Composable
-fun MyScreen(navController: NavHostController, viewModel: MyViewModel = hiltViewModel()) {
+fun MyScreen(
+    navController: NavHostController,
+    viewModel: MyViewModel = hiltViewModel()
+) {
+    val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        viewModel.fetchUserInfo()
+    }
+
     WishBoardGlobalSnackbarMessage(snackbarChannel = viewModel.snackBarChannel)
 
     MyScreen(
+        uiModel = uiModel,
         navigate = { route ->
             navController.navigate(route)
         },
+        updatePushState = viewModel::updatePushState,
         logout = {
             viewModel.logout {
+                navController.navigate(SignScreen.Main.route) {
+                    popUpTo(navController.graph.id) {
+                        inclusive = true
+                    }
+                }
+            }
+        },
+        deleteAccount = {
+            viewModel.deleteAccount {
                 navController.navigate(SignScreen.Main.route) {
                     popUpTo(navController.graph.id) {
                         inclusive = true
@@ -74,19 +101,31 @@ fun MyScreen(navController: NavHostController, viewModel: MyViewModel = hiltView
 
 @Composable
 fun MyScreen(
+    uiModel: MyUiModel,
     navigate: (route: String) -> Unit,
+    updatePushState: (Boolean) -> Unit,
     logout: () -> Unit,
+    deleteAccount: () -> Unit,
     moveToWebView: (title: String?, url: String) -> Unit,
 ) {
     val context = LocalContext.current
     var dialogData by remember { mutableStateOf<DialogData?>(null) }
+    val withdrawalEmailInput = remember { mutableStateOf("") }
+    val isEnableWithdrawal by remember(withdrawalEmailInput.value, uiModel.userInfo.email) {
+        mutableStateOf(
+            withdrawalEmailInput.value.isNotBlank()
+                    && withdrawalEmailInput.value.trimEnd() == uiModel.userInfo.email
+        )
+    }
 
     val myMenuComponents =
         listOf(
             MyMenuComponent.Divider,
             MyMenuComponent.Menu(nameRes = R.string.my_menu_push_setting, endComponent = {
-                var isSelected by remember { mutableStateOf(true) }
-                WishBoardToggleButton(selected = isSelected, onUpdate = { selected -> isSelected = selected })
+                WishBoardToggleButton(
+                    selected = uiModel.userInfo.isPushAllowed ?: false,
+                    onUpdate = updatePushState
+                )
             }),
             MyMenuComponent.Menu(nameRes = R.string.my_menu_change_password, onClickMenu = {
                 navigate(MainScreen.MyPasswordChange.route)
@@ -106,7 +145,9 @@ fun MyScreen(
                     )
                 }
             }),
-            MyMenuComponent.Menu(nameRes = R.string.my_menu_manual, onClickMenu = {}),
+            MyMenuComponent.Menu(nameRes = R.string.my_menu_manual, onClickMenu = {
+                moveToWebView(WishBoardUrl.HOW_TO_USE.title, WishBoardUrl.HOW_TO_USE.url)
+            }),
             MyMenuComponent.Menu(
                 nameRes = R.string.my_menu_terms,
                 onClickMenu = {
@@ -116,7 +157,10 @@ fun MyScreen(
             MyMenuComponent.Menu(
                 nameRes = R.string.my_menu_privacy,
                 onClickMenu = {
-                    moveToWebView(WishBoardUrl.PRIVACY_POLICY.title, WishBoardUrl.PRIVACY_POLICY.url)
+                    moveToWebView(
+                        WishBoardUrl.PRIVACY_POLICY.title,
+                        WishBoardUrl.PRIVACY_POLICY.url
+                    )
                 },
             ),
             MyMenuComponent.Menu(
@@ -142,7 +186,10 @@ fun MyScreen(
             ),
             MyMenuComponent.Menu(
                 nameRes = R.string.my_menu_withdraw,
-                onClickMenu = { dialogData = DialogData.Withdraw },
+                onClickMenu = {
+                    withdrawalEmailInput.value = ""
+                    dialogData = DialogData.Withdraw
+                },
             ),
         )
 
@@ -154,13 +201,15 @@ fun MyScreen(
                 .background(WishBoardTheme.colors.white)
                 .padding(top = paddingValues.calculateTopPadding()),
         ) {
-            item { Profile(onClickProfileEdit = { navigate(MainScreen.MyProfile.route) }) }
+            item { Profile(userInfo = uiModel.userInfo, onClickProfileEdit = { navigate(MainScreen.MyProfile.route) }) }
+
             items(myMenuComponents) { menuComponent ->
                 when (menuComponent) {
                     is MyMenuComponent.Menu -> MenuItem(menu = menuComponent)
                     is MyMenuComponent.Divider -> WishBoardThickDivider()
                 }
             }
+
             item { Spacer(modifier = Modifier.size(64.dp)) }
         }
 
@@ -169,12 +218,22 @@ fun MyScreen(
             onClickConfirm = {
                 when (dialogData) {
                     DialogData.Logout -> logout()
+
+                    DialogData.Withdraw -> {
+                        if (isEnableWithdrawal) {
+                            deleteAccount()
+                        }
+                    }
+
                     else -> {}
                 }
             },
-            onDismissRequest = { dialogData = null },
+            onDismissRequest = {
+                dialogData = null
+            },
+            dismissOnConfirm = !(dialogData is DialogData.Withdraw && !isEnableWithdrawal),
             content = if (dialogData is DialogData.Withdraw) {
-                { WithdrawDialogContent() }
+                { WithdrawDialogContent(emailInput = withdrawalEmailInput, isEnableWithdrawal = isEnableWithdrawal) }
             } else {
                 null
             },
@@ -183,28 +242,33 @@ fun MyScreen(
 }
 
 @Composable
-fun Profile(onClickProfileEdit: () -> Unit) {
-    // TODO 서버 연동 후 더미데이터 삭제
+fun Profile(userInfo: UserInfo, onClickProfileEdit: () -> Unit) {
     Row(
         modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 34.dp, bottom = 48.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Image(
-            model = "https://url.kr/8vwf1e",
+            model = userInfo.profileImage,
             modifier = Modifier
                 .size(60.dp)
                 .clip(CircleShape),
+            placeHolder = {
+                androidx.compose.foundation.Image(
+                    painter = painterResource(id = R.drawable.ic_placeholder_user_profile),
+                    contentDescription = "",
+                )
+            }
         )
 
         Column(modifier = Modifier.padding(start = 16.dp)) {
             Text(
-                text = "새침한 진주",
+                text = userInfo.nickname,
                 style = WishBoardTheme.typography.suitH2,
                 color = WishBoardTheme.colors.gray700,
             )
             Text(
                 modifier = Modifier.padding(top = 8.dp),
-                text = "youngjin@naver.com",
+                text = userInfo.email,
                 style = WishBoardTheme.typography.suitB3,
                 color = WishBoardTheme.colors.gray200,
             )
@@ -220,19 +284,16 @@ fun Profile(onClickProfileEdit: () -> Unit) {
 }
 
 @Composable
-fun WithdrawDialogContent() {
-    val emailInput = remember { mutableStateOf("") }
+fun WithdrawDialogContent(emailInput: MutableState<String>, isEnableWithdrawal: Boolean) {
     Column(
         modifier = Modifier
-            .padding(start = 16.dp, end = 16.dp, top = 20.dp, bottom = 14.dp)
-            .height(60.dp),
+            .padding(start = 16.dp, end = 16.dp, top = 20.dp, bottom = 14.dp),
     ) {
         WishBoardTextField(
             input = emailInput,
+            isError = emailInput.value.isNotBlank() && !isEnableWithdrawal,
             placeholder = stringResource(id = R.string.sign_email_placeholder),
-            errorMsg = stringResource(
-                id = R.string.dialog_withdraw_email_error,
-            ),
+            errorMsg = stringResource(id = R.string.dialog_withdraw_email_error)
         )
     }
 }
@@ -244,7 +305,7 @@ sealed class MyMenuComponent {
         val endComponent: (@Composable () -> Unit)? = null,
     ) : MyMenuComponent()
 
-    object Divider : MyMenuComponent()
+    data object Divider : MyMenuComponent()
 }
 
 @Composable
@@ -269,7 +330,20 @@ fun MenuItem(menu: MyMenuComponent.Menu) {
 @Composable
 @Preview
 fun PreviewMyScreen() {
-    MyScreen(navigate = {}, logout = {}, moveToWebView = { _, _ -> })
+    MyScreen(
+        uiModel = MyUiModel(
+            userInfo = UserInfo(
+                email = "youngjin@naver.com",
+                nickname = "새침한 진주",
+                isPushAllowed = true
+            )
+        ),
+        navigate = {},
+        updatePushState = {},
+        logout = {},
+        deleteAccount = {},
+        moveToWebView = { _, _ -> }
+    )
 }
 
 @Preview(showBackground = true)

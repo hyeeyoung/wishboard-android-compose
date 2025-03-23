@@ -36,7 +36,7 @@ sealed class DialogData(val dialogTextRes: WishBoardDialogTextRes, val isWarning
         ),
     )
 
-    object Intro : DialogData(
+    data object Intro : DialogData(
         dialogTextRes = WishBoardDialogTextRes(
             titleRes = R.string.dialog_update_title,
             descriptionRes = R.string.dialog_update_description,
@@ -46,7 +46,7 @@ sealed class DialogData(val dialogTextRes: WishBoardDialogTextRes, val isWarning
         isWarningDialog = false,
     )
 
-    object Logout : DialogData(
+    data object Logout : DialogData(
         dialogTextRes = WishBoardDialogTextRes(
             titleRes = R.string.my_menu_logout,
             descriptionRes = R.string.dialog_logout_description,
@@ -55,7 +55,7 @@ sealed class DialogData(val dialogTextRes: WishBoardDialogTextRes, val isWarning
         ),
     )
 
-    object Withdraw : DialogData(
+    data object Withdraw : DialogData(
         dialogTextRes = WishBoardDialogTextRes(
             titleRes = R.string.dialog_withdraw_title,
             descriptionRes = R.string.dialog_withdraw_description,

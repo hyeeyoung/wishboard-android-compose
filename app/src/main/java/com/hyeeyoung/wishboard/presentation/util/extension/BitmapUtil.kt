@@ -89,8 +89,6 @@ object BitmapUtil {
         var size = -1L
         val mimeType = contentResolver.getType(this)
 
-        Timber.e("들어옴1")
-
         contentResolver.query(
             this,
             arrayOf(MediaStore.Images.Media.SIZE, MediaStore.Images.Media.DISPLAY_NAME),
@@ -106,14 +104,12 @@ object BitmapUtil {
 
         return ImageType.Picture(name = name, size = size, mimeType = mimeType) {
             if (size > MAXIMUM_IMAGE_SIZE) {
-                Timber.e("hello1")
                 val bitmap = BitmapFactory.decodeStream(contentResolver.openInputStream(this))
                 val format =
                     if (mimeType == DEFAULT_MIME_TYPE) Bitmap.CompressFormat.JPEG else Bitmap.CompressFormat.PNG
                 val compressedByteArray = bitmap.compressImage(format)
                 ByteArrayInputStream(compressedByteArray)
             } else {
-                Timber.e("hello2")
                 contentResolver.openInputStream(this)
             }
         }
@@ -129,7 +125,6 @@ object BitmapUtil {
             quality -= IMAGE_COMPRESSION_DECREASE_FACTOR
         } while (outputStream.size() > MAXIMUM_IMAGE_SIZE && quality > IMAGE_COMPRESSION_DECREASE_FACTOR)
 
-        Timber.e("size : ${outputStream.size().toFloat() / (1024 * 1024)}")
         return outputStream.toByteArray()
     }
 }

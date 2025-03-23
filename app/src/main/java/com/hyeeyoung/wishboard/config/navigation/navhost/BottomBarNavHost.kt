@@ -7,8 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.hyeeyoung.wishboard.config.navigation.navgraph.folderNavGraph
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
-import com.hyeeyoung.wishboard.presentation.my.MyScreen
-import com.hyeeyoung.wishboard.presentation.noti.NotiScreen
+import com.hyeeyoung.wishboard.presentation.my.screen.MyScreen
 import com.hyeeyoung.wishboard.presentation.wish.screen.WishListScreen
 
 /** 바텀바가 보이는 화면 전용 네비게이션 그래프를 정의 */
