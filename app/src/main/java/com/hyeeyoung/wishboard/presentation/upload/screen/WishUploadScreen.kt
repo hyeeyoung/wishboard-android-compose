@@ -24,6 +24,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -82,6 +83,10 @@ fun WishUploadScreen(
     val context = LocalContext.current
     val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
     val enteredAddFlow = itemDetail == null
+
+    LaunchedEffect(Unit) {
+        viewModel.setTokenForProfileImageUri()
+    }
 
     WishBoardGlobalSnackbarMessage(snackbarChannel = viewModel.snackBarChannel)
 
@@ -143,6 +148,7 @@ fun WishUploadScreen(
     onUriChange: (Uri?) -> Unit,
 ) {
     val systemUiController = rememberSystemUiController()
+
     SideEffect {
         systemUiController.setNavigationBarColor(color = Color.White)
     }
@@ -176,7 +182,7 @@ fun WishUploadScreen(
         when (data) {
             is ModalData.OptionModal.ImageSelection -> {
                 if (isTopOption) {
-                    cameraUri = context.createImageUri("youngjin7wishboard") // TODO 실 토큰값 넣기
+                    cameraUri = context.createImageUri(uiModel.accessToken)
                     cameraLauncher.launch(cameraUri)
                 } else {
                     albumLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))

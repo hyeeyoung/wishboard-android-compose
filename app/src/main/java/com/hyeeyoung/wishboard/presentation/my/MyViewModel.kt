@@ -1,7 +1,10 @@
 package com.hyeeyoung.wishboard.presentation.my
 
 import android.content.ContentResolver
+import android.net.Uri
 import androidx.lifecycle.viewModelScope
+import com.hyeeyoung.wishboard.core.extension.onFailure
+import com.hyeeyoung.wishboard.data.local.WishBoardPreference
 import com.hyeeyoung.wishboard.domain.model.user.UserProfile
 import com.hyeeyoung.wishboard.domain.usecase.auth.PostLogoutUseCase
 import com.hyeeyoung.wishboard.domain.usecase.user.DeleteUserAccountUseCase
@@ -24,6 +27,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MyViewModel @Inject constructor(
+    private val localStorage: WishBoardPreference,
     private val getUserInfoUseCase: GetUserInfoUseCase,
     private val putUserProfileUseCase: PutUserProfileUseCase,
     private val updatePushStateUseCase: UpdatePushStateUseCase,
@@ -38,9 +42,12 @@ class MyViewModel @Inject constructor(
         viewModelScope.launch {
             getUserInfoUseCase().onSuccess { userInfo ->
                 _uiModel.update {
-                    it.copy(userInfo = userInfo)
+                    it.copy(
+                        userInfo = userInfo,
+                        nicknameInput = userInfo.nickname,
+                    )
                 }
-            }.onFailure {
+            }.onFailure { _, _, _ ->
                 updateSnackbarMessage(SnackbarMessage.DEFAULT)
             }
         }
@@ -52,26 +59,29 @@ class MyViewModel @Inject constructor(
                 _uiModel.update {
                     it.copy(userInfo = it.userInfo.copy(isPushAllowed = isPushAllowed))
                 }
-            }.onFailure {
+            }.onFailure { _, _, _ ->
                 updateSnackbarMessage(SnackbarMessage.DEFAULT)
             }
         }
     }
 
     fun updateUserProfile(contentResolver: ContentResolver, afterSuccess: () -> Unit) {
-        val trimmedName = uiModel.value.nameInput.trim()
+        val trimmedName = uiModel.value.nicknameInput.trim()
 
         viewModelScope.launch {
             putUserProfileUseCase(
                 userProfile = UserProfile(
-                    nickName = trimmedName.ifBlank { null },
+                    nickName = if (uiModel.value.userInfo.nickname == trimmedName) null else trimmedName.ifBlank { null },
                     profileImage = uiModel.value.imageUriInput?.toImageFile(contentResolver)
                 )
             ).onSuccess {
                 afterSuccess()
                 updateSnackbarMessage("프로필이 수정되었어요!👩‍🎤")
-            }.onFailure {
-                updateSnackbarMessage(SnackbarMessage.DEFAULT)
+            }.onFailure { _, errorCode, _ ->
+                when (errorCode) {
+                    409 -> _uiModel.update { it.copy(existingNickname = trimmedName) }
+                    else -> updateSnackbarMessage(SnackbarMessage.DEFAULT)
+                }
             }
         }
     }
@@ -81,7 +91,7 @@ class MyViewModel @Inject constructor(
             putPasswordUseCase(uiModel.value.rePasswordInput).onSuccess {
                 updateSnackbarMessage("비밀번호가 변경되었어요!👩‍🎤")
                 afterSuccess()
-            }.onFailure {
+            }.onFailure { _, _, _ ->
                 updateSnackbarMessage(SnackbarMessage.DEFAULT)
             }
         }
@@ -91,7 +101,7 @@ class MyViewModel @Inject constructor(
         viewModelScope.launch {
             postLogoutUseCase().onSuccess {
                 afterSuccess()
-            }.onFailure {
+            }.onFailure { _, _, _ ->
                 updateSnackbarMessage(SnackbarMessage.DEFAULT)
             }
         }
@@ -102,9 +112,21 @@ class MyViewModel @Inject constructor(
             deleteUserAccountUseCase().onSuccess {
                 afterSuccess()
                 updateSnackbarMessage("탈퇴 완료되었어요. 이용해주셔서 감사합니다!☺️")
-            }.onFailure {
+            }.onFailure { _, _, _ ->
                 updateSnackbarMessage(SnackbarMessage.DEFAULT)
             }
+        }
+    }
+
+    fun onNicknameChange(nickname: String) {
+        _uiModel.update {
+            it.copy(nicknameInput = nickname)
+        }
+    }
+
+    fun setProfileImageUri(uri: Uri?) {
+        _uiModel.update {
+            it.copy(imageUriInput = uri)
         }
     }
 
@@ -119,6 +141,12 @@ class MyViewModel @Inject constructor(
                 val isValid = if (trimmedPassword.isBlank()) null else passwordPattern.matcher(password).matches()
                 it.copy(passwordInput = trimmedPassword, isValidPassword = isValid)
             }
+        }
+    }
+
+    fun setTokenForProfileImageUri() {
+        _uiModel.update {
+            it.copy(accessToken = localStorage.accessToken)
         }
     }
 }

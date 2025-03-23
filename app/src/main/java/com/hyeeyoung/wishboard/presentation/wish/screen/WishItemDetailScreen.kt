@@ -68,6 +68,7 @@ import com.hyeeyoung.wishboard.presentation.util.safeLet
 import com.hyeeyoung.wishboard.presentation.wish.component.PriceText
 import com.hyeeyoung.wishboard.presentation.wish.model.WishItemDetailUiModel
 import kotlinx.datetime.LocalDateTime
+import timber.log.Timber
 
 @Composable
 fun WishItemDetailScreen(
@@ -161,7 +162,7 @@ fun WishItemDetailScreen(
         ) {
             WishItemDetailContents(
                 modifier = Modifier.weight(1f),
-                itemDetail = uiModel,
+                uiModel = uiModel,
                 onClickFolder = {
                     onClickFolder { folders ->
                         ModalData.Modal.FolderList(
@@ -202,7 +203,7 @@ fun WishItemDetailScreen(
 }
 
 @Composable
-private fun WishItemDetailContents(modifier: Modifier, itemDetail: WishItemDetailUiModel, onClickFolder: () -> Unit) {
+private fun WishItemDetailContents(modifier: Modifier, uiModel: WishItemDetailUiModel, onClickFolder: () -> Unit) {
     val imageModifier = Modifier
         .fillMaxWidth()
         .clip(RoundedCornerShape(32.dp))
@@ -212,13 +213,14 @@ private fun WishItemDetailContents(modifier: Modifier, itemDetail: WishItemDetai
         Box(modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 8.dp)) {
             Image(
                 modifier = imageModifier,
-                model = itemDetail.image,
+                model = uiModel.image,
                 placeHolder = {
                     WishBoardPlaceHolder(modifier = imageModifier)
                 }
             )
 
-            safeLet(itemDetail.notiType, itemDetail.notiDate) { type, date ->
+            Timber.e("uiModel : $uiModel")
+            safeLet(uiModel.notiType, uiModel.notiDate) { type, date ->
                 NotiInfoLabel(
                     modifier = Modifier
                         .align(Alignment.BottomStart)
@@ -237,11 +239,11 @@ private fun WishItemDetailContents(modifier: Modifier, itemDetail: WishItemDetai
             verticalAlignment = Alignment.CenterVertically,
         ) {
             FolderGuideString(
-                folderName = itemDetail.folderName,
+                folderName = uiModel.folderName,
                 onClickFolder = onClickFolder,
             )
             Text(
-                text = itemDetail.createAt?.formatAsTimeAgo() ?: "",
+                text = uiModel.createAt?.formatAsTimeAgo() ?: "",
                 style = WishBoardTheme.typography.suitD3,
                 color = WishBoardTheme.colors.gray300,
             )
@@ -250,20 +252,20 @@ private fun WishItemDetailContents(modifier: Modifier, itemDetail: WishItemDetai
         Column(Modifier.padding(start = 16.dp, end = 16.dp, top = 10.dp, bottom = 20.dp)) {
             Text(
                 modifier = Modifier.fillMaxWidth(),
-                text = itemDetail.name,
+                text = uiModel.name,
                 style = WishBoardTheme.typography.suitB1M,
                 color = WishBoardTheme.colors.gray700,
             )
 
             PriceText(
                 modifier = Modifier.padding(top = 20.dp),
-                price = itemDetail.price,
+                price = uiModel.price,
                 priceStyle = WishBoardTheme.typography.montserratH2,
                 wonStyle = WishBoardTheme.typography.suitD2,
             )
         }
 
-        itemDetail.site?.getDomainName()?.let { site ->
+        uiModel.site?.getDomainName()?.let { site ->
             WishBoardDivider()
             Text(
                 modifier = Modifier.padding(16.dp),
@@ -273,7 +275,7 @@ private fun WishItemDetailContents(modifier: Modifier, itemDetail: WishItemDetai
             )
         }
 
-        itemDetail.memo?.let { memo ->
+        uiModel.memo?.let { memo ->
             WishBoardDivider()
             Column(Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 64.dp)) {
                 Text(

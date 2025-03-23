@@ -1,5 +1,6 @@
 package com.hyeeyoung.wishboard.presentation.my.screen
 
+import android.content.Context
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -15,10 +16,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,40 +27,78 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import com.hyeeyoung.wishboard.R
-import com.hyeeyoung.wishboard.designsystem.component.image.Image
+import com.hyeeyoung.wishboard.designsystem.component.WishBoardGlobalSnackbarMessage
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
+import com.hyeeyoung.wishboard.designsystem.component.dialog.model.ModalData
+import com.hyeeyoung.wishboard.designsystem.component.image.Image
 import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardTextField
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
-import com.hyeeyoung.wishboard.designsystem.component.dialog.model.ModalData
+import com.hyeeyoung.wishboard.presentation.my.MyViewModel
+import com.hyeeyoung.wishboard.presentation.my.model.MyUiModel
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.util.extension.createImageUri
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.util.extension.rememberModalLauncher
 
 @Composable
-fun ProfileEditScreen(navController: NavHostController) {
-    var imageInput by remember { mutableStateOf<Uri?>(null) }
+fun ProfileEditScreen(
+    navController: NavController,
+    viewModel: MyViewModel = hiltViewModel()
+) {
+    val context = LocalContext.current
+    val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
+
+    WishBoardGlobalSnackbarMessage(snackbarChannel = viewModel.snackBarChannel)
+
+    LaunchedEffect(Unit) {
+        viewModel.fetchUserInfo()
+        viewModel.setTokenForProfileImageUri()
+    }
+
+    ProfileEditScreen(
+        uiModel = uiModel,
+        context = context,
+        onNicknameChange = viewModel::onNicknameChange,
+        setImageUri = viewModel::setProfileImageUri,
+        updateProfile = {
+            viewModel.updateUserProfile(context.contentResolver,
+                afterSuccess = {
+                    navController.popBackStack()
+                })
+        },
+        onClickBack = navController::popBackStack
+    )
+}
+
+@Composable
+fun ProfileEditScreen(
+    uiModel: MyUiModel,
+    context: Context,
+    updateProfile: () -> Unit,
+    setImageUri: (Uri?) -> Unit,
+    onNicknameChange: (String) -> Unit,
+    onClickBack: () -> Unit,
+) {
+    val imageSize = 106
     var cameraUri: Uri? = null
     val albumLauncher = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-        uri?.let {
-            imageInput = it
-        }
+        uri?.let { setImageUri(it) }
     }
     val cameraLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { isSuccess ->
-            if (isSuccess) imageInput = cameraUri
+            if (isSuccess) setImageUri(cameraUri)
         }
 
-    val context = LocalContext.current
     val modalLauncher = rememberModalLauncher { isTopOption, data ->
         when (data) {
             is ModalData.OptionModal.ImageSelection -> {
                 if (isTopOption) {
-                    cameraUri = context.createImageUri("youngjin7wishboard") // TODO 실 토큰값 넣기
+                    cameraUri = context.createImageUri(uiModel.accessToken)
                     cameraLauncher.launch(cameraUri)
                 } else {
                     albumLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
@@ -76,11 +113,10 @@ fun ProfileEditScreen(navController: NavHostController) {
         WishBoardTopBar(
             topBarModel = WishBoardTopBarModel(
                 title = stringResource(id = R.string.my_profile_edit_title),
-                onClickStartIcon = { navController.popBackStack() },
+                onClickStartIcon = onClickBack,
             ),
         )
     }) { paddingValues ->
-        val nicknameInput = remember { mutableStateOf("") }
         Column(
             modifier = Modifier
                 .background(WishBoardTheme.colors.white)
@@ -88,30 +124,26 @@ fun ProfileEditScreen(navController: NavHostController) {
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Spacer(modifier = Modifier.size(32.dp))
-            val imageSize = 106
+
             Box(
                 modifier = Modifier
                     .width((imageSize + 12).dp)
                     .noRippleClickable { ModalData.OptionModal.ImageSelection.openModal(context, modalLauncher) },
             ) {
-                if (imageInput != null) {
-                    Image(
-                        model = imageInput,
-                        modifier = Modifier
-                            .size(imageSize.dp)
-                            .align(Alignment.Center)
-                            .clip(CircleShape),
-                    )
-                } else {
-                    Icon(
-                        modifier = Modifier
-                            .size(imageSize.dp)
-                            .align(Alignment.Center),
-                        painter = painterResource(id = R.drawable.ic_placeholder_user_profile),
-                        contentDescription = null,
-                        tint = Color.Unspecified,
-                    )
-                }
+                Image(
+                    model = uiModel.imageUriInput ?: uiModel.userInfo.profileImage,
+                    modifier = Modifier
+                        .size(imageSize.dp)
+                        .align(Alignment.Center)
+                        .clip(CircleShape),
+                    placeHolder = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_placeholder_user_profile),
+                            contentDescription = null,
+                            tint = Color.Unspecified,
+                        )
+                    }
+                )
 
                 Icon(
                     modifier = Modifier
@@ -124,18 +156,20 @@ fun ProfileEditScreen(navController: NavHostController) {
             }
             Spacer(modifier = Modifier.size(32.dp))
             WishBoardTextField(
-                input = nicknameInput,
+                input = uiModel.nicknameInput,
+                isError = uiModel.nicknameInput == uiModel.existingNickname,
                 label = stringResource(id = R.string.my_profile_nickname),
                 placeholder = stringResource(id = R.string.my_profile_nickname_placeholder),
                 errorMsg = stringResource(id = R.string.my_profile_nickname_already_exist_error),
-                onTextChange = {},
+                maxLength = 12,
+                onTextChange = onNicknameChange,
             )
 
             Spacer(modifier = Modifier.weight(1f))
 
             WishBoardWideButton(
-                enabled = false,
-                onClick = { /*TODO*/ },
+                enabled = uiModel.nicknameInput.isNotBlank(),
+                onClick = updateProfile,
                 text = stringResource(id = R.string.complete),
             )
         }
@@ -145,5 +179,12 @@ fun ProfileEditScreen(navController: NavHostController) {
 @Preview
 @Composable
 fun PreviewProfileEditScreen() {
-    ProfileEditScreen(rememberNavController())
+    ProfileEditScreen(
+        context = LocalContext.current,
+        uiModel = MyUiModel(),
+        setImageUri = {},
+        onNicknameChange = {},
+        updateProfile = {},
+        onClickBack = {}
+    )
 }

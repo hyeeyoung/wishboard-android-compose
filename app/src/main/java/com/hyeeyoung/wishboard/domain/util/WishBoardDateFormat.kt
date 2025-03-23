@@ -1,6 +1,5 @@
 package com.hyeeyoung.wishboard.domain.util
 
-import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat.toLocalDateTime
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.toJavaLocalDate
 import kotlinx.datetime.toJavaLocalDateTime
@@ -10,6 +9,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 object WishBoardDateFormat {
+    const val YYYY_MM_DD_HH_MM = "yyyy-MM-dd HH:mm"
     const val YYYY_MM_DD_HH_MM_SS = "yyyy-MM-dd HH:mm:ss"
     const val YY_M_D_KR = "yy년 M월 d일"
     const val YY_M_D_HH_MM_KR = "$YY_M_D_KR HH:mm"

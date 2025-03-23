@@ -4,7 +4,6 @@ import com.hyeeyoung.wishboard.domain.model.noti.NotiType
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemDetail
 import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat
 import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat.toLocalDateTime
-import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
 
@@ -31,7 +30,10 @@ data class WishItemDetailUiModel(
                 image = domain.image,
                 memo = domain.memo,
                 name = domain.name,
-                notiDate = domain.notiDate?.toLocalDateTime(WishBoardDateFormat.YYYY_MM_DD_HH_MM_SS),
+                notiDate = with(domain.notiDate) {
+                    val date1 = this?.toLocalDateTime(WishBoardDateFormat.YYYY_MM_DD_HH_MM)
+                    date1 ?: this?.toLocalDateTime(WishBoardDateFormat.YYYY_MM_DD_HH_MM_SS)
+                },
                 notiType = domain.notiType,
                 price = domain.price.toLongOrNull() ?: 0,
                 site = domain.site,

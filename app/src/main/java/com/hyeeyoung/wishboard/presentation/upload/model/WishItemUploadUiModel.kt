@@ -13,6 +13,7 @@ import com.hyeeyoung.wishboard.presentation.util.extension.getValidUrl
 import kotlinx.datetime.LocalDateTime
 
 data class WishItemUploadUiModel(
+    val accessToken: String = "",
     val selectedFolder: FolderItem? = null,
     val itemName: String = "",
     val itemPrice: String = "",

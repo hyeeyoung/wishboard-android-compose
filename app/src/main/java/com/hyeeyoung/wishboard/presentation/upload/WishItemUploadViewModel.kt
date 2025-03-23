@@ -252,6 +252,12 @@ class WishItemUploadViewModel @Inject constructor(
         }
     }
 
+    fun setTokenForProfileImageUri() {
+        _uiModel.update {
+            it.copy(accessToken = localStorage.accessToken)
+        }
+    }
+
     /** 스낵바 시각 정보(전역으로 사용) */
     val globalSnackbarChannel = Channel<WishBoardSnackbarVisuals>(
         capacity = 5,
