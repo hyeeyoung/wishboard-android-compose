@@ -1,7 +1,7 @@
 package com.hyeeyoung.wishboard.presentation.my.model
 
 import android.net.Uri
-import com.hyeeyoung.wishboard.domain.model.noti.UserInfo
+import com.hyeeyoung.wishboard.domain.model.user.UserInfo
 
 data class MyUiModel(
     val userInfo: UserInfo = UserInfo(),

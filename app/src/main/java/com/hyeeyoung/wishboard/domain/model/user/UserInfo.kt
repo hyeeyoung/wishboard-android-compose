@@ -1,4 +1,4 @@
-package com.hyeeyoung.wishboard.domain.model.noti
+package com.hyeeyoung.wishboard.domain.model.user
 
 import kotlinx.serialization.Serializable
 

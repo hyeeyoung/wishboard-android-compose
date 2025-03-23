@@ -7,7 +7,7 @@ import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.hyeeyoung.wishboard.BuildConfig
 import com.hyeeyoung.wishboard.data.util.getBase64Json
-import com.hyeeyoung.wishboard.domain.model.noti.UserInfo
+import com.hyeeyoung.wishboard.domain.model.user.UserInfo
 import com.hyeeyoung.wishboard.presentation.util.extension.toBase64Json
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject

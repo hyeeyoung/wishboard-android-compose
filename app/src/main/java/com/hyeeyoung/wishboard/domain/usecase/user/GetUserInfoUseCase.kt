@@ -1,6 +1,6 @@
 package com.hyeeyoung.wishboard.domain.usecase.user
 
-import com.hyeeyoung.wishboard.domain.model.noti.UserInfo
+import com.hyeeyoung.wishboard.domain.model.user.UserInfo
 import com.hyeeyoung.wishboard.domain.repository.UserRepository
 import javax.inject.Inject
 

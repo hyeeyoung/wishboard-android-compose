@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
+import com.hyeeyoung.wishboard.domain.model.noti.NotiInfo
 import com.hyeeyoung.wishboard.presentation.noti.NotiModalContent
 
 // https://medium.com/@zekromvishwa56789/handling-keyboard-overlap-in-modalbottomsheet-with-jetpack-compose-a-practical-approach-e68db28ff66e
@@ -86,6 +87,6 @@ fun PreviewWishBoardModal() {
         isOpen = true,
         titleRes = R.string.wish_item_link_sharing_upload_noti_setting,
         onDismissRequest = {},
-        content = { NotiModalContent(onClickComplete = {_, _ ->}) },
+        content = { NotiModalContent(notiInfo = NotiInfo(), onClickComplete = {_, _ ->}) },
     )
 }

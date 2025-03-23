@@ -49,12 +49,15 @@ import com.hyeeyoung.wishboard.designsystem.style.MontserratFamily
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.designsystem.util.PriceTransformation
 import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
+import com.hyeeyoung.wishboard.domain.model.noti.NotiInfo
 import com.hyeeyoung.wishboard.domain.model.noti.NotiType
 import com.hyeeyoung.wishboard.presentation.upload.model.UploadInputType
 import com.hyeeyoung.wishboard.presentation.upload.model.WishItemUploadUiModel
+import com.hyeeyoung.wishboard.presentation.util.extension.fromJson
 import com.hyeeyoung.wishboard.presentation.util.extension.makeValidPriceStr
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.util.extension.rememberModalLauncher
+import com.hyeeyoung.wishboard.presentation.util.extension.toJson
 import com.hyeeyoung.wishboard.presentation.util.extension.toNotiDateStr
 import com.hyeeyoung.wishboard.presentation.util.safeLet
 import kotlinx.datetime.LocalDateTime
@@ -66,7 +69,7 @@ fun LinkSharingWishUploadScreen(
     uiModel: WishItemUploadUiModel,
     snackbarHostState: SnackbarHostState,
     onTextChange: (UploadInputType, String) -> Unit,
-    setNotiInfo: (NotiType?, LocalDateTime?) -> Unit,
+    setNotiInfo: (NotiInfo) -> Unit,
     onSelectFolder: (FolderItem) -> Unit,
     onClickSave: () -> Unit,
     onClickClose: () -> Unit = {},
@@ -76,11 +79,11 @@ fun LinkSharingWishUploadScreen(
     val modalLauncher = rememberModalLauncher { _, data ->
         when (data) {
             is ModalData.Modal.Noti -> {
-                setNotiInfo(data.notiType, data.notiDate)
+                setNotiInfo(data.notiInfo.fromJson<NotiInfo>())
             }
 
             is ModalData.Modal.NewFolder -> {
-
+                createFolder(data.folderName)
             }
 
             else -> {}
@@ -153,7 +156,7 @@ fun LinkSharingWishUploadScreen(
                         modifier = Modifier
                             .noRippleClickable {
                                 ModalData.Modal
-                                    .Noti()
+                                    .Noti(NotiInfo(notiType = uiModel.itemNotiType, notiDate = uiModel.itemNotiDate).toJson())
                                     .openModal(context, modalLauncher)
                             }
                             .padding(8.dp),
@@ -180,7 +183,7 @@ fun LinkSharingWishUploadScreen(
                                 modifier = Modifier
                                     .padding(2.dp)
                                     .clickable {
-                                        setNotiInfo(null, null)
+                                        setNotiInfo(NotiInfo(null, null))
                                     }
                                     .size(14.dp),
                                 painter = painterResource(id = R.drawable.ic_delete_circle),
@@ -342,7 +345,7 @@ fun PreviewLinkSharingWishUploadScreen() {
         ),
         snackbarHostState = SnackbarHostState(),
         onTextChange = { _, _ -> },
-        setNotiInfo = { _, _ -> },
+        setNotiInfo = { },
         onSelectFolder = {},
         onClickSave = {},
         onClickClose = {},

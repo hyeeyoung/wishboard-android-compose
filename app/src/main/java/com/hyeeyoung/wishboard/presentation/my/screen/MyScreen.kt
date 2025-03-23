@@ -47,14 +47,13 @@ import com.hyeeyoung.wishboard.designsystem.component.image.Image
 import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardTextField
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardMainTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
-import com.hyeeyoung.wishboard.domain.model.noti.UserInfo
+import com.hyeeyoung.wishboard.domain.model.user.UserInfo
 import com.hyeeyoung.wishboard.presentation.my.MyViewModel
 import com.hyeeyoung.wishboard.presentation.my.model.MyUiModel
 import com.hyeeyoung.wishboard.presentation.util.constant.WishBoardUrl
 import com.hyeeyoung.wishboard.presentation.util.extension.moveToWebView
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.util.extension.sendMail
-import timber.log.Timber
 
 @Composable
 fun MyScreen(

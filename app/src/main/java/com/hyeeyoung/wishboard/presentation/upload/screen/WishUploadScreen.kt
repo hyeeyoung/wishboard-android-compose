@@ -54,20 +54,24 @@ import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.designsystem.util.PriceTransformation
 import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
+import com.hyeeyoung.wishboard.domain.model.noti.NotiInfo
 import com.hyeeyoung.wishboard.domain.model.noti.NotiType
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemUploadType
+import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat
+import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat.getFormattedDateStr
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.sign.model.WishItemDetail
 import com.hyeeyoung.wishboard.presentation.upload.WishItemUploadViewModel
 import com.hyeeyoung.wishboard.presentation.upload.model.UploadInputType
 import com.hyeeyoung.wishboard.presentation.upload.model.WishItemUploadUiModel
 import com.hyeeyoung.wishboard.presentation.util.extension.createImageUri
+import com.hyeeyoung.wishboard.presentation.util.extension.fromJson
 import com.hyeeyoung.wishboard.presentation.util.extension.getCurrentTime
 import com.hyeeyoung.wishboard.presentation.util.extension.makeValidPriceStr
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.util.extension.rememberModalLauncher
+import com.hyeeyoung.wishboard.presentation.util.extension.toJson
 import kotlinx.datetime.LocalDateTime
-import timber.log.Timber
 
 @Composable
 fun WishUploadScreen(
@@ -119,6 +123,7 @@ fun WishUploadScreen(
                 UploadInputType.ITEM_URL -> viewModel.setItemUri(input)
             }
         },
+        setNotiInfo = viewModel::setNotiInfo,
         onUriChange = { uri ->
             viewModel.setItemImageUrl(uri)
         }
@@ -134,6 +139,7 @@ fun WishUploadScreen(
     getFolders: ((List<FolderItem>) -> Unit) -> Unit,
     onSelectFolder: (FolderItem?) -> Unit,
     onTextChange: (UploadInputType, String) -> Unit,
+    setNotiInfo: (NotiInfo) -> Unit,
     onUriChange: (Uri?) -> Unit,
 ) {
     val systemUiController = rememberSystemUiController()
@@ -177,7 +183,9 @@ fun WishUploadScreen(
                 }
             }
 
-            is ModalData.Modal.Noti -> {}
+            is ModalData.Modal.Noti -> {
+                setNotiInfo(data.notiInfo.fromJson<NotiInfo>())
+            }
 
             is ModalData.Modal.FolderList -> {
                 onSelectFolder(data.selectedFolder)
@@ -277,11 +285,15 @@ fun WishUploadScreen(
             ItemInfoRow(
                 label = getNotiInfo(notiType = uiModel.itemNotiType, notiDate = uiModel.itemNotiDate)
                     ?: stringResource(id = R.string.wish_item_upload_noti),
-                onClickRow = { ModalData.Modal.Noti().openModal(context, modalLauncher) },
+                onClickRow = {
+                    ModalData.Modal.Noti(
+                        NotiInfo(notiType = uiModel.itemNotiType, notiDate = uiModel.itemNotiDate).toJson()
+                    ).openModal(context, modalLauncher)
+                },
             )
 
             ItemInfoRow(
-                label = if (uiModel.itemUrl.isNotBlank()) uiModel.itemUrl else stringResource(id = R.string.wish_item_upload_shop_link),
+                label = uiModel.itemUrl.ifBlank { stringResource(id = R.string.wish_item_upload_shop_link) },
                 onClickRow = { ModalData.Modal.ShopLink(uiModel.itemUrl).openModal(context, modalLauncher) },
             )
 
@@ -338,7 +350,12 @@ fun getNotiInfo(notiType: NotiType?, notiDate: LocalDateTime?): String? =
     if (notiType == null || notiDate == null) {
         null
     } else {
-        "[${stringResource(id = R.string.noti_item_type, formatArgs = arrayOf(notiType.label))}] $notiDate"
+        "[${
+            stringResource(
+                id = R.string.noti_item_type,
+                formatArgs = arrayOf(notiType.label)
+            )
+        }] ${notiDate.getFormattedDateStr(WishBoardDateFormat.YY_M_D_A_H_MM)}"
     }
 
 @Preview
@@ -361,6 +378,7 @@ fun PreviewWishUploadScreen() {
         onSelectFolder = {},
         onUriChange = {},
         onClickSave = {},
+        setNotiInfo = {},
         onClickClose = {},
     )
 }

@@ -23,30 +23,31 @@ import com.hyeeyoung.wishboard.designsystem.component.Picker
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
 import com.hyeeyoung.wishboard.designsystem.style.Gray100
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
+import com.hyeeyoung.wishboard.domain.model.noti.NotiInfo
 import com.hyeeyoung.wishboard.domain.model.noti.NotiType
 import com.hyeeyoung.wishboard.domain.model.noti.NotiType.Companion.toNotiType
 import com.hyeeyoung.wishboard.presentation.util.NumberPickerUtil
 import com.hyeeyoung.wishboard.presentation.util.NumberPickerUtil.getFormattedNumberPickerDate
 import com.hyeeyoung.wishboard.presentation.util.NumberPickerUtil.getFormattedNumberPickerTime
 import kotlinx.datetime.LocalDateTime
+import timber.log.Timber
 
 private val notiType = NotiType.entries.map { it.label }
 
 @Composable
 fun NotiModalContent(
-    type: NotiType? = null,
-    date: LocalDateTime? = null,
+    notiInfo: NotiInfo,
     onClickComplete: (NotiType?, LocalDateTime?) -> Unit
 ) {
     val selectedType = remember { mutableStateOf("") }
     val selectedDate = remember { mutableStateOf("") }
-    val selectedHour = remember { mutableStateOf( "") }
-    val selectedMinute = remember { mutableStateOf(date?.minute?.getFormattedNumberPickerTime() ?: "") }
+    val selectedHour = remember { mutableStateOf("") }
+    val selectedMinute = remember { mutableStateOf("") }
 
-    val dateStartIndex = NumberPickerUtil.dates.indexOf(date?.date?.getFormattedNumberPickerDate())
-    val hourStartIndex = NumberPickerUtil.hours.indexOf(date?.hour?.getFormattedNumberPickerTime())
-    val minuteStartIndex = NumberPickerUtil.minutes.indexOf(date?.minute?.getFormattedNumberPickerTime())
-    
+    val dateStartIndex = NumberPickerUtil.dates.indexOf(notiInfo.notiDate?.date?.getFormattedNumberPickerDate())
+    val hourStartIndex = NumberPickerUtil.hours.indexOf(notiInfo.notiDate?.hour?.getFormattedNumberPickerTime())
+    val minuteStartIndex = NumberPickerUtil.minutes.indexOf(notiInfo.notiDate?.minute?.getFormattedNumberPickerTime())
+
     Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)) {
         Box(modifier = Modifier.weight(1f)) {
             Canvas(
@@ -63,7 +64,7 @@ fun NotiModalContent(
                     .align(Alignment.CenterStart)
                     .widthIn(max = 80.dp),
                 itemList = notiType,
-                startIdx = type?.ordinal ?: 0,
+                startIdx = notiInfo.notiType?.ordinal ?: 0,
                 selectedItem = selectedType,
             )
 
@@ -115,10 +116,17 @@ fun NotiModalContent(
 
         WishBoardWideButton(
             enabled = true,
-            onClick = { onClickComplete(
-                selectedType.value.toNotiType(),
-                NumberPickerUtil.toLocalDateTime(date = selectedDate.value, hour = selectedHour.value, minute = selectedMinute.value)
-            ) },
+            onClick = {
+                Timber.e("selectedDate : ${selectedDate.value}")
+                onClickComplete(
+                    selectedType.value.toNotiType(),
+                    NumberPickerUtil.toLocalDateTime(
+                        date = selectedDate.value,
+                        hour = selectedHour.value,
+                        minute = selectedMinute.value
+                    )
+                )
+            },
             text = stringResource(id = R.string.complete)
         )
     }
@@ -127,5 +135,11 @@ fun NotiModalContent(
 @Composable
 @Preview(showSystemUi = true)
 fun PreviewNotiModalContent() {
-    NotiModalContent(type = NotiType.OPEN, date = LocalDateTime(25, 3, 25, 12, 30), onClickComplete = {_, _ ->})
+    NotiModalContent(
+        notiInfo = NotiInfo(
+            notiType = NotiType.OPEN,
+            notiDate = LocalDateTime(25, 3, 25, 12, 30)
+        ),
+        onClickComplete = { _, _ -> }
+    )
 }

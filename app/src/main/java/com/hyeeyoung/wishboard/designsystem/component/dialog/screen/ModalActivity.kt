@@ -9,11 +9,14 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.ModalData
+import com.hyeeyoung.wishboard.domain.model.noti.NotiInfo
 import com.hyeeyoung.wishboard.presentation.folder.FolderListModalContent
 import com.hyeeyoung.wishboard.presentation.noti.NotiModalContent
 import com.hyeeyoung.wishboard.presentation.onboarding.OnboardingModalContent
 import com.hyeeyoung.wishboard.presentation.upload.component.ShopLinkModalContent
+import com.hyeeyoung.wishboard.presentation.util.extension.fromJson
 import com.hyeeyoung.wishboard.presentation.util.extension.getSerializable
+import com.hyeeyoung.wishboard.presentation.util.extension.toJson
 
 class ModalActivity : ComponentActivity() {
 
@@ -79,10 +82,9 @@ class ModalActivity : ComponentActivity() {
             )
 
             is ModalData.Modal.Noti -> NotiModalContent(
-                type = modalData.notiType,
-                date = modalData.notiDate,
+                notiInfo = modalData.notiInfo.fromJson<NotiInfo>(),
                 onClickComplete = { type, date ->
-                    moveToPrevious(modalData.copy(notiType = type, notiDate = date))
+                    moveToPrevious(modalData.copy(NotiInfo(notiType = type, notiDate = date).toJson()))
                 },
             )
 

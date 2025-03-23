@@ -74,9 +74,7 @@ class LinkSharingWishUploadActivity : ComponentActivity() {
                             else -> {}
                         }
                     },
-                    setNotiInfo = { type, date ->
-                        viewModel.setNotiInfo(notiType = type, notiDate = date)
-                    },
+                    setNotiInfo = viewModel::setNotiInfo,
                     onSelectFolder = {
                         viewModel.updateSelectedFolder(it)
                     },

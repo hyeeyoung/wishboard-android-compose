@@ -38,7 +38,7 @@ object NumberPickerUtil {
     fun Int.getFormattedNumberPickerTime(): String = this.toString().padStart(2, '0')
 
     fun toLocalDateTime(date: String, hour: String, minute: String): kotlinx.datetime.LocalDateTime? {
-        if (date.isNotBlank() || hour.isBlank() || minute.isBlank()) return null
+        if (date.isBlank() || hour.isBlank() || minute.isBlank()) return null
         val formatter = DateTimeFormatter.ofPattern(WishBoardDateFormat.YY_M_D_HH_MM_KR)
         val dateTimeString = "$date $hour:$minute"
         val localDateTime = LocalDateTime.parse(dateTimeString, formatter)

@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -14,21 +15,28 @@ import androidx.compose.ui.unit.dp
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
 import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardTextField
+import com.hyeeyoung.wishboard.presentation.util.extension.checkValidationItemUrl
 
 @Composable
 fun ShopLinkModalContent(link: String? = null, onClickComplete: (String) -> Unit) {
     val linkInput = remember { mutableStateOf(link ?: "") }
+    val isValidUrl by remember(linkInput.value) {
+        mutableStateOf(if (linkInput.value.isEmpty()) null else linkInput.value.checkValidationItemUrl())
+    }
+
     Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)) {
         Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
             WishBoardTextField(
                 input = linkInput,
+                isError = isValidUrl == false,
+                onTextChange = { linkInput.value = it.trim() },
                 placeholder = stringResource(id = R.string.modal_shop_link_placeholder),
                 errorMsg = stringResource(id = R.string.modal_shop_link_error),
             )
         }
 
         WishBoardWideButton(
-            enabled = true,
+            enabled = isValidUrl == true,
             onClick = { onClickComplete(linkInput.value) },
             text = stringResource(id = R.string.complete),
         )

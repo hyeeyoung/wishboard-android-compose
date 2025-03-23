@@ -1,6 +1,6 @@
 package com.hyeeyoung.wishboard.data.remote.model.user
 
-import com.hyeeyoung.wishboard.domain.model.noti.UserInfo
+import com.hyeeyoung.wishboard.domain.model.user.UserInfo
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

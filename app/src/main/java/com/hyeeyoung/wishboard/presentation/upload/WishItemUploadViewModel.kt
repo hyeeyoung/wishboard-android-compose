@@ -9,6 +9,7 @@ import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.core.extension.onFailure
 import com.hyeeyoung.wishboard.data.local.WishBoardPreference
 import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
+import com.hyeeyoung.wishboard.domain.model.noti.NotiInfo
 import com.hyeeyoung.wishboard.domain.model.noti.NotiType
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemDetail
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemUploadType
@@ -27,6 +28,7 @@ import com.hyeeyoung.wishboard.presentation.util.extension.BitmapUtil.toBitmap
 import com.hyeeyoung.wishboard.presentation.util.extension.BitmapUtil.toFile
 import com.hyeeyoung.wishboard.presentation.util.extension.BitmapUtil.toImageFile
 import com.hyeeyoung.wishboard.presentation.util.extension.getBase64Json
+import com.hyeeyoung.wishboard.presentation.util.extension.getValidUrl
 import com.hyeeyoung.wishboard.presentation.util.extension.toMillis
 import com.hyeeyoung.wishboard.presentation.util.safeLet
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -91,7 +93,6 @@ class WishItemUploadViewModel @Inject constructor(
         viewModelScope.launch {
             val image = when (uploadType) {
                 WishItemUploadType.MANUAL -> {
-                    Timber.e("수동 등록 ${uiModel.value.itemImageUri}")
                     uiModel.value.itemImageUri?.toImageFile(context.contentResolver)
                 }
 
@@ -104,11 +105,15 @@ class WishItemUploadViewModel @Inject constructor(
 
             postWishItemUseCase(
                 uploadType = uploadType,
-                itemInfo = uiModel.value.toDomain(itemImage = image),
+                itemInfo = uiModel.value.toDomain(itemImage = image, uploadType = uploadType),
             ).onSuccess {
                 _uiModel.update { it.copy(wishItemUploadState = WishBoardState.Success(Unit)) }
                 updateSnackbarMessage("아이템을 위시리스트에 추가했어요!👜")
-                delay(SnackbarDuration.Short.toMillis())
+
+                if (uploadType == WishItemUploadType.PARSING) {
+                    delay(SnackbarDuration.Short.toMillis())
+                }
+
                 afterSuccess()
             }.onFailure { _, _, _ ->
                 _uiModel.update { it.copy(wishItemUploadState = WishBoardState.Failure) }
@@ -135,7 +140,7 @@ class WishItemUploadViewModel @Inject constructor(
 
             putWishItemUseCase(
                 itemId = itemId,
-                itemInfo = uiModel.value.toDomain(itemImage = image),
+                itemInfo = uiModel.value.toDomain(itemImage = image, uploadType = WishItemUploadType.MANUAL),
             ).onSuccess {
                 updateSnackbarMessage("아이템을 수정했어요!✍️")
                 afterSuccess()
@@ -241,43 +246,11 @@ class WishItemUploadViewModel @Inject constructor(
         }
     }
 
-    fun setNotiInfo(notiType: NotiType?, notiDate: LocalDateTime?) {
+    fun setNotiInfo(notiInfo: NotiInfo) {
         _uiModel.update {
-            it.copy(itemNotiType = notiType, itemNotiDate = notiDate)
+            it.copy(itemNotiType = notiInfo.notiType, itemNotiDate = notiInfo.notiDate)
         }
     }
-
-//    /** url 유효성 검증 */
-//    private fun checkValidationItemUrl(url: String?): Boolean {
-//        if (url.isNullOrBlank()) {
-//            return false
-//        }
-//
-//        return if (URLUtil.isValidUrl(url) && Patterns.WEB_URL.matcher(url).matches()) {
-//            itemUrl.value = url
-//            true
-//        } else {
-//            false
-//        }
-//    }
-//
-//    /** 쿠팡 > 앱 내 공유하기 버튼 클릭 > 위시보드로 공유할 경우 url 앞에 한글이 붙기 때문에 유효한 url만 떼어내고자 해당 함수에서 url을 가공함 */
-//    private fun getRefinedUrl(url: String): String? {
-//        val httpStartIdx = url.indexOf("http")
-//        if (httpStartIdx == -1) return null
-//        val refinedUrl = url.substring(httpStartIdx)
-//
-//        var httpEndIdx = refinedUrl.indexOf(" ")
-//        if (httpEndIdx == -1) {
-//            httpEndIdx = refinedUrl.indexOf("\n")
-//        }
-//
-//        return if (httpEndIdx == -1) {
-//            refinedUrl
-//        } else {
-//            refinedUrl.substring(0, httpEndIdx)
-//        }
-//    }
 
     /** 스낵바 시각 정보(전역으로 사용) */
     val globalSnackbarChannel = Channel<WishBoardSnackbarVisuals>(

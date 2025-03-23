@@ -86,7 +86,6 @@ fun Picker(
 
     LaunchedEffect(listState) {
         snapshotFlow {
-            Timber.e(listState.firstVisibleItemIndex.toString())
             listState.firstVisibleItemIndex
         }.map { index -> getItem(index + visibleItemsHalf) }
             .distinctUntilChanged()

@@ -5,7 +5,7 @@ import com.hyeeyoung.wishboard.data.remote.model.user.PasswordDto
 import com.hyeeyoung.wishboard.data.remote.service.UserService
 import com.hyeeyoung.wishboard.data.util.ContentUriRequestBody
 import com.hyeeyoung.wishboard.data.util.extension.toPlainNullableRequestBody
-import com.hyeeyoung.wishboard.domain.model.noti.UserInfo
+import com.hyeeyoung.wishboard.domain.model.user.UserInfo
 import com.hyeeyoung.wishboard.domain.model.user.UserProfile
 import com.hyeeyoung.wishboard.domain.repository.UserRepository
 import javax.inject.Inject
