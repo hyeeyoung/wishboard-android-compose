@@ -1,4 +1,4 @@
-package com.hyeeyoung.wishboard.presentation.noti
+package com.hyeeyoung.wishboard.presentation.noti.model
 
 import com.hyeeyoung.wishboard.presentation.sign.model.NotiItem
 

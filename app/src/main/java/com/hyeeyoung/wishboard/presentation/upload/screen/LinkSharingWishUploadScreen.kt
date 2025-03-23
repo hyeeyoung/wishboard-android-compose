@@ -161,7 +161,7 @@ fun LinkSharingWishUploadScreen(
                     ) {
                         Icon(
                             modifier = Modifier.size(12.dp),
-                            painter = painterResource(id = R.drawable.ic_nav_notice),
+                            painter = painterResource(id = R.drawable.ic_notice),
                             contentDescription = null,
                             tint = WishBoardTheme.colors.gray700,
                         )

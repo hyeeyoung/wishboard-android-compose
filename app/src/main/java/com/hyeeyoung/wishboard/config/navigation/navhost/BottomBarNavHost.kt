@@ -26,10 +26,6 @@ fun BottomBarNavHost(
 
         folderNavGraph(bottomNavController = bottomNavController, wishNavController = wishNavController)
 
-        composable(route = MainScreen.Noti.route) {
-            NotiScreen(navController = wishNavController)
-        }
-
         composable(route = MainScreen.My.route) {
             MyScreen(navController = wishNavController)
         }

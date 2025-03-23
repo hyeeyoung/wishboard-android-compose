@@ -5,6 +5,8 @@ import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -29,6 +31,7 @@ import com.hyeeyoung.wishboard.presentation.intro.IntroScreen
 import com.hyeeyoung.wishboard.presentation.main.MainScreen
 import com.hyeeyoung.wishboard.presentation.my.PasswordChangeScreen
 import com.hyeeyoung.wishboard.presentation.my.ProfileEditScreen
+import com.hyeeyoung.wishboard.presentation.noti.NotiScreen
 
 @Composable
 fun WishBoardNavHost(modifier: Modifier = Modifier, navController: NavHostController) {
@@ -36,14 +39,27 @@ fun WishBoardNavHost(modifier: Modifier = Modifier, navController: NavHostContro
 
     NavHost(modifier = modifier, navController = navController, startDestination = Intro.route) {
         snackbarComposable(snackbarHostState = snackbarHostState, route = Intro.route) {
-            IntroScreen(navController)
+            IntroScreen(navController = navController)
         }
 
         snackbarComposable(snackbarHostState = snackbarHostState, route = MainScreen.Root.route) {
-            MainScreen(navController, onClickAdd = { navController.navigate(MainScreen.Upload.route) })
+            MainScreen(
+                wishNavController = navController,
+                onClickAdd = { navController.navigate(MainScreen.Upload.route) })
         }
 
-        snackbarComposable(snackbarHostState = snackbarHostState, route = Calendar.route) {
+        snackbarComposable(snackbarHostState = snackbarHostState, route = MainScreen.Noti.route) {
+            NotiScreen(navController = navController)
+        }
+
+        snackbarComposable(
+            snackbarHostState = snackbarHostState,
+            enterTransition = { slideInVertically(initialOffsetY = { it }) },
+            exitTransition = { slideOutVertically(targetOffsetY = { -it }) },
+            popEnterTransition = { slideInVertically(initialOffsetY = { -it }) },
+            popExitTransition = { slideOutVertically(targetOffsetY = { it }) },
+            route = Calendar.route
+        ) {
             CalendarScreen(navController = navController)
         }
 

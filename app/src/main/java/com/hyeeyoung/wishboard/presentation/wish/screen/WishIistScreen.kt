@@ -2,16 +2,20 @@ package com.hyeeyoung.wishboard.presentation.wish.screen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
@@ -19,6 +23,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -26,13 +31,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.hyeeyoung.wishboard.R
-import com.hyeeyoung.wishboard.config.navigation.screen.Calendar
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardEmptyView
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardGlobalSnackbarMessage
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.domain.model.wish.WishItem
+import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.wish.model.WishListUiModel
 import com.hyeeyoung.wishboard.presentation.wish.WishListViewModel
 import com.hyeeyoung.wishboard.presentation.wish.component.WishItem
@@ -57,7 +62,7 @@ fun WishListScreen(navController: NavHostController, viewModel: WishListViewMode
         WishlistScreen(
             uiModel = uiModel,
             onClickCalendar = {
-                navController.navigate(Calendar.route)
+                navController.navigate(MainScreen.Noti.route)
             },
             onClickWishItem = { id ->
                 navController.navigate("${MainScreen.WishItemDetail.route}/${id}")
@@ -100,11 +105,11 @@ fun WishlistScreen(uiModel: WishListUiModel, onClickCalendar: () -> Unit, onClic
 }
 
 @Composable
-fun WishlistTopBar(onClickCalendar: () -> Unit) { // TODO 공용 TopBar 추출
+fun WishlistTopBar(onClickCalendar: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 16.dp, end = 8.dp, top = 6.dp, bottom = 6.dp),
+            .padding(start = 16.dp, end = 2.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -113,9 +118,14 @@ fun WishlistTopBar(onClickCalendar: () -> Unit) { // TODO 공용 TopBar 추출
             painter = painterResource(id = R.drawable.ic_app_text_logo),
             contentDescription = null,
         )
-        Row {
+        Box(modifier = Modifier.noRippleClickable { onClickCalendar() }.padding(14.dp).size(24.dp), contentAlignment = Alignment.Center) {
 //            WishBoardIconButton(iconRes = R.drawable.ic_cart, onClick = { onClickCart() })
-            WishBoardIconButton(iconRes = R.drawable.ic_calendar, onClick = { onClickCalendar() })
+
+            Icon(
+                painter = painterResource(id = R.drawable.ic_notice),
+                contentDescription = "알림",
+                tint = Color.Unspecified,
+            )
         }
     }
 }

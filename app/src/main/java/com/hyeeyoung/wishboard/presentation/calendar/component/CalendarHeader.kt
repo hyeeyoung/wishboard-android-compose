@@ -24,16 +24,16 @@ import java.time.format.TextStyle
 import java.util.Locale
 
 @Composable
-fun CalendarHeader(selectedDate: LocalDate, onClickBack: () -> Unit) {
+fun CalendarHeader(selectedDate: LocalDate, onClickClose: () -> Unit) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        CalendarTopBar(month = selectedDate.month, year = selectedDate.year, onClickBack = onClickBack)
+        CalendarTopBar(month = selectedDate.month, year = selectedDate.year, onClickClose = onClickClose)
         DayOfTheWeekLabel()
     }
 }
 
 /** 월, 년도 정보, 백버튼을 포함하는 캘린더 타이틀 라벨 */
 @Composable
-fun CalendarTopBar(month: Month, year: Int, onClickBack: () -> Unit) {
+fun CalendarTopBar(month: Month, year: Int, onClickClose: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -41,7 +41,7 @@ fun CalendarTopBar(month: Month, year: Int, onClickBack: () -> Unit) {
     ) {
         Row(modifier = Modifier.align(Alignment.CenterStart)) {
             Spacer(modifier = Modifier.width(5.dp))
-            WishBoardIconButton(iconRes = R.drawable.ic_back, onClick = { onClickBack() })
+            WishBoardIconButton(iconRes = R.drawable.ic_close, onClick = { onClickClose() })
         }
         Text(
             modifier = Modifier
@@ -77,5 +77,5 @@ fun DayOfTheWeekLabel() {
 @Preview(showBackground = true)
 @Composable
 fun CalendarHeaderPreview() {
-    CalendarHeader(selectedDate = LocalDate.now(), onClickBack = {})
+    CalendarHeader(selectedDate = LocalDate.now(), onClickClose = {})
 }

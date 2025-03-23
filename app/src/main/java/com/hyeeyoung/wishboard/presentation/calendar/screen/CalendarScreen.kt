@@ -8,13 +8,15 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
+import androidx.navigation.NavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
@@ -25,14 +27,91 @@ import com.hyeeyoung.wishboard.presentation.calendar.CalendarViewModel.Companion
 import com.hyeeyoung.wishboard.presentation.calendar.component.CalendarHeader
 import com.hyeeyoung.wishboard.presentation.calendar.component.CalendarSchedule
 import com.hyeeyoung.wishboard.presentation.calendar.component.CalendarTable
+import com.hyeeyoung.wishboard.presentation.noti.model.CalendarUiModel
 import com.hyeeyoung.wishboard.presentation.sign.model.NotiItem
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.toJavaLocalDate
+import java.time.LocalDate
 
 @Composable
-fun CalendarScreen(navController: NavHostController, viewModel: CalendarViewModel = viewModel()) {
-    // TODO 서버 연동 후 삭제
-    val notiList = listOf(
+fun CalendarScreen(
+    navController: NavController,
+    viewModel: CalendarViewModel = hiltViewModel()
+) {
+    val systemUiController = rememberSystemUiController()
+    val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
+
+    SideEffect {
+        systemUiController.setNavigationBarColor(Color.White)
+    }
+
+    CalendarScreen(
+        uiModel = uiModel,
+        onClickSchedule = { id ->
+            navController.navigate("${MainScreen.WishItemDetail.route}/$id")
+        },
+        updateSelectedDate = viewModel::updateSelectedDate,
+        changeCalendarPage = viewModel::changeCalendarPage,
+        onClickClose = navController::popBackStack
+    )
+}
+
+@Composable
+fun CalendarScreen(
+    uiModel: CalendarUiModel,
+    updateSelectedDate: (LocalDate) -> Unit,
+    onClickSchedule: (id: Long) -> Unit,
+    changeCalendarPage: (page: Int) -> Unit,
+    onClickClose: () -> Unit,
+) {
+    val curMonthNoti by remember(uiModel.schedules, uiModel.selectedDate) {
+        mutableStateOf(
+            uiModel.schedules.filter {
+                it.notiDate.year == uiModel.selectedDate.year && it.notiDate.month == uiModel.selectedDate.month
+            }
+        )
+    }
+    val curDateNoti by remember(curMonthNoti, uiModel.selectedDate) {
+        mutableStateOf(curMonthNoti.filter { it.notiDate.dayOfMonth == uiModel.selectedDate.dayOfMonth })
+    }
+    val pagerState = rememberPagerState(initialPage = INITIAL_PAGE, pageCount = { PAGE_COUNT })
+
+    Scaffold(
+        topBar = {
+            CalendarHeader(
+                selectedDate = uiModel.selectedDate,
+                onClickClose = onClickClose,
+            )
+        },
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .background(WishBoardTheme.colors.white)
+                .padding(top = paddingValues.calculateTopPadding()),
+        ) {
+            CalendarTable(
+                selectedDate = uiModel.selectedDate,
+                onSelect = { date -> updateSelectedDate(date) },
+                notiDateList = curMonthNoti.map { it.notiDate.date.toJavaLocalDate() },
+                pagerState = pagerState,
+                pageCount = PAGE_COUNT,
+                onChangePage = { page -> changeCalendarPage(page) },
+            )
+            CalendarSchedule(
+                selectedDate = uiModel.selectedDate,
+                notiItems = curDateNoti,
+                onClickSchedule = { id ->
+                    onClickSchedule(id)
+                },
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun CalendarPreview() {
+    val schedules = listOf(
         NotiItem(
             1,
             "https://image.msscdn.net/images/goods_img/20220222/2377269/2377269_16777177260753_500.jpg",
@@ -107,53 +186,13 @@ fun CalendarScreen(navController: NavHostController, viewModel: CalendarViewMode
         ),
     )
 
-    val systemUiController = rememberSystemUiController()
-    SideEffect {
-        systemUiController.setNavigationBarColor(Color.White)
-    }
-
-    val selectedDate by viewModel.selectedDate.collectAsStateWithLifecycle()
-    val curMonthNoti =
-        notiList.filter {
-            it.notiDate.year == selectedDate.year && it.notiDate.month == selectedDate.month
-        }
-    val curDateNoti = curMonthNoti.filter { it.notiDate.dayOfMonth == selectedDate.dayOfMonth }
-    val pagerState = rememberPagerState(initialPage = INITIAL_PAGE, pageCount = { PAGE_COUNT })
-
-    Scaffold(
-        topBar = {
-            CalendarHeader(
-                selectedDate = selectedDate,
-                onClickBack = { navController.popBackStack() },
-            )
-        },
-    ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .background(WishBoardTheme.colors.white)
-                .padding(top = paddingValues.calculateTopPadding()),
-        ) {
-            CalendarTable(
-                selectedDate = selectedDate,
-                onSelect = { date -> viewModel.updateSelectedDate(date) },
-                notiDateList = curMonthNoti.map { it.notiDate.date.toJavaLocalDate() },
-                pagerState = pagerState,
-                pageCount = PAGE_COUNT,
-                onChangePage = { page -> viewModel.changeCalendarPage(page) },
-            )
-            CalendarSchedule(
-                selectedDate = selectedDate,
-                notiItems = curDateNoti,
-                onClickSchedule = { id ->
-                    navController.navigate("${MainScreen.WishItemDetail.route}/$id")
-                },
-            )
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun CalendarPreview() {
-    CalendarScreen(navController = rememberNavController())
+    CalendarScreen(
+        uiModel = CalendarUiModel(
+            schedules = schedules,
+            selectedDate = LocalDate.of(2025, 3, 23),
+        ),
+        onClickSchedule = {},
+        updateSelectedDate = {},
+        changeCalendarPage = {},
+        onClickClose = {})
 }

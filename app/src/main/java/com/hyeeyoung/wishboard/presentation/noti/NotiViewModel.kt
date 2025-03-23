@@ -4,7 +4,7 @@ import androidx.lifecycle.viewModelScope
 import com.hyeeyoung.wishboard.domain.usecase.noti.GetPreviousNotiListUseCase
 import com.hyeeyoung.wishboard.domain.usecase.noti.PutNotiReadStateUseCase
 import com.hyeeyoung.wishboard.presentation.common.BaseViewModel
-import com.hyeeyoung.wishboard.presentation.sign.model.NotiItem
+import com.hyeeyoung.wishboard.presentation.noti.model.NotiListUiModel
 import com.hyeeyoung.wishboard.presentation.sign.model.snackbar.SnackbarMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,7 +23,7 @@ class NotiViewModel @Inject constructor(
 
     fun fetchPreviousNoti(didRefresh: Boolean) {
         _uiModel.update { it.copy(isRefreshing = didRefresh) }
-        
+
         viewModelScope.launch {
             getPreviousNotiListUseCase().onSuccess { notiList ->
                 _uiModel.update { it.copy(notiList = notiList, isRefreshing = false) }
