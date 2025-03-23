@@ -1,7 +1,8 @@
 package com.hyeeyoung.wishboard.presentation.sign.model
 
 import com.hyeeyoung.wishboard.domain.model.noti.NotiType
-import java.time.LocalDateTime
+import kotlinx.datetime.LocalDateTime
+
 
 data class Noti(
     val itemId: Long,

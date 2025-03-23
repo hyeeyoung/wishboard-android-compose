@@ -7,7 +7,7 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.provider.MediaStore
 import com.hyeeyoung.wishboard.presentation.common.model.ImageType
-import com.hyeeyoung.wishboard.presentation.util.WishBoardDateFormat
+import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber

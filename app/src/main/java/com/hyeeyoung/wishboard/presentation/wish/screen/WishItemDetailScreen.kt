@@ -55,8 +55,8 @@ import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
 import com.hyeeyoung.wishboard.domain.model.noti.NotiType
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardString
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
-import com.hyeeyoung.wishboard.presentation.util.WishBoardDateFormat
-import com.hyeeyoung.wishboard.presentation.util.WishBoardDateFormat.getFormattedDateStr
+import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat
+import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat.getFormattedDateStr
 import com.hyeeyoung.wishboard.presentation.util.buildStringWithSpans
 import com.hyeeyoung.wishboard.presentation.util.extension.getDomainName
 import com.hyeeyoung.wishboard.presentation.util.extension.moveToWebView

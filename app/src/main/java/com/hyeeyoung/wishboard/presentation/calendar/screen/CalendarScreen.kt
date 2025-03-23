@@ -26,7 +26,8 @@ import com.hyeeyoung.wishboard.presentation.calendar.component.CalendarHeader
 import com.hyeeyoung.wishboard.presentation.calendar.component.CalendarSchedule
 import com.hyeeyoung.wishboard.presentation.calendar.component.CalendarTable
 import com.hyeeyoung.wishboard.presentation.sign.model.NotiItem
-import java.time.LocalDateTime
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.toJavaLocalDate
 
 @Composable
 fun CalendarScreen(navController: NavHostController, viewModel: CalendarViewModel = viewModel()) {
@@ -37,72 +38,72 @@ fun CalendarScreen(navController: NavHostController, viewModel: CalendarViewMode
             "https://image.msscdn.net/images/goods_img/20220222/2377269/2377269_16777177260753_500.jpg",
             "W CLASSIC LOGO TEE white",
             "https://www.musinsa.com/app/goods/2377269",
-            0,
+            false,
             NotiType.RESTOCK,
-            LocalDateTime.of(2023, 5, 27, 15, 0),
+            LocalDateTime(2023, 5, 27, 15, 0),
         ),
         NotiItem(
             1,
             "https://image.msscdn.net/images/goods_img/20220222/2377269/2377269_16777177260753_500.jpg",
             "W CLASSIC LOGO TEE white",
             "https://www.musinsa.com/app/goods/2377269",
-            0,
+            false,
             NotiType.RESTOCK,
-            LocalDateTime.of(2023, 6, 7, 15, 0),
+            LocalDateTime(2023, 6, 7, 15, 0),
         ),
         NotiItem(
             1,
             "https://image.msscdn.net/images/goods_img/20220222/2377269/2377269_16777177260753_500.jpg",
             "W CLASSIC LOGO TEE white",
             "https://www.musinsa.com/app/goods/2377269",
-            0,
+            true,
             NotiType.RESTOCK,
-            LocalDateTime.of(2023, 7, 3, 13, 30),
+            LocalDateTime(2023, 7, 3, 13, 30),
         ),
         NotiItem(
             2,
             "https://image.msscdn.net/images/goods_img/20230427/3267246/3267246_16825933559850_500.jpg",
             "체리 자카드 패턴 숏 슬리브 가디건 [핑크]",
             "https://www.musinsa.com/app/goods/3267246/0",
-            0,
+            false,
             NotiType.PREORDER,
-            LocalDateTime.of(2023, 7, 20, 0, 0),
+            LocalDateTime(2023, 7, 20, 0, 0),
         ),
         NotiItem(
             2,
             "https://image.msscdn.net/images/goods_img/20230427/3267246/3267246_16825933559850_500.jpg",
             "체리 자카드 패턴 숏 슬리브 가디건 [핑크]",
             "https://www.musinsa.com/app/goods/3267246/0",
-            0,
+            false,
             NotiType.PREORDER,
-            LocalDateTime.of(2023, 8, 10, 11, 0),
+            LocalDateTime(2023, 8, 10, 11, 0),
         ),
         NotiItem(
             2,
             "https://image.msscdn.net/images/goods_img/20230427/3267246/3267246_16825933559850_500.jpg",
             "체리 자카드 패턴 숏 슬리브 가디건 [핑크]",
             "https://www.musinsa.com/app/goods/3267246/0",
-            0,
+            false,
             NotiType.PREORDER,
-            LocalDateTime.of(2023, 8, 11, 14, 0),
+            LocalDateTime(2023, 8, 11, 14, 0),
         ),
         NotiItem(
             2,
             "https://image.msscdn.net/images/goods_img/20230427/3267246/3267246_16825933559850_500.jpg",
             "체리 자카드 패턴 숏 슬리브 가디건 [핑크]",
             "https://www.musinsa.com/app/goods/3267246/0",
-            0,
+            false,
             NotiType.PREORDER,
-            LocalDateTime.of(2023, 8, 22, 19, 0),
+            LocalDateTime(2023, 8, 22, 19, 0),
         ),
         NotiItem(
             1,
             "https://image.msscdn.net/images/goods_img/20220222/2377269/2377269_16777177260753_500.jpg",
             "W CLASSIC LOGO TEE white",
             "https://www.musinsa.com/app/goods/2377269",
-            0,
+            false,
             NotiType.RESTOCK,
-            LocalDateTime.of(2024, 5, 18, 20, 0),
+            LocalDateTime(2024, 5, 18, 20, 0),
         ),
     )
 
@@ -135,7 +136,7 @@ fun CalendarScreen(navController: NavHostController, viewModel: CalendarViewMode
             CalendarTable(
                 selectedDate = selectedDate,
                 onSelect = { date -> viewModel.updateSelectedDate(date) },
-                notiDateList = curMonthNoti.map { it.notiDate.toLocalDate() },
+                notiDateList = curMonthNoti.map { it.notiDate.date.toJavaLocalDate() },
                 pagerState = pagerState,
                 pageCount = PAGE_COUNT,
                 onChangePage = { page -> viewModel.changeCalendarPage(page) },

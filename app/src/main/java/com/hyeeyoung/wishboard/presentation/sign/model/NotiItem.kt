@@ -1,14 +1,14 @@
 package com.hyeeyoung.wishboard.presentation.sign.model
 
 import com.hyeeyoung.wishboard.domain.model.noti.NotiType
-import java.time.LocalDateTime
+import kotlinx.datetime.LocalDateTime
 
 data class NotiItem(
     val itemId: Long,
-    val itemImg: String? = null,
+    val itemImage: String? = null,
     val itemName: String,
     val itemUrl: String? = null,
-    var readState: Int,
+    var isRead: Boolean,
     val notiType: NotiType,
     val notiDate: LocalDateTime,
 )

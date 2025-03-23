@@ -2,8 +2,8 @@ package com.hyeeyoung.wishboard.presentation.wish.model
 
 import com.hyeeyoung.wishboard.domain.model.noti.NotiType
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemDetail
-import com.hyeeyoung.wishboard.presentation.util.WishBoardDateFormat
-import com.hyeeyoung.wishboard.presentation.util.WishBoardDateFormat.applyFormat
+import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat
+import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat.applyFormat
 import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
 

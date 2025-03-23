@@ -6,8 +6,8 @@ import com.hyeeyoung.wishboard.domain.model.noti.NotiType
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemUploadInfo
 import com.hyeeyoung.wishboard.presentation.common.model.ImageType
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
-import com.hyeeyoung.wishboard.presentation.util.WishBoardDateFormat
-import com.hyeeyoung.wishboard.presentation.util.WishBoardDateFormat.getFormattedDateStr
+import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat
+import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat.getFormattedDateStr
 import kotlinx.datetime.LocalDateTime
 
 data class WishItemUploadUiModel(

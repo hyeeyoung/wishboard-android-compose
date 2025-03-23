@@ -1,4 +1,4 @@
-package com.hyeeyoung.wishboard.presentation.util
+package com.hyeeyoung.wishboard.domain.util
 
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.toJavaLocalDateTime
