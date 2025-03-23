@@ -24,17 +24,29 @@ import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
 import com.hyeeyoung.wishboard.designsystem.style.Gray100
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.domain.model.noti.NotiType
+import com.hyeeyoung.wishboard.domain.model.noti.NotiType.Companion.toNotiType
+import com.hyeeyoung.wishboard.presentation.util.NumberPickerUtil
+import com.hyeeyoung.wishboard.presentation.util.NumberPickerUtil.getFormattedNumberPickerDate
+import com.hyeeyoung.wishboard.presentation.util.NumberPickerUtil.getFormattedNumberPickerTime
 import kotlinx.datetime.LocalDateTime
 
 private val notiType = NotiType.entries.map { it.label }
 
 @Composable
-fun NotiModalContent(type: NotiType? = null, date: LocalDateTime? = null, onClickComplete: () -> Unit) { // NotiType, LocalDateTime
+fun NotiModalContent(
+    type: NotiType? = null,
+    date: LocalDateTime? = null,
+    onClickComplete: (NotiType?, LocalDateTime?) -> Unit
+) {
     val selectedType = remember { mutableStateOf("") }
     val selectedDate = remember { mutableStateOf("") }
-    val selectedHour = remember { mutableStateOf("") }
-    val selectedMinute = remember { mutableStateOf("") }
+    val selectedHour = remember { mutableStateOf( "") }
+    val selectedMinute = remember { mutableStateOf(date?.minute?.getFormattedNumberPickerTime() ?: "") }
 
+    val dateStartIndex = NumberPickerUtil.dates.indexOf(date?.date?.getFormattedNumberPickerDate())
+    val hourStartIndex = NumberPickerUtil.hours.indexOf(date?.hour?.getFormattedNumberPickerTime())
+    val minuteStartIndex = NumberPickerUtil.minutes.indexOf(date?.minute?.getFormattedNumberPickerTime())
+    
     Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)) {
         Box(modifier = Modifier.weight(1f)) {
             Canvas(
@@ -44,6 +56,7 @@ fun NotiModalContent(type: NotiType? = null, date: LocalDateTime? = null, onClic
                     .height(34.dp),
                 onDraw = { drawRoundRect(color = Gray100, cornerRadius = CornerRadius(6.dp.toPx())) },
             )
+
             Picker(
                 modifier = Modifier
                     .padding(start = 16.dp)
@@ -53,19 +66,24 @@ fun NotiModalContent(type: NotiType? = null, date: LocalDateTime? = null, onClic
                 startIdx = type?.ordinal ?: 0,
                 selectedItem = selectedType,
             )
+
             Picker(
                 modifier = Modifier
                     .widthIn(max = 126.dp)
                     .align(Alignment.Center),
-                itemList = listOf("22년 2월 19일 토", "22년 12월 19일 토", "22년 10월 19일 토"), // TODO 실데이터 넣기
+                itemList = NumberPickerUtil.dates,
+                startIdx = if (dateStartIndex != -1) dateStartIndex else 0,
                 selectedItem = selectedDate,
             )
+
             Row(modifier = Modifier.align(Alignment.CenterEnd)) {
                 Picker(
                     modifier = Modifier.widthIn(max = 40.dp),
-                    itemList = listOf("1", "2", "3", "10", "12"),
+                    itemList = NumberPickerUtil.hours,
+                    startIdx = if (hourStartIndex != -1) hourStartIndex else 0,
                     selectedItem = selectedHour,
                 )
+
                 Text(
                     modifier = Modifier
                         .align(Alignment.CenterVertically),
@@ -73,16 +91,19 @@ fun NotiModalContent(type: NotiType? = null, date: LocalDateTime? = null, onClic
                     style = WishBoardTheme.typography.suitB3,
                     color = WishBoardTheme.colors.gray700,
                 )
+
                 Picker(
                     modifier = Modifier
                         .padding(end = 6.dp)
                         .widthIn(max = 40.dp),
-                    itemList = listOf("00", "30"),
+                    itemList = NumberPickerUtil.minutes,
+                    startIdx = if (minuteStartIndex != -1) minuteStartIndex else 0,
                     selectedItem = selectedMinute,
                     enableInfiniteScroll = false,
                 )
             }
         }
+
         Text(
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
@@ -91,14 +112,20 @@ fun NotiModalContent(type: NotiType? = null, date: LocalDateTime? = null, onClic
             style = WishBoardTheme.typography.suitD3,
             color = WishBoardTheme.colors.gray300,
         )
-        WishBoardWideButton(enabled = true, onClick = {
-            onClickComplete()
-        }, text = stringResource(id = R.string.complete))
+
+        WishBoardWideButton(
+            enabled = true,
+            onClick = { onClickComplete(
+                selectedType.value.toNotiType(),
+                NumberPickerUtil.toLocalDateTime(date = selectedDate.value, hour = selectedHour.value, minute = selectedMinute.value)
+            ) },
+            text = stringResource(id = R.string.complete)
+        )
     }
 }
 
 @Composable
 @Preview(showSystemUi = true)
 fun PreviewNotiModalContent() {
-    NotiModalContent(onClickComplete = {})
+    NotiModalContent(type = NotiType.OPEN, date = LocalDateTime(25, 3, 25, 12, 30), onClickComplete = {_, _ ->})
 }

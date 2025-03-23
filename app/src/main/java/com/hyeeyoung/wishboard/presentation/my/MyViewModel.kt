@@ -12,12 +12,14 @@ import com.hyeeyoung.wishboard.domain.usecase.user.UpdatePushStateUseCase
 import com.hyeeyoung.wishboard.presentation.common.BaseViewModel
 import com.hyeeyoung.wishboard.presentation.my.model.MyUiModel
 import com.hyeeyoung.wishboard.presentation.sign.model.snackbar.SnackbarMessage
+import com.hyeeyoung.wishboard.presentation.util.WishBoardFormat
 import com.hyeeyoung.wishboard.presentation.util.extension.BitmapUtil.toImageFile
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.util.regex.Pattern
 import javax.inject.Inject
 
 @HiltViewModel
@@ -57,13 +59,13 @@ class MyViewModel @Inject constructor(
     }
 
     fun updateUserProfile(contentResolver: ContentResolver, afterSuccess: () -> Unit) {
-        val trimmedName = uiModel.value.inputName.trim()
+        val trimmedName = uiModel.value.nameInput.trim()
 
         viewModelScope.launch {
             putUserProfileUseCase(
                 userProfile = UserProfile(
                     nickName = trimmedName.ifBlank { null },
-                    profileImage = uiModel.value.inputImageUri?.toImageFile(contentResolver)
+                    profileImage = uiModel.value.imageUriInput?.toImageFile(contentResolver)
                 )
             ).onSuccess {
                 afterSuccess()
@@ -74,9 +76,9 @@ class MyViewModel @Inject constructor(
         }
     }
 
-    fun updatePassword(password: String, afterSuccess: () -> Unit) {
+    fun updatePassword(afterSuccess: () -> Unit) {
         viewModelScope.launch {
-            putPasswordUseCase(password).onSuccess {
+            putPasswordUseCase(uiModel.value.rePasswordInput).onSuccess {
                 updateSnackbarMessage("비밀번호가 변경되었어요!👩‍🎤")
                 afterSuccess()
             }.onFailure {
@@ -102,6 +104,20 @@ class MyViewModel @Inject constructor(
                 updateSnackbarMessage("탈퇴 완료되었어요. 이용해주셔서 감사합니다!☺️")
             }.onFailure {
                 updateSnackbarMessage(SnackbarMessage.DEFAULT)
+            }
+        }
+    }
+
+    fun onPasswordChange(password: String, isRePassword: Boolean) {
+        val trimmedPassword = password.trim()
+
+        _uiModel.update {
+            if (isRePassword) {
+                it.copy(rePasswordInput = trimmedPassword)
+            } else {
+                val passwordPattern = Pattern.compile(WishBoardFormat.PASSWORD_PATTERN)
+                val isValid = if (trimmedPassword.isBlank()) null else passwordPattern.matcher(password).matches()
+                it.copy(passwordInput = trimmedPassword, isValidPassword = isValid)
             }
         }
     }

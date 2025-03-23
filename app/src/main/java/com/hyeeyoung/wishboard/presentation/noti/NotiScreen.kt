@@ -197,7 +197,7 @@ fun NotiItem(noti: NotiItem, onClickNotiWithLink: (String) -> Unit = {}, onClick
                 overflow = TextOverflow.Ellipsis,
             )
             Text(
-                text = noti.notiDate.formatAsTimeAgo(),
+                text = noti.notiDate?.formatAsTimeAgo() ?: "",
                 style = WishBoardTheme.typography.suitD3,
                 color = WishBoardTheme.colors.gray200,
             )

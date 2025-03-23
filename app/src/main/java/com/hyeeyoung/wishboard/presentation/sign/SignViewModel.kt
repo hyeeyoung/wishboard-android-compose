@@ -174,7 +174,7 @@ class SignViewModel @Inject constructor(
 
         val passwordPattern = Pattern.compile(WishBoardFormat.PASSWORD_PATTERN)
         _uiModel.update {
-            it.copy(isValidPassword = if (password.isBlank()) null else passwordPattern.matcher(password).matches())
+            it.copy(isValidPassword = if (trimmedPassword.isBlank()) null else passwordPattern.matcher(password).matches())
         }
     }
 

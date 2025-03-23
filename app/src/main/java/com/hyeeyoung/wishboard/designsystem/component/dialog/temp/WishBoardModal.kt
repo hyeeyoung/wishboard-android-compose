@@ -86,6 +86,6 @@ fun PreviewWishBoardModal() {
         isOpen = true,
         titleRes = R.string.wish_item_link_sharing_upload_noti_setting,
         onDismissRequest = {},
-        content = { NotiModalContent(onClickComplete = {}) },
+        content = { NotiModalContent(onClickComplete = {_, _ ->}) },
     )
 }

@@ -5,6 +5,9 @@ import com.hyeeyoung.wishboard.domain.model.noti.UserInfo
 
 data class MyUiModel(
     val userInfo: UserInfo = UserInfo(),
-    val inputName: String = "",
-    val inputImageUri: Uri? = null,
+    val nameInput: String = "",
+    val imageUriInput: Uri? = null,
+    val passwordInput: String = "",
+    val rePasswordInput: String = "",
+    val isValidPassword: Boolean? = null,
 )

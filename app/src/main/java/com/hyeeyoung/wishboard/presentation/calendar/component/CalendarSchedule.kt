@@ -89,6 +89,7 @@ fun ScheduleItem(
             .padding(16.dp),
     ) {
         val (image, notiType, notiDate, itemName) = createRefs()
+        
         Image(
             modifier = Modifier
                 .constrainAs(image) { start.linkTo(parent.start) }
@@ -96,6 +97,7 @@ fun ScheduleItem(
                 .clip(CircleShape),
             model = noti.itemImage,
         )
+
         Text(
             modifier = Modifier.constrainAs(notiType) {
                 start.linkTo(image.end, margin = 10.dp)
@@ -105,6 +107,7 @@ fun ScheduleItem(
             color = WishBoardTheme.colors.gray700,
             style = WishBoardTheme.typography.suitH5,
         )
+
         Text(
             modifier = Modifier
                 .constrainAs(itemName) {
@@ -119,12 +122,13 @@ fun ScheduleItem(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
+
         Text(
             modifier = Modifier.constrainAs(notiDate) {
                 bottom.linkTo(parent.bottom)
                 start.linkTo(notiType.start)
             },
-            text = noti.notiDate.getScheduleTimeFormat(),
+            text = noti.notiDate?.getScheduleTimeFormat() ?: "",
             color = WishBoardTheme.colors.gray200,
             style = WishBoardTheme.typography.suitD3,
         )

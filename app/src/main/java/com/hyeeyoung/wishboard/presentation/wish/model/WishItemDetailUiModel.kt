@@ -3,7 +3,8 @@ package com.hyeeyoung.wishboard.presentation.wish.model
 import com.hyeeyoung.wishboard.domain.model.noti.NotiType
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemDetail
 import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat
-import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat.applyFormat
+import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat.toLocalDateTime
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
 
@@ -19,7 +20,7 @@ data class WishItemDetailUiModel(
     val notiType: NotiType? = null,
     val price: Long = 0L,
     val site: String? = null,
-    val createAt: String = "",
+    val createAt: LocalDateTime? = null,
 ) {
     companion object {
         fun fromDomain(domain: WishItemDetail): WishItemDetailUiModel =
@@ -30,11 +31,11 @@ data class WishItemDetailUiModel(
                 image = domain.image,
                 memo = domain.memo,
                 name = domain.name,
-                notiDate = domain.notiDate?.applyFormat(WishBoardDateFormat.YYYY_MM_DD_HH_MM_SS),
+                notiDate = domain.notiDate?.toLocalDateTime(WishBoardDateFormat.YYYY_MM_DD_HH_MM_SS),
                 notiType = domain.notiType,
                 price = domain.price.toLongOrNull() ?: 0,
                 site = domain.site,
-                createAt = domain.createAt
+                createAt = domain.createAt.toLocalDateTime(WishBoardDateFormat.YYYY_MM_DD_HH_MM_SS)
             )
     }
 }

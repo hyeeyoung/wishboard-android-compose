@@ -6,12 +6,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
@@ -62,7 +60,6 @@ fun WishBoardBottomBar(navController: NavHostController = rememberNavController(
             }
         }
     )
-
 }
 
 @Composable
@@ -112,7 +109,13 @@ fun isSelectedMenu(currentRoute: String?, navItem: BottomNavItem): Boolean {
 }
 
 @Composable
-fun BottomBarIconButton(textWidth: Dp, textStyle: TextStyle, navItem: BottomNavItem, isSelected: Boolean, onSelect: () -> Unit) {
+fun BottomBarIconButton(
+    textWidth: Dp,
+    textStyle: TextStyle,
+    navItem: BottomNavItem,
+    isSelected: Boolean,
+    onSelect: () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxHeight()
@@ -124,7 +127,9 @@ fun BottomBarIconButton(textWidth: Dp, textStyle: TextStyle, navItem: BottomNavI
         Icon(painter = painterResource(id = navItem.icon), contentDescription = null, tint = btnColor)
 
         Text(
-            modifier= Modifier.width(textWidth).padding(top = 6.dp),
+            modifier = Modifier
+                .width(textWidth)
+                .padding(top = 6.dp),
             text = stringResource(id = navItem.label),
             style = textStyle,
             color = btnColor,

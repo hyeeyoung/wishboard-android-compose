@@ -208,7 +208,7 @@ private fun DecorationBox(
                         Spacer(modifier = Modifier.size(2.dp))
                         WishBoardIconButton(iconRes = R.drawable.ic_delete_circle, onClick = onClickClear)
                     } else {
-                        Spacer(modifier = Modifier.size(10.dp))
+                        Spacer(modifier = Modifier.size(width = 10.dp, height = 32.dp))
                     }
                 }
 

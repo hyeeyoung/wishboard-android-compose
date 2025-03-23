@@ -53,11 +53,12 @@ import com.hyeeyoung.wishboard.designsystem.style.Gray700
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
 import com.hyeeyoung.wishboard.domain.model.noti.NotiType
-import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardString
-import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat
 import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat.getFormattedDateStr
+import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardString
+import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.util.buildStringWithSpans
+import com.hyeeyoung.wishboard.presentation.util.extension.formatAsTimeAgo
 import com.hyeeyoung.wishboard.presentation.util.extension.getDomainName
 import com.hyeeyoung.wishboard.presentation.util.extension.moveToWebView
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
@@ -240,7 +241,7 @@ private fun WishItemDetailContents(modifier: Modifier, itemDetail: WishItemDetai
                 onClickFolder = onClickFolder,
             )
             Text(
-                text = itemDetail.createAt,
+                text = itemDetail.createAt?.formatAsTimeAgo() ?: "",
                 style = WishBoardTheme.typography.suitD3,
                 color = WishBoardTheme.colors.gray300,
             )
@@ -366,7 +367,7 @@ fun PreviewWishItemDetailScreen() {
             memo = "S사이즈",
             folderId = 1L,
             folderName = "상의",
-            createAt = "1주 전",
+            createAt = LocalDateTime(2025, 3, 20, 2, 0),
         ),
         updateFolder = {},
         onClickShop = {},

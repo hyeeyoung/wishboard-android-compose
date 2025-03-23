@@ -65,7 +65,7 @@ fun WebViewTopBar(title: String?, onClickClose: () -> Unit, onClickRefresh: () -
         endComponent = { endComponentModifier ->
             Row(modifier = endComponentModifier) {
                 WishBoardIconButton(iconRes = R.drawable.ic_refresh, onClick = { onClickRefresh() })
-                WishBoardIconButton(iconRes = R.drawable.ic_more, onClick = { /*TODO*/ })
+//                WishBoardIconButton(iconRes = R.drawable.ic_more, onClick = { /*TODO*/ })
                 Spacer(modifier = Modifier.size(4.dp))
             }
         },

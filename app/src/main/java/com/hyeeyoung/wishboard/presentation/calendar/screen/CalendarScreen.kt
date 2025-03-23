@@ -15,7 +15,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
@@ -67,12 +66,12 @@ fun CalendarScreen(
     val curMonthNoti by remember(uiModel.schedules, uiModel.selectedDate) {
         mutableStateOf(
             uiModel.schedules.filter {
-                it.notiDate.year == uiModel.selectedDate.year && it.notiDate.month == uiModel.selectedDate.month
+                it.notiDate != null && it.notiDate.year == uiModel.selectedDate.year && it.notiDate.month == uiModel.selectedDate.month
             }
         )
     }
     val curDateNoti by remember(curMonthNoti, uiModel.selectedDate) {
-        mutableStateOf(curMonthNoti.filter { it.notiDate.dayOfMonth == uiModel.selectedDate.dayOfMonth })
+        mutableStateOf(curMonthNoti.filter { it.notiDate?.dayOfMonth == uiModel.selectedDate.dayOfMonth })
     }
     val pagerState = rememberPagerState(initialPage = INITIAL_PAGE, pageCount = { PAGE_COUNT })
 
@@ -92,7 +91,7 @@ fun CalendarScreen(
             CalendarTable(
                 selectedDate = uiModel.selectedDate,
                 onSelect = { date -> updateSelectedDate(date) },
-                notiDateList = curMonthNoti.map { it.notiDate.date.toJavaLocalDate() },
+                notiDateList = curMonthNoti.map { it.notiDate!!.date.toJavaLocalDate() },
                 pagerState = pagerState,
                 pageCount = PAGE_COUNT,
                 onChangePage = { page -> changeCalendarPage(page) },

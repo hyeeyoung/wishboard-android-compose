@@ -7,11 +7,15 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toLocalDateTime
 import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 /** 날짜를 "a h시 mm분" 포맷으로 변경 */
 fun LocalDateTime.getScheduleTimeFormat(): String {
     val isAM = if (this.hour < 12) "오전" else "오후"
-    val hour = "${this.hour}시"
+
+    val formatter = DateTimeFormatter.ofPattern("h시")
+    val hour = this.toJavaLocalDateTime().format(formatter) // 12시간 형식
+
     val minute = if (this.minute == 0) "" else "${this.minute}분"
 
     return "$isAM $hour $minute"

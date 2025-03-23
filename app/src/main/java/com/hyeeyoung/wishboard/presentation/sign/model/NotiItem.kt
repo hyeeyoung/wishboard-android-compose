@@ -10,5 +10,5 @@ data class NotiItem(
     val itemUrl: String? = null,
     var isRead: Boolean,
     val notiType: NotiType,
-    val notiDate: LocalDateTime,
+    val notiDate: LocalDateTime?,
 )

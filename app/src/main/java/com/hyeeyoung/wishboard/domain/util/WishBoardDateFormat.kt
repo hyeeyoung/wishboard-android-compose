@@ -1,24 +1,39 @@
 package com.hyeeyoung.wishboard.domain.util
 
+import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat.toLocalDateTime
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.toJavaLocalDate
 import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toKotlinLocalDateTime
+import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 object WishBoardDateFormat {
     const val YYYY_MM_DD_HH_MM_SS = "yyyy-MM-dd HH:mm:ss"
     const val YY_M_D_KR = "yy년 M월 d일"
+    const val YY_M_D_HH_MM_KR = "$YY_M_D_KR HH:mm"
     const val YYYYMMDD_T_HHMMSS_Z = "yyyyMMdd'T'HHmmss'Z'"
 
-    fun String.applyFormat(pattern: String): LocalDateTime {
-        val formatter = DateTimeFormatter.ofPattern(pattern, Locale.KOREA)
-        val localDateTime = java.time.LocalDateTime.parse(this, formatter)
-        return localDateTime.toKotlinLocalDateTime()
-    }
+    fun String.toLocalDateTime(pattern: String): LocalDateTime? =
+        runCatching {
+            val formatter = DateTimeFormatter.ofPattern(pattern, Locale.KOREA)
+            val localDateTime = java.time.LocalDateTime.parse(this, formatter)
+            localDateTime.toKotlinLocalDateTime()
+        }.getOrNull()
 
     fun LocalDateTime.getFormattedDateStr(pattern: String): String {
         val formatter = DateTimeFormatter.ofPattern(pattern)
         return this.toJavaLocalDateTime().format(formatter)
+    }
+
+    fun LocalDate.getFormattedDateStr(pattern: String): String {
+        val formatter = DateTimeFormatter.ofPattern(pattern)
+        return this.format(formatter)
+    }
+
+    fun kotlinx.datetime.LocalDate.getFormattedDateStr(pattern: String): String {
+        val formatter = DateTimeFormatter.ofPattern(pattern)
+        return this.toJavaLocalDate().format(formatter)
     }
 }

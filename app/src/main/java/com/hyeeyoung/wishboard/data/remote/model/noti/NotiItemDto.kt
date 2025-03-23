@@ -3,7 +3,7 @@ package com.hyeeyoung.wishboard.data.remote.model.noti
 import com.hyeeyoung.wishboard.domain.model.noti.NotiType.Companion.toNotiType
 import com.hyeeyoung.wishboard.presentation.sign.model.NotiItem
 import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat
-import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat.applyFormat
+import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat.toLocalDateTime
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -31,6 +31,6 @@ data class NotiItemDto(
         itemUrl = if (itemUrl.isNullOrBlank()) null else itemUrl,
         isRead = readState != 0,
         notiType = notiType.toNotiType(),
-        notiDate = notiDate.applyFormat(WishBoardDateFormat.YYYY_MM_DD_HH_MM_SS),
+        notiDate = notiDate.toLocalDateTime(WishBoardDateFormat.YYYY_MM_DD_HH_MM_SS),
     )
 }
