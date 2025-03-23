@@ -51,7 +51,7 @@ class FolderViewModel @Inject constructor(
         }
     }
 
-    fun createFolder(folderName: String) {
+    fun createFolder(folderName: String, afterSuccess: () -> Unit) {
         if (uiModel.value.addState is WishBoardState.Loading) return
 
         val trimmedName = folderName.trim()
@@ -61,6 +61,9 @@ class FolderViewModel @Inject constructor(
             postNewFolderUseCase(trimmedName)
                 .onSuccess {
                     _uiModel.update { it.copy(addState = WishBoardState.Success(Unit), existingFolderName = "") }
+                    getFolders(false)
+                    afterSuccess()
+                    updateSnackbarMessage("폴더를 추가했어요!😉")
                 }.onFailure { _, errorCode, _ ->
                     when (errorCode) {
                         409 -> _uiModel.update { it.copy(existingFolderName = trimmedName) }
@@ -71,7 +74,7 @@ class FolderViewModel @Inject constructor(
         }
     }
 
-    fun updateFolder(folderId: Long, folderName: String) {
+    fun updateFolder(folderId: Long, folderName: String, afterSuccess: () -> Unit,) {
         if (uiModel.value.updateState is WishBoardState.Loading) return
 
         val trimmedName = folderName.trim()
@@ -79,7 +82,14 @@ class FolderViewModel @Inject constructor(
 
         viewModelScope.launch {
             putFolderNameUseCase(folderId = folderId, folderName = trimmedName).onSuccess {
-                _uiModel.update { it.copy(updateState = WishBoardState.Success(Unit), existingFolderName = "") }
+                val folders = uiModel.value.folders.map { folder ->
+                    if (folder.id == folderId)
+                        folder.copy(name = trimmedName)
+                    else folder
+                }
+                _uiModel.update { it.copy(folders = folders, updateState = WishBoardState.Success(Unit), existingFolderName = "") }
+                afterSuccess()
+                updateSnackbarMessage("폴더명을 수정했어요!📁")
             }.onFailure { _, errorCode, _ ->
                 when (errorCode) {
                     409 -> _uiModel.update { it.copy(existingFolderName = trimmedName) }
@@ -90,14 +100,22 @@ class FolderViewModel @Inject constructor(
         }
     }
 
-    fun deleteFolder(folderId: Long) {
+    fun deleteFolder(folderId: Long?) {
+        if (folderId == null) {
+            updateSnackbarMessage(SnackbarMessage.DEFAULT)
+            return
+        }
+
         if (uiModel.value.deleteState is WishBoardState.Loading) return
 
         _uiModel.update { it.copy(deleteState = WishBoardState.Loading) }
 
         viewModelScope.launch {
             deleteFolderUseCase(folderId = folderId).onSuccess {
-                _uiModel.update { it.copy(deleteState = WishBoardState.Success(Unit)) }
+                val folder = uiModel.value.folders.find { it.id == folderId } ?: return@launch
+                val folders = uiModel.value.folders.minus(folder)
+                _uiModel.update { it.copy(folders = folders, deleteState = WishBoardState.Success(Unit)) }
+                updateSnackbarMessage("폴더를 삭제했어요!🗑️")
             }.onFailure { _, _, _ ->
                 updateSnackbarMessage(SnackbarMessage.DEFAULT)
                 _uiModel.update { it.copy(deleteState = WishBoardState.Failure) }

@@ -29,14 +29,14 @@ fun FolderUploadModalContent(
         Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
             WishBoardTextField(
                 input = nameInput,
-                isError = nameInput.value.trim() == existingFolderName,
+                isError = nameInput.value.isNotBlank() && nameInput.value.trim() == existingFolderName,
                 placeholder = stringResource(id = R.string.modal_folder_upload_placeholder),
                 errorMsg = stringResource(id = R.string.modal_folder_upload_error),
             )
         }
 
         WishBoardWideButton(
-            enabled = true,
+            enabled = nameInput.value.isNotBlank(),
             state = uploadState,
             onClick = { onClickComplete(nameInput.value) },
             text = if (uploadState !is WishBoardState.Loading) stringResource(id = if (folderName == null) R.string.add else R.string.modal_folder_name_edit_btn_text) else "",

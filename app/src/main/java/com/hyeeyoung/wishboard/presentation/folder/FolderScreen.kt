@@ -16,13 +16,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -74,6 +72,9 @@ fun FolderScreen(navController: NavHostController, viewModel: FolderViewModel = 
             onClickFolder = { folder ->
                 navController.navigate("${MainScreen.FolderDetail.route}/${folder.id}/${folder.name}")
             },
+            deleteFolder = { id ->
+                viewModel.deleteFolder(id)
+            },
             showModal = { modal: ModalData.Modal ->
                 modalData = modal
             }
@@ -94,8 +95,9 @@ fun FolderScreen(navController: NavHostController, viewModel: FolderViewModel = 
                         uploadState = uiModel.addState,
                         existingFolderName = uiModel.existingFolderName,
                         onClickComplete = { name ->
-                            viewModel.createFolder(name)
-                            modalData = null
+                            viewModel.createFolder(folderName = name, afterSuccess = {
+                                modalData = null
+                            })
                         })
                 }
 
@@ -106,8 +108,9 @@ fun FolderScreen(navController: NavHostController, viewModel: FolderViewModel = 
                         uploadState = uiModel.updateState,
                         existingFolderName = uiModel.existingFolderName,
                         onClickComplete = { name ->
-                            viewModel.updateFolder(folderId = data.folderId, folderName = name)
-                            modalData = null
+                            viewModel.updateFolder(folderId = data.folderId, folderName = name, afterSuccess = {
+                                modalData = null
+                            })
                         },
                     )
                 }
@@ -122,6 +125,7 @@ fun FolderScreen(navController: NavHostController, viewModel: FolderViewModel = 
 fun FolderScreen(
     uiModel: FolderTabUiModel,
     onClickFolder: (FolderItem) -> Unit,
+    deleteFolder: (id: Long?) -> Unit,
     showModal: (ModalData.Modal) -> Unit,
 ) {
     var dialogData by remember { mutableStateOf<DialogData?>(null) }
@@ -143,7 +147,16 @@ fun FolderScreen(
 
     WishBoardDialog(
         dialogData = dialogData,
-        onClickConfirm = { /*TODO*/ },
+        onClickConfirm = {
+            when (dialogData) {
+                is DialogData.FolderDelete -> {
+                    val id = (dialogData as DialogData.FolderDelete).folderId
+                    deleteFolder(id)
+                }
+
+                else -> {}
+            }
+        },
         onDismissRequest = { dialogData = null },
     )
 
@@ -255,6 +268,7 @@ fun PreviewFolderScreen() {
     FolderScreen(
         uiModel = FolderTabUiModel(folders = folders),
         onClickFolder = {},
+        deleteFolder = {},
         showModal = {},
     )
 }
