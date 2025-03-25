@@ -1,14 +1,12 @@
 package com.hyeeyoung.wishboard.presentation.common.model
 
+import okhttp3.MultipartBody
 import java.io.File
 import java.io.InputStream
 
 sealed class ImageType {
     data class Picture(
-        val name: String,
-        val size: Long,
-        val mimeType: String?,
-        val inputStreamProvider: () -> InputStream?
+        val image: MultipartBody.Part?,
     ) : ImageType()
 
     data class DownloadImage(

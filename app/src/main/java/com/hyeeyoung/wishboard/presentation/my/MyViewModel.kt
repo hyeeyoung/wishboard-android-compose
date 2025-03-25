@@ -1,10 +1,12 @@
 package com.hyeeyoung.wishboard.presentation.my
 
 import android.content.ContentResolver
+import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.viewModelScope
 import com.hyeeyoung.wishboard.core.extension.onFailure
 import com.hyeeyoung.wishboard.data.local.WishBoardPreference
+import com.hyeeyoung.wishboard.data.util.ContentUriRequestBody
 import com.hyeeyoung.wishboard.domain.model.user.UserProfile
 import com.hyeeyoung.wishboard.domain.usecase.auth.PostLogoutUseCase
 import com.hyeeyoung.wishboard.domain.usecase.user.DeleteUserAccountUseCase
@@ -13,15 +15,21 @@ import com.hyeeyoung.wishboard.domain.usecase.user.PutPasswordUseCase
 import com.hyeeyoung.wishboard.domain.usecase.user.PutUserProfileUseCase
 import com.hyeeyoung.wishboard.domain.usecase.user.UpdatePushStateUseCase
 import com.hyeeyoung.wishboard.presentation.common.BaseViewModel
+import com.hyeeyoung.wishboard.presentation.common.model.ImageType
 import com.hyeeyoung.wishboard.presentation.my.model.MyUiModel
 import com.hyeeyoung.wishboard.presentation.sign.model.snackbar.SnackbarMessage
 import com.hyeeyoung.wishboard.presentation.util.WishBoardFormat
-import com.hyeeyoung.wishboard.presentation.util.extension.BitmapUtil.toImageFile
+import com.hyeeyoung.wishboard.presentation.util.extension.convertResizeImage
+import com.hyeeyoung.wishboard.presentation.util.safeLet
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import timber.log.Timber
 import java.util.regex.Pattern
 import javax.inject.Inject
 
@@ -65,14 +73,20 @@ class MyViewModel @Inject constructor(
         }
     }
 
-    fun updateUserProfile(contentResolver: ContentResolver, afterSuccess: () -> Unit) {
+    fun updateUserProfile(context: Context, afterSuccess: () -> Unit) {
         val trimmedName = uiModel.value.nicknameInput.trim()
+        val file = uiModel.value.imageUriInput?.let { uri ->
+            context.convertResizeImage(uri)
+        }
+        val requestBody = file?.asRequestBody("image/jpeg".toMediaTypeOrNull())
 
         viewModelScope.launch {
             putUserProfileUseCase(
                 userProfile = UserProfile(
                     nickName = if (uiModel.value.userInfo.nickname == trimmedName) null else trimmedName.ifBlank { null },
-                    profileImage = uiModel.value.imageUriInput?.toImageFile(contentResolver)
+                    profileImage = safeLet(file, requestBody) { a, b ->
+                        MultipartBody.Part.createFormData("profile_img", a.name, b)
+                    }
                 )
             ).onSuccess {
                 afterSuccess()
@@ -125,6 +139,7 @@ class MyViewModel @Inject constructor(
     }
 
     fun setProfileImageUri(uri: Uri?) {
+        Timber.e("uri : $uri")
         _uiModel.update {
             it.copy(imageUriInput = uri)
         }

@@ -10,7 +10,6 @@ import com.hyeeyoung.wishboard.core.extension.onFailure
 import com.hyeeyoung.wishboard.data.local.WishBoardPreference
 import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
 import com.hyeeyoung.wishboard.domain.model.noti.NotiInfo
-import com.hyeeyoung.wishboard.domain.model.noti.NotiType
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemDetail
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemUploadType
 import com.hyeeyoung.wishboard.domain.usecase.folder.GetFoldersUseCase
@@ -26,9 +25,8 @@ import com.hyeeyoung.wishboard.presentation.sign.model.snackbar.WishBoardSnackba
 import com.hyeeyoung.wishboard.presentation.upload.model.WishItemUploadUiModel
 import com.hyeeyoung.wishboard.presentation.util.extension.BitmapUtil.toBitmap
 import com.hyeeyoung.wishboard.presentation.util.extension.BitmapUtil.toFile
-import com.hyeeyoung.wishboard.presentation.util.extension.BitmapUtil.toImageFile
+import com.hyeeyoung.wishboard.presentation.util.extension.convertResizeImage
 import com.hyeeyoung.wishboard.presentation.util.extension.getBase64Json
-import com.hyeeyoung.wishboard.presentation.util.extension.getValidUrl
 import com.hyeeyoung.wishboard.presentation.util.extension.toMillis
 import com.hyeeyoung.wishboard.presentation.util.safeLet
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -39,8 +37,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.datetime.LocalDateTime
-import timber.log.Timber
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import javax.inject.Inject
 
 @HiltViewModel
@@ -85,7 +84,7 @@ class WishItemUploadViewModel @Inject constructor(
     fun uploadWishItem(
         context: Context,
         uploadType: WishItemUploadType,
-        afterSuccess: () -> Unit
+        afterSuccess: (Long) -> Unit
     ) {
         if (uiModel.value.wishItemUploadState is WishBoardState.Loading) return
         _uiModel.update { it.copy(wishItemUploadState = WishBoardState.Loading) }
@@ -93,7 +92,16 @@ class WishItemUploadViewModel @Inject constructor(
         viewModelScope.launch {
             val image = when (uploadType) {
                 WishItemUploadType.MANUAL -> {
-                    uiModel.value.itemImageUri?.toImageFile(context.contentResolver)
+                    val file = uiModel.value.itemImageUri?.let { uri ->
+                        context.convertResizeImage(uri)
+                    }
+                    val requestBody = file?.asRequestBody("image/jpeg".toMediaTypeOrNull())
+
+                    requestBody?.let {
+                        ImageType.Picture(
+                            MultipartBody.Part.createFormData("item_img", file.name, requestBody)
+                        )
+                    }
                 }
 
                 WishItemUploadType.PARSING -> {
@@ -106,7 +114,7 @@ class WishItemUploadViewModel @Inject constructor(
             postWishItemUseCase(
                 uploadType = uploadType,
                 itemInfo = uiModel.value.toDomain(itemImage = image, uploadType = uploadType),
-            ).onSuccess {
+            ).onSuccess { id ->
                 _uiModel.update { it.copy(wishItemUploadState = WishBoardState.Success(Unit)) }
                 updateSnackbarMessage("아이템을 위시리스트에 추가했어요!👜")
 
@@ -114,7 +122,7 @@ class WishItemUploadViewModel @Inject constructor(
                     delay(SnackbarDuration.Short.toMillis())
                 }
 
-                afterSuccess()
+                afterSuccess(id)
             }.onFailure { _, _, _ ->
                 _uiModel.update { it.copy(wishItemUploadState = WishBoardState.Failure) }
                 updateSnackbarMessage(SnackbarMessage.DEFAULT)
@@ -135,7 +143,18 @@ class WishItemUploadViewModel @Inject constructor(
         viewModelScope.launch {
             val image = when (uiModel.value.itemImageUri) {
                 null -> null
-                else -> uiModel.value.itemImageUri?.toImageFile(context.contentResolver)
+                else -> uiModel.value.itemImageUri?.let {
+                    val file = uiModel.value.itemImageUri?.let { uri ->
+                        context.convertResizeImage(uri)
+                    }
+                    val requestBody = file?.asRequestBody("image/jpeg".toMediaTypeOrNull())
+
+                    requestBody?.let {
+                        ImageType.Picture(
+                            MultipartBody.Part.createFormData("item_img", file.name, requestBody)
+                        )
+                    }
+                }
             }
 
             putWishItemUseCase(
@@ -168,10 +187,6 @@ class WishItemUploadViewModel @Inject constructor(
 
     fun getFolders(afterSuccess: (List<FolderItem>) -> Unit) {
         if (uiModel.value.folderFetchState is WishBoardState.Loading) return
-        if (uiModel.value.folderFetchState is WishBoardState.Success) {
-            afterSuccess(uiModel.value.folders)
-            return
-        }
 
         _uiModel.update { it.copy(folderFetchState = WishBoardState.Loading) }
 
@@ -200,6 +215,9 @@ class WishItemUploadViewModel @Inject constructor(
             postNewFolderUseCase(trimmedName)
                 .onSuccess {
                     _uiModel.update { it.copy(folderAddState = WishBoardState.Success(Unit), existingFolderName = "") }
+                    getFolders { folders ->
+                        updateSelectedFolder(folders.firstOrNull())
+                    }
                     afterSuccess()
                 }.onFailure { _, errorCode, _ ->
                     when (errorCode) {

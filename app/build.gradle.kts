@@ -1,3 +1,5 @@
+import com.android.build.api.dsl.ApkSigningConfig
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 import org.jetbrains.kotlin.konan.properties.Properties
 
 val properties = Properties()
@@ -23,8 +25,8 @@ android {
         applicationId = "com.hyeeyoung.wishboard"
         minSdk = 24
         targetSdk = 34
-        versionCode = 30
-        versionName = "1.2.1"
+        versionCode = 31
+        versionName = "1.3.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -36,6 +38,15 @@ android {
         buildConfigField("String", "FILE_PROVIDER", "\"$contentProviderAuthority\"")
     }
 
+    signingConfigs {
+        create("release") {
+            keyAlias =  getProperty("KEY_ALIAS")
+            keyPassword = getProperty("KEY_PASSWORD")
+            storeFile =  file(getProperty("KEYSTORE_PATH"))
+            storePassword = getProperty("STORE_PASSWORD")
+        }
+    }
+
     buildTypes {
         getByName("debug") {
             buildConfigField("String", "BASE_URL", properties.getProperty("DEV_BASE_URL"))
@@ -45,6 +56,7 @@ android {
             isShrinkResources = true
             buildConfigField("String", "BASE_URL", properties.getProperty("PROD_BASE_URL"))
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 
@@ -105,4 +117,8 @@ spotless {
         indentWithSpaces()
         endWithNewline()
     }
+}
+
+fun getProperty(key: String): String {
+    return gradleLocalProperties(rootDir).getProperty(key)
 }

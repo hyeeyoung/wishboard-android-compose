@@ -11,7 +11,7 @@ interface ItemRepository {
 
     suspend fun fetchWishItemDetail(itemId: Long): Result<List<WishItemDetail>>
 
-    suspend fun uploadWishItem(uploadType: WishItemUploadType, itemInfo: WishItemUploadInfo): Result<Unit>
+    suspend fun uploadWishItem(uploadType: WishItemUploadType, itemInfo: WishItemUploadInfo): Result<Long>
 
     suspend fun updateWishItem(itemId: Long, itemInfo: WishItemUploadInfo): Result<Unit>
 

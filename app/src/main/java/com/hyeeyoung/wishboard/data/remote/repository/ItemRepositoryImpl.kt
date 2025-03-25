@@ -1,7 +1,6 @@
 package com.hyeeyoung.wishboard.data.remote.repository
 
 import com.hyeeyoung.wishboard.data.remote.service.ItemService
-import com.hyeeyoung.wishboard.data.util.ContentUriRequestBody
 import com.hyeeyoung.wishboard.data.util.extension.toPlainNullableRequestBody
 import com.hyeeyoung.wishboard.data.util.extension.toPlainRequestBody
 import com.hyeeyoung.wishboard.domain.model.wish.ParsedWishItem
@@ -27,34 +26,32 @@ class ItemRepositoryImpl @Inject constructor(
             itemService.fetchWishItemDetail(itemId).map { it.toDomain() }
         }
 
-    override suspend fun uploadWishItem(uploadType: WishItemUploadType, itemInfo: WishItemUploadInfo): Result<Unit> = runCatching {
-        val formDataName = "item_img"
+    override suspend fun uploadWishItem(uploadType: WishItemUploadType, itemInfo: WishItemUploadInfo): Result<Long> =
+        runCatching {
+            val formDataName = "item_img"
 
-        itemService.uploadWishItem(
-            type = uploadType.toString(),
-            folderId = itemInfo.folderId?.toString()?.toPlainNullableRequestBody(),
-            itemName = itemInfo.itemName.toPlainRequestBody(),
-            itemPrice = itemInfo.itemPrice?.toString()?.toPlainNullableRequestBody(),
-            itemMemo = itemInfo.itemMemo.toPlainNullableRequestBody(),
-            itemNotificationDate = itemInfo.itemNotiDate?.toPlainNullableRequestBody(),
-            itemNotificationType = itemInfo.itemNotiType?.label?.toPlainNullableRequestBody(),
-            itemUrl = itemInfo.itemUrl.toPlainNullableRequestBody(),
-            itemImg = when (itemInfo.itemImage) {
-                is ImageType.DownloadImage -> {
-                    MultipartBody.Part.createFormData(
-                        formDataName, itemInfo.itemImage.file.name, itemInfo.itemImage.file.asRequestBody()
-                    )
+            itemService.uploadWishItem(
+                type = uploadType.toString(),
+                folderId = itemInfo.folderId?.toString()?.toPlainNullableRequestBody(),
+                itemName = itemInfo.itemName.toPlainRequestBody(),
+                itemPrice = itemInfo.itemPrice?.toString()?.toPlainNullableRequestBody(),
+                itemMemo = itemInfo.itemMemo.toPlainNullableRequestBody(),
+                itemNotificationDate = itemInfo.itemNotiDate?.toPlainNullableRequestBody(),
+                itemNotificationType = itemInfo.itemNotiType?.label?.toPlainNullableRequestBody(),
+                itemUrl = itemInfo.itemUrl.toPlainNullableRequestBody(),
+                itemImg = when (itemInfo.itemImage) {
+                    is ImageType.DownloadImage -> {
+                        MultipartBody.Part.createFormData(
+                            formDataName, itemInfo.itemImage.file.name, itemInfo.itemImage.file.asRequestBody()
+                        )
+                    }
+
+                    is ImageType.Picture -> itemInfo.itemImage.image
+
+                    else -> null
                 }
-
-                is ImageType.Picture -> ContentUriRequestBody(
-                    name = formDataName,
-                    imageFile = itemInfo.itemImage
-                ).toFormData()
-
-                else -> null // TODO 테스트
-            }
-        )
-    }
+            ).data.id
+        }
 
     override suspend fun updateWishItem(
         itemId: Long,
@@ -78,10 +75,7 @@ class ItemRepositoryImpl @Inject constructor(
                     )
                 }
 
-                is ImageType.Picture -> ContentUriRequestBody(
-                    name = formDataName,
-                    imageFile = itemInfo.itemImage
-                ).toFormData()
+                is ImageType.Picture -> itemInfo.itemImage.image
 
                 else -> null
             }

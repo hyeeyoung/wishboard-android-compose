@@ -1,17 +1,12 @@
 package com.hyeeyoung.wishboard.presentation.util.extension
 
-import android.content.ContentResolver
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.net.Uri
-import android.provider.MediaStore
-import com.hyeeyoung.wishboard.presentation.common.model.ImageType
 import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
-import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -83,47 +78,18 @@ object BitmapUtil {
         return formatter.format(Instant.now())
     }
 
-    /** 갤러리 & 촬영 이미지를 파일로 변환 */
-    fun Uri.toImageFile(contentResolver: ContentResolver): ImageType.Picture {
-        var name = "unknown.jpg"
-        var size = -1L
-        val mimeType = contentResolver.getType(this)
-
-        contentResolver.query(
-            this,
-            arrayOf(MediaStore.Images.Media.SIZE, MediaStore.Images.Media.DISPLAY_NAME),
-            null,
-            null,
-            null
-        )?.use { cursor ->
-            if (cursor.moveToFirst()) {
-                size = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.SIZE))
-                name = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DISPLAY_NAME))
-            }
-        }
-
-        return ImageType.Picture(name = name, size = size, mimeType = mimeType) {
-            if (size > MAXIMUM_IMAGE_SIZE) {
-                val bitmap = BitmapFactory.decodeStream(contentResolver.openInputStream(this))
-                val format =
-                    if (mimeType == DEFAULT_MIME_TYPE) Bitmap.CompressFormat.JPEG else Bitmap.CompressFormat.PNG
-                val compressedByteArray = bitmap.compressImage(format)
-                ByteArrayInputStream(compressedByteArray)
-            } else {
-                contentResolver.openInputStream(this)
-            }
-        }
-    }
-
-    private fun Bitmap.compressImage(format: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG): ByteArray {
+    fun Bitmap.compressImage(format: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG): ByteArray {
         var quality = DEFAULT_IMAGE_QUALITY
-        val outputStream = ByteArrayOutputStream()
+        var outputStream: ByteArrayOutputStream
+        var attempt = 0
+        val maxAttempts = 20
 
         do {
-            outputStream.reset()
+            outputStream = ByteArrayOutputStream()
             this.compress(format, quality, outputStream)
             quality -= IMAGE_COMPRESSION_DECREASE_FACTOR
-        } while (outputStream.size() > MAXIMUM_IMAGE_SIZE && quality > IMAGE_COMPRESSION_DECREASE_FACTOR)
+            attempt++
+        } while (outputStream.size() > MAXIMUM_IMAGE_SIZE && quality > IMAGE_COMPRESSION_DECREASE_FACTOR && attempt < maxAttempts)
 
         return outputStream.toByteArray()
     }

@@ -66,7 +66,7 @@ fun ProfileEditScreen(
         onNicknameChange = viewModel::onNicknameChange,
         setImageUri = viewModel::setProfileImageUri,
         updateProfile = {
-            viewModel.updateUserProfile(context.contentResolver,
+            viewModel.updateUserProfile(context,
                 afterSuccess = {
                     navController.popBackStack()
                 })

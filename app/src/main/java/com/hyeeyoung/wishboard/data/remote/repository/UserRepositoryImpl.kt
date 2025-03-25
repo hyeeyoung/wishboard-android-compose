@@ -25,9 +25,7 @@ class UserRepositoryImpl @Inject constructor(
     override suspend fun updateUserInfo(userProfile: UserProfile): Result<Unit> = runCatching {
         userService.updateUserInfo(
             nickname = userProfile.nickName.toPlainNullableRequestBody(),
-            profileImg = userProfile.profileImage?.let { image ->
-                ContentUriRequestBody(name ="profile_img", imageFile = image).toFormData()
-            }
+            profileImg = userProfile.profileImage
         )
     }.onSuccess {
         localStorage.clear(WishBoardPreference.USER_INFO)

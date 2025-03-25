@@ -3,6 +3,7 @@ package com.hyeeyoung.wishboard.data.remote.service
 import com.hyeeyoung.wishboard.data.remote.model.base.BaseResponse
 import com.hyeeyoung.wishboard.data.remote.model.base.BaseResponseWithoutData
 import com.hyeeyoung.wishboard.data.remote.model.wish.WishItemDetailDto
+import com.hyeeyoung.wishboard.data.remote.model.wish.WishItemIdDto
 import com.hyeeyoung.wishboard.domain.model.wish.ParsedWishItem
 import com.hyeeyoung.wishboard.presentation.upload.model.WishItemDto
 import okhttp3.MultipartBody
@@ -26,7 +27,7 @@ interface ItemService {
     ): List<WishItemDetailDto>
 
     @Multipart
-    @POST("/item")
+    @POST("item")
     suspend fun uploadWishItem(
         @Query("type") type: String,
         @Part("folder_id") folderId: RequestBody?,
@@ -37,7 +38,7 @@ interface ItemService {
         @Part("item_notification_type") itemNotificationType: RequestBody?,
         @Part("item_notification_date") itemNotificationDate: RequestBody?,
         @Part itemImg: MultipartBody.Part?,
-    ): BaseResponseWithoutData
+    ): BaseResponse<WishItemIdDto>
 
     @Multipart
     @PUT("item/{item_id}")

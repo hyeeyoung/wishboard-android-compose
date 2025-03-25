@@ -45,6 +45,7 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.hyeeyoung.wishboard.R
+import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardGlobalSnackbarMessage
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardNarrowButton
@@ -73,6 +74,7 @@ import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.util.extension.rememberModalLauncher
 import com.hyeeyoung.wishboard.presentation.util.extension.toJson
 import kotlinx.datetime.LocalDateTime
+import timber.log.Timber
 
 @Composable
 fun WishUploadScreen(
@@ -102,8 +104,10 @@ fun WishUploadScreen(
                     viewModel.uploadWishItem(
                         context = context,
                         uploadType = WishItemUploadType.MANUAL
-                    ) {
-                        navController.popBackStack()
+                    ) { id ->
+                        navController.navigate("${MainScreen.WishItemDetail.route}/$id") {
+                            navController.popBackStack()
+                        }
                     }
                 }
 
@@ -156,6 +160,7 @@ fun WishUploadScreen(
     var cameraUri: Uri? = null
     val albumLauncher = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         uri?.let {
+            Timber.e("uri : $it")
             onUriChange(it)
         }
     }
