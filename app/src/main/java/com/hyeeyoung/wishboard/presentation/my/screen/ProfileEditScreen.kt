@@ -38,6 +38,7 @@ import com.hyeeyoung.wishboard.designsystem.component.image.Image
 import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardTextField
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
+import com.hyeeyoung.wishboard.domain.model.user.UserInfo
 import com.hyeeyoung.wishboard.presentation.my.MyViewModel
 import com.hyeeyoung.wishboard.presentation.my.model.MyUiModel
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
@@ -168,7 +169,7 @@ fun ProfileEditScreen(
             Spacer(modifier = Modifier.weight(1f))
 
             WishBoardWideButton(
-                enabled = uiModel.nicknameInput.isNotBlank(),
+                enabled = uiModel.nicknameInput.isNotBlank() && uiModel.userInfo.nickname != uiModel.nicknameInput,
                 onClick = updateProfile,
                 text = stringResource(id = R.string.complete),
             )
@@ -181,7 +182,7 @@ fun ProfileEditScreen(
 fun PreviewProfileEditScreen() {
     ProfileEditScreen(
         context = LocalContext.current,
-        uiModel = MyUiModel(),
+        uiModel = MyUiModel(userInfo = UserInfo(nickname = "영진이")),
         setImageUri = {},
         onNicknameChange = {},
         updateProfile = {},
