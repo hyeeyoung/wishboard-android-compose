@@ -39,10 +39,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
@@ -61,6 +66,7 @@ import com.hyeeyoung.wishboard.domain.model.noti.NotiType
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemUploadType
 import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat
 import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat.getFormattedDateStr
+import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.sign.model.WishItemDetail
 import com.hyeeyoung.wishboard.presentation.upload.WishItemUploadViewModel
@@ -152,6 +158,7 @@ fun WishUploadScreen(
     onUriChange: (Uri?) -> Unit,
 ) {
     val systemUiController = rememberSystemUiController()
+    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.loading_spin))
 
     SideEffect {
         systemUiController.setNavigationBarColor(color = Color.White)
@@ -235,88 +242,101 @@ fun WishUploadScreen(
             },
         )
     }) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(WishBoardTheme.colors.white)
-                .padding(top = 6.dp + paddingValues.calculateTopPadding(), bottom = 16.dp)
-                .verticalScroll(rememberScrollState()),
-        ) {
-            val imageHeight = LocalConfiguration.current.screenWidthDp * 0.66
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(imageHeight.dp)
-                    .background(
-                        color = WishBoardTheme.colors.gray100,
-                        shape = RoundedCornerShape(32.dp),
-                    ),
-                contentAlignment = Alignment.Center,
-            ) {
-                AsyncImage(
-                    modifier = Modifier.fillMaxHeight(),
-                    model = uiModel.itemImageUri ?: uiModel.downloadImageUrl,
-                    contentDescription = null,
-                )
-
-                WishBoardIconButton(
-                    iconRes = R.drawable.ic_camera,
-                    onClick = { ModalData.OptionModal.ImageSelection.openModal(context, modalLauncher) },
+        Box(modifier = Modifier.fillMaxSize()) {
+            if (uiModel.wishItemUploadState is WishBoardState.Loading) {
+                LottieAnimation(
+                    modifier = Modifier
+                        .size(100.dp)
+                        .zIndex(2f)
+                        .align(Alignment.Center),
+                    composition = composition,
+                    iterations = LottieConstants.IterateForever
                 )
             }
 
-            WishBoardSimpleTextField(
-                input = uiModel.itemName,
-                placeholder = stringResource(id = R.string.wish_item_upload_item_name),
-                onTextChange = { input ->
-                    onTextChange(UploadInputType.ITEM_NAME, input)
-                },
-            )
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(WishBoardTheme.colors.white)
+                    .padding(top = 6.dp + paddingValues.calculateTopPadding(), bottom = 16.dp)
+                    .verticalScroll(rememberScrollState()),
+            ) {
+                val imageHeight = LocalConfiguration.current.screenWidthDp * 0.66
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(imageHeight.dp)
+                        .background(
+                            color = WishBoardTheme.colors.gray100,
+                            shape = RoundedCornerShape(32.dp),
+                        ),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    AsyncImage(
+                        modifier = Modifier.fillMaxHeight(),
+                        model = uiModel.itemImageUri ?: uiModel.downloadImageUrl,
+                        contentDescription = null,
+                    )
 
-            WishBoardSimpleTextField(
-                input = uiModel.itemPrice,
-                placeholder = stringResource(id = R.string.wish_item_upload_item_price),
-                onTextChange = { input ->
-                    onTextChange(UploadInputType.ITEM_PRICE, input.makeValidPriceStr() ?: "")
-                },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                visualTransformation = PriceTransformation(prefix = "₩ "),
-            )
+                    WishBoardIconButton(
+                        iconRes = R.drawable.ic_camera,
+                        onClick = { ModalData.OptionModal.ImageSelection.openModal(context, modalLauncher) },
+                    )
+                }
 
-            ItemInfoRow(
-                label = uiModel.selectedFolder?.name ?: stringResource(id = R.string.folder),
-                onClickRow = {
-                    getFolders { folders ->
-                        ModalData.Modal.FolderList(selectedFolder = uiModel.selectedFolder, folders = folders)
-                            .openModal(context, modalLauncher)
-                    }
-                },
-            )
+                WishBoardSimpleTextField(
+                    input = uiModel.itemName,
+                    placeholder = stringResource(id = R.string.wish_item_upload_item_name),
+                    onTextChange = { input ->
+                        onTextChange(UploadInputType.ITEM_NAME, input)
+                    },
+                )
 
-            ItemInfoRow(
-                label = getNotiInfo(notiType = uiModel.itemNotiType, notiDate = uiModel.itemNotiDate)
-                    ?: stringResource(id = R.string.wish_item_upload_noti),
-                onClickRow = {
-                    ModalData.Modal.Noti(
-                        NotiInfo(notiType = uiModel.itemNotiType, notiDate = uiModel.itemNotiDate).toJson()
-                    ).openModal(context, modalLauncher)
-                },
-            )
+                WishBoardSimpleTextField(
+                    input = uiModel.itemPrice,
+                    placeholder = stringResource(id = R.string.wish_item_upload_item_price),
+                    onTextChange = { input ->
+                        onTextChange(UploadInputType.ITEM_PRICE, input.makeValidPriceStr() ?: "")
+                    },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    visualTransformation = PriceTransformation(prefix = "₩ "),
+                )
 
-            ItemInfoRow(
-                label = uiModel.itemUrl.ifBlank { stringResource(id = R.string.wish_item_upload_shop_link) },
-                onClickRow = { ModalData.Modal.ShopLink(uiModel.itemUrl).openModal(context, modalLauncher) },
-            )
+                ItemInfoRow(
+                    label = uiModel.selectedFolder?.name ?: stringResource(id = R.string.folder),
+                    onClickRow = {
+                        getFolders { folders ->
+                            ModalData.Modal.FolderList(selectedFolder = uiModel.selectedFolder, folders = folders)
+                                .openModal(context, modalLauncher)
+                        }
+                    },
+                )
 
-            WishBoardSimpleTextField(
-                input = uiModel.itemMemo,
-                placeholder = stringResource(id = R.string.wish_item_upload_memo),
-                singleLine = false,
-                onTextChange = { input ->
-                    onTextChange(UploadInputType.ITEM_MEMO, input)
-                },
-            )
-            Spacer(modifier = Modifier.size(64.dp))
+                ItemInfoRow(
+                    label = getNotiInfo(notiType = uiModel.itemNotiType, notiDate = uiModel.itemNotiDate)
+                        ?: stringResource(id = R.string.wish_item_upload_noti),
+                    onClickRow = {
+                        ModalData.Modal.Noti(
+                            NotiInfo(notiType = uiModel.itemNotiType, notiDate = uiModel.itemNotiDate).toJson()
+                        ).openModal(context, modalLauncher)
+                    },
+                )
+
+                ItemInfoRow(
+                    label = uiModel.itemUrl.ifBlank { stringResource(id = R.string.wish_item_upload_shop_link) },
+                    onClickRow = { ModalData.Modal.ShopLink(uiModel.itemUrl).openModal(context, modalLauncher) },
+                )
+
+                WishBoardSimpleTextField(
+                    input = uiModel.itemMemo,
+                    placeholder = stringResource(id = R.string.wish_item_upload_memo),
+                    singleLine = false,
+                    onTextChange = { input ->
+                        onTextChange(UploadInputType.ITEM_MEMO, input)
+                    },
+                )
+                Spacer(modifier = Modifier.size(64.dp))
+            }
         }
     }
 }
