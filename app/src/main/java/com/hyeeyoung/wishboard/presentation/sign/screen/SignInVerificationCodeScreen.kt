@@ -115,7 +115,7 @@ fun SignInVerificationCodeScreen(
 @Composable
 fun PreviewSignInVerificationCodeScreen() {
     SignInVerificationCodeScreen(
-        uiModel = SignUiModel(),
+        uiModel = SignUiModel(timer = "5:00"),
         onAuthCodeChange = {},
         onClickLogin = {},
         onClickBack = {},

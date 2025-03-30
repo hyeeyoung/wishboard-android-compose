@@ -201,9 +201,9 @@ private fun DecorationBox(
             innerTextField()
         }
 
-        if (isFocused) {
-            when (endComponent) {
-                is WishBoardTextFieldComponent.DeleteButton -> {
+        when (endComponent) {
+            is WishBoardTextFieldComponent.DeleteButton -> {
+                if (isFocused) {
                     if (input.isNotEmpty()) {
                         Spacer(modifier = Modifier.size(2.dp))
                         WishBoardIconButton(iconRes = R.drawable.ic_delete_circle, onClick = onClickClear)
@@ -211,16 +211,16 @@ private fun DecorationBox(
                         Spacer(modifier = Modifier.size(width = 10.dp, height = 32.dp))
                     }
                 }
+            }
 
-                is WishBoardTextFieldComponent.Timer -> {
-                    Spacer(modifier = Modifier.size(10.dp))
-                    Text(
-                        text = endComponent.time,
-                        color = WishBoardTheme.colors.pink700,
-                        style = WishBoardTheme.typography.suitD2,
-                    )
-                    Spacer(modifier = Modifier.size(10.dp))
-                }
+            is WishBoardTextFieldComponent.Timer -> {
+                Spacer(modifier = Modifier.size(10.dp))
+                Text(
+                    text = endComponent.time,
+                    color = WishBoardTheme.colors.pink700,
+                    style = WishBoardTheme.typography.suitD2,
+                )
+                Spacer(modifier = Modifier.size(10.dp))
             }
         }
     }
