@@ -3,7 +3,6 @@ package com.hyeeyoung.wishboard.data.remote.repository
 import com.hyeeyoung.wishboard.data.local.WishBoardPreference
 import com.hyeeyoung.wishboard.data.remote.model.user.PasswordDto
 import com.hyeeyoung.wishboard.data.remote.service.UserService
-import com.hyeeyoung.wishboard.data.util.ContentUriRequestBody
 import com.hyeeyoung.wishboard.data.util.extension.toPlainNullableRequestBody
 import com.hyeeyoung.wishboard.domain.model.user.UserInfo
 import com.hyeeyoung.wishboard.domain.model.user.UserProfile
@@ -15,8 +14,12 @@ class UserRepositoryImpl @Inject constructor(
     private val localStorage: WishBoardPreference,
 ) : UserRepository {
     override suspend fun fetchUserInfo(): Result<UserInfo> = runCatching {
-        if (localStorage.userInfo.nickname.isBlank() || localStorage.userInfo.isPushAllowed == null) {
-            userService.fetchUserInfo().firstOrNull()?.toDomain() ?: UserInfo()
+        if (localStorage.userInfo.isPushAllowed == null) {
+            val remoteUserInfo = userService.fetchUserInfo().firstOrNull()
+            val nickName = if (remoteUserInfo?.nickname != null) remoteUserInfo.nickname
+            else localStorage.userInfo.nickname.ifBlank { null }
+
+            remoteUserInfo?.copy(nickname = nickName)?.toDomain() ?: UserInfo()
         } else {
             localStorage.userInfo
         }
