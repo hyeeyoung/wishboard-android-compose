@@ -54,10 +54,20 @@ class WishItemViewModel @Inject constructor(
                     it.copy(folders = folders, fetchState = WishBoardState.Success(Unit))
                 }
                 afterSuccess(folders)
-            }.onFailure { _, _, _ ->
-                updateSnackbarMessage(SnackbarMessage.DEFAULT)
-                folderUiModel.update {
-                    it.copy(fetchState = WishBoardState.Failure)
+            }.onFailure { _, errorCode, _ ->
+                when(errorCode) {
+                    404 -> {
+                        folderUiModel.update {
+                            it.copy(fetchState = WishBoardState.Success(Unit))
+                        }
+                        afterSuccess(emptyList())
+                    }
+                    else -> {
+                        updateSnackbarMessage(SnackbarMessage.DEFAULT)
+                        folderUiModel.update {
+                            it.copy(fetchState = WishBoardState.Failure)
+                        }
+                    }
                 }
             }
         }

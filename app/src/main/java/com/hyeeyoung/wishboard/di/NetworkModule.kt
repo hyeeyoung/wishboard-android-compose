@@ -43,12 +43,12 @@ object NetworkModule {
             writeTimeout(10, TimeUnit.SECONDS)
             readTimeout(10, TimeUnit.SECONDS)
             addInterceptor(interceptor)
-//            if (BuildConfig.DEBUG) {
-//                addInterceptor(
-//                    HttpLoggingInterceptor().apply {
-//                        level = HttpLoggingInterceptor.Level.BODY
-//                    },
-//                )
-//            }
+            if (BuildConfig.DEBUG) {
+                addInterceptor(
+                    HttpLoggingInterceptor().apply {
+                        level = HttpLoggingInterceptor.Level.BODY
+                    },
+                )
+            }
         }.build()
 }

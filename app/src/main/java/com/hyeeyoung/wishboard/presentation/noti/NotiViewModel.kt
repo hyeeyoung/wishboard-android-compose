@@ -1,6 +1,7 @@
 package com.hyeeyoung.wishboard.presentation.noti
 
 import androidx.lifecycle.viewModelScope
+import com.hyeeyoung.wishboard.core.extension.onFailure
 import com.hyeeyoung.wishboard.domain.usecase.noti.GetPreviousNotiListUseCase
 import com.hyeeyoung.wishboard.domain.usecase.noti.PutNotiReadStateUseCase
 import com.hyeeyoung.wishboard.presentation.common.BaseViewModel
@@ -27,9 +28,16 @@ class NotiViewModel @Inject constructor(
         viewModelScope.launch {
             getPreviousNotiListUseCase().onSuccess { notiList ->
                 _uiModel.update { it.copy(notiList = notiList, isRefreshing = false) }
-            }.onFailure {
-                _uiModel.update { it.copy(isRefreshing = false) }
-                updateSnackbarMessage(SnackbarMessage.DEFAULT)
+            }.onFailure { _, errorCode, _ ->
+                when(errorCode) {
+                    404 -> {
+                        _uiModel.update { it.copy(isRefreshing = false) }
+                    }
+                    else -> {
+                        _uiModel.update { it.copy(isRefreshing = false) }
+                        updateSnackbarMessage(SnackbarMessage.DEFAULT)
+                    }
+                }
             }
         }
     }

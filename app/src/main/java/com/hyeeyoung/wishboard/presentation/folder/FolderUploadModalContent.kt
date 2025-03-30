@@ -19,7 +19,7 @@ import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardTextFie
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
 
-private val MAX_LENGTH_FOLDER_NAME = 10
+private const val MAX_LENGTH_FOLDER_NAME = 10
 
 @Composable
 fun FolderUploadModalContent(

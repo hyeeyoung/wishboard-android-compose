@@ -42,11 +42,21 @@ class FolderViewModel @Inject constructor(
                 _uiModel.update {
                     it.copy(folders = folders, fetchState = WishBoardState.Success(Unit), isRefreshing = false)
                 }
-            }.onFailure { _, _, _ ->
-                updateSnackbarMessage(SnackbarMessage.DEFAULT)
-                _uiModel.update {
-                    it.copy(fetchState = WishBoardState.Failure, isRefreshing = false)
+            }.onFailure { _, errorCode, _ ->
+                when(errorCode) {
+                    404 -> {
+                        _uiModel.update {
+                            it.copy(fetchState = WishBoardState.Success(Unit), isRefreshing = false)
+                        }
+                    }
+                    else -> {
+                        updateSnackbarMessage(SnackbarMessage.DEFAULT)
+                        _uiModel.update {
+                            it.copy(fetchState = WishBoardState.Failure, isRefreshing = false)
+                        }
+                    }
                 }
+
             }
         }
     }

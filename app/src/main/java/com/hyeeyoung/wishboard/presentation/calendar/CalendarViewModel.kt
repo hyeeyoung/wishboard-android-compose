@@ -1,6 +1,7 @@
 package com.hyeeyoung.wishboard.presentation.calendar
 
 import androidx.lifecycle.viewModelScope
+import com.hyeeyoung.wishboard.core.extension.onFailure
 import com.hyeeyoung.wishboard.domain.usecase.noti.GetAllNotiListUseCase
 import com.hyeeyoung.wishboard.presentation.common.BaseViewModel
 import com.hyeeyoung.wishboard.presentation.noti.model.CalendarUiModel
@@ -31,8 +32,13 @@ class CalendarViewModel @Inject constructor(
                 _uiModel.update {
                     it.copy(schedules = schedules)
                 }
-            }.onFailure {
-                updateSnackbarMessage(SnackbarMessage.DEFAULT)
+            }.onFailure { _, errorCode, _ ->
+                when(errorCode) {
+                    404 -> {}
+                    else -> {
+                        updateSnackbarMessage(SnackbarMessage.DEFAULT)
+                    }
+                }
             }
         }
     }

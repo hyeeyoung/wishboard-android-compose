@@ -196,10 +196,20 @@ class WishItemUploadViewModel @Inject constructor(
                     it.copy(folders = folders, folderFetchState = WishBoardState.Success(Unit))
                 }
                 afterSuccess(folders)
-            }.onFailure { _, _, _ ->
-                updateSnackbarMessage(SnackbarMessage.DEFAULT)
-                _uiModel.update {
-                    it.copy(folderFetchState = WishBoardState.Failure)
+            }.onFailure { _, errorCode, _ ->
+                when(errorCode) {
+                    404 -> {
+                        _uiModel.update {
+                            it.copy(folderFetchState = WishBoardState.Success(Unit))
+                        }
+                        afterSuccess(emptyList())
+                    }
+                    else -> {
+                        updateSnackbarMessage(SnackbarMessage.DEFAULT)
+                        _uiModel.update {
+                            it.copy(folderFetchState = WishBoardState.Failure)
+                        }
+                    }
                 }
             }
         }
