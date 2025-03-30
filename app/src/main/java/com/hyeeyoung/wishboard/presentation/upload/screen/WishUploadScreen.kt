@@ -311,6 +311,7 @@ fun WishUploadScreen(
             WishBoardSimpleTextField(
                 input = uiModel.itemMemo,
                 placeholder = stringResource(id = R.string.wish_item_upload_memo),
+                singleLine = false,
                 onTextChange = { input ->
                     onTextChange(UploadInputType.ITEM_MEMO, input)
                 },
@@ -380,7 +381,7 @@ fun PreviewWishUploadScreen() {
             itemNotiDate = getCurrentTime(),
             itemNotiType = NotiType.RESTOCK,
             itemUrl = "https://www.naver.com/",
-            itemMemo = "S사이즈",
+            itemMemo = "",
             selectedFolder = FolderItem(id = 1L, name = "상의"),
         ),
         enteredAddFlow = false,
