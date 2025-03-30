@@ -42,6 +42,7 @@ import com.hyeeyoung.wishboard.designsystem.component.dialog.model.ModalData
 import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.WishBoardDialog
 import com.hyeeyoung.wishboard.designsystem.component.dialog.temp.WishBoardModal
 import com.hyeeyoung.wishboard.designsystem.component.image.Image
+import com.hyeeyoung.wishboard.designsystem.component.image.WishBoardPlaceHolder
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardMainTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
@@ -223,6 +224,9 @@ fun FolderItem(folder: FolderItem, onClickFolder: () -> Unit, onClickMore: (Fold
                 .fillMaxWidth()
                 .aspectRatio(1f)
                 .clip(RoundedCornerShape(10.dp)),
+            placeHolder = { modifier ->
+                WishBoardPlaceHolder(modifier = modifier)
+            }
         )
         Row(modifier = Modifier.fillMaxWidth()) {
             Column(

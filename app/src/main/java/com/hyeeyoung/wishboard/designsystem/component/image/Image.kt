@@ -16,7 +16,7 @@ fun Image(
     contentScale: ContentScale = ContentScale.Crop,
     contentDescription: String? = null,
     alphaColor: Color = BlackAlpha5,
-    placeHolder: @Composable (() -> Unit)? = null,
+    placeHolder: @Composable ((Modifier) -> Unit)? = null,
 ) {
     SubcomposeAsyncImage(
         modifier = modifier
@@ -25,10 +25,10 @@ fun Image(
         contentScale = contentScale,
         contentDescription = contentDescription,
         loading = {
-            placeHolder?.invoke()
+            placeHolder?.invoke(modifier)
         },
         error = {
-            placeHolder?.invoke()
+            placeHolder?.invoke(modifier)
         }
     )
 }
