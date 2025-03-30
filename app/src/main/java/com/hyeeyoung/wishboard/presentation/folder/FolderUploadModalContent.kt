@@ -1,8 +1,10 @@
 package com.hyeeyoung.wishboard.presentation.folder
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -14,7 +16,10 @@ import androidx.compose.ui.unit.dp
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
 import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardTextField
+import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
+
+private val MAX_LENGTH_FOLDER_NAME = 10
 
 @Composable
 fun FolderUploadModalContent(
@@ -27,12 +32,22 @@ fun FolderUploadModalContent(
 
     Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)) {
         Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
-            WishBoardTextField(
-                input = nameInput,
-                isError = nameInput.value.isNotBlank() && nameInput.value.trim() == existingFolderName,
-                placeholder = stringResource(id = R.string.modal_folder_upload_placeholder),
-                errorMsg = stringResource(id = R.string.modal_folder_upload_error),
-            )
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                WishBoardTextField(
+                    input = nameInput,
+                    isError = nameInput.value.isNotBlank() && nameInput.value == existingFolderName,
+                    placeholder = stringResource(id = R.string.modal_folder_upload_placeholder),
+                    errorMsg = stringResource(id = R.string.modal_folder_upload_error),
+                    maxLength = MAX_LENGTH_FOLDER_NAME,
+                )
+
+                Text(
+                    modifier = Modifier.align(Alignment.End),
+                    text = stringResource(id = R.string.text_length, nameInput.value.length, MAX_LENGTH_FOLDER_NAME),
+                    color = WishBoardTheme.colors.gray200,
+                    style = WishBoardTheme.typography.suitD3
+                )
+            }
         }
 
         WishBoardWideButton(

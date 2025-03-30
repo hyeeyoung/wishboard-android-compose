@@ -15,6 +15,7 @@
 
     <!-- Format -->
     <string name="step">%d/%d 단계</string>
+    <string name="text_length">(%d/%d)자</string>
     <string name="timer_format">%d:%d</string>
 
     <!-- Snackbar -->
