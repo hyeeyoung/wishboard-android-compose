@@ -17,6 +17,8 @@ import com.hyeeyoung.wishboard.domain.usecase.folder.PostNewFolderUseCase
 import com.hyeeyoung.wishboard.domain.usecase.item.GetParsedItemInfoUseCase
 import com.hyeeyoung.wishboard.domain.usecase.item.PostWishItemUseCase
 import com.hyeeyoung.wishboard.domain.usecase.item.PutWishItemUseCase
+import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat
+import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat.toLocalDateTime
 import com.hyeeyoung.wishboard.presentation.common.BaseViewModel
 import com.hyeeyoung.wishboard.presentation.common.model.ImageType
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
@@ -176,6 +178,8 @@ class WishItemUploadViewModel @Inject constructor(
                 itemPrice = itemDetail.price,
                 itemMemo = itemDetail.memo ?: "",
                 itemUrl = itemDetail.site ?: "",
+                itemNotiType = itemDetail.notiType,
+                itemNotiDate = itemDetail.notiDate?.toLocalDateTime(WishBoardDateFormat.YYYY_MM_DD_T_HH_MM),
                 downloadImageUrl = itemDetail.image,
                 selectedFolder = safeLet(
                     itemDetail.folderId,
@@ -197,13 +201,14 @@ class WishItemUploadViewModel @Inject constructor(
                 }
                 afterSuccess(folders)
             }.onFailure { _, errorCode, _ ->
-                when(errorCode) {
+                when (errorCode) {
                     404 -> {
                         _uiModel.update {
                             it.copy(folderFetchState = WishBoardState.Success(Unit))
                         }
                         afterSuccess(emptyList())
                     }
+
                     else -> {
                         updateSnackbarMessage(SnackbarMessage.DEFAULT)
                         _uiModel.update {
