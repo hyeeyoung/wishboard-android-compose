@@ -52,7 +52,7 @@ import com.hyeeyoung.wishboard.presentation.my.MyViewModel
 import com.hyeeyoung.wishboard.presentation.my.model.MyUiModel
 import com.hyeeyoung.wishboard.presentation.util.constant.WishBoardUrl
 import com.hyeeyoung.wishboard.presentation.util.extension.moveToWebView
-import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
+import com.hyeeyoung.wishboard.presentation.util.extension.rippleClickable
 import com.hyeeyoung.wishboard.presentation.util.extension.sendMail
 
 @Composable
@@ -312,7 +312,7 @@ fun MenuItem(menu: MyMenuComponent.Menu) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .noRippleClickable { menu.onClickMenu?.let { onclick -> onclick() } }
+            .rippleClickable(enabled = menu.nameRes != R.string.my_menu_version) { menu.onClickMenu?.let { onclick -> onclick() } }
             .padding(16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,

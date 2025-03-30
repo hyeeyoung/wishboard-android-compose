@@ -2,6 +2,7 @@ package com.hyeeyoung.wishboard.presentation.util.extension
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -12,6 +13,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.unit.Dp
 
 inline fun Modifier.noRippleClickable(crossinline onClick: () -> Unit): Modifier = composed {
     clickable(
@@ -21,6 +23,31 @@ inline fun Modifier.noRippleClickable(crossinline onClick: () -> Unit): Modifier
         onClick()
     }
 }
+
+inline fun Modifier.rippleClickable(
+    color: Color = Color(0x42000000),
+    radius: Dp = Dp.Unspecified,
+    enabled: Boolean = true,
+    ripple: Boolean = true,
+    bounded: Boolean = true,
+    crossinline onClick: () -> Unit): Modifier = composed {
+    val interactionSource = remember { MutableInteractionSource() }
+    val indication = ripple(
+        color = color,
+        bounded = bounded,
+        radius = radius,
+    ).takeIf { ripple }
+
+    clickable(
+        indication = indication,
+        enabled = enabled,
+        interactionSource = interactionSource,
+    ) {
+        onClick()
+    }
+}
+
+
 
 fun Modifier.coloredForeground(alphaColor: Color) = this.drawWithContent {
     drawContent()
