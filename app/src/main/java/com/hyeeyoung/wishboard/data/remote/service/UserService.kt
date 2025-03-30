@@ -6,6 +6,7 @@ import com.hyeeyoung.wishboard.data.remote.model.user.UserInfoDto
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Multipart
 import retrofit2.http.PUT
@@ -23,7 +24,7 @@ interface UserService {
         @Part profileImg: MultipartBody.Part?
     ): BaseResponseWithoutData
 
-    @PUT("user/active")
+    @DELETE("user")
     suspend fun deleteUserAccount(): BaseResponseWithoutData
 
     @PUT("user/push-state/{push}")
