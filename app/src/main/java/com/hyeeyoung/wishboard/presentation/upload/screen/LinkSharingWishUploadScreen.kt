@@ -208,7 +208,7 @@ fun LinkSharingWishUploadScreen(
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
                     ) {
                         item {
-                            NewFolder(onClickNew = {
+                            NewFolder(isLogin = uiModel.isLogin, onClickNew = {
                                 modalData = ModalData.Modal.NewFolder(folderName = "")
                             })
                         }
@@ -328,11 +328,11 @@ fun FolderItem(
 }
 
 @Composable
-fun NewFolder(onClickNew: () -> Unit) {
+fun NewFolder(isLogin: Boolean, onClickNew: () -> Unit) {
     Column(
         modifier = Modifier
             .size(IMAGE_SIZE.dp)
-            .noRippleClickable { onClickNew() }
+            .noRippleClickable(enabled = isLogin) { onClickNew() }
             .border(width = 1.dp, color = WishBoardTheme.colors.gray100, shape = RoundedCornerShape(10.dp)),
         verticalArrangement = Arrangement.Bottom,
     ) {
@@ -363,6 +363,7 @@ fun NewFolder(onClickNew: () -> Unit) {
 fun PreviewLinkSharingWishUploadScreen() {
     LinkSharingWishUploadScreen(
         uiModel = WishItemUploadUiModel(
+            isLogin = false,
             itemNotiType = NotiType.SALE_START,
             itemNotiDate = LocalDateTime(2024, 3, 22, 13, 0)
         ),
