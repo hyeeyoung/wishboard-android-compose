@@ -12,6 +12,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -42,6 +43,7 @@ fun SignInVerificationCodeScreen(
     )
 ) {
     val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     LaunchedEffect(true) {
         viewModel.startTimer()
@@ -52,6 +54,7 @@ fun SignInVerificationCodeScreen(
         onAuthCodeChange = viewModel::onAuthCodeChange,
         onClickLogin = {
             viewModel.signInEmail {
+                keyboardController?.hide()
                 navController.navigate("${MainScreen.Root.route}/${false}") {
                     popUpTo(route = SignScreen.Root.route) {
                         inclusive = true
@@ -59,7 +62,9 @@ fun SignInVerificationCodeScreen(
                 }
             }
         },
-        onClickBack = navController::safePopBackStack
+        onClickBack = {
+            navController.safePopBackStack()
+        }
     )
 }
 

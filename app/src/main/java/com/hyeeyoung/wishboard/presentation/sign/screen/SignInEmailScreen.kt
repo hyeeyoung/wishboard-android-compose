@@ -1,7 +1,6 @@
 package com.hyeeyoung.wishboard.presentation.sign.screen
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
@@ -16,7 +15,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
@@ -31,6 +29,8 @@ import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
 import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardTextField
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBarWithStep
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
+import com.hyeeyoung.wishboard.presentation.sign.SignViewModel
+import com.hyeeyoung.wishboard.presentation.sign.component.SignDescription
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.sign.model.auth.SignUiModel
 import com.hyeeyoung.wishboard.presentation.util.extension.safePopBackStack
@@ -65,7 +65,6 @@ fun SignInEmailScreen(
     onClickBack: () -> Unit,
 ) {
     val focusRequester = remember { FocusRequester() }
-    val keyboardController = LocalSoftwareKeyboardController.current
     val isNonRegisteredEmail by remember(uiModel.email, uiModel.nonRegisteredEmail) {
         mutableStateOf(uiModel.email == uiModel.nonRegisteredEmail)
     }
@@ -73,7 +72,6 @@ fun SignInEmailScreen(
     LaunchedEffect(Unit) {
         delay(300L)
         focusRequester.requestFocus()
-        keyboardController?.show()
     }
 
     Scaffold(topBar = {
@@ -95,9 +93,7 @@ fun SignInEmailScreen(
             SignDescription(descriptionRes = R.string.sign_in_email_description, iconRes = R.drawable.ic_email)
 
             WishBoardTextField(
-                modifier = Modifier
-                    .focusRequester(focusRequester)
-                    .focusable(),
+                modifier = Modifier.focusRequester(focusRequester),
                 input = emailInput,
                 placeholder = stringResource(id = R.string.sign_email_placeholder),
                 errorMsg = if (uiModel.isValidEmail == false) stringResource(id = R.string.sign_in_email_error) else stringResource(

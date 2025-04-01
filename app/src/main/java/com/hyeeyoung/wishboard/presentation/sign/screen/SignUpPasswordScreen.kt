@@ -51,6 +51,7 @@ fun SignUpPasswordScreen(
     viewModel: SignViewModel = getSharedViewModel<SignViewModel>(navController, SignScreen.Email.route)
 ) {
     val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     SignUpPasswordScreen(
         uiModel = uiModel,
@@ -63,6 +64,7 @@ fun SignUpPasswordScreen(
         },
         onClickSignUp = {
             viewModel.signUp(afterSuccess = {
+                keyboardController?.hide()
                 navController.navigate("${MainScreen.Root.route}/${true}") {
                     popUpTo(route = SignScreen.Root.route) {
                         inclusive = true
@@ -70,7 +72,9 @@ fun SignUpPasswordScreen(
                 }
             })
         },
-        onClickBack = navController::safePopBackStack
+        onClickBack = {
+            navController.safePopBackStack()
+        }
     )
 }
 
@@ -110,8 +114,7 @@ fun SignUpPasswordScreen(
 
             WishBoardTextField(
                 modifier = Modifier
-                    .focusRequester(focusRequester)
-                    .focusable(),
+                    .focusRequester(focusRequester),
                 input = uiModel.password,
                 placeholder = stringResource(id = R.string.sign_password_placeholder),
                 errorMsg = stringResource(id = R.string.sign_up_password_format_error), // TODO 기존 가입자 에러 메세지 추가

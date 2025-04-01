@@ -1,7 +1,6 @@
 package com.hyeeyoung.wishboard.presentation.sign.screen
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
@@ -30,13 +29,12 @@ import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
 import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardTextField
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBarWithStep
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
-import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
-import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
-import com.hyeeyoung.wishboard.presentation.sign.model.auth.SignUiModel
 import com.hyeeyoung.wishboard.presentation.sign.SignViewModel
 import com.hyeeyoung.wishboard.presentation.sign.component.SignDescription
-import kotlinx.coroutines.delay
+import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
+import com.hyeeyoung.wishboard.presentation.sign.model.auth.SignUiModel
 import com.hyeeyoung.wishboard.presentation.util.extension.safePopBackStack
+import kotlinx.coroutines.delay
 
 @Composable
 fun SignUpEmailScreen(
@@ -44,16 +42,20 @@ fun SignUpEmailScreen(
     viewModel: SignViewModel = hiltViewModel()
 ) {
     val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     SignUpEmailScreen(
         uiModel = uiModel,
         onEmailChange = viewModel::onEmailChange,
         onClickNext = {
-            viewModel.checkRegisteredUser(afterSuccess = {
-                navController.navigate(SignScreen.Password.route)
-            })
+            viewModel.checkRegisteredUser(
+                afterSuccess = {
+                    keyboardController?.hide()
+                    navController.navigate(SignScreen.Password.route)
+                })
         },
         onClickBack = {
+            keyboardController?.hide()
             navController.safePopBackStack()
         }
     )
@@ -67,7 +69,6 @@ fun SignUpEmailScreen(
     onClickBack: () -> Unit
 ) {
     val focusRequester = remember { FocusRequester() }
-    val keyboardController = LocalSoftwareKeyboardController.current
     val isRegisteredEmail by remember(uiModel.email, uiModel.registeredEmail) {
         mutableStateOf(uiModel.email == uiModel.registeredEmail)
     }
@@ -75,7 +76,6 @@ fun SignUpEmailScreen(
     LaunchedEffect(Unit) {
         delay(300L)
         focusRequester.requestFocus()
-        keyboardController?.show()
     }
 
     Scaffold(topBar = {
@@ -96,7 +96,8 @@ fun SignUpEmailScreen(
             SignDescription(descriptionRes = R.string.sign_up_email_description, iconRes = R.drawable.ic_email)
 
             WishBoardTextField(
-                modifier = Modifier.focusRequester(focusRequester).focusable(),
+                modifier = Modifier
+                    .focusRequester(focusRequester),
                 input = uiModel.email,
                 placeholder = stringResource(id = R.string.sign_email_placeholder),
                 errorMsg = if (uiModel.isValidEmail == false) stringResource(id = R.string.sign_in_email_error) else stringResource(

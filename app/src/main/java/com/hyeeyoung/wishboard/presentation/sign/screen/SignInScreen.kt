@@ -1,7 +1,6 @@
 package com.hyeeyoung.wishboard.presentation.sign.screen
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
@@ -35,9 +34,9 @@ import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
 import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardTextField
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
+import com.hyeeyoung.wishboard.presentation.sign.SignViewModel
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.sign.model.auth.SignUiModel
-import com.hyeeyoung.wishboard.presentation.sign.SignViewModel
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.util.extension.safePopBackStack
 import kotlinx.coroutines.delay
@@ -45,6 +44,7 @@ import kotlinx.coroutines.delay
 @Composable
 fun SignInScreen(navController: NavHostController, viewModel: SignViewModel = hiltViewModel()) {
     val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     WishBoardGlobalSnackbarMessage(viewModel.snackBarChannel)
 
@@ -55,6 +55,7 @@ fun SignInScreen(navController: NavHostController, viewModel: SignViewModel = hi
         onClickLogin = {
             viewModel.signIn(
                 afterSuccess = {
+                    keyboardController?.hide()
                     navController.navigate("${MainScreen.Root.route}/${false}") {
                         popUpTo(route = SignScreen.Root.route) {
                             inclusive = true
@@ -67,6 +68,7 @@ fun SignInScreen(navController: NavHostController, viewModel: SignViewModel = hi
             navController.navigate(SignScreen.EmailLogin.route)
         },
         onClickBack = {
+            keyboardController?.hide()
             navController.safePopBackStack()
         }
     )
@@ -82,12 +84,10 @@ fun SignInScreen(
     onClickBack: () -> Unit
 ) {
     val focusRequester = remember { FocusRequester() }
-    val keyboardController = LocalSoftwareKeyboardController.current
 
     LaunchedEffect(Unit) {
         delay(300L)
         focusRequester.requestFocus()
-        keyboardController?.show()
     }
 
     Scaffold(topBar = {
@@ -107,8 +107,7 @@ fun SignInScreen(
 
             WishBoardTextField(
                 modifier = Modifier
-                    .focusRequester(focusRequester)
-                    .focusable(),
+                    .focusRequester(focusRequester),
                 label = stringResource(id = R.string.sign_email),
                 input = uiModel.email,
                 placeholder = stringResource(id = R.string.sign_email_placeholder),
