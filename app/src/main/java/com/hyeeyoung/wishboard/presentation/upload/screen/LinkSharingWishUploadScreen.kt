@@ -294,6 +294,7 @@ fun FolderItem(
 ) {
     Box(
         modifier = Modifier
+            .size(IMAGE_SIZE.dp)
             .noRippleClickable { onClickFolder(folder) }
             .clip((RoundedCornerShape(10.dp))),
     ) {
