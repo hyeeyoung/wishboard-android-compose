@@ -15,9 +15,10 @@ import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.unit.Dp
 
-inline fun Modifier.noRippleClickable(crossinline onClick: () -> Unit): Modifier = composed {
+inline fun Modifier.noRippleClickable(enabled: Boolean = true, crossinline onClick: () -> Unit): Modifier = composed {
     clickable(
         indication = null,
+        enabled = enabled,
         interactionSource = remember { MutableInteractionSource() },
     ) {
         onClick()
