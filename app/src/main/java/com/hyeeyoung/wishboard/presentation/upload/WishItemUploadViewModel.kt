@@ -88,7 +88,8 @@ class WishItemUploadViewModel @Inject constructor(
         uploadType: WishItemUploadType,
         afterSuccess: (Long) -> Unit
     ) {
-        if (uiModel.value.wishItemUploadState is WishBoardState.Loading) return
+        if (uiModel.value.wishItemUploadState is WishBoardState.Loading
+            || uiModel.value.wishItemUploadState is WishBoardState.Success) return
         _uiModel.update { it.copy(wishItemUploadState = WishBoardState.Loading) }
 
         viewModelScope.launch {
@@ -222,10 +223,9 @@ class WishItemUploadViewModel @Inject constructor(
 
     fun createFolder(folderName: String, afterSuccess: () -> Unit) {
         if (uiModel.value.folderAddState is WishBoardState.Loading) return
-
-        val trimmedName = folderName.trim()
         _uiModel.update { it.copy(folderAddState = WishBoardState.Loading) }
 
+        val trimmedName = folderName.trim()
         viewModelScope.launch {
             postNewFolderUseCase(trimmedName)
                 .onSuccess {
