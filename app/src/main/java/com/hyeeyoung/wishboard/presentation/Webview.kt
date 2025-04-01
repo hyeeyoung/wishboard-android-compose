@@ -26,6 +26,7 @@ import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
+import com.hyeeyoung.wishboard.presentation.util.extension.safePopBackStack
 
 @Composable
 fun WebViewScreen(
@@ -38,7 +39,7 @@ fun WebViewScreen(
     Scaffold(topBar = {
         WebViewTopBar(
             title = title,
-            onClickClose = { navController.popBackStack() },
+            onClickClose = { navController.safePopBackStack() },
             onClickRefresh = { webView.value?.reload() },
         )
     }) { paddingValues ->
@@ -48,7 +49,7 @@ fun WebViewScreen(
                 webView = webView,
                 modifier = Modifier.fillMaxSize(),
                 url = url,
-                exitWebView = { navController.popBackStack() },
+                exitWebView = { navController.safePopBackStack() },
             )
         }
     }
@@ -105,7 +106,7 @@ fun WebView(
         },
     )
 
-    BackHandler() {
+    BackHandler {
         if (webView.value?.canGoBack() == true) {
             webView.value?.goBack()
         } else {

@@ -41,7 +41,6 @@ import com.hyeeyoung.wishboard.designsystem.component.WishBoardGlobalSnackbarMes
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
 import com.hyeeyoung.wishboard.designsystem.component.image.Image
-import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardMainTopBar
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.designsystem.style.Green500
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
@@ -52,6 +51,7 @@ import com.hyeeyoung.wishboard.presentation.util.extension.formatAsTimeAgo
 import com.hyeeyoung.wishboard.presentation.util.extension.getDomainName
 import com.hyeeyoung.wishboard.presentation.util.extension.moveToWebView
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
+import com.hyeeyoung.wishboard.presentation.util.extension.safePopBackStack
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -90,7 +90,7 @@ fun NotiScreen(
             onClickCalendar = {
                 navController.navigate(Calendar.route)
             },
-            onClickBack = navController::popBackStack
+            onClickBack = navController::safePopBackStack
         )
     }
 }

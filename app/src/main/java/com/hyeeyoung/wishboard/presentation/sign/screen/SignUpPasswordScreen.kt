@@ -42,6 +42,7 @@ import com.hyeeyoung.wishboard.presentation.sign.SignViewModel
 import com.hyeeyoung.wishboard.presentation.sign.component.SignDescription
 import com.hyeeyoung.wishboard.presentation.util.constant.WishBoardUrl
 import com.hyeeyoung.wishboard.presentation.util.extension.moveToWebView
+import com.hyeeyoung.wishboard.presentation.util.extension.safePopBackStack
 import kotlinx.coroutines.delay
 
 @Composable
@@ -69,7 +70,7 @@ fun SignUpPasswordScreen(
                 }
             })
         },
-        onClickBack = navController::popBackStack
+        onClickBack = navController::safePopBackStack
     )
 }
 

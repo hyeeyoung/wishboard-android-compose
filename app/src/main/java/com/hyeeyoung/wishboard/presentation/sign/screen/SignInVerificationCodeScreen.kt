@@ -30,6 +30,7 @@ import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.sign.model.auth.SignUiModel
 import com.hyeeyoung.wishboard.presentation.sign.SignViewModel
 import com.hyeeyoung.wishboard.presentation.sign.component.SignDescription
+import com.hyeeyoung.wishboard.presentation.util.extension.safePopBackStack
 
 private const val VERIFICATION_CODE_MAX_LENGTH = 6
 
@@ -58,7 +59,7 @@ fun SignInVerificationCodeScreen(
                 }
             }
         },
-        onClickBack = navController::popBackStack
+        onClickBack = navController::safePopBackStack
     )
 }
 

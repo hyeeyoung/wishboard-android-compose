@@ -45,6 +45,7 @@ import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.util.extension.createImageUri
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.util.extension.rememberModalLauncher
+import com.hyeeyoung.wishboard.presentation.util.extension.safePopBackStack
 
 @Composable
 fun ProfileEditScreen(
@@ -69,10 +70,10 @@ fun ProfileEditScreen(
         updateProfile = {
             viewModel.updateUserProfile(context,
                 afterSuccess = {
-                    navController.popBackStack()
+                    navController.safePopBackStack()
                 })
         },
-        onClickBack = navController::popBackStack
+        onClickBack = navController::safePopBackStack
     )
 }
 

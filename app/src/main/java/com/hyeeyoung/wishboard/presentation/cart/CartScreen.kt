@@ -46,6 +46,7 @@ import com.hyeeyoung.wishboard.designsystem.component.image.Image
 import com.hyeeyoung.wishboard.presentation.sign.model.CartItem
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
+import com.hyeeyoung.wishboard.presentation.util.extension.safePopBackStack
 import com.hyeeyoung.wishboard.presentation.wish.component.PriceText
 
 @Composable
@@ -73,7 +74,7 @@ fun CartScreen(navController: NavHostController) {
         WishBoardTopBar(
             topBarModel = WishBoardTopBarModel(
                 title = stringResource(id = R.string.cart),
-                onClickStartIcon = { navController.popBackStack() },
+                onClickStartIcon = { navController.safePopBackStack() },
             ),
         )
     }) { paddingValues ->
@@ -235,7 +236,7 @@ fun PreviewCartItem() {
         1,
     )
 
-    Column() {
+    Column {
         CartItem(
             cartItem = cartItem,
         )

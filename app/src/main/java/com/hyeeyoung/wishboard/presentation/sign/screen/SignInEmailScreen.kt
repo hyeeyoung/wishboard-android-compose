@@ -33,8 +33,7 @@ import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBarWith
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.sign.model.auth.SignUiModel
-import com.hyeeyoung.wishboard.presentation.sign.SignViewModel
-import com.hyeeyoung.wishboard.presentation.sign.component.SignDescription
+import com.hyeeyoung.wishboard.presentation.util.extension.safePopBackStack
 import kotlinx.coroutines.delay
 
 @Composable
@@ -54,7 +53,7 @@ fun SignInEmailScreen(
                 navController.navigate(SignScreen.Verification.route)
             }
         },
-        onClickBack = navController::popBackStack,
+        onClickBack = navController::safePopBackStack,
     )
 }
 

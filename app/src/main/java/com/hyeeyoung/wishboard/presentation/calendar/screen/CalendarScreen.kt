@@ -29,6 +29,7 @@ import com.hyeeyoung.wishboard.presentation.calendar.component.CalendarSchedule
 import com.hyeeyoung.wishboard.presentation.calendar.component.CalendarTable
 import com.hyeeyoung.wishboard.presentation.noti.model.CalendarUiModel
 import com.hyeeyoung.wishboard.presentation.sign.model.NotiItem
+import com.hyeeyoung.wishboard.presentation.util.extension.safePopBackStack
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.toJavaLocalDate
 import java.time.LocalDate
@@ -54,7 +55,7 @@ fun CalendarScreen(
         },
         updateSelectedDate = viewModel::updateSelectedDate,
         changeCalendarPage = viewModel::changeCalendarPage,
-        onClickClose = navController::popBackStack
+        onClickClose = navController::safePopBackStack
     )
 }
 

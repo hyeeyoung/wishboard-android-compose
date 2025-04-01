@@ -30,6 +30,7 @@ import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.presentation.my.MyViewModel
 import com.hyeeyoung.wishboard.presentation.my.model.MyUiModel
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
+import com.hyeeyoung.wishboard.presentation.util.extension.safePopBackStack
 
 @Composable
 fun PasswordChangeScreen(navController: NavController, viewModel: MyViewModel = hiltViewModel()) {
@@ -44,10 +45,10 @@ fun PasswordChangeScreen(navController: NavController, viewModel: MyViewModel = 
         },
         onClickComplete = {
             viewModel.updatePassword {
-                navController.popBackStack()
+                navController.safePopBackStack()
             }
         },
-        onClickBack = navController::popBackStack,
+        onClickBack = navController::safePopBackStack,
     )
 }
 

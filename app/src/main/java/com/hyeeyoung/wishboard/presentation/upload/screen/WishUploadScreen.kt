@@ -78,6 +78,7 @@ import com.hyeeyoung.wishboard.presentation.util.extension.getCurrentTime
 import com.hyeeyoung.wishboard.presentation.util.extension.makeValidPriceStr
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.util.extension.rememberModalLauncher
+import com.hyeeyoung.wishboard.presentation.util.extension.safePopBackStack
 import com.hyeeyoung.wishboard.presentation.util.extension.toJson
 import kotlinx.datetime.LocalDateTime
 import timber.log.Timber
@@ -112,14 +113,14 @@ fun WishUploadScreen(
                         uploadType = WishItemUploadType.MANUAL
                     ) { id ->
                         navController.navigate("${MainScreen.WishItemDetail.route}/$id") {
-                            navController.popBackStack()
+                            navController.safePopBackStack()
                         }
                     }
                 }
 
                 false -> {
                     viewModel.updateWishItem(context = context, itemId = itemDetail?.id) {
-                        navController.popBackStack()
+                        navController.safePopBackStack()
                     }
                 }
             }
@@ -128,7 +129,7 @@ fun WishUploadScreen(
             viewModel.getFolders(it)
         },
         onClickClose = {
-            navController.popBackStack()
+            navController.safePopBackStack()
         },
         onTextChange = { type, input ->
             when (type) {

@@ -63,6 +63,7 @@ import com.hyeeyoung.wishboard.presentation.util.extension.getDomainName
 import com.hyeeyoung.wishboard.presentation.util.extension.moveToWebView
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.util.extension.rememberModalLauncher
+import com.hyeeyoung.wishboard.presentation.util.extension.safePopBackStack
 import com.hyeeyoung.wishboard.presentation.util.extension.toBase64Json
 import com.hyeeyoung.wishboard.presentation.util.safeLet
 import com.hyeeyoung.wishboard.presentation.wish.component.PriceText
@@ -106,10 +107,10 @@ fun WishItemDetailScreen(
         },
         onClickDelete = { itemId ->
             viewModel.deleteWishItem(itemId = itemId) {
-                navController.popBackStack()
+                navController.safePopBackStack()
             }
         },
-        onClickBack = navController::popBackStack,
+        onClickBack = navController::safePopBackStack,
         onClickFolder = { afterSuccess ->
             viewModel.getFolders(afterSuccess)
         }

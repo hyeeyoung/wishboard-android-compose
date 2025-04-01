@@ -23,6 +23,7 @@ import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.domain.model.wish.WishItem
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
+import com.hyeeyoung.wishboard.presentation.util.extension.safePopBackStack
 import com.hyeeyoung.wishboard.presentation.wish.component.WishItem
 
 @Composable
@@ -47,7 +48,7 @@ fun FolderDetailScreen(
         onClickItem = { id ->
             wishNavController.navigate("${MainScreen.WishItemDetail.route}/${id}")
         },
-        onClickBack = bottomNavController::popBackStack,
+        onClickBack = bottomNavController::safePopBackStack,
     )
 }
 

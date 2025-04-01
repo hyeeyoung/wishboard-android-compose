@@ -36,6 +36,7 @@ import com.hyeeyoung.wishboard.presentation.sign.model.auth.SignUiModel
 import com.hyeeyoung.wishboard.presentation.sign.SignViewModel
 import com.hyeeyoung.wishboard.presentation.sign.component.SignDescription
 import kotlinx.coroutines.delay
+import com.hyeeyoung.wishboard.presentation.util.extension.safePopBackStack
 
 @Composable
 fun SignUpEmailScreen(
@@ -52,7 +53,9 @@ fun SignUpEmailScreen(
                 navController.navigate(SignScreen.Password.route)
             })
         },
-        onClickBack = navController::popBackStack
+        onClickBack = {
+            navController.safePopBackStack()
+        }
     )
 }
 
