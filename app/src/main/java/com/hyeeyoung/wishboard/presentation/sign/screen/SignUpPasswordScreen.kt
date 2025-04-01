@@ -62,7 +62,7 @@ fun SignUpPasswordScreen(
         },
         onClickSignUp = {
             viewModel.signUp(afterSuccess = {
-                navController.navigate(MainScreen.Root.route) {
+                navController.navigate("${MainScreen.Root.route}/${true}") {
                     popUpTo(route = SignScreen.Root.route) {
                         inclusive = true
                     }

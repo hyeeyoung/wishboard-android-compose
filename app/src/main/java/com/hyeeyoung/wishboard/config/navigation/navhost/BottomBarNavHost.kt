@@ -14,13 +14,18 @@ import com.hyeeyoung.wishboard.presentation.wish.screen.WishListScreen
 @Composable
 fun BottomBarNavHost(
     modifier: Modifier = Modifier,
+    isFirstLaunch: Boolean,
     bottomNavController: NavHostController,
     wishNavController: NavHostController,
 ) {
-    NavHost(modifier = modifier, navController = bottomNavController, startDestination = MainScreen.Wishlist.route) {
+    NavHost(
+        modifier = modifier,
+        navController = bottomNavController,
+        startDestination = MainScreen.Wishlist.route
+    ) {
         // 메인 탭
         composable(route = MainScreen.Wishlist.route) {
-            WishListScreen(navController = wishNavController)
+            WishListScreen(navController = wishNavController, isFirstLaunch = isFirstLaunch)
         }
 
         folderNavGraph(bottomNavController = bottomNavController, wishNavController = wishNavController)

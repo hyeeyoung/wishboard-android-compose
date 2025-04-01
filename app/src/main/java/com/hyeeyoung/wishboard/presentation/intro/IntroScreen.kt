@@ -51,7 +51,7 @@ fun IntroScreen(navController: NavHostController, viewModel: IntroViewModel = hi
             context = context,
             showDialog = { dialogData = DialogData.Intro },
             moveToNext = {
-                val nextScreen = if (uiModel.isLogin!!) MainScreen.Root.route else SignScreen.Root.route
+                val nextScreen = if (uiModel.isLogin!!) "${MainScreen.Root.route}/${false}" else SignScreen.Root.route
                 navController.navigate(nextScreen) {
                     popUpTo(navController.graph.id) {
                         inclusive = true

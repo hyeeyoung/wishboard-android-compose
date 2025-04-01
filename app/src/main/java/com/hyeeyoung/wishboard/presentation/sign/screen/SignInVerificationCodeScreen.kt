@@ -51,7 +51,7 @@ fun SignInVerificationCodeScreen(
         onAuthCodeChange = viewModel::onAuthCodeChange,
         onClickLogin = {
             viewModel.signInEmail {
-                navController.navigate(MainScreen.Root.route) {
+                navController.navigate("${MainScreen.Root.route}/${false}") {
                     popUpTo(route = SignScreen.Root.route) {
                         inclusive = true
                     }

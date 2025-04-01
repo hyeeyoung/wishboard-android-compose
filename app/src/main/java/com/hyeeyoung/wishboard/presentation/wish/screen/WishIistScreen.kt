@@ -2,7 +2,6 @@ package com.hyeeyoung.wishboard.presentation.wish.screen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -24,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -34,24 +34,31 @@ import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardEmptyView
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardGlobalSnackbarMessage
-import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
+import com.hyeeyoung.wishboard.designsystem.component.dialog.model.ModalData
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.domain.model.wish.WishItem
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
+import com.hyeeyoung.wishboard.presentation.util.extension.rememberModalLauncher
 import com.hyeeyoung.wishboard.presentation.wish.model.WishListUiModel
 import com.hyeeyoung.wishboard.presentation.wish.WishListViewModel
 import com.hyeeyoung.wishboard.presentation.wish.component.WishItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WishListScreen(navController: NavHostController, viewModel: WishListViewModel = hiltViewModel()) {
+fun WishListScreen(navController: NavHostController, isFirstLaunch: Boolean, viewModel: WishListViewModel = hiltViewModel()) {
+    val context = LocalContext.current
     val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
-
-    WishBoardGlobalSnackbarMessage(snackbarChannel = viewModel.snackBarChannel)
+    val modalLauncher = rememberModalLauncher { _, _ -> }
 
     LaunchedEffect(Unit) {
         viewModel.getWishItem()
+        if (isFirstLaunch && !uiModel.isOnboardingModalShown) {
+            ModalData.FullModal.Onboarding.openModal(context, modalLauncher)
+            viewModel.confirmOnboardingModal()
+        }
     }
+
+    WishBoardGlobalSnackbarMessage(snackbarChannel = viewModel.snackBarChannel)
 
     PullToRefreshBox(
         isRefreshing = uiModel.isRefreshing,

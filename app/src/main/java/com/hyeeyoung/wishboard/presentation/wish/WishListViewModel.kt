@@ -49,4 +49,10 @@ class WishListViewModel @Inject constructor(
             }
         }
     }
+
+    fun confirmOnboardingModal() {
+        _uiModel.update {
+            it.copy(isOnboardingModalShown = true)
+        }
+    }
 }

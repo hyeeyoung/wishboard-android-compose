@@ -38,7 +38,10 @@ import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 
 @Composable
-fun WishBoardBottomBar(navController: NavHostController = rememberNavController(), onClickAdd: () -> Unit = {}) {
+fun WishBoardBottomBar(
+    navController: NavHostController = rememberNavController(),
+    onClickAdd: () -> Unit = {},
+) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
@@ -63,7 +66,10 @@ fun WishBoardBottomBar(navController: NavHostController = rememberNavController(
 }
 
 @Composable
-fun WishBoardBottomBar(onSelect: (BottomNavItem) -> Unit, isSelected: (BottomNavItem) -> Boolean) {
+fun WishBoardBottomBar(
+    onSelect: (BottomNavItem) -> Unit,
+    isSelected: (BottomNavItem) -> Boolean
+) {
     val density = LocalDensity.current
     val textMeasure = rememberTextMeasurer()
     val textStyle = WishBoardTheme.typography.montserratD1

@@ -15,8 +15,10 @@ import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.hyeeyoung.wishboard.config.navigation.navgraph.itemDetailNavGraph
 import com.hyeeyoung.wishboard.config.navigation.navgraph.signNavGraph
 import com.hyeeyoung.wishboard.config.navigation.navgraph.uploadNavGraph
@@ -42,10 +44,17 @@ fun WishBoardNavHost(modifier: Modifier = Modifier, navController: NavHostContro
             IntroScreen(navController = navController)
         }
 
-        snackbarComposable(snackbarHostState = snackbarHostState, route = MainScreen.Root.route) {
-            MainScreen(
-                wishNavController = navController,
-                onClickAdd = { navController.navigate(MainScreen.Upload.route) })
+        snackbarComposable(
+            snackbarHostState = snackbarHostState,
+            route = MainScreen.Root.routeWithArg,
+            arguments = listOf(navArgument(MainScreen.Root.ARG_IS_FIRST_LAUNCH) { type = NavType.BoolType }),
+        ) { backStackEntry ->
+            backStackEntry.arguments?.let {
+                MainScreen(
+                    wishNavController = navController,
+                    isFirstLaunch = it.getBoolean(MainScreen.Root.ARG_IS_FIRST_LAUNCH),
+                    onClickAdd = { navController.navigate(MainScreen.Upload.route) })
+            }
         }
 
         snackbarComposable(snackbarHostState = snackbarHostState, route = MainScreen.Noti.route) {

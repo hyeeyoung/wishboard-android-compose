@@ -14,7 +14,7 @@ import com.hyeeyoung.wishboard.config.navigation.navhost.BottomBarNavHost
 import com.hyeeyoung.wishboard.designsystem.component.bottombar.WishBoardBottomBar
 
 @Composable
-fun MainScreen(wishNavController: NavHostController, onClickAdd: () -> Unit = {}) {
+fun MainScreen(wishNavController: NavHostController, isFirstLaunch: Boolean, onClickAdd: () -> Unit = {}) {
     val systemUiController = rememberSystemUiController()
     SideEffect {
         systemUiController.setNavigationBarColor(color = Color.White)
@@ -22,11 +22,15 @@ fun MainScreen(wishNavController: NavHostController, onClickAdd: () -> Unit = {}
 
     val bottomBarNavController = rememberNavController()
     Scaffold(bottomBar = {
-        WishBoardBottomBar(navController = bottomBarNavController, onClickAdd = onClickAdd)
+        WishBoardBottomBar(
+            navController = bottomBarNavController,
+            onClickAdd = onClickAdd
+        )
     }) { paddingValues ->
         val modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding())
         BottomBarNavHost(
             modifier = modifier,
+            isFirstLaunch = isFirstLaunch,
             bottomNavController = bottomBarNavController,
             wishNavController = wishNavController,
         )
@@ -42,5 +46,5 @@ fun PreviewWishBoardBottomBar() {
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
-    MainScreen(wishNavController = rememberNavController())
+    MainScreen(wishNavController = rememberNavController(), isFirstLaunch = false)
 }

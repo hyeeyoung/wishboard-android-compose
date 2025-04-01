@@ -54,7 +54,7 @@ fun SignInScreen(navController: NavHostController, viewModel: SignViewModel = hi
         onClickLogin = {
             viewModel.signIn(
                 afterSuccess = {
-                    navController.navigate(MainScreen.Root.route) {
+                    navController.navigate("${MainScreen.Root.route}/${false}") {
                         popUpTo(route = SignScreen.Root.route) {
                             inclusive = true
                         }
