@@ -31,6 +31,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -158,12 +159,9 @@ fun WishUploadScreen(
     setNotiInfo: (NotiInfo) -> Unit,
     onUriChange: (Uri?) -> Unit,
 ) {
+    val context = LocalContext.current
     val systemUiController = rememberSystemUiController()
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.loading_spin))
-
-    SideEffect {
-        systemUiController.setNavigationBarColor(color = Color.White)
-    }
 
     var cameraUri: Uri? = null
     val albumLauncher = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
@@ -190,7 +188,6 @@ fun WishUploadScreen(
         )
     }
 
-    val context = LocalContext.current
     val modalLauncher = rememberModalLauncher { isTopOption, data ->
         when (data) {
             is ModalData.OptionModal.ImageSelection -> {
@@ -216,6 +213,12 @@ fun WishUploadScreen(
 
             else -> {}
         }
+    }
+    val imageHeight = LocalConfiguration.current.screenWidthDp * 0.66
+    val imageContainerShape = RoundedCornerShape(32.dp)
+
+    SideEffect {
+        systemUiController.setNavigationBarColor(color = Color.White)
     }
 
     Scaffold(topBar = {
@@ -262,15 +265,18 @@ fun WishUploadScreen(
                     .padding(top = 6.dp + paddingValues.calculateTopPadding(), bottom = 16.dp)
                     .verticalScroll(rememberScrollState()),
             ) {
-                val imageHeight = LocalConfiguration.current.screenWidthDp * 0.66
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(imageHeight.dp)
                         .background(
                             color = WishBoardTheme.colors.gray100,
-                            shape = RoundedCornerShape(32.dp),
-                        ),
+                            shape = imageContainerShape,
+                        )
+                        .clip(imageContainerShape)
+                        .noRippleClickable {
+                            ModalData.OptionModal.ImageSelection.openModal(context, modalLauncher)
+                        },
                     contentAlignment = Alignment.Center,
                 ) {
                     AsyncImage(
@@ -281,7 +287,7 @@ fun WishUploadScreen(
 
                     WishBoardIconButton(
                         iconRes = R.drawable.ic_camera,
-                        onClick = { ModalData.OptionModal.ImageSelection.openModal(context, modalLauncher) },
+                        onClick = {},
                     )
                 }
 
