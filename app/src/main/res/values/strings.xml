@@ -184,7 +184,7 @@
     <string name="modal_folder_upload_placeholder">폴더명을 입력해 주세요.</string>
     <string name="modal_folder_upload_error">동일 이름의 폴더가 있어요!</string>
 
-    <string name="modal_image_upload_camera">사진 촬영</string>
-    <string name="modal_image_upload_gallery">사진 선택</string>
+    <string name="modal_image_upload_camera">카메라로 촬영하기</string>
+    <string name="modal_image_upload_gallery">사진 선택하기</string>
 
 </resources>
