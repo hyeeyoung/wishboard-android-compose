@@ -53,12 +53,11 @@ import com.hyeeyoung.wishboard.designsystem.style.Gray700
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
 import com.hyeeyoung.wishboard.domain.model.noti.NotiType
-import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat
-import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat.getFormattedDateStr
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardString
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.util.buildStringWithSpans
 import com.hyeeyoung.wishboard.presentation.util.extension.formatAsTimeAgo
+import com.hyeeyoung.wishboard.presentation.util.extension.formatDday
 import com.hyeeyoung.wishboard.presentation.util.extension.getDomainName
 import com.hyeeyoung.wishboard.presentation.util.extension.moveToWebView
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
@@ -69,7 +68,6 @@ import com.hyeeyoung.wishboard.presentation.util.safeLet
 import com.hyeeyoung.wishboard.presentation.wish.component.PriceText
 import com.hyeeyoung.wishboard.presentation.wish.model.WishItemDetailUiModel
 import kotlinx.datetime.LocalDateTime
-import timber.log.Timber
 
 @Composable
 fun WishItemDetailScreen(
@@ -220,7 +218,6 @@ private fun WishItemDetailContents(modifier: Modifier, uiModel: WishItemDetailUi
                 }
             )
 
-            Timber.e("uiModel : $uiModel")
             safeLet(uiModel.notiType, uiModel.notiDate) { type, date ->
                 NotiInfoLabel(
                     modifier = Modifier
@@ -322,7 +319,7 @@ private fun NotiInfoLabel(modifier: Modifier, type: NotiType, date: LocalDateTim
         )
         Text(
             modifier = labelModifier,
-            text = date.getFormattedDateStr(WishBoardDateFormat.YY_M_D_KR),
+            text = date.formatDday(),
             style = WishBoardTheme.typography.suitB5,
             color = WishBoardTheme.colors.gray700,
         )
