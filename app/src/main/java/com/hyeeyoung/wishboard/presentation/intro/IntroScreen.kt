@@ -45,6 +45,7 @@ import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.WishBoardOne
 import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.WishBoardTwoButtonDialog
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import kotlinx.coroutines.delay
+import timber.log.Timber
 
 @Composable
 fun IntroScreen(
@@ -62,6 +63,7 @@ fun IntroScreen(
     var appUpdateType by remember { mutableStateOf<AppUpdateTime?>(null) }
 
     LaunchedEffect(uiModel.hasShownNotificationAlert) {
+        Timber.e("hasShownNotificationAlert : ${uiModel.hasShownNotificationAlert}")
         if (uiModel.hasShownNotificationAlert == false) {
             checkNotificationPermission(
                 context = context,
@@ -75,6 +77,7 @@ fun IntroScreen(
     LaunchedEffect(uiModel.isLogin) {
         if (uiModel.isLogin == null) return@LaunchedEffect
         delay(2000L)
+        Timber.e("isLogin : ${uiModel.isLogin}")
 
         checkForNewVersionUpdate(
             context = context,
@@ -96,6 +99,7 @@ fun IntroScreen(
     }
 
     LaunchedEffect(nextScreen, uiModel.hasShownNotificationAlert) {
+        Timber.e("nextScreen : $nextScreen, hasShownNotificationAlert : ${uiModel.hasShownNotificationAlert}")
         if (nextScreen == null || uiModel.hasShownNotificationAlert != true) return@LaunchedEffect
         navController.navigate(nextScreen!!) {
             popUpTo(navController.graph.id) {
@@ -164,11 +168,14 @@ private fun checkForNewVersionUpdate(
             appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE) &&
             playStoreVersionCode != BuildConfig.VERSION_CODE
         ) {
+            Timber.e("1 : $playStoreVersionCode")
             checkRemoteAppVersion(playStoreVersionCode)
         } else {
+            Timber.e("2")
             moveToNext()
         }
     }.addOnFailureListener {
+        Timber.e("3")
         moveToNext()
     }
 }

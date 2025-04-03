@@ -287,7 +287,9 @@ fun WishUploadScreen(
 
                     WishBoardIconButton(
                         iconRes = R.drawable.ic_camera,
-                        onClick = {},
+                        onClick = {
+                            ModalData.OptionModal.ImageSelection.openModal(context, modalLauncher)
+                        },
                     )
                 }
 
