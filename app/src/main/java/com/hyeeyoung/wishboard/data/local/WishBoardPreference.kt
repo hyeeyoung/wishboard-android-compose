@@ -54,6 +54,10 @@ class WishBoardPreference @Inject constructor(@ApplicationContext context: Conte
         set(value) = dataStore.edit { putBoolean(IS_LOGIN, value) }
         get() = dataStore.getBoolean(IS_LOGIN, false)
 
+    var hasShownNotificationAlert: Boolean
+        set(value) = dataStore.edit { putBoolean(HAS_SHOWN_NOTIFICATION_ALERT, value) }
+        get() = dataStore.getBoolean(HAS_SHOWN_NOTIFICATION_ALERT, false)
+
     fun setUserInfo(email: String, nickname: String?, accessToken: String, refreshToken: String) {
         isLogin = true
         userInfo = UserInfo(
@@ -81,11 +85,20 @@ class WishBoardPreference @Inject constructor(@ApplicationContext context: Conte
         }
     }
 
+    fun clearForLogout() {
+        val tempNotificationAlertState = hasShownNotificationAlert
+        dataStore.edit {
+            clear()
+        }
+        hasShownNotificationAlert = tempNotificationAlertState
+    }
+
     companion object {
         const val FILE_NAME = "wishboardPreferences"
         const val ACCESS_TOKEN = "accessToken"
         const val REFRESH_TOKEN = "refreshToken"
         const val IS_LOGIN = "isLogin"
         const val USER_INFO = "userInfo"
+        const val HAS_SHOWN_NOTIFICATION_ALERT = "hasShownNotificationAlert"
     }
 }

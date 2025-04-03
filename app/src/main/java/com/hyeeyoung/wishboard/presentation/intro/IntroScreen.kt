@@ -1,6 +1,12 @@
 package com.hyeeyoung.wishboard.presentation.intro
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -20,9 +26,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavHostController
+import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.install.model.AppUpdateType
@@ -37,11 +44,29 @@ import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import kotlinx.coroutines.delay
 
 @Composable
-fun IntroScreen(navController: NavHostController, viewModel: IntroViewModel = hiltViewModel()) {
+fun IntroScreen(
+    navController: NavController,
+    viewModel: IntroViewModel = hiltViewModel()
+) {
     val context = LocalContext.current
     var dialogData by remember { mutableStateOf<DialogData?>(null) }
     val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
+    val requestPermissionLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { _ ->
+            viewModel.updateNotificationAlertDate()
+        }
+    var nextScreen by remember { mutableStateOf<String?>(null) }
 
+    LaunchedEffect(uiModel.hasShownNotificationAlert) {
+        if (uiModel.hasShownNotificationAlert == false) {
+            checkNotificationPermission(
+                context = context,
+                requestPermissionLauncher = requestPermissionLauncher,
+                shouldSkip = {
+                    viewModel.updateNotificationAlertDate()
+                })
+        }
+    }
 
     LaunchedEffect(uiModel.isLogin) {
         if (uiModel.isLogin == null) return@LaunchedEffect
@@ -51,14 +76,18 @@ fun IntroScreen(navController: NavHostController, viewModel: IntroViewModel = hi
             context = context,
             showDialog = { dialogData = DialogData.Intro },
             moveToNext = {
-                val nextScreen = if (uiModel.isLogin!!) "${MainScreen.Root.route}/${false}" else SignScreen.Root.route
-                navController.navigate(nextScreen) {
-                    popUpTo(navController.graph.id) {
-                        inclusive = true
-                    }
-                }
+                nextScreen = if (uiModel.isLogin!!) "${MainScreen.Root.route}/${false}" else SignScreen.Root.route
             },
         )
+    }
+
+    LaunchedEffect(nextScreen, uiModel.hasShownNotificationAlert) {
+        if (nextScreen == null || uiModel.hasShownNotificationAlert != true) return@LaunchedEffect
+        navController.navigate(nextScreen!!) {
+            popUpTo(navController.graph.id) {
+                inclusive = true
+            }
+        }
     }
 
     Column(
@@ -72,11 +101,13 @@ fun IntroScreen(navController: NavHostController, viewModel: IntroViewModel = hi
         Spacer(modifier = Modifier.size(10.dp))
     }
 
-    WishBoardDialog(
-        dialogData = dialogData,
-        onClickConfirm = {},
-        onDismissRequest = { dialogData = null },
-    )
+    if (uiModel.hasShownNotificationAlert == true) {
+        WishBoardDialog(
+            dialogData = dialogData,
+            onClickConfirm = {},
+            onDismissRequest = { dialogData = null },
+        )
+    }
 }
 
 private fun checkForNewVersionUpdate(context: Context, showDialog: () -> Unit, moveToNext: () -> Unit) {
@@ -94,6 +125,25 @@ private fun checkForNewVersionUpdate(context: Context, showDialog: () -> Unit, m
         }
     }.addOnFailureListener {
         moveToNext()
+    }
+}
+
+private fun checkNotificationPermission(
+    context: Context,
+    requestPermissionLauncher: ManagedActivityResultLauncher<String, Boolean>,
+    shouldSkip: () -> Unit,
+) {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+        shouldSkip()
+        return
+    }
+    val isGranted = ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) ==
+            PackageManager.PERMISSION_GRANTED
+
+    when (isGranted) {
+        false -> requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+
+        true -> {}
     }
 }
 

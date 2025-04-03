@@ -60,7 +60,7 @@ class AuthInterceptor @Inject constructor(
 
     private fun handleAutoLoginExpiration() {
         Timber.d("Token refresh failed, clearing token info")
-        localStorage.clear()
+        localStorage.clearForLogout()
         GlobalState.isExpiredAuthLogin.value = true
     }
 

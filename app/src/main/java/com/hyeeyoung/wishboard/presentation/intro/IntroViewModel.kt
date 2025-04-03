@@ -16,12 +16,19 @@ class IntroViewModel @Inject constructor(
     val uiModel = _uiModel.asStateFlow()
 
     init {
-        checkLogin()
+        checkLoginAndNotificationAlerInfo()
     }
 
-    private fun checkLogin() {
+    private fun checkLoginAndNotificationAlerInfo() {
         _uiModel.update {
-            it.copy(isLogin = localStorage.isLogin)
+            it.copy(
+                isLogin = localStorage.isLogin,
+                hasShownNotificationAlert = localStorage.hasShownNotificationAlert
+            )
         }
+    }
+
+    fun updateNotificationAlertDate() {
+        localStorage.hasShownNotificationAlert = true
     }
 }
