@@ -29,6 +29,7 @@ import com.hyeeyoung.wishboard.presentation.util.extension.BitmapUtil.toBitmap
 import com.hyeeyoung.wishboard.presentation.util.extension.BitmapUtil.toFile
 import com.hyeeyoung.wishboard.presentation.util.extension.convertResizeImage
 import com.hyeeyoung.wishboard.presentation.util.extension.getBase64Json
+import com.hyeeyoung.wishboard.presentation.util.extension.getValidUrl
 import com.hyeeyoung.wishboard.presentation.util.extension.toMillis
 import com.hyeeyoung.wishboard.presentation.util.safeLet
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -42,6 +43,7 @@ import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -68,7 +70,7 @@ class WishItemUploadViewModel @Inject constructor(
         _uiModel.update { it.copy(isLogin = localStorage.isLogin) }
 
         viewModelScope.launch {
-            getParsedItemInfoUseCase(site).onSuccess { parsedItem ->
+            getParsedItemInfoUseCase(site.getValidUrl() ?: "").onSuccess { parsedItem ->
                 _uiModel.update {
                     it.copy(
                         itemName = parsedItem.name ?: "",
