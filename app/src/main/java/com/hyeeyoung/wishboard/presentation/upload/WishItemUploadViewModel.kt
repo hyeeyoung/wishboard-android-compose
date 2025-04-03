@@ -43,7 +43,6 @@ import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
-import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -68,6 +67,7 @@ class WishItemUploadViewModel @Inject constructor(
 
     fun getParsedWishItem(site: String) {
         _uiModel.update { it.copy(isLogin = localStorage.isLogin) }
+        if (!localStorage.isLogin) { return }
 
         viewModelScope.launch {
             getParsedItemInfoUseCase(site.getValidUrl() ?: "").onSuccess { parsedItem ->
@@ -80,9 +80,7 @@ class WishItemUploadViewModel @Inject constructor(
                     )
                 }
             }.onFailure { _, _, _ ->
-                if (localStorage.isLogin) {
-                    updateSnackbarMessage("앗, 아이템 정보를 불러오지 못했어요🥲")
-                }
+                updateSnackbarMessage("앗, 아이템 정보를 불러오지 못했어요🥲")
             }
         }
     }
@@ -93,7 +91,8 @@ class WishItemUploadViewModel @Inject constructor(
         afterSuccess: (Long) -> Unit
     ) {
         if (uiModel.value.wishItemUploadState is WishBoardState.Loading
-            || uiModel.value.wishItemUploadState is WishBoardState.Success) return
+            || uiModel.value.wishItemUploadState is WishBoardState.Success
+        ) return
         _uiModel.update { it.copy(wishItemUploadState = WishBoardState.Loading) }
 
         viewModelScope.launch {
@@ -195,8 +194,8 @@ class WishItemUploadViewModel @Inject constructor(
     }
 
     fun getFolders(afterSuccess: (List<FolderItem>) -> Unit) {
+        if (!localStorage.isLogin) { return }
         if (uiModel.value.folderFetchState is WishBoardState.Loading) return
-
         _uiModel.update { it.copy(folderFetchState = WishBoardState.Loading) }
 
         viewModelScope.launch {
