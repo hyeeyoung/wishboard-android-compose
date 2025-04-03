@@ -1,12 +1,10 @@
 package com.hyeeyoung.wishboard.presentation.my
 
-import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.viewModelScope
 import com.hyeeyoung.wishboard.core.extension.onFailure
 import com.hyeeyoung.wishboard.data.local.WishBoardPreference
-import com.hyeeyoung.wishboard.data.util.ContentUriRequestBody
 import com.hyeeyoung.wishboard.domain.model.user.UserProfile
 import com.hyeeyoung.wishboard.domain.usecase.auth.PostLogoutUseCase
 import com.hyeeyoung.wishboard.domain.usecase.user.DeleteUserAccountUseCase
@@ -15,7 +13,6 @@ import com.hyeeyoung.wishboard.domain.usecase.user.PutPasswordUseCase
 import com.hyeeyoung.wishboard.domain.usecase.user.PutUserProfileUseCase
 import com.hyeeyoung.wishboard.domain.usecase.user.UpdatePushStateUseCase
 import com.hyeeyoung.wishboard.presentation.common.BaseViewModel
-import com.hyeeyoung.wishboard.presentation.common.model.ImageType
 import com.hyeeyoung.wishboard.presentation.my.model.MyUiModel
 import com.hyeeyoung.wishboard.presentation.sign.model.snackbar.SnackbarMessage
 import com.hyeeyoung.wishboard.presentation.util.WishBoardFormat
@@ -84,8 +81,8 @@ class MyViewModel @Inject constructor(
             putUserProfileUseCase(
                 userProfile = UserProfile(
                     nickName = if (uiModel.value.userInfo.nickname == trimmedName) null else trimmedName.ifBlank { null },
-                    profileImage = safeLet(file, requestBody) { a, b ->
-                        MultipartBody.Part.createFormData("profile_img", a.name, b)
+                    profileImage = safeLet(file, requestBody) { file, requestBody ->
+                        MultipartBody.Part.createFormData("profile_img", file.name, requestBody)
                     }
                 )
             ).onSuccess {

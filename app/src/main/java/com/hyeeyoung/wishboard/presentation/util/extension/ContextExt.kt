@@ -55,14 +55,14 @@ fun Context.convertResizeImage(imageUri: Uri): File? {
     } ?: throw IllegalArgumentException("Bitmap decoding failed")
 
     val file =
-        File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "compressed_image.jpg")
+        File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), "compressed_image.jpg")
     return try {
         val fos = FileOutputStream(file)
         bitmap.compress(Bitmap.CompressFormat.JPEG, 50, fos)
         fos.close()
         file
     } catch (e: IOException) {
-        e.printStackTrace()
+        Timber.e(e.message)
         null
     }
 }
