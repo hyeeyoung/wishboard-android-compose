@@ -77,7 +77,7 @@ fun LocalDateTime.formatDday(): String {
     val targetDate = this.date
     val targetTime = this.time
 
-    val daysDiff = now.date.daysUntil(targetDate)
+    val daysDiff = targetDate.daysUntil(now.date)
 
     return when {
         daysDiff < -1 -> "D-${abs(daysDiff)}" // 디데이까지 이틀 이상 남음
