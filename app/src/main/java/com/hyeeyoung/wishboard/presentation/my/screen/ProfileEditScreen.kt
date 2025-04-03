@@ -18,9 +18,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -46,6 +49,7 @@ import com.hyeeyoung.wishboard.presentation.util.extension.createImageUri
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.util.extension.rememberModalLauncher
 import com.hyeeyoung.wishboard.presentation.util.extension.safePopBackStack
+import kotlinx.coroutines.delay
 
 @Composable
 fun ProfileEditScreen(
@@ -111,6 +115,12 @@ fun ProfileEditScreen(
         }
     }
 
+    val focusRequester = remember { FocusRequester() }
+    LaunchedEffect(Unit) {
+        delay(300L)
+        focusRequester.requestFocus()
+    }
+
     Scaffold(topBar = {
         WishBoardTopBar(
             topBarModel = WishBoardTopBarModel(
@@ -158,6 +168,8 @@ fun ProfileEditScreen(
             }
             Spacer(modifier = Modifier.size(32.dp))
             WishBoardTextField(
+                modifier = Modifier
+                    .focusRequester(focusRequester),
                 input = uiModel.nicknameInput,
                 isError = uiModel.nicknameInput == uiModel.existingNickname,
                 label = stringResource(id = R.string.my_profile_nickname),
