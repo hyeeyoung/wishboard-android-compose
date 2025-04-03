@@ -182,7 +182,7 @@ fun ProfileEditScreen(
             Spacer(modifier = Modifier.weight(1f))
 
             WishBoardWideButton(
-                enabled = uiModel.nicknameInput.isNotBlank() && uiModel.userInfo.nickname != uiModel.nicknameInput,
+                enabled = (uiModel.nicknameInput.isNotBlank() && uiModel.userInfo.nickname != uiModel.nicknameInput) || uiModel.imageUriInput != null,
                 onClick = updateProfile,
                 text = stringResource(id = R.string.complete),
             )
