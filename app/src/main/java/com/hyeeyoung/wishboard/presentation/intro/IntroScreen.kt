@@ -2,7 +2,9 @@ package com.hyeeyoung.wishboard.presentation.intro
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -39,7 +41,8 @@ import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.config.navigation.screen.SignScreen
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.DialogData
-import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.WishBoardDialog
+import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.WishBoardOneButtonDialog
+import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.WishBoardTwoButtonDialog
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import kotlinx.coroutines.delay
 
@@ -56,6 +59,7 @@ fun IntroScreen(
             viewModel.updateNotificationAlertDate()
         }
     var nextScreen by remember { mutableStateOf<String?>(null) }
+    var appUpdateType by remember { mutableStateOf<AppUpdateTime?>(null) }
 
     LaunchedEffect(uiModel.hasShownNotificationAlert) {
         if (uiModel.hasShownNotificationAlert == false) {
@@ -74,9 +78,19 @@ fun IntroScreen(
 
         checkForNewVersionUpdate(
             context = context,
-            showDialog = { dialogData = DialogData.Intro },
+            checkRemoteAppVersion = { playStoreVersionCode ->
+                viewModel.checkForAppUpdate(
+                    playStoreVersionCode = playStoreVersionCode,
+                    moveToNext = {
+                        nextScreen = getNextScreen(uiModel.isLogin!!)
+                    },
+                    showUpdateDialog = {
+                        appUpdateType = it
+                    }
+                )
+            },
             moveToNext = {
-                nextScreen = if (uiModel.isLogin!!) "${MainScreen.Root.route}/${false}" else SignScreen.Root.route
+                nextScreen = getNextScreen(uiModel.isLogin!!)
             },
         )
     }
@@ -101,25 +115,56 @@ fun IntroScreen(
         Spacer(modifier = Modifier.size(10.dp))
     }
 
-    if (uiModel.hasShownNotificationAlert == true) {
-        WishBoardDialog(
-            dialogData = dialogData,
-            onClickConfirm = {},
-            onDismissRequest = { dialogData = null },
+    if (appUpdateType == AppUpdateTime.OPTIONAL_UPDATE && uiModel.hasShownNotificationAlert == true) {
+        WishBoardTwoButtonDialog(
+            dialogData = DialogData.AppUpdate,
+            onClickConfirm = {
+                moveToPlayStore(context)
+            },
+            onDismissRequest = {
+                dialogData = null
+                nextScreen = getNextScreen(uiModel.isLogin!!)
+            },
+        )
+    }
+
+    if (appUpdateType == AppUpdateTime.FORCED_UPDATE && uiModel.hasShownNotificationAlert == true) {
+        WishBoardOneButtonDialog(
+            dialogData = DialogData.AppUpdate,
+            onClickConfirm = {
+                moveToPlayStore(context)
+            },
+            onDismissRequest = {},
         )
     }
 }
 
-private fun checkForNewVersionUpdate(context: Context, showDialog: () -> Unit, moveToNext: () -> Unit) {
+private fun getNextScreen(isLogin: Boolean): String =
+    if (isLogin) "${MainScreen.Root.route}/${false}" else SignScreen.Root.route
+
+private fun moveToPlayStore(context: Context) {
+    val intent = Intent(
+        Intent.ACTION_VIEW,
+        Uri.parse("${context.getString(R.string.play_store_detail_url)}${context.packageName}")
+    )
+    context.startActivity(intent)
+}
+
+private fun checkForNewVersionUpdate(
+    context: Context,
+    checkRemoteAppVersion: (playStoreVersionCode: Int) -> Unit,
+    moveToNext: () -> Unit
+) {
     val appUpdateManager = AppUpdateManagerFactory.create(context)
     val appUpdateInfoTask = appUpdateManager.appUpdateInfo
 
     appUpdateInfoTask.addOnSuccessListener { appUpdateInfo ->
+        val playStoreVersionCode = appUpdateInfo.availableVersionCode()
         if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE &&
             appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE) &&
-            appUpdateInfo.availableVersionCode() != BuildConfig.VERSION_CODE
+            playStoreVersionCode != BuildConfig.VERSION_CODE
         ) {
-            showDialog()
+            checkRemoteAppVersion(playStoreVersionCode)
         } else {
             moveToNext()
         }

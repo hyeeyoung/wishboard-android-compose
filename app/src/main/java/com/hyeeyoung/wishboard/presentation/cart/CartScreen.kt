@@ -36,7 +36,7 @@ import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardEmptyView
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
-import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.WishBoardDialog
+import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.WishBoardTwoButtonDialog
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.designsystem.style.Green500
@@ -108,7 +108,7 @@ fun CartScreen(navController: NavHostController) {
             CartTotalDisplay(totalCount = cartItems.size, totalPrice = cartItems.sumOf { it.price * it.count })
         }
 
-        WishBoardDialog(
+        WishBoardTwoButtonDialog(
             dialogData = dialogData,
             onClickConfirm = {},
             onDismissRequest = { dialogData = null },

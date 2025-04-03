@@ -36,7 +36,7 @@ sealed class DialogData(val dialogTextRes: WishBoardDialogTextRes, val isWarning
         ),
     )
 
-    data object Intro : DialogData(
+    data object AppUpdate : DialogData(
         dialogTextRes = WishBoardDialogTextRes(
             titleRes = R.string.dialog_update_title,
             descriptionRes = R.string.dialog_update_description,

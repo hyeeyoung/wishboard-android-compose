@@ -4,6 +4,7 @@ import com.hyeeyoung.wishboard.data.remote.service.AuthService
 import com.hyeeyoung.wishboard.data.remote.service.FolderService
 import com.hyeeyoung.wishboard.data.remote.service.ItemService
 import com.hyeeyoung.wishboard.data.remote.service.NotiService
+import com.hyeeyoung.wishboard.data.remote.service.SystemService
 import com.hyeeyoung.wishboard.data.remote.service.UserService
 import dagger.Module
 import dagger.Provides
@@ -39,4 +40,9 @@ object ServiceModule {
     @Provides
     fun provideUserService(retrofit: Retrofit): UserService =
         retrofit.create(UserService::class.java)
+
+    @Singleton
+    @Provides
+    fun provideSystemService(retrofit: Retrofit): SystemService =
+        retrofit.create(SystemService::class.java)
 }

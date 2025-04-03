@@ -39,7 +39,7 @@ import com.hyeeyoung.wishboard.designsystem.component.WishBoardGlobalSnackbarMes
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.DialogData
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.ModalData
-import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.WishBoardDialog
+import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.WishBoardTwoButtonDialog
 import com.hyeeyoung.wishboard.designsystem.component.dialog.temp.WishBoardModal
 import com.hyeeyoung.wishboard.designsystem.component.image.Image
 import com.hyeeyoung.wishboard.designsystem.component.image.WishBoardPlaceHolder
@@ -152,7 +152,7 @@ fun FolderScreen(
         }
     }
 
-    WishBoardDialog(
+    WishBoardTwoButtonDialog(
         dialogData = dialogData,
         onClickConfirm = {
             when (dialogData) {

@@ -12,9 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.ripple
@@ -32,7 +30,7 @@ import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 
 @Composable
-fun WishBoardDialog(
+fun WishBoardTwoButtonDialog(
     dialogData: DialogData?,
     dismissOnConfirm: Boolean = true,
     onClickConfirm: () -> Unit,
@@ -119,8 +117,8 @@ fun WishBoardDialog(
 
 @Preview
 @Composable
-fun PreviewWishBoardDialog() {
-    WishBoardDialog(
+fun PreviewWishBoardTwoButtonDialog() {
+    WishBoardTwoButtonDialog(
         dialogData = DialogData.WishItemDelete(1L),
         onClickConfirm = {},
         onDismissRequest = {},

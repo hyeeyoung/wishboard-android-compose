@@ -42,7 +42,7 @@ import com.hyeeyoung.wishboard.designsystem.component.WishBoardGlobalSnackbarMes
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardToggleButton
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardMiniButton
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.DialogData
-import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.WishBoardDialog
+import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.WishBoardTwoButtonDialog
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardThickDivider
 import com.hyeeyoung.wishboard.designsystem.component.image.Image
 import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardTextField
@@ -214,7 +214,7 @@ fun MyScreen(
             item { Spacer(modifier = Modifier.size(64.dp)) }
         }
 
-        WishBoardDialog(
+        WishBoardTwoButtonDialog(
             dialogData = dialogData,
             onClickConfirm = {
                 when (dialogData) {
