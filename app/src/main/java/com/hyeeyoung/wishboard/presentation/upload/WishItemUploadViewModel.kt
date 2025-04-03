@@ -78,7 +78,9 @@ class WishItemUploadViewModel @Inject constructor(
                     )
                 }
             }.onFailure { _, _, _ ->
-                updateSnackbarMessage("앗, 아이템 정보를 불러오지 못했어요🥲")
+                if (localStorage.isLogin) {
+                    updateSnackbarMessage("앗, 아이템 정보를 불러오지 못했어요🥲")
+                }
             }
         }
     }
