@@ -35,6 +35,9 @@ class IntroViewModel @Inject constructor(
 
     fun updateNotificationAlertDate() {
         localStorage.hasShownNotificationAlert = true
+        _uiModel.update {
+            it.copy(hasShownNotificationAlert = true)
+        }
     }
 
     fun checkForAppUpdate(
