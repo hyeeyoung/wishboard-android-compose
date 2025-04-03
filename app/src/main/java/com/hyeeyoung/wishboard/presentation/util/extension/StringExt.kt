@@ -33,7 +33,7 @@ fun String.getValidUrl(): String? {
     return if (this.checkValidationItemUrl()) {
         this
     } else {
-        getRefinedUrl(this)
+        this.extractLinks()
     }
 }
 
@@ -46,7 +46,7 @@ fun String.checkValidationItemUrl(): Boolean {
     return URLUtil.isValidUrl(this) && Patterns.WEB_URL.matcher(this).matches()
 }
 
-/** 쿠팡 > 앱 내 공유하기 버튼 클릭 > 위시보드로 공유할 경우 url 앞에 한글이 붙기 때문에 유효한 url만 떼어내고자 해당 함수에서 url을 가공함 */
+
 private fun getRefinedUrl(url: String): String? {
     val httpStartIdx = url.indexOf("http")
     if (httpStartIdx == -1) return null
@@ -62,4 +62,10 @@ private fun getRefinedUrl(url: String): String? {
     } else {
         refinedUrl.substring(0, httpEndIdx)
     }
+}
+
+/** 쿠팡 > 앱 내 공유하기 버튼 클릭 > 위시보드로 공유할 경우 url 앞에 한글이 붙기 때문에 유효한 url만 떼어내고자 해당 함수에서 url을 가공함 */
+fun String.extractLinks(): String? {
+    val regex = """(https?://\S+)""".toRegex()
+    return regex.find(this)?.value
 }
