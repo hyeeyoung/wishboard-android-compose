@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hyeeyoung.wishboard.R
@@ -30,7 +31,6 @@ import com.hyeeyoung.wishboard.presentation.util.NumberPickerUtil
 import com.hyeeyoung.wishboard.presentation.util.NumberPickerUtil.getFormattedNumberPickerDate
 import com.hyeeyoung.wishboard.presentation.util.NumberPickerUtil.getFormattedNumberPickerTime
 import kotlinx.datetime.LocalDateTime
-import timber.log.Timber
 
 private val notiType = NotiType.entries.map { it.label }
 
@@ -112,12 +112,12 @@ fun NotiModalContent(
             text = stringResource(id = R.string.modal_noti_setting_guide),
             style = WishBoardTheme.typography.suitD3,
             color = WishBoardTheme.colors.gray300,
+            textAlign = TextAlign.Center,
         )
 
         WishBoardWideButton(
             enabled = true,
             onClick = {
-                Timber.e("selectedDate : ${selectedDate.value}")
                 onClickComplete(
                     selectedType.value.toNotiType(),
                     NumberPickerUtil.toLocalDateTime(
