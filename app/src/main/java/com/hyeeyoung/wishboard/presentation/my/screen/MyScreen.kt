@@ -13,8 +13,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -56,6 +58,7 @@ import com.hyeeyoung.wishboard.presentation.util.extension.moveToWebView
 import com.hyeeyoung.wishboard.presentation.util.extension.rippleClickable
 import com.hyeeyoung.wishboard.presentation.util.extension.sendMail
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyScreen(
     navController: NavHostController,
@@ -63,41 +66,49 @@ fun MyScreen(
 ) {
     val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
     val keyboardController = LocalSoftwareKeyboardController.current
+
     LaunchedEffect(Unit) {
-        viewModel.fetchUserInfo()
+        viewModel.fetchUserInfo(isRefreshing = false)
     }
 
     WishBoardGlobalSnackbarMessage(snackbarChannel = viewModel.snackBarChannel)
 
-    MyScreen(
-        uiModel = uiModel,
-        navigate = { route ->
-            navController.navigate(route)
+    PullToRefreshBox(
+        isRefreshing = uiModel.isRefreshing,
+        onRefresh = {
+            viewModel.fetchUserInfo(isRefreshing = true)
         },
-        updatePushState = viewModel::updatePushState,
-        logout = {
-            viewModel.logout {
-                navController.navigate(SignScreen.Main.route) {
-                    popUpTo(navController.graph.id) {
-                        inclusive = true
+    ) {
+        MyScreen(
+            uiModel = uiModel,
+            navigate = { route ->
+                navController.navigate(route)
+            },
+            updatePushState = viewModel::updatePushState,
+            logout = {
+                viewModel.logout {
+                    navController.navigate(SignScreen.Main.route) {
+                        popUpTo(navController.graph.id) {
+                            inclusive = true
+                        }
                     }
                 }
-            }
-        },
-        deleteAccount = {
-            viewModel.deleteAccount {
-                keyboardController?.hide()
-                navController.navigate(SignScreen.Main.route) {
-                    popUpTo(navController.graph.id) {
-                        inclusive = true
+            },
+            deleteAccount = {
+                viewModel.deleteAccount {
+                    keyboardController?.hide()
+                    navController.navigate(SignScreen.Main.route) {
+                        popUpTo(navController.graph.id) {
+                            inclusive = true
+                        }
                     }
                 }
+            },
+            moveToWebView = { title, url ->
+                navController.moveToWebView(title = title, url = url)
             }
-        },
-        moveToWebView = { title, url ->
-            navController.moveToWebView(title = title, url = url)
-        }
-    )
+        )
+    }
 }
 
 @Composable

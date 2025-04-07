@@ -14,6 +14,7 @@ import com.hyeeyoung.wishboard.domain.usecase.user.PutUserProfileUseCase
 import com.hyeeyoung.wishboard.domain.usecase.user.UpdatePushStateUseCase
 import com.hyeeyoung.wishboard.presentation.common.BaseViewModel
 import com.hyeeyoung.wishboard.presentation.my.model.MyUiModel
+import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
 import com.hyeeyoung.wishboard.presentation.sign.model.snackbar.SnackbarMessage
 import com.hyeeyoung.wishboard.presentation.util.WishBoardFormat
 import com.hyeeyoung.wishboard.presentation.util.extension.convertResizeImage
@@ -43,16 +44,28 @@ class MyViewModel @Inject constructor(
     private var _uiModel = MutableStateFlow(MyUiModel())
     val uiModel = _uiModel.asStateFlow()
 
-    fun fetchUserInfo() {
+    fun fetchUserInfo(isRefreshing: Boolean) {
+        val needsFetch = isRefreshing || uiModel.value.fetchProfileState !is WishBoardState.Success
+        if (!needsFetch) return
+        if (uiModel.value.fetchProfileState == WishBoardState.Loading) return
+        _uiModel.update {
+            it.copy(fetchProfileState = WishBoardState.Loading, isRefreshing = isRefreshing)
+        }
+
         viewModelScope.launch {
             getUserInfoUseCase().onSuccess { userInfo ->
                 _uiModel.update {
                     it.copy(
+                        fetchProfileState = WishBoardState.Success(Unit),
                         userInfo = userInfo,
                         nicknameInput = userInfo.nickname,
+                        isRefreshing = false
                     )
                 }
             }.onFailure { _, _, _ ->
+                _uiModel.update {
+                    it.copy(fetchProfileState = WishBoardState.Failure, isRefreshing = false)
+                }
                 updateSnackbarMessage(SnackbarMessage.DEFAULT)
             }
         }

@@ -2,6 +2,7 @@ package com.hyeeyoung.wishboard.presentation.my.model
 
 import android.net.Uri
 import com.hyeeyoung.wishboard.domain.model.user.UserInfo
+import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
 
 data class MyUiModel(
     val userInfo: UserInfo = UserInfo(),
@@ -12,4 +13,6 @@ data class MyUiModel(
     val isValidPassword: Boolean? = null,
     val existingNickname: String? = null,
     val accessToken: String = "",
+    val isRefreshing: Boolean = false,
+    val fetchProfileState: WishBoardState<Unit> = WishBoardState.Idle,
 )

@@ -14,15 +14,11 @@ class UserRepositoryImpl @Inject constructor(
     private val localStorage: WishBoardPreference,
 ) : UserRepository {
     override suspend fun fetchUserInfo(): Result<UserInfo> = runCatching {
-        if (localStorage.userInfo.isPushAllowed == null) {
-            val remoteUserInfo = userService.fetchUserInfo().firstOrNull()
-            val nickName = if (remoteUserInfo?.nickname != null) remoteUserInfo.nickname
-            else localStorage.userInfo.nickname.ifBlank { null }
+        val remoteUserInfo = userService.fetchUserInfo().firstOrNull()
+        val nickName = if (remoteUserInfo?.nickname != null) remoteUserInfo.nickname
+        else localStorage.userInfo.nickname.ifBlank { null }
 
-            remoteUserInfo?.copy(nickname = nickName)?.toDomain() ?: UserInfo()
-        } else {
-            localStorage.userInfo
-        }
+        remoteUserInfo?.copy(nickname = nickName)?.toDomain() ?: UserInfo()
     }.onSuccess { localStorage.userInfo = it }
 
     override suspend fun updateUserInfo(userProfile: UserProfile): Result<Unit> = runCatching {
