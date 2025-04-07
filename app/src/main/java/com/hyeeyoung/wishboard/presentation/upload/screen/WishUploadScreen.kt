@@ -35,6 +35,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -162,6 +163,7 @@ fun WishUploadScreen(
     val context = LocalContext.current
     val systemUiController = rememberSystemUiController()
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.loading_spin))
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     var cameraUri: Uri? = null
     val albumLauncher = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
@@ -232,7 +234,10 @@ fun WishUploadScreen(
                         R.string.wish_item_upload_edit_title
                     },
                 ),
-                onClickStartIcon = onClickClose,
+                onClickStartIcon = {
+                    keyboardController?.hide()
+                    onClickClose()
+                },
             ),
             endComponent = { modifier ->
                 Row(modifier = modifier) {
