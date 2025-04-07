@@ -24,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -31,6 +32,60 @@ import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTextFieldComponent
+
+@Composable
+fun WishBoardTextField(
+    modifier: Modifier = Modifier,
+    textFieldValue: TextFieldValue,
+    label: String? = null,
+    errorMsg: String? = null,
+    placeholder: String,
+    onTextChange: (TextFieldValue) -> Unit = {},
+    isError: Boolean = false,
+    singleLine: Boolean = true,
+    maxLength: Int = Int.MAX_VALUE,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions.Default,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    endComponent: WishBoardTextFieldComponent = WishBoardTextFieldComponent.DeleteButton,
+) {
+    var isFocused by remember { mutableStateOf(false) }
+
+    Column {
+        TextFieldLabel(label = label)
+
+        BasicTextField(
+            modifier = modifier
+                .onFocusChanged { isFocused = it.isFocused },
+            value = textFieldValue,
+            onValueChange = { s ->
+                if (s.text.length <= maxLength) {
+                    onTextChange(s)
+                }
+            },
+            textStyle = WishBoardTheme.typography.suitD1.copy(color = WishBoardTheme.colors.gray700),
+            singleLine = singleLine,
+            keyboardOptions = keyboardOptions,
+            keyboardActions = keyboardActions,
+            visualTransformation = visualTransformation,
+        ) { innerTextField ->
+            DecorationBox(
+                isFocused = isFocused,
+                input = textFieldValue.text,
+                placeholder = placeholder,
+                endComponent = endComponent,
+                innerTextField = innerTextField,
+                onClickClear = {
+                    onTextChange(TextFieldValue())
+                }
+            )
+        }
+
+        if (isFocused) {
+            TextFieldErrorMessage(isError = isError, errorMsg = errorMsg)
+        }
+    }
+}
 
 @Composable
 fun WishBoardTextField(

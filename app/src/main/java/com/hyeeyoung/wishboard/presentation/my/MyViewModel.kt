@@ -2,6 +2,8 @@ package com.hyeeyoung.wishboard.presentation.my
 
 import android.content.Context
 import android.net.Uri
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewModelScope
 import com.hyeeyoung.wishboard.core.extension.onFailure
 import com.hyeeyoung.wishboard.data.local.WishBoardPreference
@@ -86,7 +88,7 @@ class MyViewModel @Inject constructor(
     }
 
     fun updateUserProfile(context: Context, afterSuccess: () -> Unit) {
-        val trimmedName = uiModel.value.nicknameInput.trim()
+        val trimmedName = uiModel.value.nicknameInput.text.trim()
         val file = uiModel.value.imageUriInput?.let { uri ->
             context.convertResizeImage(uri)
         }
@@ -144,7 +146,7 @@ class MyViewModel @Inject constructor(
         }
     }
 
-    fun onNicknameChange(nickname: String) {
+    fun onNicknameChange(nickname: TextFieldValue) {
         _uiModel.update {
             it.copy(nicknameInput = nickname)
         }
@@ -181,7 +183,10 @@ class MyViewModel @Inject constructor(
         _uiModel.update {
             it.copy(
                 userInfo = userInfo,
-                nicknameInput = userInfo.nickname,
+                nicknameInput = TextFieldValue(
+                    text = userInfo.nickname,
+                    selection = TextRange(userInfo.nickname.length)
+                ),
             )
         }
     }

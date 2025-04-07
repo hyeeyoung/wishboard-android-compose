@@ -26,8 +26,10 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -59,6 +61,7 @@ fun ProfileEditScreen(
 ) {
     val context = LocalContext.current
     val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     WishBoardGlobalSnackbarMessage(snackbarChannel = viewModel.snackBarChannel)
 
@@ -78,7 +81,10 @@ fun ProfileEditScreen(
                     navController.safePopBackStack()
                 })
         },
-        onClickBack = navController::safePopBackStack
+        onClickBack = {
+            keyboardController?.hide()
+            navController.safePopBackStack()
+        }
     )
 }
 
@@ -88,7 +94,7 @@ fun ProfileEditScreen(
     context: Context,
     updateProfile: () -> Unit,
     setImageUri: (Uri?) -> Unit,
-    onNicknameChange: (String) -> Unit,
+    onNicknameChange: (TextFieldValue) -> Unit,
     onClickBack: () -> Unit,
 ) {
     val imageSize = 106
@@ -167,23 +173,29 @@ fun ProfileEditScreen(
                     tint = Color.Unspecified,
                 )
             }
+
             Spacer(modifier = Modifier.size(32.dp))
+
             WishBoardTextField(
                 modifier = Modifier
                     .focusRequester(focusRequester),
-                input = uiModel.nicknameInput,
-                isError = uiModel.nicknameInput == uiModel.existingNickname,
+                textFieldValue = uiModel.nicknameInput,
+                isError = uiModel.nicknameInput.text == uiModel.existingNickname,
                 label = stringResource(id = R.string.my_profile_nickname),
                 placeholder = stringResource(id = R.string.my_profile_nickname_placeholder),
                 errorMsg = stringResource(id = R.string.my_profile_nickname_already_exist_error),
                 maxLength = 12,
-                onTextChange = onNicknameChange,
+                onTextChange = {
+                    onNicknameChange(it)
+                },
             )
 
             Spacer(modifier = Modifier.weight(1f))
 
             WishBoardWideButton(
-                enabled = (uiModel.nicknameInput.isNotBlank() && uiModel.userInfo.nickname != uiModel.nicknameInput) || uiModel.imageUriInput != null,
+                enabled = (uiModel.nicknameInput.text.isNotBlank()
+                        && uiModel.userInfo.nickname != uiModel.nicknameInput.text)
+                        || uiModel.imageUriInput != null,
                 onClick = updateProfile,
                 text = stringResource(id = R.string.complete),
             )
