@@ -322,10 +322,12 @@ sealed class MyMenuComponent {
 
 @Composable
 fun MenuItem(menu: MyMenuComponent.Menu) {
+    val enabled = menu.nameRes != R.string.my_menu_version && menu.nameRes != R.string.my_menu_push_setting
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .rippleClickable(enabled = menu.nameRes != R.string.my_menu_version) { menu.onClickMenu?.let { onclick -> onclick() } }
+            .rippleClickable(enabled = enabled) { menu.onClickMenu?.let { onclick -> onclick() } }
             .padding(16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
