@@ -180,7 +180,7 @@ fun LinkSharingWishUploadScreen(
                         Text(
                             modifier = Modifier.padding(start = 4.dp),
                             text = safeLet(uiModel.itemNotiType, uiModel.itemNotiDate) { type, date ->
-                                "${date.toNotiDateStr()} ${type.label}}"
+                                "${date.toNotiDateStr()} ${type.label}"
                             } ?: stringResource(id = R.string.wish_item_link_sharing_upload_noti_setting),
                             style = WishBoardTheme.typography.suitD3,
                             color = WishBoardTheme.colors.gray700,
