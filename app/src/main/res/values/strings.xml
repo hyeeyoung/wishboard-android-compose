@@ -92,7 +92,7 @@
     <string name="wish_item_upload_noti">상품 일정 알림</string>
     <string name="wish_item_upload_shop_link">쇼핑몰 링크</string>
     <string name="wish_item_upload_shop_link_guide">복사한 링크로 아이템을 불러올 수 있어요!</string>
-    <string name="wish_item_upload_memo">브랜드, 사이즈, 컬러 등 아이템 정보를 적어보세요! 😉</string>
+    <string name="wish_item_upload_memo">브랜드, 사이즈, 컬러 등 아이템 정보를 메모로 남겨보세요!😉</string>
 
     <!-- Noti -->
     <string name="noti">알림</string>
