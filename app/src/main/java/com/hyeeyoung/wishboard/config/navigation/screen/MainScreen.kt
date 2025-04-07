@@ -30,7 +30,10 @@ sealed class MainScreen(override val route: String) : Screen {
 
     data object My : MainScreen(route = "my")
 
-    data object MyProfile : MainScreen(route = "myProfile")
+    data object MyProfile : MainScreen(route = "myProfile") {
+        const val ARG_USER_INFO: String = "userInfo"
+        val routeWithArg = "$route/{$ARG_USER_INFO}"
+    }
 
     data object MyPasswordChange : MainScreen(route = "myPasswordChange")
 

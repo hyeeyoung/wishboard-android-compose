@@ -57,6 +57,7 @@ import com.hyeeyoung.wishboard.presentation.util.constant.WishBoardUrl
 import com.hyeeyoung.wishboard.presentation.util.extension.moveToWebView
 import com.hyeeyoung.wishboard.presentation.util.extension.rippleClickable
 import com.hyeeyoung.wishboard.presentation.util.extension.sendMail
+import com.hyeeyoung.wishboard.presentation.util.extension.toBase64Json
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -213,7 +214,12 @@ fun MyScreen(
                 .background(WishBoardTheme.colors.white)
                 .padding(top = paddingValues.calculateTopPadding()),
         ) {
-            item { Profile(userInfo = uiModel.userInfo, onClickProfileEdit = { navigate(MainScreen.MyProfile.route) }) }
+            item {
+                Profile(
+                    userInfo = uiModel.userInfo,
+                    onClickProfileEdit = { navigate("${MainScreen.MyProfile.route}/${uiModel.userInfo.toBase64Json()}") }
+                )
+            }
 
             items(myMenuComponents) { menuComponent ->
                 when (menuComponent) {

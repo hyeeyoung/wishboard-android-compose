@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.lifecycle.viewModelScope
 import com.hyeeyoung.wishboard.core.extension.onFailure
 import com.hyeeyoung.wishboard.data.local.WishBoardPreference
+import com.hyeeyoung.wishboard.domain.model.user.UserInfo
 import com.hyeeyoung.wishboard.domain.model.user.UserProfile
 import com.hyeeyoung.wishboard.domain.usecase.auth.PostLogoutUseCase
 import com.hyeeyoung.wishboard.domain.usecase.user.DeleteUserAccountUseCase
@@ -45,7 +46,9 @@ class MyViewModel @Inject constructor(
     val uiModel = _uiModel.asStateFlow()
 
     fun fetchUserInfo(isRefreshing: Boolean) {
-        val needsFetch = isRefreshing || uiModel.value.fetchProfileState !is WishBoardState.Success
+        val needsFetch = isRefreshing
+                || uiModel.value.fetchProfileState !is WishBoardState.Success
+                || localStorage.userInfo.isPushAllowed == null
         if (!needsFetch) return
         if (uiModel.value.fetchProfileState == WishBoardState.Loading) return
         _uiModel.update {
@@ -58,7 +61,6 @@ class MyViewModel @Inject constructor(
                     it.copy(
                         fetchProfileState = WishBoardState.Success(Unit),
                         userInfo = userInfo,
-                        nicknameInput = userInfo.nickname,
                         isRefreshing = false
                     )
                 }
@@ -172,6 +174,15 @@ class MyViewModel @Inject constructor(
     fun setTokenForProfileImageUri() {
         _uiModel.update {
             it.copy(accessToken = localStorage.accessToken)
+        }
+    }
+
+    fun setOriginalUserInfo(userInfo: UserInfo) {
+        _uiModel.update {
+            it.copy(
+                userInfo = userInfo,
+                nicknameInput = userInfo.nickname,
+            )
         }
     }
 }

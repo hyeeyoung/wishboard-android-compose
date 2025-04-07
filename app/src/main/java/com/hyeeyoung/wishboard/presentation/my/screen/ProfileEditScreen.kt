@@ -54,6 +54,7 @@ import kotlinx.coroutines.delay
 @Composable
 fun ProfileEditScreen(
     navController: NavController,
+    userInfo: UserInfo,
     viewModel: MyViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
@@ -62,7 +63,7 @@ fun ProfileEditScreen(
     WishBoardGlobalSnackbarMessage(snackbarChannel = viewModel.snackBarChannel)
 
     LaunchedEffect(Unit) {
-        viewModel.fetchUserInfo()
+        viewModel.setOriginalUserInfo(userInfo)
         viewModel.setTokenForProfileImageUri()
     }
 

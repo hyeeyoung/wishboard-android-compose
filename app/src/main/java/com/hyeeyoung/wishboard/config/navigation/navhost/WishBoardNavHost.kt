@@ -28,12 +28,14 @@ import com.hyeeyoung.wishboard.config.navigation.screen.Intro
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.designsystem.component.LocalSnackbarHostState
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardSnackbarHost
+import com.hyeeyoung.wishboard.domain.model.user.UserInfo
 import com.hyeeyoung.wishboard.presentation.calendar.screen.CalendarScreen
 import com.hyeeyoung.wishboard.presentation.intro.IntroScreen
 import com.hyeeyoung.wishboard.presentation.main.MainScreen
 import com.hyeeyoung.wishboard.presentation.my.screen.PasswordChangeScreen
 import com.hyeeyoung.wishboard.presentation.my.screen.ProfileEditScreen
 import com.hyeeyoung.wishboard.presentation.noti.NotiScreen
+import com.hyeeyoung.wishboard.presentation.util.extension.getBase64Json
 
 @Composable
 fun WishBoardNavHost(modifier: Modifier = Modifier, navController: NavHostController) {
@@ -72,8 +74,20 @@ fun WishBoardNavHost(modifier: Modifier = Modifier, navController: NavHostContro
             CalendarScreen(navController = navController)
         }
 
-        snackbarComposable(snackbarHostState = snackbarHostState, route = MainScreen.MyProfile.route) {
-            ProfileEditScreen(navController = navController)
+        snackbarComposable(
+            snackbarHostState = snackbarHostState,
+            route = MainScreen.MyProfile.routeWithArg,
+            arguments = listOf(
+                navArgument(MainScreen.MyProfile.ARG_USER_INFO) {
+                    type = NavType.StringType
+                },
+            )
+        ) { backStackEntry ->
+            backStackEntry.arguments?.let {
+                val profileInfo =
+                    it.getBase64Json<UserInfo>(MainScreen.MyProfile.ARG_USER_INFO) ?: return@snackbarComposable
+                ProfileEditScreen(navController = navController, userInfo = profileInfo)
+            }
         }
 
         snackbarComposable(snackbarHostState = snackbarHostState, route = MainScreen.MyPasswordChange.route) {
