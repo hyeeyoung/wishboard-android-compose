@@ -94,7 +94,7 @@ fun WishBoardSnackbar(message: String) {
             textAlign = TextAlign.Center,
             style = WishBoardTheme.typography.suitD2M,
         )
-        Spacer(modifier = Modifier.size(32.dp))
+        Spacer(modifier = Modifier.size(72.dp))
     }
 }
 
