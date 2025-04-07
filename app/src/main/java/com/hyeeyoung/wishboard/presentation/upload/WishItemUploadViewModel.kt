@@ -67,7 +67,9 @@ class WishItemUploadViewModel @Inject constructor(
 
     fun getParsedWishItem(site: String) {
         _uiModel.update { it.copy(isLogin = localStorage.isLogin) }
-        if (!localStorage.isLogin) { return }
+        if (!localStorage.isLogin) {
+            return
+        }
 
         viewModelScope.launch {
             getParsedItemInfoUseCase(site.getValidUrl() ?: "").onSuccess { parsedItem ->
@@ -194,7 +196,9 @@ class WishItemUploadViewModel @Inject constructor(
     }
 
     fun getFolders(afterSuccess: (List<FolderItem>) -> Unit) {
-        if (!localStorage.isLogin) { return }
+        if (!localStorage.isLogin) {
+            return
+        }
         if (uiModel.value.folderFetchState is WishBoardState.Loading) return
         _uiModel.update { it.copy(folderFetchState = WishBoardState.Loading) }
 
@@ -267,7 +271,11 @@ class WishItemUploadViewModel @Inject constructor(
 
     fun updateSelectedFolder(folderItem: FolderItem?) {
         _uiModel.update {
-            it.copy(selectedFolder = folderItem)
+            it.copy(
+                selectedFolder =
+                if (folderItem?.id != uiModel.value.selectedFolder?.id) folderItem
+                else null
+            )
         }
     }
 
