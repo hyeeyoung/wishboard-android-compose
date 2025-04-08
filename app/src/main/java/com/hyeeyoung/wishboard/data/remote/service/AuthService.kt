@@ -8,10 +8,7 @@ import com.hyeeyoung.wishboard.data.remote.model.auth.VerificationMailDto
 import com.hyeeyoung.wishboard.data.remote.model.auth.VerificationMailRequestDto
 import com.hyeeyoung.wishboard.data.remote.model.base.BaseResponse
 import com.hyeeyoung.wishboard.data.remote.model.base.BaseResponseWithoutData
-import retrofit2.Response
 import retrofit2.http.Body
-import retrofit2.http.Field
-import retrofit2.http.FormUrlEncoded
 import retrofit2.http.POST
 
 interface AuthService {
