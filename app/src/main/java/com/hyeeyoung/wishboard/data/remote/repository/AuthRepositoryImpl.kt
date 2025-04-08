@@ -63,6 +63,6 @@ class AuthRepositoryImpl @Inject constructor(
     override suspend fun logout(): Result<Unit> = runCatching {
         authService.logout()
     }.onSuccess {
-        localStorage.clearForLogout()
+        localStorage.clear()
     }.map {  }
 }

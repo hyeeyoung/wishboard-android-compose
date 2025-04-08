@@ -79,10 +79,12 @@ class WishBoardPreference @Inject constructor(@ApplicationContext context: Conte
 
     fun clear() {
         val tempNotificationAlertState = hasShownNotificationAlert
+        val tempOnboardingModalState = shouldShowOnboardingModal
         dataStore.edit {
             clear()
         }
         hasShownNotificationAlert = tempNotificationAlertState
+        shouldShowOnboardingModal = tempOnboardingModalState
     }
 
     fun clear(key: String) {
@@ -101,8 +103,3 @@ class WishBoardPreference @Inject constructor(@ApplicationContext context: Conte
         const val SHOULD_SHOW_ONBOARDING_MODAL = "shouldShowOnboardingModal"
     }
 }
-
-//모달 노출 필요 여부를 로컬 db에 저장해서 앱 재진입 시에도 대응하겠습니다!
-//• 회원가입 완료 후 “네, 알겠어요” 버튼 클릭 전까지 노출 필요 여부를 true로 함
-//• "네, 알겠어요" 버튼 클릭 시 노출 필요 여부 앱 데이터 제거(일은  데이터라 더이상 필요 없다면 데이터 제거할 것임.)
-//• true라면 앱 재진입 시 온보딩 모달 노출함
