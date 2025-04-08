@@ -40,6 +40,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.datetime.toJavaLocalDateTime
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -148,6 +149,9 @@ class WishItemUploadViewModel @Inject constructor(
             return
         }
 
+        if (uiModel.value.wishItemUploadState is WishBoardState.Loading) return
+        _uiModel.update { it.copy(wishItemUploadState = WishBoardState.Loading) }
+
         viewModelScope.launch {
             val image = when (uiModel.value.itemImageUri) {
                 null -> null
@@ -169,9 +173,11 @@ class WishItemUploadViewModel @Inject constructor(
                 itemId = itemId,
                 itemInfo = uiModel.value.toDomain(itemImage = image, uploadType = WishItemUploadType.MANUAL),
             ).onSuccess {
+                _uiModel.update { it.copy(wishItemUploadState = WishBoardState.Success(Unit)) }
                 updateSnackbarMessage("아이템을 수정했어요!✍️")
                 afterSuccess()
             }.onFailure { _, _, _ ->
+                _uiModel.update { it.copy(wishItemUploadState = WishBoardState.Failure) }
                 updateSnackbarMessage(SnackbarMessage.DEFAULT)
             }
         }
@@ -248,6 +254,18 @@ class WishItemUploadViewModel @Inject constructor(
                     }
                     _uiModel.update { it.copy(folderAddState = WishBoardState.Failure) }
                 }
+        }
+    }
+
+    fun isValidNotiDate(notiInfo: NotiInfo): Boolean {
+        val date = notiInfo.notiDate?.toJavaLocalDateTime() ?: return true
+        val isInvalid = !date.isAfter(java.time.LocalDateTime.now())
+        if (isInvalid) {
+            updateSnackbarMessage("현재 시간 이후로만 선택할 수 있어요")
+            return false
+        } else {
+            setNotiInfo(notiInfo)
+            return true
         }
     }
 

@@ -19,14 +19,17 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -59,19 +62,21 @@ import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
 import com.hyeeyoung.wishboard.domain.model.noti.NotiInfo
 import com.hyeeyoung.wishboard.domain.model.noti.NotiType
 import com.hyeeyoung.wishboard.presentation.folder.FolderUploadModalContent
+import com.hyeeyoung.wishboard.presentation.noti.NotiModalContent
 import com.hyeeyoung.wishboard.presentation.upload.model.UploadInputType
 import com.hyeeyoung.wishboard.presentation.upload.model.WishItemUploadUiModel
 import com.hyeeyoung.wishboard.presentation.util.extension.fromJson
 import com.hyeeyoung.wishboard.presentation.util.extension.makeValidPriceStr
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
-import com.hyeeyoung.wishboard.presentation.util.extension.rememberModalLauncher
 import com.hyeeyoung.wishboard.presentation.util.extension.toJson
 import com.hyeeyoung.wishboard.presentation.util.extension.toNotiDateStr
 import com.hyeeyoung.wishboard.presentation.util.safeLet
+import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDateTime
 
 private const val IMAGE_SIZE = 80
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LinkSharingWishUploadScreen(
     uiModel: WishItemUploadUiModel,
@@ -82,18 +87,11 @@ fun LinkSharingWishUploadScreen(
     onClickSave: () -> Unit,
     onClickClose: () -> Unit = {},
     createFolder: (name: String, afterSuccess: () -> Unit) -> Unit,
+    isValidNotiDate: (NotiInfo) -> Boolean,
 ) {
-    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+    val sheetState = rememberStandardBottomSheetState(skipHiddenState = true)
     var modalData by remember { mutableStateOf<ModalData.Modal?>(null) }
-    val modalLauncher = rememberModalLauncher { _, data ->
-        when (data) {
-            is ModalData.Modal.Noti -> {
-                setNotiInfo(data.notiInfo.fromJson<NotiInfo>())
-            }
-
-            else -> {}
-        }
-    }
 
     Box {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -160,14 +158,15 @@ fun LinkSharingWishUploadScreen(
                     Row(
                         modifier = Modifier
                             .noRippleClickable {
-                                ModalData.Modal
-                                    .Noti(
-                                        NotiInfo(
-                                            notiType = uiModel.itemNotiType,
-                                            notiDate = uiModel.itemNotiDate
-                                        ).toJson()
-                                    )
-                                    .openModal(context, modalLauncher)
+                                modalData = ModalData.Modal.Noti(
+                                    NotiInfo(
+                                        notiType = uiModel.itemNotiType,
+                                        notiDate = uiModel.itemNotiDate
+                                    ).toJson()
+                                )
+                                coroutineScope.launch {
+                                    sheetState.show()
+                                }
                             }
                             .padding(8.dp),
                         verticalAlignment = Alignment.CenterVertically,
@@ -212,6 +211,9 @@ fun LinkSharingWishUploadScreen(
                         item {
                             NewFolder(isLogin = uiModel.isLogin, onClickNew = {
                                 modalData = ModalData.Modal.NewFolder(folderName = "")
+                                coroutineScope.launch {
+                                    sheetState.show()
+                                }
                             })
                         }
                         items(uiModel.folders) {
@@ -277,13 +279,37 @@ fun LinkSharingWishUploadScreen(
             modalData = null
         },
         content = {
-            FolderUploadModalContent(
-                folderName = null,
-                uploadState = uiModel.folderAddState,
-                existingFolderName = uiModel.existingFolderName,
-                onClickComplete = { name ->
-                    createFolder(name) { modalData = null }
-                })
+            when (modalData) {
+                is ModalData.Modal.NewFolder -> {
+                    FolderUploadModalContent(
+                        folderName = null,
+                        uploadState = uiModel.folderAddState,
+                        existingFolderName = uiModel.existingFolderName,
+                        onClickComplete = { name ->
+                            createFolder(name) {
+                                coroutineScope.launch { sheetState.hide() }
+                                modalData = null
+                            }
+                        })
+                }
+
+                is ModalData.Modal.Noti -> {
+                    val notiData = (modalData as ModalData.Modal.Noti)
+
+                    NotiModalContent(
+                        notiInfo = notiData.notiInfo.fromJson<NotiInfo>(),
+                        onClickComplete = { type, date ->
+                            val isValid = isValidNotiDate(NotiInfo(notiType = type, notiDate = date))
+                            if (isValid) {
+                                coroutineScope.launch { sheetState.hide() }
+                                modalData = null
+                            }
+                        },
+                    )
+                }
+
+                else -> {}
+            }
         }
     )
 }
@@ -383,5 +409,6 @@ fun PreviewLinkSharingWishUploadScreen() {
         onClickSave = {},
         onClickClose = {},
         createFolder = { _, _ -> },
+        isValidNotiDate = { true }
     )
 }

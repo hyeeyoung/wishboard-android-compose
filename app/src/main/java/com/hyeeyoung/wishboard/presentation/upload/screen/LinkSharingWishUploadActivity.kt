@@ -88,7 +88,8 @@ class LinkSharingWishUploadActivity : ComponentActivity() {
                                 finish()
                             })
                     },
-                    onClickClose = { finish() })
+                    onClickClose = { finish() },
+                    isValidNotiDate = viewModel::isValidNotiDate)
             }
         }
     }

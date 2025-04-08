@@ -20,15 +20,19 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -57,6 +61,7 @@ import com.hyeeyoung.wishboard.designsystem.component.WishBoardGlobalSnackbarMes
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardNarrowButton
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.ModalData
+import com.hyeeyoung.wishboard.designsystem.component.dialog.temp.WishBoardModal
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
 import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardSimpleTextField
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
@@ -68,6 +73,8 @@ import com.hyeeyoung.wishboard.domain.model.noti.NotiType
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemUploadType
 import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat
 import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat.getFormattedDateStr
+import com.hyeeyoung.wishboard.presentation.folder.FolderUploadModalContent
+import com.hyeeyoung.wishboard.presentation.noti.NotiModalContent
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.sign.model.WishItemDetail
@@ -82,6 +89,7 @@ import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.util.extension.rememberModalLauncher
 import com.hyeeyoung.wishboard.presentation.util.extension.safePopBackStack
 import com.hyeeyoung.wishboard.presentation.util.extension.toJson
+import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDateTime
 import timber.log.Timber
 
@@ -141,13 +149,15 @@ fun WishUploadScreen(
                 UploadInputType.ITEM_URL -> viewModel.setItemUri(input)
             }
         },
-        setNotiInfo = viewModel::setNotiInfo,
         onUriChange = { uri ->
             viewModel.setItemImageUrl(uri)
-        }
+        },
+        isValidNotiDate = viewModel::isValidNotiDate
+
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WishUploadScreen(
     uiModel: WishItemUploadUiModel,
@@ -157,13 +167,16 @@ fun WishUploadScreen(
     getFolders: ((List<FolderItem>) -> Unit) -> Unit,
     onSelectFolder: (FolderItem?) -> Unit,
     onTextChange: (UploadInputType, String) -> Unit,
-    setNotiInfo: (NotiInfo) -> Unit,
     onUriChange: (Uri?) -> Unit,
+    isValidNotiDate: (NotiInfo) -> Boolean,
 ) {
     val context = LocalContext.current
     val systemUiController = rememberSystemUiController()
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.loading_spin))
     val keyboardController = LocalSoftwareKeyboardController.current
+    var modalData by remember { mutableStateOf<ModalData?>(null) }
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val coroutineScope = rememberCoroutineScope()
 
     var cameraUri: Uri? = null
     val albumLauncher = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
@@ -199,10 +212,6 @@ fun WishUploadScreen(
                 } else {
                     albumLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
                 }
-            }
-
-            is ModalData.Modal.Noti -> {
-                setNotiInfo(data.notiInfo.fromJson<NotiInfo>())
             }
 
             is ModalData.Modal.FolderList -> {
@@ -330,9 +339,10 @@ fun WishUploadScreen(
                     label = getNotiInfo(notiType = uiModel.itemNotiType, notiDate = uiModel.itemNotiDate)
                         ?: stringResource(id = R.string.wish_item_upload_noti),
                     onClickRow = {
-                        ModalData.Modal.Noti(
+                        modalData = ModalData.Modal.Noti(
                             NotiInfo(notiType = uiModel.itemNotiType, notiDate = uiModel.itemNotiDate).toJson()
-                        ).openModal(context, modalLauncher)
+                        )
+                        coroutineScope.launch { sheetState.show() }
                     },
                 )
 
@@ -353,6 +363,35 @@ fun WishUploadScreen(
             }
         }
     }
+
+
+    WishBoardModal(
+        isOpen = modalData != null,
+        sheetState = sheetState,
+        onDismissRequest = {
+            modalData = null
+        },
+        content = {
+            when (modalData) {
+                is ModalData.Modal.Noti -> {
+                    val notiData = (modalData as ModalData.Modal.Noti)
+
+                    NotiModalContent(
+                        notiInfo = notiData.notiInfo.fromJson<NotiInfo>(),
+                        onClickComplete = { type, date ->
+                            val isValid = isValidNotiDate(NotiInfo(notiType = type, notiDate = date))
+                            if (isValid) {
+                                coroutineScope.launch { sheetState.hide() }
+                                modalData = null
+                            }
+                        },
+                    )
+                }
+
+                else -> {}
+            }
+        }
+    )
 }
 
 @Composable
@@ -425,7 +464,7 @@ fun PreviewWishUploadScreen() {
         onSelectFolder = {},
         onUriChange = {},
         onClickSave = {},
-        setNotiInfo = {},
         onClickClose = {},
+        isValidNotiDate = { true }
     )
 }
