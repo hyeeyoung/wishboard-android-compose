@@ -1,5 +1,6 @@
 package com.hyeeyoung.wishboard.presentation.wish.screen
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -45,6 +46,7 @@ import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.domain.model.wish.WishItem
 import com.hyeeyoung.wishboard.presentation.onboarding.OnboardingModalContent
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
+import com.hyeeyoung.wishboard.presentation.util.extension.safePopBackStack
 import com.hyeeyoung.wishboard.presentation.wish.WishListViewModel
 import com.hyeeyoung.wishboard.presentation.wish.component.WishItem
 import com.hyeeyoung.wishboard.presentation.wish.model.WishListUiModel
@@ -64,6 +66,12 @@ fun WishListScreen(
         rememberModalBottomSheetState(skipPartiallyExpanded = true, confirmValueChange = { newState ->
             newState != SheetValue.Hidden
         })
+
+    BackHandler {
+        if (!onboardingSheetState.isVisible) {
+            navController.safePopBackStack()
+        }
+    }
 
     LaunchedEffect(Unit) {
         viewModel.getWishItem()
