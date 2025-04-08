@@ -74,23 +74,17 @@ class WishBoardPreference @Inject constructor(@ApplicationContext context: Conte
     }
 
     fun clear() {
+        val tempNotificationAlertState = hasShownNotificationAlert
         dataStore.edit {
             clear()
         }
+        hasShownNotificationAlert = tempNotificationAlertState
     }
 
     fun clear(key: String) {
         dataStore.edit {
             remove(key).apply()
         }
-    }
-
-    fun clearForLogout() {
-        val tempNotificationAlertState = hasShownNotificationAlert
-        dataStore.edit {
-            clear()
-        }
-        hasShownNotificationAlert = tempNotificationAlertState
     }
 
     companion object {

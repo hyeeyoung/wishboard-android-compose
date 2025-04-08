@@ -63,7 +63,6 @@ fun IntroScreen(
     var appUpdateType by remember { mutableStateOf<AppUpdateTime?>(null) }
 
     LaunchedEffect(uiModel.hasShownNotificationAlert) {
-        Timber.e("hasShownNotificationAlert : ${uiModel.hasShownNotificationAlert}")
         if (uiModel.hasShownNotificationAlert == false) {
             checkNotificationPermission(
                 context = context,
@@ -76,8 +75,6 @@ fun IntroScreen(
 
     LaunchedEffect(uiModel.isLogin) {
         if (uiModel.isLogin == null) return@LaunchedEffect
-        delay(2000L)
-        Timber.e("isLogin : ${uiModel.isLogin}")
 
         checkForNewVersionUpdate(
             context = context,
@@ -101,6 +98,7 @@ fun IntroScreen(
     LaunchedEffect(nextScreen, uiModel.hasShownNotificationAlert) {
         Timber.e("nextScreen : $nextScreen, hasShownNotificationAlert : ${uiModel.hasShownNotificationAlert}")
         if (nextScreen == null || uiModel.hasShownNotificationAlert != true) return@LaunchedEffect
+        delay(1500L)
         navController.navigate(nextScreen!!) {
             popUpTo(navController.graph.id) {
                 inclusive = true

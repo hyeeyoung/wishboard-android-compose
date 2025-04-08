@@ -39,13 +39,17 @@ import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.domain.model.wish.WishItem
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.util.extension.rememberModalLauncher
-import com.hyeeyoung.wishboard.presentation.wish.model.WishListUiModel
 import com.hyeeyoung.wishboard.presentation.wish.WishListViewModel
 import com.hyeeyoung.wishboard.presentation.wish.component.WishItem
+import com.hyeeyoung.wishboard.presentation.wish.model.WishListUiModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WishListScreen(navController: NavHostController, isFirstLaunch: Boolean, viewModel: WishListViewModel = hiltViewModel()) {
+fun WishListScreen(
+    navController: NavHostController,
+    isFirstLaunch: Boolean,
+    viewModel: WishListViewModel = hiltViewModel()
+) {
     val context = LocalContext.current
     val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
     val modalLauncher = rememberModalLauncher { _, _ -> }
@@ -125,7 +129,10 @@ fun WishlistTopBar(onClickCalendar: () -> Unit) {
             painter = painterResource(id = R.drawable.ic_app_text_logo),
             contentDescription = null,
         )
-        Box(modifier = Modifier.noRippleClickable { onClickCalendar() }.padding(14.dp).size(24.dp), contentAlignment = Alignment.Center) {
+        Box(modifier = Modifier
+            .noRippleClickable { onClickCalendar() }
+            .padding(14.dp)
+            .size(24.dp), contentAlignment = Alignment.Center) {
 //            WishBoardIconButton(iconRes = R.drawable.ic_cart, onClick = { onClickCart() })
 
             Icon(
