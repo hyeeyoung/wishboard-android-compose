@@ -73,7 +73,6 @@ import com.hyeeyoung.wishboard.domain.model.noti.NotiType
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemUploadType
 import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat
 import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat.getFormattedDateStr
-import com.hyeeyoung.wishboard.presentation.folder.FolderUploadModalContent
 import com.hyeeyoung.wishboard.presentation.noti.NotiModalContent
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
@@ -362,36 +361,37 @@ fun WishUploadScreen(
                 Spacer(modifier = Modifier.size(64.dp))
             }
         }
-    }
 
+        WishBoardModal(
+            isOpen = modalData != null,
+            sheetState = sheetState,
+            onDismissRequest = {
+                modalData = null
+            },
+            content = {
+                when (modalData) {
+                    is ModalData.Modal.Noti -> {
+                        val notiData = (modalData as ModalData.Modal.Noti)
 
-    WishBoardModal(
-        isOpen = modalData != null,
-        sheetState = sheetState,
-        onDismissRequest = {
-            modalData = null
-        },
-        content = {
-            when (modalData) {
-                is ModalData.Modal.Noti -> {
-                    val notiData = (modalData as ModalData.Modal.Noti)
-
-                    NotiModalContent(
-                        notiInfo = notiData.notiInfo.fromJson<NotiInfo>(),
-                        onClickComplete = { type, date ->
-                            val isValid = isValidNotiDate(NotiInfo(notiType = type, notiDate = date))
-                            if (isValid) {
+                        NotiModalContent(
+                            notiInfo = notiData.notiInfo.fromJson<NotiInfo>(),
+                            onClickComplete = { type, date ->
+                                isValidNotiDate(NotiInfo(notiType = type, notiDate = date))
+                                coroutineScope.launch { sheetState.hide() }
+                                modalData = null
+                            },
+                            onDismissRequest = {
                                 coroutineScope.launch { sheetState.hide() }
                                 modalData = null
                             }
-                        },
-                    )
-                }
+                        )
+                    }
 
-                else -> {}
+                    else -> {}
+                }
             }
-        }
-    )
+        )
+    }
 }
 
 @Composable

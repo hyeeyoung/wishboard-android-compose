@@ -3,7 +3,6 @@ package com.hyeeyoung.wishboard.presentation.upload.screen
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,23 +18,15 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -46,13 +37,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardSnackbarHost
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.ModalData
-import com.hyeeyoung.wishboard.designsystem.component.dialog.temp.WishBoardModal
 import com.hyeeyoung.wishboard.designsystem.component.image.Image
 import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardMiniSingleTextField
 import com.hyeeyoung.wishboard.designsystem.style.MontserratFamily
@@ -61,38 +50,28 @@ import com.hyeeyoung.wishboard.designsystem.util.PriceTransformation
 import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
 import com.hyeeyoung.wishboard.domain.model.noti.NotiInfo
 import com.hyeeyoung.wishboard.domain.model.noti.NotiType
-import com.hyeeyoung.wishboard.presentation.folder.FolderUploadModalContent
-import com.hyeeyoung.wishboard.presentation.noti.NotiModalContent
 import com.hyeeyoung.wishboard.presentation.upload.model.UploadInputType
 import com.hyeeyoung.wishboard.presentation.upload.model.WishItemUploadUiModel
-import com.hyeeyoung.wishboard.presentation.util.extension.fromJson
 import com.hyeeyoung.wishboard.presentation.util.extension.makeValidPriceStr
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.util.extension.toJson
 import com.hyeeyoung.wishboard.presentation.util.extension.toNotiDateStr
 import com.hyeeyoung.wishboard.presentation.util.safeLet
-import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDateTime
 
 private const val IMAGE_SIZE = 80
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LinkSharingWishUploadScreen(
     uiModel: WishItemUploadUiModel,
     snackbarHostState: SnackbarHostState,
+    updateModalData: (ModalData.Modal) -> Unit,
     onTextChange: (UploadInputType, String) -> Unit,
     setNotiInfo: (NotiInfo) -> Unit,
     onSelectFolder: (FolderItem) -> Unit,
     onClickSave: () -> Unit,
     onClickClose: () -> Unit = {},
-    createFolder: (name: String, afterSuccess: () -> Unit) -> Unit,
-    isValidNotiDate: (NotiInfo) -> Boolean,
 ) {
-    val coroutineScope = rememberCoroutineScope()
-    val sheetState = rememberStandardBottomSheetState(skipHiddenState = true)
-    var modalData by remember { mutableStateOf<ModalData.Modal?>(null) }
-
     Box {
         Column(modifier = Modifier.fillMaxSize()) {
             Spacer(
@@ -158,15 +137,14 @@ fun LinkSharingWishUploadScreen(
                     Row(
                         modifier = Modifier
                             .noRippleClickable {
-                                modalData = ModalData.Modal.Noti(
-                                    NotiInfo(
-                                        notiType = uiModel.itemNotiType,
-                                        notiDate = uiModel.itemNotiDate
-                                    ).toJson()
+                                updateModalData(
+                                    ModalData.Modal.Noti(
+                                        NotiInfo(
+                                            notiType = uiModel.itemNotiType,
+                                            notiDate = uiModel.itemNotiDate
+                                        ).toJson()
+                                    )
                                 )
-                                coroutineScope.launch {
-                                    sheetState.show()
-                                }
                             }
                             .padding(8.dp),
                         verticalAlignment = Alignment.CenterVertically,
@@ -191,7 +169,7 @@ fun LinkSharingWishUploadScreen(
                             Icon(
                                 modifier = Modifier
                                     .padding(2.dp)
-                                    .clickable {
+                                    .noRippleClickable {
                                         setNotiInfo(NotiInfo(null, null))
                                     }
                                     .size(14.dp),
@@ -210,10 +188,9 @@ fun LinkSharingWishUploadScreen(
                     ) {
                         item {
                             NewFolder(isLogin = uiModel.isLogin, onClickNew = {
-                                modalData = ModalData.Modal.NewFolder(folderName = "")
-                                coroutineScope.launch {
-                                    sheetState.show()
-                                }
+                                updateModalData(
+                                    ModalData.Modal.NewFolder(folderName = "")
+                                )
                             })
                         }
                         items(uiModel.folders) {
@@ -265,53 +242,11 @@ fun LinkSharingWishUploadScreen(
 
         WishBoardSnackbarHost(
             modifier = Modifier
-                .zIndex(2f)
                 .navigationBarsPadding()
                 .align(Alignment.BottomCenter),
             hostState = snackbarHostState
         )
     }
-
-    WishBoardModal(
-        isOpen = modalData != null,
-        titleRes = modalData?.title,
-        onDismissRequest = {
-            modalData = null
-        },
-        content = {
-            when (modalData) {
-                is ModalData.Modal.NewFolder -> {
-                    FolderUploadModalContent(
-                        folderName = null,
-                        uploadState = uiModel.folderAddState,
-                        existingFolderName = uiModel.existingFolderName,
-                        onClickComplete = { name ->
-                            createFolder(name) {
-                                coroutineScope.launch { sheetState.hide() }
-                                modalData = null
-                            }
-                        })
-                }
-
-                is ModalData.Modal.Noti -> {
-                    val notiData = (modalData as ModalData.Modal.Noti)
-
-                    NotiModalContent(
-                        notiInfo = notiData.notiInfo.fromJson<NotiInfo>(),
-                        onClickComplete = { type, date ->
-                            val isValid = isValidNotiDate(NotiInfo(notiType = type, notiDate = date))
-                            if (isValid) {
-                                coroutineScope.launch { sheetState.hide() }
-                                modalData = null
-                            }
-                        },
-                    )
-                }
-
-                else -> {}
-            }
-        }
-    )
 }
 
 @Composable
@@ -407,8 +342,6 @@ fun PreviewLinkSharingWishUploadScreen() {
         setNotiInfo = { },
         onSelectFolder = {},
         onClickSave = {},
-        onClickClose = {},
-        createFolder = { _, _ -> },
-        isValidNotiDate = { true }
+        updateModalData = {},
     )
 }

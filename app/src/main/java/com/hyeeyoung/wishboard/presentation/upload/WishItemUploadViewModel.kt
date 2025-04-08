@@ -260,12 +260,12 @@ class WishItemUploadViewModel @Inject constructor(
     fun isValidNotiDate(notiInfo: NotiInfo): Boolean {
         val date = notiInfo.notiDate?.toJavaLocalDateTime() ?: return true
         val isInvalid = !date.isAfter(java.time.LocalDateTime.now())
-        if (isInvalid) {
+        return if (isInvalid) {
             updateSnackbarMessage("현재 시간 이후로만 선택할 수 있어요")
-            return false
+            false
         } else {
             setNotiInfo(notiInfo)
-            return true
+            true
         }
     }
 

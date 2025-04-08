@@ -81,13 +81,6 @@ class ModalActivity : ComponentActivity() {
                 },
             )
 
-            is ModalData.Modal.Noti -> NotiModalContent(
-                notiInfo = modalData.notiInfo.fromJson<NotiInfo>(),
-                onClickComplete = { type, date ->
-                    moveToPrevious(modalData.copy(NotiInfo(notiType = type, notiDate = date).toJson()))
-                },
-            )
-
             is ModalData.Modal.NewFolder -> {}
 
             is ModalData.Modal.FolderNameEdit -> {}
@@ -96,6 +89,8 @@ class ModalActivity : ComponentActivity() {
                 link = modalData.link,
                 onClickComplete = { link -> moveToPrevious(modalData.copy(link = link)) },
             )
+
+            else -> {}
         }
     }
 
