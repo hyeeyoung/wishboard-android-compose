@@ -1,5 +1,6 @@
 package com.hyeeyoung.wishboard.presentation.util.extension
 
+import androidx.compose.runtime.DisallowComposableCalls
 import androidx.lifecycle.SavedStateHandle
 import timber.log.Timber
 import kotlin.io.encoding.Base64
@@ -14,5 +15,12 @@ inline fun <reified T> SavedStateHandle.getBase64Json(key: String): T? {
     } catch (e: Exception) {
         Timber.e("Url EncodeJson Error : $e")
         null
+    }
+}
+
+fun <T> SavedStateHandle?.getAndRemove(key: String, getData: @DisallowComposableCalls (T) -> Unit) {
+    this?.get<T>(key)?.let { data ->
+        getData(data)
+        remove<T>(key)
     }
 }

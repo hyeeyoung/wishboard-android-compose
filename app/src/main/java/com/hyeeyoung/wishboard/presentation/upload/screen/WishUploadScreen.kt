@@ -362,11 +362,12 @@ fun ItemInfoRow(label: String, guideText: String? = null, onClickRow: () -> Unit
             modifier = Modifier
                 .fillMaxWidth()
                 .noRippleClickable { onClickRow() }
-                .padding(16.dp),
+                .padding(horizontal = 16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
+                modifier = Modifier.padding(vertical = 16.dp),
                 text = label,
                 style = WishBoardTheme.typography.suitB3,
                 color = WishBoardTheme.colors.gray700,

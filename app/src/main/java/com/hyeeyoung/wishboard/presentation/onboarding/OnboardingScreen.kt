@@ -3,7 +3,6 @@ package com.hyeeyoung.wishboard.presentation.onboarding
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -31,8 +30,8 @@ import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 
 @Composable
-fun OnboardingModalContent(onDismissRequest: () -> Unit) {
-    val onboardingRes = OnboardingRes.values()
+fun OnboardingModalContent(onClickConfirm: () -> Unit) {
+    val onboardingRes = OnboardingRes.entries
     val pagerState = rememberPagerState(pageCount = { onboardingRes.size })
 
     Column(
@@ -63,7 +62,7 @@ fun OnboardingModalContent(onDismissRequest: () -> Unit) {
 
                 WishBoardWideButton(
                     enabled = pagerState.currentPage == onboardingRes.lastIndex,
-                    onClick = { onDismissRequest() },
+                    onClick = { onClickConfirm() },
                     text = stringResource(id = R.string.onboarding_yes_btn_text),
                     isGreen = false,
                 )
@@ -131,5 +130,5 @@ enum class OnboardingRes(
 @Preview(showSystemUi = true)
 @Composable
 fun PreviewOnboardingScreen() {
-    OnboardingModalContent(onDismissRequest = {})
+    OnboardingModalContent(onClickConfirm = {})
 }

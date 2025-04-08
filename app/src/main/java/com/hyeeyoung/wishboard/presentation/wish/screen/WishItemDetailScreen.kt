@@ -58,6 +58,7 @@ import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.util.buildStringWithSpans
 import com.hyeeyoung.wishboard.presentation.util.extension.formatAsTimeAgo
 import com.hyeeyoung.wishboard.presentation.util.extension.formatDday
+import com.hyeeyoung.wishboard.presentation.util.extension.getAndRemove
 import com.hyeeyoung.wishboard.presentation.util.extension.getDomainName
 import com.hyeeyoung.wishboard.presentation.util.extension.moveToWebView
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
@@ -68,6 +69,8 @@ import com.hyeeyoung.wishboard.presentation.util.safeLet
 import com.hyeeyoung.wishboard.presentation.wish.component.PriceText
 import com.hyeeyoung.wishboard.presentation.wish.model.WishItemDetailUiModel
 import kotlinx.datetime.LocalDateTime
+
+const val IS_WISH_ITEM_MODIFIED = "isWishItemModified"
 
 @Composable
 fun WishItemDetailScreen(
@@ -81,6 +84,13 @@ fun WishItemDetailScreen(
 
     LaunchedEffect(Unit) {
         viewModel.getWishItemDetail(itemId)
+    }
+
+    LaunchedEffect(Unit) {
+        navController.currentBackStackEntry?.savedStateHandle
+            .getAndRemove<Boolean>(IS_WISH_ITEM_MODIFIED) { agreedTermType ->
+               // TODO 확인 필요
+            }
     }
 
     WishItemDetailScreen(

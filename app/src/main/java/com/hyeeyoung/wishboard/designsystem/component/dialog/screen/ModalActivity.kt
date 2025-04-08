@@ -57,7 +57,7 @@ class ModalActivity : ComponentActivity() {
 
                 is ModalData.FullModal -> {
                     when (modalData) {
-                        is ModalData.FullModal.Onboarding -> OnboardingModalContent(onDismissRequest = { finish() })
+                        is ModalData.FullModal.Onboarding -> OnboardingModalContent(onClickConfirm = { finish() })
                     }
                 }
 
