@@ -73,6 +73,12 @@ class SignViewModel @Inject constructor(
                     _uiModel.update {
                         it.copy(signProcessStatus = WishBoardState.Failure)
                     }
+
+                    when (errorCode) {
+                        409 -> _uiModel.update {
+                            it.copy(isAlreadyRegisteredError = true)
+                        }
+                    }
                 }
             }
         }
@@ -169,7 +175,7 @@ class SignViewModel @Inject constructor(
     fun onPasswordChange(password: String) {
         val trimmedPassword = password.trim()
         _uiModel.update {
-            it.copy(password = trimmedPassword)
+            it.copy(password = trimmedPassword, isAlreadyRegisteredError = false)
         }
 
         val passwordPattern = Pattern.compile(WishBoardFormat.PASSWORD_PATTERN)

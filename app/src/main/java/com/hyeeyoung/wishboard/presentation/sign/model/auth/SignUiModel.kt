@@ -7,7 +7,10 @@ data class SignUiModel(
     val email: String = "",
     val password: String = "",
     val authCode: String = "",
-    val registeredEmail: String? = null, // TODO 다시 생각해보기
+    /** 회원가입 > 이메일 > 기가입자 이메일인 케이스에 사용 */
+    val registeredEmail: String? = null,
+    /** 회원가입 > 비밀번호 > 기가입자가 가입 시도 시 사용 */
+    val isAlreadyRegisteredError: Boolean = false,
     val nonRegisteredEmail: String? = null,
     val isValidEmail: Boolean? = null,
     val isValidPassword: Boolean? = null,

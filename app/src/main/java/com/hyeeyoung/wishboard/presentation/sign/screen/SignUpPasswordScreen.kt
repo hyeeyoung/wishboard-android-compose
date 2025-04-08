@@ -115,11 +115,15 @@ fun SignUpPasswordScreen(
                     .focusRequester(focusRequester),
                 input = uiModel.password,
                 placeholder = stringResource(id = R.string.sign_password_placeholder),
-                errorMsg = stringResource(id = R.string.sign_up_password_format_error), // TODO 기존 가입자 에러 메세지 추가
+                errorMsg = when {
+                    uiModel.isValidPassword == false -> stringResource(id = R.string.sign_up_password_format_error)
+                    uiModel.isAlreadyRegisteredError -> stringResource(id = R.string.sign_up_already_member_error)
+                    else -> ""
+                },
                 onTextChange = onPasswordChange,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 visualTransformation = PasswordVisualTransformation(),
-                isError = uiModel.isValidPassword == false
+                isError = uiModel.isValidPassword == false || uiModel.isAlreadyRegisteredError
             )
 
             Spacer(modifier = Modifier.weight(1f))
