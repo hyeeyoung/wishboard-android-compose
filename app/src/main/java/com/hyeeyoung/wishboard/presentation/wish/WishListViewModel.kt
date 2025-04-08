@@ -2,6 +2,7 @@ package com.hyeeyoung.wishboard.presentation.wish
 
 import androidx.lifecycle.viewModelScope
 import com.hyeeyoung.wishboard.core.extension.onFailure
+import com.hyeeyoung.wishboard.data.local.WishBoardPreference
 import com.hyeeyoung.wishboard.domain.usecase.item.GetWishListUseCase
 import com.hyeeyoung.wishboard.presentation.common.BaseViewModel
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
@@ -16,10 +17,21 @@ import javax.inject.Inject
 
 @HiltViewModel
 class WishListViewModel @Inject constructor(
+    private val localStorage: WishBoardPreference,
     private val getWishListUseCase: GetWishListUseCase,
 ) : BaseViewModel() {
     private var _uiModel = MutableStateFlow(WishListUiModel())
     val uiModel = _uiModel.asStateFlow()
+
+    init {
+        initOnboardingModalState()
+    }
+
+    private fun initOnboardingModalState() {
+        _uiModel.update {
+            it.copy(shouldShowOnboardingModal = localStorage.shouldShowOnboardingModal)
+        }
+    }
 
     fun getWishItem(didRefresh: Boolean = false) {
         if (_uiModel.value.fetchState is WishBoardState.Loading) return
@@ -50,9 +62,13 @@ class WishListViewModel @Inject constructor(
         }
     }
 
-    fun confirmOnboardingModal() {
+    fun updateOnboardingModalStatus(isOnboardingComplete: Boolean) {
+        if (isOnboardingComplete) {
+            localStorage.clear(WishBoardPreference.SHOULD_SHOW_ONBOARDING_MODAL)
+        }
+
         _uiModel.update {
-            it.copy(isOnboardingModalShown = true)
+            it.copy(shouldShowOnboardingModal = false)
         }
     }
 }

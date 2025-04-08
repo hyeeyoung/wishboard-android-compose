@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -72,6 +73,30 @@ fun WishBoardModal(
 
                 content()
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun WishBoardModal(
+    isOpen: Boolean,
+    sheetState: SheetState,
+    onDismissRequest: () -> Unit,
+    content: @Composable () -> Unit,
+) {
+    if (!isOpen) return
+    ModalBottomSheet(
+        sheetState = sheetState,
+        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
+        onDismissRequest = onDismissRequest,
+        containerColor = WishBoardTheme.colors.white,
+        dragHandle = null,
+    ) {
+        Box(
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            content()
         }
     }
 }

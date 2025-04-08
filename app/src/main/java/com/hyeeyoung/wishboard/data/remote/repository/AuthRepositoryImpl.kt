@@ -25,6 +25,7 @@ class AuthRepositoryImpl @Inject constructor(
             it.token.accessToken,
             it.token.refreshToken
         )
+        localStorage.shouldShowOnboardingModal = true
     }.map { }
 
     override suspend fun signIn(authInfo: AuthInfo): Result<Unit> = runCatching {
