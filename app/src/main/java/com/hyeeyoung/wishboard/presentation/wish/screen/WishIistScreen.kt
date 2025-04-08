@@ -29,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -44,12 +45,10 @@ import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.domain.model.wish.WishItem
 import com.hyeeyoung.wishboard.presentation.onboarding.OnboardingModalContent
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
-import com.hyeeyoung.wishboard.presentation.util.extension.rememberModalLauncher
 import com.hyeeyoung.wishboard.presentation.wish.WishListViewModel
 import com.hyeeyoung.wishboard.presentation.wish.component.WishItem
 import com.hyeeyoung.wishboard.presentation.wish.model.WishListUiModel
 import kotlinx.coroutines.launch
-import com.hyeeyoung.wishboard.presentation.wish.model.WishListUiModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,7 +57,6 @@ fun WishListScreen(
     isFirstLaunch: Boolean,
     viewModel: WishListViewModel = hiltViewModel()
 ) {
-    val context = LocalContext.current
     val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
     val coroutineScope = rememberCoroutineScope()
     var isOpenOnboardingModal by remember { mutableStateOf(false) }
