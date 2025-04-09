@@ -72,17 +72,23 @@ class WishItemUploadViewModel @Inject constructor(
             return
         }
 
+        val itemSite = site.getValidUrl() ?: ""
         viewModelScope.launch {
-            getParsedItemInfoUseCase(site.getValidUrl() ?: "").onSuccess { parsedItem ->
+            getParsedItemInfoUseCase(itemSite).onSuccess { parsedItem ->
                 _uiModel.update {
                     it.copy(
                         itemName = parsedItem.name ?: "",
                         itemPrice = parsedItem.price ?: "",
                         downloadImageUrl = parsedItem.image,
-                        itemUrl = site
+                        itemUrl = itemSite
                     )
                 }
             }.onFailure { _, _, _ ->
+                _uiModel.update {
+                    it.copy(
+                        itemUrl = itemSite
+                    )
+                }
                 updateSnackbarMessage("앗, 아이템 정보를 불러오지 못했어요🥲")
             }
         }
