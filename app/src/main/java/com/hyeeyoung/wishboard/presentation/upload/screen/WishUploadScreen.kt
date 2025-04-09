@@ -1,6 +1,7 @@
 package com.hyeeyoung.wishboard.presentation.upload.screen
 
 import android.net.Uri
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -99,8 +100,14 @@ fun WishUploadScreen(
     viewModel: WishItemUploadViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
+    val keyboardController = LocalSoftwareKeyboardController.current
     val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
     val enteredAddFlow = itemDetail == null
+
+    BackHandler {
+        keyboardController?.hide()
+        navController.safePopBackStack()
+    }
 
     LaunchedEffect(Unit) {
         viewModel.setTokenForProfileImageUri()
@@ -122,6 +129,7 @@ fun WishUploadScreen(
                         uploadType = WishItemUploadType.MANUAL
                     ) { id ->
                         navController.navigate("${MainScreen.WishItemDetail.route}/$id") {
+                            keyboardController?.hide()
                             navController.safePopBackStack()
                         }
                     }
@@ -129,6 +137,7 @@ fun WishUploadScreen(
 
                 false -> {
                     viewModel.updateWishItem(context = context, itemId = itemDetail?.id) {
+                        keyboardController?.hide()
                         navController.safePopBackStack()
                     }
                 }
@@ -138,6 +147,7 @@ fun WishUploadScreen(
             viewModel.getFolders(it)
         },
         onClickClose = {
+            keyboardController?.hide()
             navController.safePopBackStack()
         },
         onTextChange = { type, input ->
