@@ -74,11 +74,13 @@ import com.hyeeyoung.wishboard.domain.model.noti.NotiType
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemUploadType
 import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat
 import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat.getFormattedDateStr
+import com.hyeeyoung.wishboard.presentation.folder.FolderListModalContent
 import com.hyeeyoung.wishboard.presentation.noti.NotiModalContent
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.sign.model.WishItemDetail
 import com.hyeeyoung.wishboard.presentation.upload.WishItemUploadViewModel
+import com.hyeeyoung.wishboard.presentation.upload.component.ShopLinkModalContent
 import com.hyeeyoung.wishboard.presentation.upload.model.UploadInputType
 import com.hyeeyoung.wishboard.presentation.upload.model.WishItemUploadUiModel
 import com.hyeeyoung.wishboard.presentation.util.extension.createImageUri
@@ -223,14 +225,6 @@ fun WishUploadScreen(
                 }
             }
 
-            is ModalData.Modal.FolderList -> {
-                onSelectFolder(data.selectedFolder)
-            }
-
-            is ModalData.Modal.ShopLink -> {
-                onTextChange(UploadInputType.ITEM_URL, data.link)
-            }
-
             else -> {}
         }
     }
@@ -338,8 +332,9 @@ fun WishUploadScreen(
                     label = uiModel.selectedFolder?.name ?: stringResource(id = R.string.folder),
                     onClickRow = {
                         getFolders { folders ->
-                            ModalData.Modal.FolderList(selectedFolder = uiModel.selectedFolder, folders = folders)
-                                .openModal(context, modalLauncher)
+                            modalData =
+                                ModalData.Modal.FolderList(selectedFolder = uiModel.selectedFolder, folders = folders)
+                            coroutineScope.launch { sheetState.show() }
                         }
                     },
                 )
@@ -357,7 +352,10 @@ fun WishUploadScreen(
 
                 ItemInfoRow(
                     label = uiModel.itemUrl.ifBlank { stringResource(id = R.string.wish_item_upload_shop_link) },
-                    onClickRow = { ModalData.Modal.ShopLink(uiModel.itemUrl).openModal(context, modalLauncher) },
+                    onClickRow = {
+                        modalData = ModalData.Modal.ShopLink(uiModel.itemUrl)
+                        coroutineScope.launch { sheetState.show() }
+                    },
                 )
 
                 WishBoardSimpleTextField(
@@ -382,11 +380,43 @@ fun WishUploadScreen(
                 when (modalData) {
                     is ModalData.Modal.Noti -> {
                         val notiData = (modalData as ModalData.Modal.Noti)
-
                         NotiModalContent(
                             notiInfo = notiData.notiInfo.fromJson<NotiInfo>(),
                             onClickComplete = { type, date ->
                                 isValidNotiDate(NotiInfo(notiType = type, notiDate = date))
+                                coroutineScope.launch { sheetState.hide() }
+                                modalData = null
+                            },
+                            onDismissRequest = {
+                                coroutineScope.launch { sheetState.hide() }
+                                modalData = null
+                            }
+                        )
+                    }
+
+                    is ModalData.Modal.FolderList -> {
+                        val folderData = (modalData as ModalData.Modal.FolderList)
+                        FolderListModalContent(
+                            selectedFolder = folderData.selectedFolder,
+                            folders = folderData.folders,
+                            onClickFolder = { folder ->
+                                onSelectFolder(folder)
+                                coroutineScope.launch { sheetState.hide() }
+                                modalData = null
+                            },
+                            onDismissRequest = {
+                                coroutineScope.launch { sheetState.hide() }
+                                modalData = null
+                            }
+                        )
+                    }
+
+                    is ModalData.Modal.ShopLink -> {
+                        val linkData = (modalData as ModalData.Modal.ShopLink)
+                        ShopLinkModalContent(
+                            link = linkData.link,
+                            onClickComplete = { link ->
+                                onTextChange(UploadInputType.ITEM_URL, link)
                                 coroutineScope.launch { sheetState.hide() }
                                 modalData = null
                             },

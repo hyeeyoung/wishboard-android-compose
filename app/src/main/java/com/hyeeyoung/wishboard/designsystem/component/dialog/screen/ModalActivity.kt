@@ -67,28 +67,15 @@ class ModalActivity : ComponentActivity() {
     }
 
     @Composable
-    fun ModalContent(modalData: ModalData.Modal) {
+    fun ModalContent(modalData: ModalData.Modal) { // TODO 제거
         when (modalData) {
-            is ModalData.Modal.FolderList -> FolderListModalContent(
-                selectedFolder = modalData.selectedFolder,
-                folders = modalData.folders,
-                onClickFolder = { folder ->
-                    moveToPrevious(
-                        modalData.copy(
-                            selectedFolder = folder,
-                        )
-                    )
-                },
-            )
+            is ModalData.Modal.FolderList -> {}
 
             is ModalData.Modal.NewFolder -> {}
 
             is ModalData.Modal.FolderNameEdit -> {}
 
-            is ModalData.Modal.ShopLink -> ShopLinkModalContent(
-                link = modalData.link,
-                onClickComplete = { link -> moveToPrevious(modalData.copy(link = link)) },
-            )
+            is ModalData.Modal.ShopLink -> {}
 
             else -> {}
         }

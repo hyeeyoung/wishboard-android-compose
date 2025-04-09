@@ -13,20 +13,22 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.style.TextDecoration
@@ -45,6 +47,7 @@ import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.DialogData
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.ModalData
 import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.WishBoardTwoButtonDialog
+import com.hyeeyoung.wishboard.designsystem.component.dialog.temp.WishBoardModal
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
 import com.hyeeyoung.wishboard.designsystem.component.image.Image
 import com.hyeeyoung.wishboard.designsystem.component.image.WishBoardPlaceHolder
@@ -54,6 +57,7 @@ import com.hyeeyoung.wishboard.designsystem.style.Gray700
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
 import com.hyeeyoung.wishboard.domain.model.noti.NotiType
+import com.hyeeyoung.wishboard.presentation.folder.FolderListModalContent
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardString
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.util.buildStringWithSpans
@@ -62,12 +66,12 @@ import com.hyeeyoung.wishboard.presentation.util.extension.formatDday
 import com.hyeeyoung.wishboard.presentation.util.extension.getDomainName
 import com.hyeeyoung.wishboard.presentation.util.extension.moveToWebView
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
-import com.hyeeyoung.wishboard.presentation.util.extension.rememberModalLauncher
 import com.hyeeyoung.wishboard.presentation.util.extension.safePopBackStack
 import com.hyeeyoung.wishboard.presentation.util.extension.toBase64Json
 import com.hyeeyoung.wishboard.presentation.util.safeLet
 import com.hyeeyoung.wishboard.presentation.wish.component.PriceText
 import com.hyeeyoung.wishboard.presentation.wish.model.WishItemDetailUiModel
+import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDateTime
 
 @Composable
@@ -129,6 +133,7 @@ fun WishItemDetailScreen(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WishItemDetailScreen(
     uiModel: WishItemDetailUiModel,
@@ -140,17 +145,10 @@ fun WishItemDetailScreen(
     onClickBack: () -> Unit,
     onClickDelete: (itemId: Long?) -> Unit,
 ) {
-    val context = LocalContext.current
-    val modalLauncher = rememberModalLauncher { _, data ->
-        when (data) {
-            is ModalData.Modal.FolderList -> {
-                data.selectedFolder?.let(updateFolder)
-            }
-
-            else -> {}
-        }
-    }
     var dialogData by remember { mutableStateOf<DialogData?>(null) }
+    var modalData by remember { mutableStateOf<ModalData?>(null) }
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val coroutineScope = rememberCoroutineScope()
 
     Scaffold(topBar = {
         WishBoardTopBar(
@@ -174,11 +172,13 @@ fun WishItemDetailScreen(
                 uiModel = uiModel,
                 onClickFolder = {
                     onClickFolder { folders ->
-                        ModalData.Modal.FolderList(
+                        modalData = ModalData.Modal.FolderList(
                             selectedFolder = uiModel.folderId?.let { FolderItem(id = it) },
                             folders = folders
                         )
-                            .openModal(context, modalLauncher)
+                        coroutineScope.launch {
+                            sheetState.show()
+                        }
                     }
                 },
             )
@@ -207,6 +207,36 @@ fun WishItemDetailScreen(
                 }
             },
             onDismissRequest = { dialogData = null },
+        )
+
+        WishBoardModal(
+            isOpen = modalData != null,
+            sheetState = sheetState,
+            onDismissRequest = {
+                modalData = null
+            },
+            content = {
+                when (modalData) {
+                    is ModalData.Modal.FolderList -> {
+                        val folderData = (modalData as ModalData.Modal.FolderList)
+                        FolderListModalContent(
+                            selectedFolder = folderData.selectedFolder,
+                            folders = folderData.folders,
+                            onClickFolder = { folder ->
+                                folder.let(updateFolder)
+                                coroutineScope.launch { sheetState.hide() }
+                                modalData = null
+                            },
+                            onDismissRequest = {
+                                coroutineScope.launch { sheetState.hide() }
+                                modalData = null
+                            }
+                        )
+                    }
+
+                    else -> {}
+                }
+            }
         )
     }
 }

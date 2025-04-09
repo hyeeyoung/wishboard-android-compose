@@ -24,6 +24,7 @@ import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.component.Picker
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
+import com.hyeeyoung.wishboard.designsystem.component.dialog.temp.ModalTitle
 import com.hyeeyoung.wishboard.designsystem.style.Gray100
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.domain.model.noti.NotiInfo
@@ -52,27 +53,10 @@ fun NotiModalContent(
     val minuteStartIndex = NumberPickerUtil.minutes.indexOf(notiInfo.notiDate?.minute?.getFormattedNumberPickerTime())
 
     Column(modifier = Modifier.padding(bottom = 16.dp)) {
-        Box(modifier = Modifier.fillMaxWidth()) {
-            Text(
-                modifier = Modifier
-                    .padding(top = 16.dp)
-                    .align(Alignment.TopCenter),
-                text = stringResource(id = R.string.modal_noti_setting_title),
-                style = WishBoardTheme.typography.suitH3,
-                color = WishBoardTheme.colors.gray700,
-            )
-
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(top = 5.dp, end = 8.dp),
-            ) {
-                WishBoardIconButton(
-                    iconRes = R.drawable.ic_close,
-                    onClick = onDismissRequest,
-                )
-            }
-        }
+        ModalTitle(
+            title = stringResource(id = R.string.modal_noti_setting_title),
+            onDismissRequest = onDismissRequest
+        )
 
         Spacer(modifier = Modifier.height(48.dp))
 

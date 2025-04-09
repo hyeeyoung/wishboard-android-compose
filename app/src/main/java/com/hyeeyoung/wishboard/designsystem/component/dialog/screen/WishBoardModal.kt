@@ -47,13 +47,12 @@ fun WishBoardModal(@StringRes titleRes: Int, onDismissRequest: () -> Unit = {}, 
                 ),
             contentAlignment = Alignment.TopCenter,
         ) {
-            Surface(
+            Box(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .padding(top = 5.dp, end = 8.dp),
             ) {
                 WishBoardIconButton(
-                    modifier = Modifier.background(WishBoardTheme.colors.white),
                     iconRes = R.drawable.ic_close,
                     onClick = { onDismissRequest() },
                 )
