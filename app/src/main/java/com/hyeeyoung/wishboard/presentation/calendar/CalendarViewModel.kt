@@ -22,19 +22,18 @@ class CalendarViewModel @Inject constructor(
     val uiModel = _uiModel.asStateFlow()
     private val latestCalendarPage = MutableStateFlow(INITIAL_PAGE)
 
-    init {
-        fetchSchedule()
-    }
-
-    private fun fetchSchedule() {
+    fun fetchSchedule() {
         viewModelScope.launch {
             getAllNotiListUseCase().onSuccess { schedules ->
                 _uiModel.update {
                     it.copy(schedules = schedules)
                 }
             }.onFailure { _, errorCode, _ ->
-                when(errorCode) {
-                    404 -> {}
+                when (errorCode) {
+                    404 -> {
+                        _uiModel.update { it.copy(schedules = emptyList()) }
+                    }
+
                     else -> {
                         updateSnackbarMessage(SnackbarMessage.DEFAULT)
                     }

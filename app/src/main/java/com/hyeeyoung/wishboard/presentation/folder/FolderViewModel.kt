@@ -46,7 +46,7 @@ class FolderViewModel @Inject constructor(
                 when (errorCode) {
                     404 -> {
                         _uiModel.update {
-                            it.copy(fetchState = WishBoardState.Success(Unit), isRefreshing = false)
+                            it.copy(folders = emptyList(), fetchState = WishBoardState.Success(Unit), isRefreshing = false)
                         }
                     }
 
@@ -146,7 +146,9 @@ class FolderViewModel @Inject constructor(
                 _detailUiModel.update { items }
             }.onFailure { _, errorCode, _ ->
                 when (errorCode) {
-                    404 -> {}
+                    404 -> {
+                        _detailUiModel.update { emptyList() }
+                    }
                     else -> updateSnackbarMessage(SnackbarMessage.DEFAULT)
                 }
             }

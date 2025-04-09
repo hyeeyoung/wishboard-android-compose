@@ -9,3 +9,8 @@ fun NavController.safePopBackStack() {
         popBackStack()
     }
 }
+
+fun <T> NavController.safePopBackStack(key: String, value: T) {
+    this.previousBackStackEntry?.savedStateHandle?.set(key, value)
+    this.safePopBackStack()
+}

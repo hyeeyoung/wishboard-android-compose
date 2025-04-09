@@ -31,7 +31,7 @@ class NotiViewModel @Inject constructor(
             }.onFailure { _, errorCode, _ ->
                 when(errorCode) {
                     404 -> {
-                        _uiModel.update { it.copy(isRefreshing = false) }
+                        _uiModel.update { it.copy(notiList = emptyList(),  isRefreshing = false) }
                     }
                     else -> {
                         _uiModel.update { it.copy(isRefreshing = false) }

@@ -58,7 +58,7 @@ class WishItemViewModel @Inject constructor(
                 when(errorCode) {
                     404 -> {
                         folderUiModel.update {
-                            it.copy(fetchState = WishBoardState.Success(Unit))
+                            it.copy(folders = emptyList(), fetchState = WishBoardState.Success(Unit))
                         }
                         afterSuccess(emptyList())
                     }
