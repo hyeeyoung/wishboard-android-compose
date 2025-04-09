@@ -49,6 +49,7 @@ import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
 import com.hyeeyoung.wishboard.designsystem.component.image.Image
 import com.hyeeyoung.wishboard.designsystem.component.image.WishBoardPlaceHolder
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
+import com.hyeeyoung.wishboard.designsystem.style.Gray100
 import com.hyeeyoung.wishboard.designsystem.style.Gray700
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
@@ -58,7 +59,6 @@ import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.util.buildStringWithSpans
 import com.hyeeyoung.wishboard.presentation.util.extension.formatAsTimeAgo
 import com.hyeeyoung.wishboard.presentation.util.extension.formatDday
-import com.hyeeyoung.wishboard.presentation.util.extension.getAndRemove
 import com.hyeeyoung.wishboard.presentation.util.extension.getDomainName
 import com.hyeeyoung.wishboard.presentation.util.extension.moveToWebView
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
@@ -70,31 +70,35 @@ import com.hyeeyoung.wishboard.presentation.wish.component.PriceText
 import com.hyeeyoung.wishboard.presentation.wish.model.WishItemDetailUiModel
 import kotlinx.datetime.LocalDateTime
 
-const val IS_WISH_ITEM_MODIFIED = "isWishItemModified"
-
 @Composable
 fun WishItemDetailScreen(
     navController: NavController,
     itemId: Long,
     viewModel: WishItemViewModel = hiltViewModel()
 ) {
+    val systemUiController = rememberSystemUiController()
     val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
+    val enabledShopButton by remember(uiModel.site) {
+        mutableStateOf(uiModel.site != null)
+    }
 
     WishBoardGlobalSnackbarMessage(snackbarChannel = viewModel.snackBarChannel)
+
+    SideEffect {
+        if (enabledShopButton) {
+            systemUiController.setNavigationBarColor(color = Gray700)
+        } else {
+            systemUiController.setNavigationBarColor(color = Gray100)
+        }
+    }
 
     LaunchedEffect(Unit) {
         viewModel.getWishItemDetail(itemId)
     }
 
-    LaunchedEffect(Unit) {
-        navController.currentBackStackEntry?.savedStateHandle
-            .getAndRemove<Boolean>(IS_WISH_ITEM_MODIFIED) { agreedTermType ->
-               // TODO 확인 필요
-            }
-    }
-
     WishItemDetailScreen(
         uiModel = uiModel,
+        enabledShopButton = enabledShopButton,
         updateFolder = {
             viewModel.updateFolder(it)
         },
@@ -128,6 +132,7 @@ fun WishItemDetailScreen(
 @Composable
 fun WishItemDetailScreen(
     uiModel: WishItemDetailUiModel,
+    enabledShopButton: Boolean,
     updateFolder: (FolderItem) -> Unit,
     onClickFolder: ((List<FolderItem>) -> Unit) -> Unit,
     onClickEdit: () -> Unit,
@@ -146,11 +151,6 @@ fun WishItemDetailScreen(
         }
     }
     var dialogData by remember { mutableStateOf<DialogData?>(null) }
-
-    val systemUiController = rememberSystemUiController()
-    SideEffect {
-        systemUiController.setNavigationBarColor(color = Gray700)
-    }
 
     Scaffold(topBar = {
         WishBoardTopBar(
@@ -184,7 +184,7 @@ fun WishItemDetailScreen(
             )
 
             WishBoardWideButton(
-                enabled = uiModel.site != null,
+                enabled = enabledShopButton,
                 onClick = {
                     onClickShop()
                 },
@@ -365,20 +365,23 @@ private fun FolderGuideString(folderName: String?, onClickFolder: () -> Unit) {
 @Preview
 @Composable
 fun PreviewWishItemDetailScreen() {
+    val uiModel = WishItemDetailUiModel(
+        id = 1L,
+        name = "21SS SAGE SHIRT [4COLOR]",
+        image = "https://url.kr/8vwf1e",
+        price = 108000,
+        notiDate = LocalDateTime(2024, 1, 13, 1, 13),
+        notiType = NotiType.RESTOCK,
+        site = "https://www.naver.com/",
+        memo = "S사이즈",
+        folderId = 1L,
+        folderName = "상의",
+        createAt = LocalDateTime(2025, 3, 20, 2, 0),
+    )
+
     WishItemDetailScreen(
-        uiModel = WishItemDetailUiModel(
-            id = 1L,
-            name = "21SS SAGE SHIRT [4COLOR]",
-            image = "https://url.kr/8vwf1e",
-            price = 108000,
-            notiDate = LocalDateTime(2024, 1, 13, 1, 13),
-            notiType = NotiType.RESTOCK,
-            site = "https://www.naver.com/",
-            memo = "S사이즈",
-            folderId = 1L,
-            folderName = "상의",
-            createAt = LocalDateTime(2025, 3, 20, 2, 0),
-        ),
+        uiModel = uiModel,
+        enabledShopButton = uiModel.site != null,
         updateFolder = {},
         onClickShop = {},
         onClickEdit = {},

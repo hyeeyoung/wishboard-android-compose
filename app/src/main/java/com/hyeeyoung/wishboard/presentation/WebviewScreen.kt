@@ -14,13 +14,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavHostController
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
@@ -34,7 +37,12 @@ fun WebViewScreen(
     url: String,
     title: String? = null,
 ) {
+    val systemUiController = rememberSystemUiController()
     val webView: MutableState<WebView?> = remember { mutableStateOf(null) }
+
+    SideEffect {
+        systemUiController.setNavigationBarColor(color = Color.White)
+    }
 
     Scaffold(topBar = {
         WebViewTopBar(
