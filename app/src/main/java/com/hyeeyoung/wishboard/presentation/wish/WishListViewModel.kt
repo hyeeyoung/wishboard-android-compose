@@ -47,7 +47,7 @@ class WishListViewModel @Inject constructor(
             }.onFailure { _, errorCode, _ ->
                 when (errorCode) {
                     404 -> _uiModel.update {
-                        it.copy(fetchState = WishBoardState.Success(Unit), isRefreshing = false)
+                        it.copy(withItems = emptyList(), fetchState = WishBoardState.Success(Unit), isRefreshing = false)
                     }
 
                     else -> {
