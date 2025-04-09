@@ -24,6 +24,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -186,7 +187,13 @@ fun WishUploadScreen(
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.loading_spin))
     val keyboardController = LocalSoftwareKeyboardController.current
     var modalData by remember { mutableStateOf<ModalData?>(null) }
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true, confirmValueChange = { newState ->
+        if (modalData !is ModalData.Modal.ShopLink) {
+            newState != SheetValue.Hidden
+        } else {
+            true
+        }
+    })
     val coroutineScope = rememberCoroutineScope()
 
     var cameraUri: Uri? = null

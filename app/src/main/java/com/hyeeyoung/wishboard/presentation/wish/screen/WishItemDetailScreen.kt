@@ -15,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -147,7 +148,13 @@ fun WishItemDetailScreen(
 ) {
     var dialogData by remember { mutableStateOf<DialogData?>(null) }
     var modalData by remember { mutableStateOf<ModalData?>(null) }
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true, confirmValueChange = { newState ->
+        if (modalData is ModalData.Modal.FolderList) {
+            newState != SheetValue.Hidden
+        } else {
+            true
+        }
+    })
     val coroutineScope = rememberCoroutineScope()
 
     Scaffold(topBar = {

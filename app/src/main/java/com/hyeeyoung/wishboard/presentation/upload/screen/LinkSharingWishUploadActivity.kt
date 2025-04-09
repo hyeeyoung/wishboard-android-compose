@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -70,8 +71,14 @@ class LinkSharingWishUploadActivity : ComponentActivity() {
             val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
             val systemUiController = rememberSystemUiController()
             val coroutineScope = rememberCoroutineScope()
-            val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
             var modalData by remember { mutableStateOf<ModalData.Modal?>(null) }
+            val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true, confirmValueChange = {newState ->
+                if (modalData is ModalData.Modal.Noti) {
+                    newState != SheetValue.Hidden
+                } else {
+                    true
+                }
+            })
 
             CompositionLocalProvider(LocalSnackbarHostState provides wishBoardSnackbarHostState) {
                 val snackbarHostState = LocalSnackbarHostState.current
