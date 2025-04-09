@@ -79,12 +79,10 @@ class WishBoardPreference @Inject constructor(@ApplicationContext context: Conte
 
     fun clear() {
         val tempNotificationAlertState = hasShownNotificationAlert
-        val tempOnboardingModalState = shouldShowOnboardingModal
         dataStore.edit {
             clear()
         }
         hasShownNotificationAlert = tempNotificationAlertState
-        shouldShowOnboardingModal = tempOnboardingModalState
     }
 
     fun clear(key: String) {

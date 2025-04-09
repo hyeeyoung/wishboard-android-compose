@@ -35,7 +35,7 @@ fun OnboardingModalContent(onClickConfirm: () -> Unit) {
     val pagerState = rememberPagerState(pageCount = { onboardingRes.size })
 
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.Bottom,
     ) {
         Column(modifier = Modifier.clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))) {

@@ -1,6 +1,5 @@
 package com.hyeeyoung.wishboard.presentation.wish.screen
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -16,6 +15,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ModalBottomSheetProperties
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -46,7 +46,6 @@ import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.domain.model.wish.WishItem
 import com.hyeeyoung.wishboard.presentation.onboarding.OnboardingModalContent
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
-import com.hyeeyoung.wishboard.presentation.util.extension.safePopBackStack
 import com.hyeeyoung.wishboard.presentation.wish.WishListViewModel
 import com.hyeeyoung.wishboard.presentation.wish.component.WishItem
 import com.hyeeyoung.wishboard.presentation.wish.model.WishListUiModel
@@ -66,12 +65,6 @@ fun WishListScreen(
         rememberModalBottomSheetState(skipPartiallyExpanded = true, confirmValueChange = { newState ->
             newState != SheetValue.Hidden
         })
-
-    BackHandler {
-        if (!onboardingSheetState.isVisible) {
-            navController.safePopBackStack()
-        }
-    }
 
     LaunchedEffect(Unit) {
         viewModel.getWishItem()
@@ -106,6 +99,7 @@ fun WishListScreen(
     WishBoardModal(
         isOpen = isOpenOnboardingModal,
         sheetState = onboardingSheetState,
+        properties = ModalBottomSheetProperties(shouldDismissOnBackPress = false),
         onDismissRequest = {
             isOpenOnboardingModal = false
             viewModel.updateOnboardingModalStatus(isOnboardingComplete = false)
