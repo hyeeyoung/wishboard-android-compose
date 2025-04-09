@@ -18,6 +18,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -43,6 +44,7 @@ fun WishBoardModal(
         sheetState = sheetState,
         shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
         onDismissRequest = onDismissRequest,
+        scrimColor = Color.Black.copy(alpha = 0.6f),
         containerColor = WishBoardTheme.colors.white,
         dragHandle = null,
     ) {
@@ -93,6 +95,7 @@ fun WishBoardModal(
         sheetState = sheetState,
         shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
         onDismissRequest = onDismissRequest,
+        scrimColor = Color.Black.copy(alpha = 0.6f),
         containerColor = WishBoardTheme.colors.white,
         properties = properties,
         dragHandle = null,
