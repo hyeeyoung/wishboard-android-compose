@@ -3,6 +3,8 @@ package com.hyeeyoung.wishboard.presentation.folder
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,7 +33,8 @@ fun FolderUploadModalContent(
     val nameInput = remember { mutableStateOf(folderName ?: "") }
 
     Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)) {
-        Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+        Spacer(modifier = Modifier.height(76.dp))
+        Box(contentAlignment = Alignment.Center) {
             Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 WishBoardTextField(
                     input = nameInput,
@@ -49,6 +52,8 @@ fun FolderUploadModalContent(
                 )
             }
         }
+
+        Spacer(modifier = Modifier.height(58.dp))
 
         WishBoardWideButton(
             enabled = nameInput.value.isNotBlank(),
