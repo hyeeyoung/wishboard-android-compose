@@ -237,7 +237,7 @@ private fun TextFieldErrorMessage(
 ) {
     when (errorHidingStrategy) {
         View.GONE -> {
-            if (isFocused || !isError || errorMsg == null) return
+            if (!isFocused || !isError || errorMsg == null) return
             Spacer(modifier = Modifier.size(6.dp))
             Text(
                 text = errorMsg,
