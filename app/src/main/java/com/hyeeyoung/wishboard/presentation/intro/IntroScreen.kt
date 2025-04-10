@@ -45,7 +45,6 @@ import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.WishBoardOne
 import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.WishBoardTwoButtonDialog
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import kotlinx.coroutines.delay
-import timber.log.Timber
 
 @Composable
 fun IntroScreen(
@@ -53,7 +52,6 @@ fun IntroScreen(
     viewModel: IntroViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
-    var dialogData by remember { mutableStateOf<DialogData?>(null) }
     val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
     val requestPermissionLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { _ ->
@@ -82,6 +80,7 @@ fun IntroScreen(
                 viewModel.checkForAppUpdate(
                     playStoreVersionCode = playStoreVersionCode,
                     moveToNext = {
+                        appUpdateType = null
                         nextScreen = getNextScreen(uiModel.isLogin!!)
                     },
                     showUpdateDialog = {
@@ -96,7 +95,6 @@ fun IntroScreen(
     }
 
     LaunchedEffect(nextScreen, uiModel.hasShownNotificationAlert) {
-        Timber.e("nextScreen : $nextScreen, hasShownNotificationAlert : ${uiModel.hasShownNotificationAlert}")
         if (nextScreen == null || uiModel.hasShownNotificationAlert != true) return@LaunchedEffect
         delay(1500L)
         navController.navigate(nextScreen!!) {
@@ -124,7 +122,7 @@ fun IntroScreen(
                 moveToPlayStore(context)
             },
             onDismissRequest = {
-                dialogData = null
+                appUpdateType = null
                 nextScreen = getNextScreen(uiModel.isLogin!!)
             },
         )
@@ -166,14 +164,11 @@ private fun checkForNewVersionUpdate(
             appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE) &&
             playStoreVersionCode != BuildConfig.VERSION_CODE
         ) {
-            Timber.e("1 : $playStoreVersionCode")
             checkRemoteAppVersion(playStoreVersionCode)
         } else {
-            Timber.e("2")
             moveToNext()
         }
     }.addOnFailureListener {
-        Timber.e("3")
         moveToNext()
     }
 }

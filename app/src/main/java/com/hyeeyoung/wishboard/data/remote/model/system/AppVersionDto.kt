@@ -1,7 +1,9 @@
 package com.hyeeyoung.wishboard.data.remote.model.system
 
 import com.hyeeyoung.wishboard.domain.model.system.AppVersion
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class AppVersionDto(
     val platform: String,
     val minVersion: String,
