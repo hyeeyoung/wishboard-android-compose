@@ -1,5 +1,6 @@
 package com.hyeeyoung.wishboard.presentation.my.screen
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -8,10 +9,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -32,11 +36,21 @@ import com.hyeeyoung.wishboard.presentation.my.MyViewModel
 import com.hyeeyoung.wishboard.presentation.my.model.MyUiModel
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.util.extension.safePopBackStack
+import kotlinx.coroutines.delay
 
 @Composable
 fun PasswordChangeScreen(navController: NavController, viewModel: MyViewModel = hiltViewModel()) {
     val uiModel by viewModel.uiModel.collectAsStateWithLifecycle() // TODO 리팩토링 필요
     val keyboardController = LocalSoftwareKeyboardController.current
+
+    fun onClickBack() {
+        keyboardController?.hide()
+        navController.safePopBackStack()
+    }
+
+    BackHandler {
+        onClickBack()
+    }
 
     WishBoardGlobalSnackbarMessage(snackbarChannel = viewModel.snackBarChannel)
 
@@ -47,13 +61,11 @@ fun PasswordChangeScreen(navController: NavController, viewModel: MyViewModel = 
         },
         onClickComplete = {
             viewModel.updatePassword {
-                keyboardController?.hide()
-                navController.safePopBackStack()
+                onClickBack()
             }
         },
         onClickBack = {
-            keyboardController?.hide()
-            navController.safePopBackStack()
+            onClickBack()
         },
     )
 }
@@ -65,10 +77,16 @@ fun PasswordChangeScreen(
     onClickComplete: () -> Unit,
     onClickBack: () -> Unit,
 ) {
+    val focusRequester = remember { FocusRequester() }
     val isCorrectPassword by remember(uiModel.passwordInput, uiModel.rePasswordInput) {
         mutableStateOf(
             uiModel.passwordInput == uiModel.rePasswordInput
         )
+    }
+
+    LaunchedEffect(Unit) {
+        delay(300L)
+        focusRequester.requestFocus()
     }
 
     Scaffold(topBar = {
@@ -87,6 +105,7 @@ fun PasswordChangeScreen(
             Spacer(modifier = Modifier.size(32.dp))
 
             WishBoardTextField(
+                modifier = Modifier.focusRequester(focusRequester),
                 label = stringResource(id = R.string.my_password_new_password),
                 input = uiModel.passwordInput,
                 isError = uiModel.isValidPassword == false,
