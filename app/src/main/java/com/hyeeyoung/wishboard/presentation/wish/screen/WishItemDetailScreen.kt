@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
@@ -52,6 +53,7 @@ import com.hyeeyoung.wishboard.designsystem.component.dialog.temp.WishBoardModal
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
 import com.hyeeyoung.wishboard.designsystem.component.image.Image
 import com.hyeeyoung.wishboard.designsystem.component.image.WishBoardPlaceHolder
+import com.hyeeyoung.wishboard.designsystem.component.text.HyperlinkText
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.designsystem.style.Gray100
 import com.hyeeyoung.wishboard.designsystem.style.Gray700
@@ -103,6 +105,7 @@ fun WishItemDetailScreen(
 
     WishItemDetailScreen(
         uiModel = uiModel,
+        navController = navController,
         enabledShopButton = enabledShopButton,
         updateFolder = {
             viewModel.updateFolder(it)
@@ -138,6 +141,7 @@ fun WishItemDetailScreen(
 @Composable
 fun WishItemDetailScreen(
     uiModel: WishItemDetailUiModel,
+    navController: NavController,
     enabledShopButton: Boolean,
     updateFolder: (FolderItem) -> Unit,
     onClickFolder: ((List<FolderItem>) -> Unit) -> Unit,
@@ -177,6 +181,7 @@ fun WishItemDetailScreen(
             WishItemDetailContents(
                 modifier = Modifier.weight(1f),
                 uiModel = uiModel,
+                navController = navController,
                 onClickFolder = {
                     onClickFolder { folders ->
                         modalData = ModalData.Modal.FolderList(
@@ -249,7 +254,7 @@ fun WishItemDetailScreen(
 }
 
 @Composable
-private fun WishItemDetailContents(modifier: Modifier, uiModel: WishItemDetailUiModel, onClickFolder: () -> Unit) {
+private fun WishItemDetailContents(modifier: Modifier, navController: NavController, uiModel: WishItemDetailUiModel, onClickFolder: () -> Unit) {
     val imageModifier = Modifier
         .fillMaxWidth()
         .clip(RoundedCornerShape(32.dp))
@@ -322,20 +327,23 @@ private fun WishItemDetailContents(modifier: Modifier, uiModel: WishItemDetailUi
 
         uiModel.memo?.let { memo ->
             WishBoardDivider()
-            Column(Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 64.dp)) {
+            Column(Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp)) {
                 Text(
                     modifier = Modifier.padding(bottom = 10.dp),
                     text = stringResource(id = R.string.memo),
                     style = WishBoardTheme.typography.suitB2,
                     color = WishBoardTheme.colors.gray700,
                 )
-                Text(
+                HyperlinkText(
+                    navController = navController,
                     text = memo,
                     style = WishBoardTheme.typography.suitD2,
                     color = WishBoardTheme.colors.gray700,
                 )
             }
         }
+        
+        Spacer(modifier = Modifier.padding(bottom = 64.dp))
     }
 }
 
@@ -410,7 +418,7 @@ fun PreviewWishItemDetailScreen() {
         notiDate = LocalDateTime(2024, 1, 13, 1, 13),
         notiType = NotiType.RESTOCK,
         site = "https://www.naver.com/",
-        memo = "S사이즈",
+        memo = "S사이즈 https://www.naver.com",
         folderId = 1L,
         folderName = "상의",
         createAt = LocalDateTime(2025, 3, 20, 2, 0),
@@ -418,6 +426,7 @@ fun PreviewWishItemDetailScreen() {
 
     WishItemDetailScreen(
         uiModel = uiModel,
+        navController = rememberNavController(),
         enabledShopButton = uiModel.site != null,
         updateFolder = {},
         onClickShop = {},
