@@ -36,6 +36,7 @@ import com.hyeeyoung.wishboard.designsystem.component.WishBoardGlobalSnackbarMes
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardSnackbarMessage
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.ModalData
+import com.hyeeyoung.wishboard.designsystem.component.dialog.temp.ModalTitle
 import com.hyeeyoung.wishboard.designsystem.component.dialog.temp.WishBoardModal
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.domain.model.noti.NotiInfo
@@ -138,30 +139,12 @@ class LinkSharingWishUploadActivity : ComponentActivity() {
                     when (modalData) {
                         is ModalData.Modal.NewFolder -> {
                             Column {
-                                Box(modifier = Modifier.fillMaxWidth()) {
-                                    Text(
-                                        modifier = Modifier
-                                            .padding(top = 16.dp)
-                                            .align(Alignment.TopCenter),
-                                        text = stringResource(id = R.string.modal_new_folder_title),
-                                        style = WishBoardTheme.typography.suitH3,
-                                        color = WishBoardTheme.colors.gray700,
-                                    )
-
-                                    Box(
-                                        modifier = Modifier
-                                            .align(Alignment.TopEnd)
-                                            .padding(top = 5.dp, end = 8.dp),
-                                    ) {
-                                        WishBoardIconButton(
-                                            iconRes = R.drawable.ic_close,
-                                            onClick = {
-                                                coroutineScope.launch { sheetState.hide() }
-                                                modalData = null
-                                            },
-                                        )
-                                    }
-                                }
+                                ModalTitle(
+                                    title = stringResource(id = R.string.modal_new_folder_title),
+                                    onDismissRequest = {
+                                        coroutineScope.launch { sheetState.hide() }
+                                        modalData = null
+                                    })
 
                                 FolderUploadModalContent(
                                     folderName = null,

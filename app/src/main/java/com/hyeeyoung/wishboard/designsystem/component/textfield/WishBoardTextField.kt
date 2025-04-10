@@ -1,5 +1,6 @@
 package com.hyeeyoung.wishboard.designsystem.component.textfield
 
+import android.view.View
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
@@ -47,6 +49,7 @@ fun WishBoardTextField(
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     visualTransformation: VisualTransformation = VisualTransformation.None,
+    errorHidingStrategy: Int = View.GONE,
     endComponent: WishBoardTextFieldComponent = WishBoardTextFieldComponent.DeleteButton,
 ) {
     var isFocused by remember { mutableStateOf(false) }
@@ -82,7 +85,12 @@ fun WishBoardTextField(
         }
 
         if (isFocused) {
-            TextFieldErrorMessage(isError = isError, errorMsg = errorMsg)
+            TextFieldErrorMessage(
+                errorHidingStrategy = errorHidingStrategy,
+                isFocused = isFocused,
+                isError = isError,
+                errorMsg = errorMsg
+            )
         }
     }
 }
@@ -101,6 +109,7 @@ fun WishBoardTextField(
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     visualTransformation: VisualTransformation = VisualTransformation.None,
+    errorHidingStrategy: Int = View.GONE,
     endComponent: WishBoardTextFieldComponent = WishBoardTextFieldComponent.DeleteButton,
 ) {
     var isFocused by remember { mutableStateOf(false) }
@@ -136,7 +145,12 @@ fun WishBoardTextField(
         }
 
         if (isFocused) {
-            TextFieldErrorMessage(isError = isError, errorMsg = errorMsg)
+            TextFieldErrorMessage(
+                errorHidingStrategy = errorHidingStrategy,
+                isFocused = isFocused,
+                isError = isError,
+                errorMsg = errorMsg
+            )
         }
     }
 }
@@ -155,6 +169,7 @@ fun WishBoardTextField(
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     visualTransformation: VisualTransformation = VisualTransformation.None,
+    errorHidingStrategy: Int = View.GONE,
     endComponent: WishBoardTextFieldComponent = WishBoardTextFieldComponent.DeleteButton,
 ) {
     var isFocused by remember { mutableStateOf(false) }
@@ -189,9 +204,12 @@ fun WishBoardTextField(
             )
         }
 
-        if (isFocused) {
-            TextFieldErrorMessage(isError = isError, errorMsg = errorMsg)
-        }
+        TextFieldErrorMessage(
+            errorHidingStrategy = errorHidingStrategy,
+            isFocused = isFocused,
+            isError = isError,
+            errorMsg = errorMsg
+        )
     }
 }
 
@@ -211,14 +229,32 @@ private fun TextFieldLabel(
 }
 
 @Composable
-private fun TextFieldErrorMessage(isError: Boolean, errorMsg: String?) {
-    if (!isError || errorMsg == null) return
-    Spacer(modifier = Modifier.size(6.dp))
-    Text(
-        text = errorMsg,
-        color = WishBoardTheme.colors.pink700,
-        style = WishBoardTheme.typography.suitD3,
-    )
+private fun TextFieldErrorMessage(
+    errorHidingStrategy: Int,
+    isFocused: Boolean,
+    isError: Boolean,
+    errorMsg: String?
+) {
+    when (errorHidingStrategy) {
+        View.GONE -> {
+            if (isFocused || !isError || errorMsg == null) return
+            Spacer(modifier = Modifier.size(6.dp))
+            Text(
+                text = errorMsg,
+                color = WishBoardTheme.colors.pink700,
+                style = WishBoardTheme.typography.suitD3,
+            )
+        }
+
+        View.INVISIBLE -> {
+            Spacer(modifier = Modifier.size(6.dp))
+            Text(
+                text = errorMsg ?: "",
+                color = if (!isError || !isFocused) Color.Transparent else WishBoardTheme.colors.pink700,
+                style = WishBoardTheme.typography.suitD3,
+            )
+        }
+    }
 }
 
 @Composable

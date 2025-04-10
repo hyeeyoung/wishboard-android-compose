@@ -1,5 +1,6 @@
 package com.hyeeyoung.wishboard.presentation.upload.component
 
+import android.view.View
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -40,6 +41,7 @@ fun ShopLinkModalContent(link: String? = null, onClickComplete: (String) -> Unit
                 WishBoardTextField(
                     input = linkInput,
                     isError = isValidUrl == false,
+                    errorHidingStrategy = View.INVISIBLE,
                     onTextChange = { linkInput.value = it.trim() },
                     placeholder = stringResource(id = R.string.modal_shop_link_placeholder),
                     errorMsg = stringResource(id = R.string.modal_shop_link_error),

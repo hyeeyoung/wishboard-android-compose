@@ -1,6 +1,7 @@
 package com.hyeeyoung.wishboard.presentation.my.screen
 
 import android.os.Build
+import android.view.View
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -310,6 +311,7 @@ fun WithdrawDialogContent(emailInput: MutableState<String>, isEnableWithdrawal: 
         WishBoardTextField(
             input = emailInput,
             isError = emailInput.value.isNotBlank() && !isEnableWithdrawal,
+            errorHidingStrategy = View.INVISIBLE,
             placeholder = stringResource(id = R.string.sign_email_placeholder),
             errorMsg = stringResource(id = R.string.dialog_withdraw_email_error)
         )

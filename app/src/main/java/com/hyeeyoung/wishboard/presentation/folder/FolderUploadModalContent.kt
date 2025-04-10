@@ -1,5 +1,6 @@
 package com.hyeeyoung.wishboard.presentation.folder
 
+import android.view.View
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -39,6 +40,7 @@ fun FolderUploadModalContent(
                 WishBoardTextField(
                     input = nameInput,
                     isError = nameInput.value.isNotBlank() && nameInput.value == existingFolderName,
+                    errorHidingStrategy = View.INVISIBLE,
                     placeholder = stringResource(id = R.string.modal_folder_upload_placeholder),
                     errorMsg = stringResource(id = R.string.modal_folder_upload_error),
                     maxLength = MAX_LENGTH_FOLDER_NAME,

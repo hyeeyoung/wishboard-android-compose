@@ -50,7 +50,6 @@ fun WishBoardModal(
     ) {
         Box(
             modifier = Modifier
-                .heightIn(max = 317.dp)
                 .fillMaxWidth(),
         ) {
             Box(
