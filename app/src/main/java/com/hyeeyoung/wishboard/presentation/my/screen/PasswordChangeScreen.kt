@@ -12,6 +12,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -35,6 +36,7 @@ import com.hyeeyoung.wishboard.presentation.util.extension.safePopBackStack
 @Composable
 fun PasswordChangeScreen(navController: NavController, viewModel: MyViewModel = hiltViewModel()) {
     val uiModel by viewModel.uiModel.collectAsStateWithLifecycle() // TODO 리팩토링 필요
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     WishBoardGlobalSnackbarMessage(snackbarChannel = viewModel.snackBarChannel)
 
@@ -45,10 +47,14 @@ fun PasswordChangeScreen(navController: NavController, viewModel: MyViewModel = 
         },
         onClickComplete = {
             viewModel.updatePassword {
+                keyboardController?.hide()
                 navController.safePopBackStack()
             }
         },
-        onClickBack = navController::safePopBackStack,
+        onClickBack = {
+            keyboardController?.hide()
+            navController.safePopBackStack()
+        },
     )
 }
 
