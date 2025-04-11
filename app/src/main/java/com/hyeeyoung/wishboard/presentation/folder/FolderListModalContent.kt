@@ -54,6 +54,7 @@ fun FolderListModalContent(
 
             WishBoardEmptyView(
                 modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
                     .background(WishBoardTheme.colors.white),
                 guideTextRes = R.string.empty_folder_guide_text,
             )

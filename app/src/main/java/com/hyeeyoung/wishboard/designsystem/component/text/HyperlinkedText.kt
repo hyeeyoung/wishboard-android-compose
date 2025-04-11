@@ -77,7 +77,7 @@ fun PreviewHyperlinkText() {
     HyperlinkText(
         navController = rememberNavController(),
         style = WishBoardTheme.typography.suitD1,
-        color = WishBoardTheme.colors.gray200,
+        color = WishBoardTheme.colors.gray700,
         text = "네이버 링크는 https://www.naver.com 입니다."
     )
 }

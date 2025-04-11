@@ -171,6 +171,7 @@ fun WishBoardTextField(
     visualTransformation: VisualTransformation = VisualTransformation.None,
     errorHidingStrategy: Int = View.GONE,
     endComponent: WishBoardTextFieldComponent = WishBoardTextFieldComponent.DeleteButton,
+    bottomEndComponent: (@Composable () -> Unit)? = null,
 ) {
     var isFocused by remember { mutableStateOf(false) }
     Column {
@@ -204,12 +205,20 @@ fun WishBoardTextField(
             )
         }
 
-        TextFieldErrorMessage(
-            errorHidingStrategy = errorHidingStrategy,
-            isFocused = isFocused,
-            isError = isError,
-            errorMsg = errorMsg
-        )
+        Row(modifier = Modifier.fillMaxWidth().padding(top = 6.dp)) {
+            TextFieldErrorMessage(
+                errorHidingStrategy = errorHidingStrategy,
+                isFocused = isFocused,
+                isError = isError,
+                errorMsg = errorMsg
+            )
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            bottomEndComponent?.let {
+                bottomEndComponent()
+            }
+        }
     }
 }
 
@@ -238,7 +247,6 @@ private fun TextFieldErrorMessage(
     when (errorHidingStrategy) {
         View.GONE -> {
             if (!isFocused || !isError || errorMsg == null) return
-            Spacer(modifier = Modifier.size(6.dp))
             Text(
                 text = errorMsg,
                 color = WishBoardTheme.colors.pink700,
@@ -247,7 +255,6 @@ private fun TextFieldErrorMessage(
         }
 
         View.INVISIBLE -> {
-            Spacer(modifier = Modifier.size(6.dp))
             Text(
                 text = errorMsg ?: "",
                 color = if (!isError || !isFocused) Color.Transparent else WishBoardTheme.colors.pink700,
@@ -336,6 +343,8 @@ fun PreviewWishBoardTextFieldWithTimer() {
     WishBoardTextField(
         modifier = Modifier.fillMaxWidth(),
         input = input,
+        isError = true,
+        errorMsg = "동일한 폴더입니다",
         placeholder = stringResource(id = R.string.sign_in_verification_code_placeholder),
         endComponent = WishBoardTextFieldComponent.Timer("5:00"),
     )
