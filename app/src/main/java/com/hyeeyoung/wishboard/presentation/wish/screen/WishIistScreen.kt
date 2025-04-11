@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -129,10 +130,17 @@ fun WishlistScreen(uiModel: WishListUiModel, onClickCalendar: () -> Unit, onClic
             .padding(top = paddingValues.calculateTopPadding())
 
         if (uiModel.withItems.isEmpty()) {
-            WishBoardEmptyView(
+            LazyColumn(
                 modifier = contentModifier,
-                guideTextRes = R.string.empty_wishlist_guide_text
-            )
+                verticalArrangement = Arrangement.Center
+            ) {
+                item {
+                    WishBoardEmptyView(
+                        modifier = contentModifier,
+                        guideTextRes = R.string.empty_wishlist_guide_text
+                    )
+                }
+            }
         } else {
             LazyVerticalGrid(
                 modifier = contentModifier,
