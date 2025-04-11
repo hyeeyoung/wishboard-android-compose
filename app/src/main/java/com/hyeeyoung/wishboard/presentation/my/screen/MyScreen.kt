@@ -335,7 +335,10 @@ fun MenuItem(menu: MyMenuComponent.Menu) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .rippleClickable(enabled = enabled) { menu.onClickMenu?.let { onclick -> onclick() } }
+            .rippleClickable(
+                enabled = enabled,
+                debounceIntervalMillis = if (menu.nameRes == R.string.my_menu_contact_us) 500L else 0L
+            ) { menu.onClickMenu?.let { onclick -> onclick() } }
             .padding(16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
