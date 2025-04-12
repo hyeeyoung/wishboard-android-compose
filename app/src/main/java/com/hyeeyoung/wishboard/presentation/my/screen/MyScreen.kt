@@ -12,7 +12,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
@@ -68,12 +70,15 @@ fun MyScreen(
 ) {
     val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
     val keyboardController = LocalSoftwareKeyboardController.current
+    val lazyListState = rememberLazyListState()
+
+    WishBoardGlobalSnackbarMessage(snackbarChannel = viewModel.snackBarChannel)
+
+    MainScreen.My.ScrollToTopEffect(lazyListState)
 
     LaunchedEffect(Unit) {
         viewModel.fetchUserInfo(isRefreshing = false)
     }
-
-    WishBoardGlobalSnackbarMessage(snackbarChannel = viewModel.snackBarChannel)
 
     PullToRefreshBox(
         isRefreshing = uiModel.isRefreshing,
@@ -83,6 +88,7 @@ fun MyScreen(
     ) {
         MyScreen(
             uiModel = uiModel,
+            lazyListState = lazyListState,
             navigate = { route ->
                 navController.navigate(route)
             },
@@ -116,6 +122,7 @@ fun MyScreen(
 @Composable
 fun MyScreen(
     uiModel: MyUiModel,
+    lazyListState: LazyListState,
     navigate: (route: String) -> Unit,
     updatePushState: (Boolean) -> Unit,
     logout: () -> Unit,
@@ -207,13 +214,16 @@ fun MyScreen(
             ),
         )
 
-    Scaffold(topBar = {
-        WishBoardMainTopBar(titleRes = R.string.my)
-    }) { paddingValues ->
+    Scaffold(
+        topBar = {
+            WishBoardMainTopBar(titleRes = R.string.my)
+        }
+    ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
                 .background(WishBoardTheme.colors.white)
                 .padding(top = paddingValues.calculateTopPadding()),
+            state = lazyListState,
         ) {
             item {
                 Profile(
@@ -363,11 +373,12 @@ fun PreviewMyScreen() {
                 isPushAllowed = true
             )
         ),
+        lazyListState = rememberLazyListState(),
         navigate = {},
         updatePushState = {},
         logout = {},
         deleteAccount = {},
-        moveToWebView = { _, _ -> }
+        moveToWebView = { _, _ -> },
     )
 }
 

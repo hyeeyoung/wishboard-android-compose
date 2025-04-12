@@ -4,8 +4,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -35,8 +37,11 @@ fun FolderDetailScreen(
     viewModel: FolderViewModel = hiltViewModel(),
 ) {
     val uiModel by viewModel.detailUiModel.collectAsStateWithLifecycle()
+    val lazyGridState = rememberLazyGridState()
 
     WishBoardGlobalSnackbarMessage(snackbarChannel = viewModel.snackBarChannel)
+
+    MainScreen.FolderDetail.ScrollToTopEffect(lazyGridState)
 
     LaunchedEffect(Unit) {
         viewModel.getFolderDetail(folderId)
@@ -45,6 +50,7 @@ fun FolderDetailScreen(
     FolderDetailScreen(
         wishItems = uiModel,
         folderName = folderName,
+        lazyGridState = lazyGridState,
         onClickItem = { id ->
             wishNavController.navigate("${MainScreen.WishItemDetail.route}/${id}")
         },
@@ -56,6 +62,7 @@ fun FolderDetailScreen(
 fun FolderDetailScreen(
     wishItems: List<WishItem>,
     folderName: String,
+    lazyGridState: LazyGridState,
     onClickItem: (id: Long) -> Unit,
     onClickBack: () -> Unit,
 ) {
@@ -80,6 +87,7 @@ fun FolderDetailScreen(
             LazyVerticalGrid(
                 modifier = contentModifier,
                 columns = GridCells.Fixed(2),
+                state = lazyGridState,
             ) {
                 items(wishItems) { item ->
                     WishItem(
@@ -107,6 +115,7 @@ fun PreviewFolderDetailScreen() {
     FolderDetailScreen(
         wishItems = wishList,
         folderName = "상의",
+        lazyGridState = rememberLazyGridState(),
         onClickItem = {},
         onClickBack = {},
     )

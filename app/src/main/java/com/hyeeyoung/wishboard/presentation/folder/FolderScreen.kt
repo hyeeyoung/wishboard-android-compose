@@ -10,8 +10,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -58,8 +60,11 @@ import com.hyeeyoung.wishboard.presentation.util.extension.rememberModalLauncher
 fun FolderScreen(navController: NavHostController, viewModel: FolderViewModel = hiltViewModel()) {
     val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
     var modalData by remember { mutableStateOf<ModalData.Modal?>(null) }
+    val lazyGridState = rememberLazyGridState()
 
     WishBoardGlobalSnackbarMessage(snackbarChannel = viewModel.snackBarChannel)
+
+    MainScreen.Folder.ScrollToTopEffect(lazyGridState)
 
     LaunchedEffect(Unit) {
         viewModel.getFolders()
@@ -73,6 +78,7 @@ fun FolderScreen(navController: NavHostController, viewModel: FolderViewModel = 
     ) {
         FolderScreen(
             uiModel = uiModel,
+            lazyGridState = lazyGridState,
             onClickFolder = { folder ->
                 navController.navigate("${MainScreen.FolderDetail.route}/${folder.id}/${folder.name}")
             },
@@ -131,6 +137,7 @@ fun FolderScreen(navController: NavHostController, viewModel: FolderViewModel = 
 @Composable
 fun FolderScreen(
     uiModel: FolderTabUiModel,
+    lazyGridState: LazyGridState,
     onClickFolder: (FolderItem) -> Unit,
     deleteFolder: (id: Long?) -> Unit,
     showModal: (ModalData.Modal) -> Unit,
@@ -202,6 +209,7 @@ fun FolderScreen(
         } else {
             LazyVerticalGrid(
                 modifier = contentModifier,
+                state = lazyGridState,
                 columns = GridCells.Fixed(2),
             ) {
                 items(uiModel.folders) { folder ->
@@ -289,6 +297,7 @@ fun PreviewFolderScreen() {
 
     FolderScreen(
         uiModel = FolderTabUiModel(folders = folders),
+        lazyGridState = LazyGridState(),
         onClickFolder = {},
         deleteFolder = {},
         showModal = {},

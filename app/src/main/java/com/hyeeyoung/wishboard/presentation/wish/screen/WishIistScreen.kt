@@ -12,8 +12,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheetProperties
@@ -31,7 +33,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -66,6 +67,11 @@ fun WishListScreen(
         rememberModalBottomSheetState(skipPartiallyExpanded = true, confirmValueChange = { newState ->
             newState != SheetValue.Hidden
         })
+    val lazyGridState = rememberLazyGridState()
+
+    WishBoardGlobalSnackbarMessage(snackbarChannel = viewModel.snackBarChannel)
+
+    MainScreen.Wishlist.ScrollToTopEffect(lazyGridState)
 
     LaunchedEffect(Unit) {
         viewModel.getWishItem()
@@ -78,8 +84,6 @@ fun WishListScreen(
         }
     }
 
-    WishBoardGlobalSnackbarMessage(snackbarChannel = viewModel.snackBarChannel)
-
     PullToRefreshBox(
         isRefreshing = uiModel.isRefreshing,
         onRefresh = {
@@ -88,6 +92,7 @@ fun WishListScreen(
     ) {
         WishlistScreen(
             uiModel = uiModel,
+            lazyGridState = lazyGridState,
             onClickCalendar = {
                 navController.navigate(MainScreen.Noti.route)
             },
@@ -120,7 +125,12 @@ fun WishListScreen(
 }
 
 @Composable
-fun WishlistScreen(uiModel: WishListUiModel, onClickCalendar: () -> Unit, onClickWishItem: (id: Long) -> Unit) {
+fun WishlistScreen(
+    uiModel: WishListUiModel,
+    lazyGridState: LazyGridState,
+    onClickCalendar: () -> Unit,
+    onClickWishItem: (id: Long) -> Unit
+) {
     Scaffold(topBar = {
         WishlistTopBar(onClickCalendar = onClickCalendar)
     }) { paddingValues ->
@@ -145,6 +155,7 @@ fun WishlistScreen(uiModel: WishListUiModel, onClickCalendar: () -> Unit, onClic
             LazyVerticalGrid(
                 modifier = contentModifier,
                 columns = GridCells.Fixed(2),
+                state = lazyGridState,
             ) {
                 items(uiModel.withItems) { wishItem ->
                     WishItem(
@@ -235,6 +246,7 @@ fun PreviewWishlistScreen() {
                 ),
             )
         ),
+        lazyGridState = rememberLazyGridState(),
         onClickCalendar = {},
         onClickWishItem = {},
     )

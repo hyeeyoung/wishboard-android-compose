@@ -15,6 +15,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,15 +28,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.hyeeyoung.wishboard.R
+import com.hyeeyoung.wishboard.config.GlobalState
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
+import timber.log.Timber
 
 @Composable
 fun WishBoardBottomBar(
@@ -44,6 +48,14 @@ fun WishBoardBottomBar(
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+    val previousRoute by GlobalState.previousBottomBarRoute.collectAsStateWithLifecycle()
+
+    LaunchedEffect(previousRoute) {
+        if (previousRoute == currentRoute) {
+            GlobalState.reselectedBottomBarRoute.value = currentRoute
+            GlobalState.previousBottomBarRoute.value = null
+        }
+    }
 
     WishBoardBottomBar(
         isSelected = { navItem ->
@@ -53,6 +65,7 @@ fun WishBoardBottomBar(
             if (navItem.screen.route == BottomNavItem.Add.screen.route) {
                 onClickAdd()
             } else {
+                GlobalState.previousBottomBarRoute.value = getSelectedScreen(currentRoute)
                 navController.navigate(route = navItem.screen.route) {
                     popUpTo(navController.graph.findStartDestination().id) {
                         saveState = true
@@ -113,6 +126,16 @@ fun isSelectedMenu(currentRoute: String?, navItem: BottomNavItem): Boolean {
             currentRoute == navItem.screen.getStartRouteForMainTab()
     }
 }
+
+fun getSelectedScreen(currentRoute: String?): String? =
+    when(currentRoute) {
+        MainScreen.Wishlist.route ->  MainScreen.Wishlist.route
+        MainScreen.Folder.getStartRouteForMainTab() -> MainScreen.Folder.getStartRouteForMainTab()
+        MainScreen.FolderDetail.routeWithArg -> MainScreen.FolderDetail.routeWithArg
+        MainScreen.Upload.route ->MainScreen.Upload.route
+        MainScreen.My.route ->MainScreen.My.route
+        else -> null
+    }
 
 @Composable
 fun BottomBarIconButton(

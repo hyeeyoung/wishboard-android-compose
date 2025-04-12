@@ -1,5 +1,14 @@
 package com.hyeeyoung.wishboard.config.navigation.screen
 
+import androidx.compose.foundation.gestures.animateScrollBy
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.hyeeyoung.wishboard.config.GlobalState
+
 sealed class MainScreen(override val route: String) : Screen {
     data object Root : MainScreen(route = "mainRoot") {
         const val ARG_IS_FIRST_LAUNCH: String = "isFirstLaunch"
@@ -42,5 +51,37 @@ sealed class MainScreen(override val route: String) : Screen {
         Wishlist, Upload, Noti, My -> this.route
         Folder -> this.route + "Start"
         else -> throw IllegalStateException("StartDestination이 정의되어있지 않음.")
+    }
+
+    fun getRealRoute(): String? =
+        when (this) {
+            Wishlist -> Wishlist.route
+            Folder -> Folder.getStartRouteForMainTab()
+            FolderDetail -> FolderDetail.routeWithArg
+            Upload -> Upload.route
+            My -> My.route
+            else -> null
+        }
+
+    @Composable
+    fun ScrollToTopEffect(state: LazyGridState) {
+        val route by GlobalState.reselectedBottomBarRoute.collectAsStateWithLifecycle()
+        LaunchedEffect(route) {
+            if (route == getRealRoute()) {
+                state.animateScrollToItem(0)
+                GlobalState.reselectedBottomBarRoute.value = null
+            }
+        }
+    }
+
+    @Composable
+    fun ScrollToTopEffect(state: LazyListState) {
+        val route by GlobalState.reselectedBottomBarRoute.collectAsStateWithLifecycle()
+        LaunchedEffect(route) {
+            if (route == getRealRoute()) {
+                state.animateScrollToItem(0)
+                GlobalState.reselectedBottomBarRoute.value = null
+            }
+        }
     }
 }
