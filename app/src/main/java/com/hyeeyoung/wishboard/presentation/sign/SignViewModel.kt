@@ -95,13 +95,13 @@ class SignViewModel @Inject constructor(
                     )
                 ).onSuccess {
                     afterSuccess()
-                }.onFailure { _, errorCode, errorBody ->
+                }.onFailure { exception, errorCode, errorBody ->
                     when {
                         errorCode == 400 && errorBody?.contains("입력하신 비밀번호가 올바르지 않음") == true
                                 || errorCode == 404 && errorBody?.contains("존재하지 않는 유저") == true
                         -> updateSnackbarMessage("아이디 또는 비밀번호를 다시 확인해 주세요.")
 
-                        else -> updateSnackbarMessage(SnackbarMessage.DEFAULT)
+                        else -> updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
                     }
                 }
             }

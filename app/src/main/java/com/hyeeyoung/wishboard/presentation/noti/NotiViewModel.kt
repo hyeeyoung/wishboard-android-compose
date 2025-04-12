@@ -28,14 +28,14 @@ class NotiViewModel @Inject constructor(
         viewModelScope.launch {
             getPreviousNotiListUseCase().onSuccess { notiList ->
                 _uiModel.update { it.copy(notiList = notiList, isRefreshing = false) }
-            }.onFailure { _, errorCode, _ ->
+            }.onFailure { exception, errorCode, _ ->
                 when(errorCode) {
                     404 -> {
                         _uiModel.update { it.copy(notiList = emptyList(),  isRefreshing = false) }
                     }
                     else -> {
                         _uiModel.update { it.copy(isRefreshing = false) }
-                        updateSnackbarMessage(SnackbarMessage.DEFAULT)
+                        updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
                     }
                 }
             }

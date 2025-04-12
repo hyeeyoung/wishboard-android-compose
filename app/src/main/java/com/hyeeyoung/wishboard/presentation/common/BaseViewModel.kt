@@ -10,6 +10,8 @@ import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import java.lang.Exception
+import java.net.ConnectException
 
 open class BaseViewModel : ViewModel() {
     val snackBarChannel = Channel<WishBoardSnackbarVisuals>(
@@ -21,7 +23,10 @@ open class BaseViewModel : ViewModel() {
         message: String,
         vibrate: Boolean = false,
         duration: SnackbarDuration = SnackbarDuration.Short,
+        exception: Throwable? = null,
     ) {
+        if (exception is ConnectException) return
+
         viewModelScope.launch {
             snackBarChannel.send(
                 WishBoardSnackbarVisuals(

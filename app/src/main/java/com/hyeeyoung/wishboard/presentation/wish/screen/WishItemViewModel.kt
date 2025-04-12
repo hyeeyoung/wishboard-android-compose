@@ -38,8 +38,8 @@ class WishItemViewModel @Inject constructor(
                 _uiModel.update {
                     WishItemDetailUiModel.fromDomain(detail)
                 }
-            }.onFailure { _, _, _ ->
-                updateSnackbarMessage(SnackbarMessage.DEFAULT)
+            }.onFailure { exception, _, _ ->
+                updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
             }
         }
     }
@@ -54,7 +54,7 @@ class WishItemViewModel @Inject constructor(
                     it.copy(folders = folders, fetchState = WishBoardState.Success(Unit))
                 }
                 afterSuccess(folders)
-            }.onFailure { _, errorCode, _ ->
+            }.onFailure { exception, errorCode, _ ->
                 when(errorCode) {
                     404 -> {
                         folderUiModel.update {
@@ -63,7 +63,7 @@ class WishItemViewModel @Inject constructor(
                         afterSuccess(emptyList())
                     }
                     else -> {
-                        updateSnackbarMessage(SnackbarMessage.DEFAULT)
+                        updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
                         folderUiModel.update {
                             it.copy(fetchState = WishBoardState.Failure)
                         }
@@ -79,8 +79,8 @@ class WishItemViewModel @Inject constructor(
                 _uiModel.update {
                     it.copy(folderId = folder.id, folderName = folder.name)
                 }
-            }.onFailure { _, _, _ ->
-                updateSnackbarMessage(SnackbarMessage.DEFAULT)
+            }.onFailure { exception, _, _ ->
+                updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
             }
         }
     }
@@ -95,8 +95,8 @@ class WishItemViewModel @Inject constructor(
             deleteWishItemUseCase(itemId).onSuccess {
                 updateSnackbarMessage("아이템을 위시리스트에서 삭제했어요!🗑️")
                 afterSuccess()
-            }.onFailure { _, _, _ ->
-                updateSnackbarMessage(SnackbarMessage.DEFAULT)
+            }.onFailure { exception, _, _ ->
+                updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
             }
         }
     }

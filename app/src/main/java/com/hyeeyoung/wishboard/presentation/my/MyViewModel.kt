@@ -66,11 +66,11 @@ class MyViewModel @Inject constructor(
                         isRefreshing = false
                     )
                 }
-            }.onFailure { _, _, _ ->
+            }.onFailure { exception, _, _ ->
                 _uiModel.update {
                     it.copy(fetchProfileState = WishBoardState.Failure, isRefreshing = false)
                 }
-                updateSnackbarMessage(SnackbarMessage.DEFAULT)
+                updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
             }
         }
     }
@@ -81,8 +81,8 @@ class MyViewModel @Inject constructor(
                 _uiModel.update {
                     it.copy(userInfo = it.userInfo.copy(isPushAllowed = isPushAllowed))
                 }
-            }.onFailure { _, _, _ ->
-                updateSnackbarMessage(SnackbarMessage.DEFAULT)
+            }.onFailure { exception, _, _ ->
+                updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
             }
         }
     }
@@ -105,10 +105,10 @@ class MyViewModel @Inject constructor(
             ).onSuccess {
                 afterSuccess()
                 updateSnackbarMessage("프로필이 수정되었어요!👩‍🎤")
-            }.onFailure { _, errorCode, _ ->
+            }.onFailure { exception, errorCode, _ ->
                 when (errorCode) {
                     409 -> _uiModel.update { it.copy(existingNickname = trimmedName) }
-                    else -> updateSnackbarMessage(SnackbarMessage.DEFAULT)
+                    else -> updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
                 }
             }
         }
@@ -119,8 +119,8 @@ class MyViewModel @Inject constructor(
             putPasswordUseCase(uiModel.value.rePasswordInput).onSuccess {
                 updateSnackbarMessage("비밀번호가 변경되었어요!👩‍🎤")
                 afterSuccess()
-            }.onFailure { _, _, _ ->
-                updateSnackbarMessage(SnackbarMessage.DEFAULT)
+            }.onFailure { exception, _, _ ->
+                updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
             }
         }
     }
@@ -129,8 +129,8 @@ class MyViewModel @Inject constructor(
         viewModelScope.launch {
             postLogoutUseCase().onSuccess {
                 afterSuccess()
-            }.onFailure { _, _, _ ->
-                updateSnackbarMessage(SnackbarMessage.DEFAULT)
+            }.onFailure { exception, _, _ ->
+                updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
             }
         }
     }
@@ -140,8 +140,8 @@ class MyViewModel @Inject constructor(
             deleteUserAccountUseCase().onSuccess {
                 afterSuccess()
                 updateSnackbarMessage("탈퇴 완료되었어요. 이용해주셔서 감사합니다!☺️")
-            }.onFailure { _, _, _ ->
-                updateSnackbarMessage(SnackbarMessage.DEFAULT)
+            }.onFailure { exception, _, _ ->
+                updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
             }
         }
     }

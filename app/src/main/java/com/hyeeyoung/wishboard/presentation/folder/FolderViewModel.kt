@@ -42,7 +42,7 @@ class FolderViewModel @Inject constructor(
                 _uiModel.update {
                     it.copy(folders = folders, fetchState = WishBoardState.Success(Unit), isRefreshing = false)
                 }
-            }.onFailure { _, errorCode, _ ->
+            }.onFailure { exception, errorCode, _ ->
                 when (errorCode) {
                     404 -> {
                         _uiModel.update {
@@ -51,7 +51,7 @@ class FolderViewModel @Inject constructor(
                     }
 
                     else -> {
-                        updateSnackbarMessage(SnackbarMessage.DEFAULT)
+                        updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
                         _uiModel.update {
                             it.copy(fetchState = WishBoardState.Failure, isRefreshing = false)
                         }
@@ -75,10 +75,10 @@ class FolderViewModel @Inject constructor(
                     getFolders(false)
                     afterSuccess()
                     updateSnackbarMessage("폴더를 추가했어요!😉")
-                }.onFailure { _, errorCode, _ ->
+                }.onFailure { exception, errorCode, _ ->
                     when (errorCode) {
                         409 -> _uiModel.update { it.copy(existingFolderName = trimmedName) }
-                        else -> updateSnackbarMessage(SnackbarMessage.DEFAULT)
+                        else -> updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
                     }
                     _uiModel.update { it.copy(addState = WishBoardState.Failure) }
                 }
@@ -107,10 +107,10 @@ class FolderViewModel @Inject constructor(
                 }
                 afterSuccess()
                 updateSnackbarMessage("폴더명을 수정했어요!📁")
-            }.onFailure { _, errorCode, _ ->
+            }.onFailure { exception, errorCode, _ ->
                 when (errorCode) {
                     409 -> _uiModel.update { it.copy(existingFolderName = trimmedName) }
-                    else -> updateSnackbarMessage(SnackbarMessage.DEFAULT)
+                    else -> updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
                 }
                 _uiModel.update { it.copy(updateState = WishBoardState.Failure) }
             }
@@ -133,8 +133,8 @@ class FolderViewModel @Inject constructor(
                 val folders = uiModel.value.folders.minus(folder)
                 _uiModel.update { it.copy(folders = folders, deleteState = WishBoardState.Success(Unit)) }
                 updateSnackbarMessage("폴더를 삭제했어요!🗑️")
-            }.onFailure { _, _, _ ->
-                updateSnackbarMessage(SnackbarMessage.DEFAULT)
+            }.onFailure { exception, _, _ ->
+                updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
                 _uiModel.update { it.copy(deleteState = WishBoardState.Failure) }
             }
         }
@@ -144,12 +144,12 @@ class FolderViewModel @Inject constructor(
         viewModelScope.launch {
             getFolderDetailUseCase(folderId).onSuccess { items ->
                 _detailUiModel.update { items }
-            }.onFailure { _, errorCode, _ ->
+            }.onFailure { exception, errorCode, _ ->
                 when (errorCode) {
                     404 -> {
                         _detailUiModel.update { emptyList() }
                     }
-                    else -> updateSnackbarMessage(SnackbarMessage.DEFAULT)
+                    else -> updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
                 }
             }
         }

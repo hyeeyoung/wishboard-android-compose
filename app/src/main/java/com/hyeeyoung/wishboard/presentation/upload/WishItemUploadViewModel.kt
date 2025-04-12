@@ -138,9 +138,9 @@ class WishItemUploadViewModel @Inject constructor(
                 }
 
                 afterSuccess(id)
-            }.onFailure { _, _, _ ->
+            }.onFailure { exception, _, _ ->
                 _uiModel.update { it.copy(wishItemUploadState = WishBoardState.Failure) }
-                updateSnackbarMessage(SnackbarMessage.DEFAULT)
+                updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
             }
         }
     }
@@ -182,9 +182,9 @@ class WishItemUploadViewModel @Inject constructor(
                 _uiModel.update { it.copy(wishItemUploadState = WishBoardState.Success(Unit)) }
                 updateSnackbarMessage("아이템을 수정했어요!✍️")
                 afterSuccess()
-            }.onFailure { _, _, _ ->
+            }.onFailure { exception, _, _ ->
                 _uiModel.update { it.copy(wishItemUploadState = WishBoardState.Failure) }
-                updateSnackbarMessage(SnackbarMessage.DEFAULT)
+                updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
             }
         }
     }
@@ -220,7 +220,7 @@ class WishItemUploadViewModel @Inject constructor(
                     it.copy(folders = folders, folderFetchState = WishBoardState.Success(Unit))
                 }
                 afterSuccess(folders)
-            }.onFailure { _, errorCode, _ ->
+            }.onFailure { exception, errorCode, _ ->
                 when (errorCode) {
                     404 -> {
                         _uiModel.update {
@@ -230,7 +230,7 @@ class WishItemUploadViewModel @Inject constructor(
                     }
 
                     else -> {
-                        updateSnackbarMessage(SnackbarMessage.DEFAULT)
+                        updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
                         _uiModel.update {
                             it.copy(folderFetchState = WishBoardState.Failure)
                         }
@@ -253,10 +253,10 @@ class WishItemUploadViewModel @Inject constructor(
                         updateSelectedFolder(folders.firstOrNull())
                     }
                     afterSuccess()
-                }.onFailure { _, errorCode, _ ->
+                }.onFailure { exception, errorCode, _ ->
                     when (errorCode) {
                         409 -> _uiModel.update { it.copy(existingFolderName = trimmedName) }
-                        else -> updateSnackbarMessage(SnackbarMessage.DEFAULT)
+                        else -> updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
                     }
                     _uiModel.update { it.copy(folderAddState = WishBoardState.Failure) }
                 }

@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -44,7 +45,7 @@ class WishListViewModel @Inject constructor(
                 _uiModel.update {
                     it.copy(withItems = items, fetchState = WishBoardState.Success(Unit), isRefreshing = false)
                 }
-            }.onFailure { _, errorCode, _ ->
+            }.onFailure { exception, errorCode, _ ->
                 when (errorCode) {
                     404 -> _uiModel.update {
                         it.copy(withItems = emptyList(), fetchState = WishBoardState.Success(Unit), isRefreshing = false)
@@ -54,7 +55,7 @@ class WishListViewModel @Inject constructor(
                         _uiModel.update {
                             it.copy(fetchState = WishBoardState.Failure, isRefreshing = false)
                         }
-                        updateSnackbarMessage(SnackbarMessage.DEFAULT)
+                        updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
                     }
                 }
 

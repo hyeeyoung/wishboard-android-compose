@@ -98,13 +98,6 @@ fun WishBoardSnackbar(message: String) {
     }
 }
 
-fun SnackbarHostState.showSnackbar(message: String, coroutineScope: CoroutineScope) =
-    coroutineScope.launch {
-        withTimeout(2000) {
-            showSnackbar(message)
-        }
-    }
-
 val LocalSnackbarHostState = compositionLocalOf<SnackbarHostState> {
     error("No SnackbarHostState provided")
 }
