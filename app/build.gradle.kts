@@ -1,4 +1,3 @@
-import com.android.build.api.dsl.ApkSigningConfig
 import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 import org.jetbrains.kotlin.konan.properties.Properties
 
@@ -25,7 +24,7 @@ android {
         applicationId = "com.hyeeyoung.wishboard"
         minSdk = 24
         targetSdk = 34
-        versionCode = 31
+        versionCode = 41
         versionName = "1.3.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -40,9 +39,9 @@ android {
 
     signingConfigs {
         create("release") {
-            keyAlias =  getProperty("KEY_ALIAS")
+            keyAlias = getProperty("KEY_ALIAS")
             keyPassword = getProperty("KEY_PASSWORD")
-            storeFile =  file(getProperty("KEYSTORE_PATH"))
+            storeFile = file(getProperty("KEYSTORE_PATH"))
             storePassword = getProperty("STORE_PASSWORD")
         }
     }
