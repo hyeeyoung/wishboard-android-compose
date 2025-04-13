@@ -45,11 +45,14 @@ jobs:
       - name: Touch local properties
         run: touch local.properties
 
-      - name: Access DEV_BASE_URL
-        run: echo "DEV_BASE_URL=\"\"" >> local.properties
-
-      - name: Access PROD_BASE_URL
-        run: echo "PROD_BASE_URL=\"\"" >> local.properties
+      - name: Create local.properties
+        run: |
+          echo "DEV_BASE_URL=${{ secrets.DEV_BASE_URL }}" >> local.properties
+          echo "PROD_BASE_URL=${{ secrets.PROD_BASE_URL }}" >> local.properties
+          echo "KEY_ALIAS=${{ secrets.KEY_ALIAS }}" >> local.properties
+          echo "KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}" >> local.properties
+          echo "KEYSTORE_PATH=${{ secrets.KEYSTORE_PATH }}" >> local.properties
+          echo "STORE_PASSWORD=${{ secrets.STORE_PASSWORD }}" >> local.properties
 
       - name: Build with Gradle
         run: ./gradlew build
