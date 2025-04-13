@@ -43,7 +43,7 @@ jobs:
         run: echo $FIREBASE_SECRET > app/google-services.json
 
       - name: Decode keystore
-        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > release-key.jks
+        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > app/release-key.jks
 
       - name: Touch local properties
         run: touch local.properties
