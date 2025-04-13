@@ -7,7 +7,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
-import com.hyeeyoung.wishboard.presentation.model.WishBoardString
+import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardString
 
 @Composable
 fun WishBoardClickableText(

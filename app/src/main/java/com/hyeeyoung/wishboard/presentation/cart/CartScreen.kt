@@ -34,18 +34,19 @@ import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
-import com.hyeeyoung.wishboard.designsystem.component.ColoredImage
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardEmptyView
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
-import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.WishBoardDialog
+import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.WishBoardTwoButtonDialog
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.designsystem.style.Green500
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.DialogData
-import com.hyeeyoung.wishboard.presentation.model.CartItem
-import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
+import com.hyeeyoung.wishboard.designsystem.component.image.Image
+import com.hyeeyoung.wishboard.presentation.sign.model.CartItem
+import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
+import com.hyeeyoung.wishboard.presentation.util.extension.safePopBackStack
 import com.hyeeyoung.wishboard.presentation.wish.component.PriceText
 
 @Composable
@@ -73,7 +74,7 @@ fun CartScreen(navController: NavHostController) {
         WishBoardTopBar(
             topBarModel = WishBoardTopBarModel(
                 title = stringResource(id = R.string.cart),
-                onClickStartIcon = { navController.popBackStack() },
+                onClickStartIcon = { navController.safePopBackStack() },
             ),
         )
     }) { paddingValues ->
@@ -107,7 +108,7 @@ fun CartScreen(navController: NavHostController) {
             CartTotalDisplay(totalCount = cartItems.size, totalPrice = cartItems.sumOf { it.price * it.count })
         }
 
-        WishBoardDialog(
+        WishBoardTwoButtonDialog(
             dialogData = dialogData,
             onClickConfirm = {},
             onDismissRequest = { dialogData = null },
@@ -124,7 +125,7 @@ fun CartItem(
 ) {
     val imageSize = 84
     Row(verticalAlignment = Alignment.CenterVertically) {
-        ColoredImage(
+        Image(
             model = cartItem.image,
             modifier = Modifier
                 .noRippleClickable { moveToDetail(cartItem.id) }
@@ -181,7 +182,7 @@ fun ItemCountController(count: Int, onChangeItemCount: (Int) -> Unit) {
 }
 
 @Composable
-fun CartTotalDisplay(totalCount: Int, totalPrice: Int) {
+fun CartTotalDisplay(totalCount: Int, totalPrice: Long) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -235,7 +236,7 @@ fun PreviewCartItem() {
         1,
     )
 
-    Column() {
+    Column {
         CartItem(
             cartItem = cartItem,
         )

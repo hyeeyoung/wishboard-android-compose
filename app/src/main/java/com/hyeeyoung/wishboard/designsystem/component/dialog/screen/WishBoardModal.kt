@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -22,6 +21,7 @@ import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.presentation.folder.FolderUploadModalContent
+import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 
 @Composable
@@ -46,13 +46,12 @@ fun WishBoardModal(@StringRes titleRes: Int, onDismissRequest: () -> Unit = {}, 
                 ),
             contentAlignment = Alignment.TopCenter,
         ) {
-            Surface(
+            Box(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .padding(top = 5.dp, end = 8.dp),
             ) {
                 WishBoardIconButton(
-                    modifier = Modifier.background(WishBoardTheme.colors.white),
                     iconRes = R.drawable.ic_close,
                     onClick = { onDismissRequest() },
                 )
@@ -77,6 +76,11 @@ fun WishBoardModal(@StringRes titleRes: Int, onDismissRequest: () -> Unit = {}, 
 @Composable
 fun PreviewFolderUploadModal() {
     WishBoardModal(titleRes = R.string.modal_new_folder_title) {
-        FolderUploadModalContent(onClickComplete = {})
+        FolderUploadModalContent(
+            folderName = "",
+            uploadState = WishBoardState.Idle,
+            existingFolderName = null,
+            onClickComplete = {},
+        )
     }
 }

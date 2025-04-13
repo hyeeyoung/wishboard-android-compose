@@ -1,10 +1,11 @@
 package com.hyeeyoung.wishboard.presentation.folder
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -21,53 +22,62 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hyeeyoung.wishboard.R
-import com.hyeeyoung.wishboard.designsystem.component.ColoredImage
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardEmptyView
+import com.hyeeyoung.wishboard.designsystem.component.dialog.temp.ModalTitle
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
+import com.hyeeyoung.wishboard.designsystem.component.image.Image
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
-import com.hyeeyoung.wishboard.presentation.model.Folder
-import com.hyeeyoung.wishboard.presentation.upload.model.SelectedFolder
+import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 
 @Composable
-fun FolderListModalContent(selectedFolderId: Long?, onClickFolder: (SelectedFolder) -> Unit) {
-    val folder = Folder(
-        id = 1L,
-        name = "아우터",
-        thumbnail = "https://url.kr/8vwf1e",
-        itemCount = 1,
-    )
-    val folders = List(8) { folder.copy(id = it.toLong()) } // TODO 서버 연동 후 삭제
-    var selectedId by remember { mutableStateOf(selectedFolderId) }
-
-    if (folders.isEmpty()) {
-        WishBoardEmptyView(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(WishBoardTheme.colors.white),
-            guideTextRes = R.string.empty_folder_guide_text,
+fun FolderListModalContent(
+    selectedFolder: FolderItem?,
+    folders: List<FolderItem>,
+    onClickFolder: (FolderItem) -> Unit,
+    onDismissRequest: () -> Unit,
+) {
+    var selectedId by remember { mutableStateOf(selectedFolder?.id) }
+    Column(modifier = Modifier.heightIn(max = 317.dp)) {
+        ModalTitle(
+            title = stringResource(id = R.string.modal_folder_selection_title),
+            onDismissRequest = onDismissRequest,
         )
-    } else {
-        LazyColumn(
-            modifier = Modifier
-                .padding(top = 5.dp)
-                .background(WishBoardTheme.colors.white),
-            contentPadding = PaddingValues(bottom = 64.dp),
-        ) {
-            itemsIndexed(folders) { idx, folder ->
-                HorizontalFolderItem(
-                    folder = folder,
-                    isSelected = selectedId == folder.id,
-                    onClickFolder = { selectedFolder ->
-                        selectedId = selectedFolder.id
-                        onClickFolder(selectedFolder)
-                    },
-                )
-                if (idx != folders.lastIndex) {
-                    WishBoardDivider()
+
+        if (folders.isEmpty()) {
+            Spacer(modifier = Modifier.weight(1f))
+
+            WishBoardEmptyView(
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .background(WishBoardTheme.colors.white),
+                guideTextRes = R.string.empty_folder_guide_text,
+            )
+
+            Spacer(modifier = Modifier.weight(1f))
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .padding(top = 5.dp)
+                    .background(WishBoardTheme.colors.white),
+                contentPadding = PaddingValues(bottom = 64.dp),
+            ) {
+                itemsIndexed(folders) { idx, folder ->
+                    HorizontalFolderItem(
+                        folder = folder,
+                        isSelected = selectedId == folder.id,
+                        onClickFolder = { selectedFolder ->
+                            selectedId = selectedFolder.id
+                            onClickFolder(selectedFolder)
+                        },
+                    )
+                    if (idx != folders.lastIndex) {
+                        WishBoardDivider()
+                    }
                 }
             }
         }
@@ -75,14 +85,14 @@ fun FolderListModalContent(selectedFolderId: Long?, onClickFolder: (SelectedFold
 }
 
 @Composable
-fun HorizontalFolderItem(folder: Folder, isSelected: Boolean, onClickFolder: (SelectedFolder) -> Unit) {
+fun HorizontalFolderItem(folder: FolderItem, isSelected: Boolean, onClickFolder: (FolderItem) -> Unit) {
     Row(
         modifier = Modifier
             .padding(horizontal = 16.dp, vertical = 8.dp)
-            .noRippleClickable { onClickFolder(SelectedFolder(folder.id, folder.name)) },
+            .noRippleClickable { onClickFolder(folder) },
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        ColoredImage(
+        Image(
             model = folder.thumbnail,
             modifier = Modifier
                 .size(40.dp)
@@ -114,5 +124,11 @@ fun HorizontalFolderItem(folder: Folder, isSelected: Boolean, onClickFolder: (Se
 @Composable
 @Preview
 fun PreviewFolderListModalContent() {
-    FolderListModalContent(1L, onClickFolder = {})
+    val folder = FolderItem(
+        id = 0L,
+        name = "아우터",
+        thumbnail = "https://url.kr/8vwf1e",
+    )
+    val folders = List(8) { index: Int -> folder.copy(id = index.toLong()) }
+    FolderListModalContent(folder, folders = folders, onClickFolder = {}, onDismissRequest = {})
 }

@@ -1,6 +1,7 @@
 package com.hyeeyoung.wishboard.presentation.upload.screen
 
 import android.net.Uri
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -20,129 +21,267 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
+import androidx.compose.ui.zIndex
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.hyeeyoung.wishboard.R
+import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
+import com.hyeeyoung.wishboard.designsystem.component.WishBoardGlobalSnackbarMessage
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardNarrowButton
+import com.hyeeyoung.wishboard.designsystem.component.dialog.model.ModalData
+import com.hyeeyoung.wishboard.designsystem.component.dialog.temp.WishBoardModal
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
 import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardSimpleTextField
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
-import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
 import com.hyeeyoung.wishboard.designsystem.util.PriceTransformation
-import com.hyeeyoung.wishboard.designsystem.component.dialog.model.ModalData
-import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
-import com.hyeeyoung.wishboard.presentation.model.WishItemDetail
-import com.hyeeyoung.wishboard.presentation.upload.model.SelectedFolder
+import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
+import com.hyeeyoung.wishboard.domain.model.noti.NotiInfo
+import com.hyeeyoung.wishboard.domain.model.noti.NotiType
+import com.hyeeyoung.wishboard.domain.model.wish.WishItemUploadType
+import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat
+import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat.getFormattedDateStr
+import com.hyeeyoung.wishboard.presentation.folder.FolderListModalContent
+import com.hyeeyoung.wishboard.presentation.noti.NotiModalContent
+import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
+import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
+import com.hyeeyoung.wishboard.presentation.sign.model.WishItemDetail
+import com.hyeeyoung.wishboard.presentation.upload.WishItemUploadViewModel
+import com.hyeeyoung.wishboard.presentation.upload.component.ShopLinkModalContent
+import com.hyeeyoung.wishboard.presentation.upload.model.UploadInputType
+import com.hyeeyoung.wishboard.presentation.upload.model.WishItemUploadUiModel
 import com.hyeeyoung.wishboard.presentation.util.extension.createImageUri
+import com.hyeeyoung.wishboard.presentation.util.extension.fromJson
 import com.hyeeyoung.wishboard.presentation.util.extension.getCurrentTime
 import com.hyeeyoung.wishboard.presentation.util.extension.makeValidPriceStr
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.util.extension.rememberModalLauncher
-import com.hyeeyoung.wishboard.presentation.util.type.NotiType
+import com.hyeeyoung.wishboard.presentation.util.extension.safePopBackStack
+import com.hyeeyoung.wishboard.presentation.util.extension.toJson
+import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDateTime
+import timber.log.Timber
 
 @Composable
-fun WishUploadScreen(navController: NavHostController, itemDetail: WishItemDetail? = null) {
-    val systemUiController = rememberSystemUiController()
-    SideEffect {
-        systemUiController.setNavigationBarColor(color = Color.Transparent)
+fun WishUploadScreen(
+    navController: NavController,
+    itemDetail: WishItemDetail? = null,
+    viewModel: WishItemUploadViewModel = hiltViewModel(),
+) {
+    val context = LocalContext.current
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
+    val enteredAddFlow = itemDetail == null
+
+    BackHandler {
+        keyboardController?.hide()
+        navController.safePopBackStack()
     }
 
-    var imageInput by remember { mutableStateOf<Uri?>(null) }
-    val nameInput = remember { mutableStateOf(itemDetail?.name ?: "") }
-    val priceInput = remember { mutableStateOf(itemDetail?.price?.toString() ?: "") }
-    val memoInput = remember { mutableStateOf(itemDetail?.memo ?: "") }
-    val shopLinkInput = remember { mutableStateOf(itemDetail?.site ?: "") }
-    var selectedFolder by remember { mutableStateOf(SelectedFolder(itemDetail?.folderId, itemDetail?.folderName)) }
+    LaunchedEffect(Unit) {
+        viewModel.setTokenForProfileImageUri()
+    }
+
+    WishBoardGlobalSnackbarMessage(snackbarChannel = viewModel.snackBarChannel)
+
+    WishUploadScreen(
+        uiModel = uiModel,
+        enteredAddFlow = enteredAddFlow,
+        onSelectFolder = { folder ->
+            viewModel.updateSelectedFolder(folder)
+        },
+        onClickSave = {
+            when (enteredAddFlow) {
+                true -> {
+                    viewModel.uploadWishItem(
+                        context = context,
+                        uploadType = WishItemUploadType.MANUAL,
+                    ) { id ->
+                        navController.navigate("${MainScreen.WishItemDetail.route}/$id") {
+                            keyboardController?.hide()
+                            navController.safePopBackStack()
+                        }
+                    }
+                }
+
+                false -> {
+                    viewModel.updateWishItem(context = context, itemId = itemDetail?.id) {
+                        keyboardController?.hide()
+                        navController.safePopBackStack()
+                    }
+                }
+            }
+        },
+        getFolders = {
+            viewModel.getFolders(it)
+        },
+        onClickClose = {
+            keyboardController?.hide()
+            navController.safePopBackStack()
+        },
+        onTextChange = { type, input ->
+            when (type) {
+                UploadInputType.ITEM_NAME -> viewModel.onItemNameChanged(input)
+                UploadInputType.ITEM_PRICE -> viewModel.onItemPriceChanged(input)
+                UploadInputType.ITEM_MEMO -> viewModel.onItemMemoChanged(input)
+                UploadInputType.ITEM_URL -> viewModel.setItemUri(input)
+            }
+        },
+        onUriChange = { uri ->
+            viewModel.setItemImageUrl(uri)
+        },
+        isValidNotiDate = viewModel::isValidNotiDate,
+
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun WishUploadScreen(
+    uiModel: WishItemUploadUiModel,
+    enteredAddFlow: Boolean,
+    onClickSave: () -> Unit,
+    onClickClose: () -> Unit,
+    getFolders: ((List<FolderItem>) -> Unit) -> Unit,
+    onSelectFolder: (FolderItem?) -> Unit,
+    onTextChange: (UploadInputType, String) -> Unit,
+    onUriChange: (Uri?) -> Unit,
+    isValidNotiDate: (NotiInfo) -> Boolean,
+) {
+    val context = LocalContext.current
+    val systemUiController = rememberSystemUiController()
+    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.loading_spin))
+    val keyboardController = LocalSoftwareKeyboardController.current
+    var modalData by remember { mutableStateOf<ModalData?>(null) }
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true, confirmValueChange = { newState ->
+        if (modalData !is ModalData.Modal.ShopLink) {
+            newState != SheetValue.Hidden
+        } else {
+            true
+        }
+    })
+    val coroutineScope = rememberCoroutineScope()
 
     var cameraUri: Uri? = null
     val albumLauncher = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         uri?.let {
-            imageInput = it
+            Timber.e("uri : $it")
+            onUriChange(it)
         }
     }
     val cameraLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { isSuccess ->
-            if (isSuccess) imageInput = cameraUri
+            if (isSuccess) onUriChange(cameraUri)
         }
 
-    val context = LocalContext.current
+    val isEnabledSave by remember(
+        uiModel.itemName,
+        uiModel.itemPrice,
+        uiModel.itemImageUri,
+        uiModel.downloadImageUrl,
+    ) {
+        mutableStateOf(
+            uiModel.itemName.isNotBlank() &&
+                uiModel.itemPrice.isNotBlank() &&
+                (uiModel.itemImageUri != null || !uiModel.downloadImageUrl.isNullOrBlank()),
+        )
+    }
+
     val modalLauncher = rememberModalLauncher { isTopOption, data ->
         when (data) {
             is ModalData.OptionModal.ImageSelection -> {
                 if (isTopOption) {
-                    cameraUri = context.createImageUri("youngjin7wishboard") // TODO 실 토큰값 넣기
+                    cameraUri = context.createImageUri(uiModel.accessToken)
                     cameraLauncher.launch(cameraUri)
                 } else {
                     albumLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
                 }
             }
 
-            is ModalData.Modal.Noti -> {}
-
-            is ModalData.Modal.FolderList -> {
-                selectedFolder = SelectedFolder(data.selectedFolderId, data.selectedFolderName)
-            }
-
-            is ModalData.Modal.ShopLink -> {}
-
             else -> {}
         }
     }
+    val imageHeight = LocalConfiguration.current.screenWidthDp * 0.66
+    val imageContainerShape = RoundedCornerShape(32.dp)
 
-    WishboardTheme {
-        Scaffold(topBar = {
-            WishBoardTopBar(
-                topBarModel = WishBoardTopBarModel(
-                    startIcon = WishBoardTopBarModel.TopBarIcon.CLOSE,
-                    title = stringResource(
-                        id = if (itemDetail == null) {
-                            R.string.wish_item_upload_add_title
-                        } else {
-                            R.string.wish_item_upload_edit_title
-                        },
-                    ),
-                    onClickStartIcon = { navController.popBackStack() },
+    SideEffect {
+        systemUiController.setNavigationBarColor(color = Color.White)
+    }
+
+    Scaffold(topBar = {
+        WishBoardTopBar(
+            topBarModel = WishBoardTopBarModel(
+                startIcon = WishBoardTopBarModel.TopBarIcon.CLOSE,
+                title = stringResource(
+                    id = if (enteredAddFlow) {
+                        R.string.wish_item_upload_add_title
+                    } else {
+                        R.string.wish_item_upload_edit_title
+                    },
                 ),
-                endComponent = { modifier ->
-                    Row(modifier = modifier) {
-                        // TODO 뷰모델로 버튼 활성화 로직 옮기기
-                        WishBoardNarrowButton(
-                            enabled = nameInput.value.isNotEmpty() &&
-                                nameInput.value.isNotBlank() &&
-                                priceInput.value.isNotEmpty() &&
-                                (imageInput != null || !itemDetail?.image.isNullOrEmpty()),
-                            onClick = { /*TODO*/ },
-                            text = stringResource(id = R.string.save),
-                        )
-                        Spacer(modifier = Modifier.size(16.dp))
-                    }
+                onClickStartIcon = {
+                    keyboardController?.hide()
+                    onClickClose()
                 },
-            )
-        }) { paddingValues ->
+            ),
+            endComponent = { modifier ->
+                Row(modifier = modifier) {
+                    WishBoardNarrowButton(
+                        enabled = isEnabledSave,
+                        onClick = { onClickSave() },
+                        text = stringResource(id = R.string.save),
+                    )
+                    Spacer(modifier = Modifier.size(16.dp))
+                }
+            },
+        )
+    }) { paddingValues ->
+        Box(modifier = Modifier.fillMaxSize()) {
+            if (uiModel.wishItemUploadState is WishBoardState.Loading) {
+                LottieAnimation(
+                    modifier = Modifier
+                        .size(100.dp)
+                        .zIndex(2f)
+                        .align(Alignment.Center),
+                    composition = composition,
+                    iterations = LottieConstants.IterateForever,
+                )
+            }
+
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -150,67 +289,155 @@ fun WishUploadScreen(navController: NavHostController, itemDetail: WishItemDetai
                     .padding(top = 6.dp + paddingValues.calculateTopPadding(), bottom = 16.dp)
                     .verticalScroll(rememberScrollState()),
             ) {
-                val imageHeight = LocalConfiguration.current.screenWidthDp * 0.66
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(imageHeight.dp)
                         .background(
                             color = WishBoardTheme.colors.gray100,
-                            shape = RoundedCornerShape(32.dp),
-                        ),
+                            shape = imageContainerShape,
+                        )
+                        .clip(imageContainerShape)
+                        .noRippleClickable {
+                            ModalData.OptionModal.ImageSelection.openModal(context, modalLauncher)
+                        },
                     contentAlignment = Alignment.Center,
                 ) {
                     AsyncImage(
                         modifier = Modifier.fillMaxHeight(),
-                        model = imageInput ?: itemDetail?.image,
+                        model = uiModel.itemImageUri ?: uiModel.downloadImageUrl,
                         contentDescription = null,
                     )
 
                     WishBoardIconButton(
-                        iconRes = R.drawable.ic_camera,
-                        onClick = { ModalData.OptionModal.ImageSelection.openModal(context, modalLauncher) },
+                        iconRes = R.drawable.ic_item_upload_camera,
+                        onClick = {
+                            ModalData.OptionModal.ImageSelection.openModal(context, modalLauncher)
+                        },
                     )
                 }
 
                 WishBoardSimpleTextField(
-                    input = nameInput,
+                    input = uiModel.itemName,
                     placeholder = stringResource(id = R.string.wish_item_upload_item_name),
-                    onTextChange = {},
+                    onTextChange = { input ->
+                        onTextChange(UploadInputType.ITEM_NAME, input)
+                    },
                 )
+
                 WishBoardSimpleTextField(
-                    input = priceInput,
+                    input = uiModel.itemPrice,
                     placeholder = stringResource(id = R.string.wish_item_upload_item_price),
                     onTextChange = { input ->
-                        priceInput.value = input.makeValidPriceStr() ?: ""
+                        onTextChange(UploadInputType.ITEM_PRICE, input.makeValidPriceStr() ?: "")
                     },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     visualTransformation = PriceTransformation(prefix = "₩ "),
                 )
+
                 ItemInfoRow(
-                    label = selectedFolder.name ?: stringResource(id = R.string.folder),
-                    onClickRow = { ModalData.Modal.FolderList(selectedFolder.id).openModal(context, modalLauncher) },
+                    label = uiModel.selectedFolder?.name ?: stringResource(id = R.string.folder),
+                    onClickRow = {
+                        getFolders { folders ->
+                            modalData =
+                                ModalData.Modal.FolderList(selectedFolder = uiModel.selectedFolder, folders = folders)
+                            coroutineScope.launch { sheetState.show() }
+                        }
+                    },
                 )
+
                 ItemInfoRow(
-                    label = getNotiInfo(notiType = itemDetail?.notiType, notiDate = itemDetail?.notiDate)
+                    label = getNotiInfo(notiType = uiModel.itemNotiType, notiDate = uiModel.itemNotiDate)
                         ?: stringResource(id = R.string.wish_item_upload_noti),
-                    onClickRow = { ModalData.Modal.Noti().openModal(context, modalLauncher) },
+                    onClickRow = {
+                        modalData = ModalData.Modal.Noti(
+                            NotiInfo(notiType = uiModel.itemNotiType, notiDate = uiModel.itemNotiDate).toJson(),
+                        )
+                        coroutineScope.launch { sheetState.show() }
+                    },
                 )
+
                 ItemInfoRow(
-                    label = stringResource(id = R.string.wish_item_upload_shop_link),
-                    guideText = stringResource(
-                        id = R.string.wish_item_upload_shop_link_guide,
-                    ),
-                    onClickRow = { ModalData.Modal.ShopLink(shopLinkInput.value).openModal(context, modalLauncher) },
+                    label = uiModel.itemUrl.ifBlank { stringResource(id = R.string.wish_item_upload_shop_link) },
+                    onClickRow = {
+                        modalData = ModalData.Modal.ShopLink(uiModel.itemUrl)
+                        coroutineScope.launch { sheetState.show() }
+                    },
                 )
+
                 WishBoardSimpleTextField(
-                    input = memoInput,
+                    input = uiModel.itemMemo,
                     placeholder = stringResource(id = R.string.wish_item_upload_memo),
-                    onTextChange = {},
+                    singleLine = false,
+                    onTextChange = { input ->
+                        onTextChange(UploadInputType.ITEM_MEMO, input)
+                    },
                 )
                 Spacer(modifier = Modifier.size(64.dp))
             }
         }
+
+        WishBoardModal(
+            isOpen = modalData != null,
+            sheetState = sheetState,
+            onDismissRequest = {
+                modalData = null
+            },
+            content = {
+                when (modalData) {
+                    is ModalData.Modal.Noti -> {
+                        val notiData = (modalData as ModalData.Modal.Noti)
+                        NotiModalContent(
+                            notiInfo = notiData.notiInfo.fromJson<NotiInfo>(),
+                            onClickComplete = { type, date ->
+                                isValidNotiDate(NotiInfo(notiType = type, notiDate = date))
+                                coroutineScope.launch { sheetState.hide() }
+                                modalData = null
+                            },
+                            onDismissRequest = {
+                                coroutineScope.launch { sheetState.hide() }
+                                modalData = null
+                            },
+                        )
+                    }
+
+                    is ModalData.Modal.FolderList -> {
+                        val folderData = (modalData as ModalData.Modal.FolderList)
+                        FolderListModalContent(
+                            selectedFolder = folderData.selectedFolder,
+                            folders = folderData.folders,
+                            onClickFolder = { folder ->
+                                onSelectFolder(folder)
+                                coroutineScope.launch { sheetState.hide() }
+                                modalData = null
+                            },
+                            onDismissRequest = {
+                                coroutineScope.launch { sheetState.hide() }
+                                modalData = null
+                            },
+                        )
+                    }
+
+                    is ModalData.Modal.ShopLink -> {
+                        val linkData = (modalData as ModalData.Modal.ShopLink)
+                        ShopLinkModalContent(
+                            link = linkData.link,
+                            onClickComplete = { link ->
+                                onTextChange(UploadInputType.ITEM_URL, link)
+                                coroutineScope.launch { sheetState.hide() }
+                                modalData = null
+                            },
+                            onDismissRequest = {
+                                coroutineScope.launch { sheetState.hide() }
+                                modalData = null
+                            },
+                        )
+                    }
+
+                    else -> {}
+                }
+            },
+        )
     }
 }
 
@@ -221,11 +448,12 @@ fun ItemInfoRow(label: String, guideText: String? = null, onClickRow: () -> Unit
             modifier = Modifier
                 .fillMaxWidth()
                 .noRippleClickable { onClickRow() }
-                .padding(16.dp),
+                .padding(horizontal = 16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
+                modifier = Modifier.padding(vertical = 16.dp),
                 text = label,
                 style = WishBoardTheme.typography.suitB3,
                 color = WishBoardTheme.colors.gray700,
@@ -255,26 +483,35 @@ fun getNotiInfo(notiType: NotiType?, notiDate: LocalDateTime?): String? =
     if (notiType == null || notiDate == null) {
         null
     } else {
-        "[${stringResource(id = R.string.noti_item_type, formatArgs = arrayOf(notiType.str))}] $notiDate"
+        "[${
+            stringResource(
+                id = R.string.noti_item_type,
+                formatArgs = arrayOf(notiType.label),
+            )
+        }] ${notiDate.getFormattedDateStr(WishBoardDateFormat.YY_M_D_A_H_MM)}"
     }
 
 @Preview
 @Composable
 fun PreviewWishUploadScreen() {
     WishUploadScreen(
-        navController = rememberNavController(),
-        itemDetail = WishItemDetail(
-            id = 1L,
-            name = "21SS SAGE SHIRT [4COLOR]",
-            image = "https://url.kr/8vwf1e",
-            price = 108000,
-            notiDate = getCurrentTime(),
-            notiType = NotiType.RESTOCK,
-            site = "https://www.naver.com/",
-            memo = "S사이즈",
-            folderId = 1L,
-            folderName = "상의",
-            createAt = "1주 전",
+        uiModel = WishItemUploadUiModel(
+            itemName = "21SS SAGE SHIRT [4COLOR]",
+            downloadImageUrl = "https://url.kr/8vwf1e",
+            itemPrice = "108000",
+            itemNotiDate = getCurrentTime(),
+            itemNotiType = NotiType.RESTOCK,
+            itemUrl = "https://www.naver.com/",
+            itemMemo = "",
+            selectedFolder = FolderItem(id = 1L, name = "상의"),
         ),
+        enteredAddFlow = false,
+        getFolders = {},
+        onTextChange = { _, _ -> },
+        onSelectFolder = {},
+        onUriChange = {},
+        onClickSave = {},
+        onClickClose = {},
+        isValidNotiDate = { true },
     )
 }

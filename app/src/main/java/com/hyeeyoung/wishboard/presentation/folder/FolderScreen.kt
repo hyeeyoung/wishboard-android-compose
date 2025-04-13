@@ -1,19 +1,25 @@
 package com.hyeeyoung.wishboard.presentation.folder
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -25,44 +31,128 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
-import com.hyeeyoung.wishboard.designsystem.component.ColoredImage
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardEmptyView
+import com.hyeeyoung.wishboard.designsystem.component.WishBoardGlobalSnackbarMessage
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
-import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.WishBoardDialog
-import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardMainTopBar
-import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.DialogData
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.ModalData
-import com.hyeeyoung.wishboard.presentation.model.Folder
-import com.hyeeyoung.wishboard.presentation.util.extension.rememberModalLauncher
+import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.WishBoardTwoButtonDialog
+import com.hyeeyoung.wishboard.designsystem.component.dialog.temp.WishBoardModal
+import com.hyeeyoung.wishboard.designsystem.component.image.Image
+import com.hyeeyoung.wishboard.designsystem.component.image.WishBoardPlaceHolder
+import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardMainTopBar
+import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
+import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
+import com.hyeeyoung.wishboard.presentation.folder.model.FolderTabUiModel
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
+import com.hyeeyoung.wishboard.presentation.util.extension.rememberModalLauncher
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun FolderScreen(navController: NavHostController, viewModel: FolderViewModel = hiltViewModel()) {
+    val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
+    var modalData by remember { mutableStateOf<ModalData.Modal?>(null) }
+    val lazyGridState = rememberLazyGridState()
+
+    WishBoardGlobalSnackbarMessage(snackbarChannel = viewModel.snackBarChannel)
+
+    MainScreen.Folder.ScrollToTopEffect(lazyGridState)
+
+    LaunchedEffect(Unit) {
+        viewModel.getFolders()
+    }
+
+    PullToRefreshBox(
+        isRefreshing = uiModel.isRefreshing,
+        onRefresh = {
+            viewModel.getFolders(true)
+        },
+    ) {
+        FolderScreen(
+            uiModel = uiModel,
+            lazyGridState = lazyGridState,
+            onClickFolder = { folder ->
+                navController.navigate("${MainScreen.FolderDetail.route}/${folder.id}/${folder.name}")
+            },
+            deleteFolder = { id ->
+                viewModel.deleteFolder(id)
+            },
+            showModal = { modal: ModalData.Modal ->
+                modalData = modal
+            },
+            clearModalData = {
+                viewModel.clearModalData()
+            },
+        )
+    }
+
+    WishBoardModal(
+        isOpen = modalData != null,
+        titleRes = modalData?.title ?: return,
+        onDismissRequest = {
+            modalData = null
+        },
+        content = {
+            when (modalData) {
+                is ModalData.Modal.NewFolder -> {
+                    FolderUploadModalContent(
+                        folderName = null,
+                        uploadState = uiModel.addState,
+                        existingFolderName = uiModel.existingFolderName,
+                        onClickComplete = { name ->
+                            viewModel.createFolder(folderName = name, afterSuccess = {
+                                modalData = null
+                            })
+                        },
+                    )
+                }
+
+                is ModalData.Modal.FolderNameEdit -> {
+                    val data = modalData as ModalData.Modal.FolderNameEdit
+                    FolderUploadModalContent(
+                        folderName = data.folderName,
+                        uploadState = uiModel.updateState,
+                        existingFolderName = uiModel.existingFolderName,
+                        onClickComplete = { name ->
+                            viewModel.updateFolder(folderId = data.folderId, folderName = name, afterSuccess = {
+                                modalData = null
+                            })
+                        },
+                    )
+                }
+
+                else -> {}
+            }
+        },
+    )
+}
 
 @Composable
-fun FolderScreen(navController: NavHostController) {
-    val folder = listOf(
-        Folder(
-            id = 1L,
-            name = "아우터",
-            thumbnail = "https://url.kr/8vwf1e",
-            itemCount = 1,
-        ),
-    )
-    val folders = List(8) { folder }.flatten() // TODO 서버 연동 후 삭제
+fun FolderScreen(
+    uiModel: FolderTabUiModel,
+    lazyGridState: LazyGridState,
+    onClickFolder: (FolderItem) -> Unit,
+    deleteFolder: (id: Long?) -> Unit,
+    showModal: (ModalData.Modal) -> Unit,
+    clearModalData: () -> Unit,
+) {
     var dialogData by remember { mutableStateOf<DialogData?>(null) }
-    var modalData by remember { mutableStateOf<ModalData?>(null) }
     val context = LocalContext.current
-
     val modalLauncher = rememberModalLauncher { isTopOption, data ->
+        clearModalData()
+
         when (data) {
             is ModalData.OptionModal.FolderMore -> {
                 if (isTopOption) {
-                    modalData = ModalData.Modal.FolderNameEdit(data.folderId, data.folderName)
+                    showModal(ModalData.Modal.FolderNameEdit(folderId = data.folderId, folderName = data.folderName))
                 } else {
                     dialogData = DialogData.FolderDelete(folderId = data.folderId)
                 }
@@ -72,13 +162,18 @@ fun FolderScreen(navController: NavHostController) {
         }
     }
 
-    LaunchedEffect(modalData) {
-        modalData?.openModal(context, modalLauncher)
-    }
-
-    WishBoardDialog(
+    WishBoardTwoButtonDialog(
         dialogData = dialogData,
-        onClickConfirm = { /*TODO*/ },
+        onClickConfirm = {
+            when (dialogData) {
+                is DialogData.FolderDelete -> {
+                    val id = (dialogData as DialogData.FolderDelete).folderId
+                    deleteFolder(id)
+                }
+
+                else -> {}
+            }
+        },
         onDismissRequest = { dialogData = null },
     )
 
@@ -89,7 +184,10 @@ fun FolderScreen(navController: NavHostController) {
                 WishBoardIconButton(
                     modifier = Modifier.padding(end = 8.dp),
                     iconRes = R.drawable.ic_plus,
-                    onClick = { ModalData.Modal.NewFolder().openModal(context, modalLauncher) },
+                    onClick = {
+                        clearModalData()
+                        showModal(ModalData.Modal.NewFolder(folderName = ""))
+                    },
                 )
             },
         )
@@ -99,21 +197,30 @@ fun FolderScreen(navController: NavHostController) {
             .background(WishBoardTheme.colors.white)
             .padding(top = paddingValues.calculateTopPadding(), start = 8.dp, end = 8.dp)
 
-        if (folders.isEmpty()) {
-            WishBoardEmptyView(modifier = contentModifier, guideTextRes = R.string.empty_folder_guide_text)
+        if (uiModel.folders.isEmpty()) {
+            LazyColumn(
+                modifier = contentModifier,
+                verticalArrangement = Arrangement.Center,
+            ) {
+                item {
+                    WishBoardEmptyView(modifier = contentModifier, guideTextRes = R.string.empty_folder_guide_text)
+                }
+            }
         } else {
             LazyVerticalGrid(
                 modifier = contentModifier,
+                state = lazyGridState,
                 columns = GridCells.Fixed(2),
             ) {
-                items(folders) { folder ->
+                items(uiModel.folders) { folder ->
                     FolderItem(
                         folder = folder,
-                        onClickFolder = { folderId ->
-                            navController.navigate("${MainScreen.FolderDetail.route}/$folderId/${folder.name}")
+                        onClickFolder = {
+                            onClickFolder(folder)
                         },
                         onClickMore = { selectedFolder ->
-                            modalData = ModalData.OptionModal.FolderMore(selectedFolder.id, selectedFolder.name)
+                            ModalData.OptionModal.FolderMore(selectedFolder.id, selectedFolder.name)
+                                .openModal(context = context, resultLauncher = modalLauncher)
                         },
                     )
                 }
@@ -123,18 +230,21 @@ fun FolderScreen(navController: NavHostController) {
 }
 
 @Composable
-fun FolderItem(folder: Folder, onClickFolder: (Long) -> Unit, onClickMore: (Folder) -> Unit) {
+fun FolderItem(folder: FolderItem, onClickFolder: () -> Unit, onClickMore: (FolderItem) -> Unit) {
     Column(
         modifier = Modifier
             .padding(horizontal = 8.dp)
-            .noRippleClickable { onClickFolder(folder.id) },
+            .noRippleClickable { onClickFolder() },
     ) {
-        ColoredImage(
+        Image(
             model = folder.thumbnail,
             modifier = Modifier
                 .fillMaxWidth()
                 .aspectRatio(1f)
                 .clip(RoundedCornerShape(10.dp)),
+            placeHolder = { modifier ->
+                WishBoardPlaceHolder(modifier = modifier)
+            },
         )
         Row(modifier = Modifier.fillMaxWidth()) {
             Column(
@@ -146,12 +256,13 @@ fun FolderItem(folder: Folder, onClickFolder: (Long) -> Unit, onClickMore: (Fold
                     text = folder.name,
                     style = WishBoardTheme.typography.suitB2,
                     color = WishBoardTheme.colors.gray700,
+                    overflow = TextOverflow.Ellipsis,
                 )
                 Text(
                     modifier = Modifier.padding(top = 6.dp),
                     text = stringResource(
                         id = R.string.folder_wish_item_count,
-                        formatArgs = arrayOf(folder.itemCount),
+                        formatArgs = arrayOf(folder.numOfWishItem),
                     ),
                     style = WishBoardTheme.typography.suitD3,
                     color = WishBoardTheme.colors.gray300,
@@ -173,17 +284,35 @@ fun FolderItem(folder: Folder, onClickFolder: (Long) -> Unit, onClickMore: (Fold
 @Preview
 @Composable
 fun PreviewFolderScreen() {
-    FolderScreen(navController = rememberNavController())
+    val folder = FolderItem(
+        id = 1L,
+        name = "아우터",
+        thumbnail = "https://url.kr/8vwf1e",
+        numOfWishItem = 1,
+    )
+
+    val folders = List(8) { index: Int ->
+        folder.copy(id = index.toLong())
+    }
+
+    FolderScreen(
+        uiModel = FolderTabUiModel(folders = folders),
+        lazyGridState = LazyGridState(),
+        onClickFolder = {},
+        deleteFolder = {},
+        showModal = {},
+        clearModalData = {},
+    )
 }
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewFolderItem() {
-    val folder = Folder(
+    val folder = FolderItem(
         id = 1L,
         name = "Bean Ring Gold",
         thumbnail = "https://url.kr/8vwf1e",
-        itemCount = 1,
+        numOfWishItem = 1,
     )
 
     FolderItem(

@@ -27,86 +27,83 @@ import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.config.navigation.screen.SignScreen
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
-import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
-import com.hyeeyoung.wishboard.presentation.model.WishBoardString
+import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardString
 import com.hyeeyoung.wishboard.presentation.util.buildStringWithSpans
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 
 @Composable
 fun SignMainScreen(navController: NavHostController) {
-    WishboardTheme {
-        Scaffold { paddingValues ->
-            Column(
-                modifier = Modifier
-                    .background(WishBoardTheme.colors.white)
-                    .padding(top = paddingValues.calculateTopPadding(), bottom = 24.dp, start = 16.dp, end = 16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Spacer(modifier = Modifier.weight(1f))
+    Scaffold { paddingValues ->
+        Column(
+            modifier = Modifier
+                .background(WishBoardTheme.colors.white)
+                .padding(top = paddingValues.calculateTopPadding(), bottom = 24.dp, start = 16.dp, end = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Spacer(modifier = Modifier.weight(1f))
 
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_welcome),
-                        contentDescription = null,
-                        tint = Color.Unspecified,
-                    )
-
-                    Spacer(modifier = Modifier.size(24.dp))
-
-                    Image(
-                        modifier = Modifier.height(24.dp),
-                        painter = painterResource(id = R.drawable.ic_app_text_logo),
-                        contentDescription = null,
-                    )
-
-                    Spacer(modifier = Modifier.size(16.dp))
-
-                    Text(
-                        text = stringResource(id = R.string.sign_main_welcome_description),
-                        style = WishBoardTheme.typography.suitD2M,
-                        color = WishBoardTheme.colors.gray700,
-                        textAlign = TextAlign.Center,
-                    )
-                }
-
-                Spacer(modifier = Modifier.weight(1f))
-
-                WishBoardWideButton(
-                    enabled = true,
-                    onClick = {
-                        navController.navigate(SignScreen.SignUp.route)
-                    },
-                    text = stringResource(id = R.string.sign_up_title),
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_welcome),
+                    contentDescription = null,
+                    tint = Color.Unspecified,
                 )
 
-                Spacer(modifier = Modifier.size(8.dp))
+                Spacer(modifier = Modifier.size(24.dp))
 
-                val linkedSpanStyle = WishBoardTheme.typography.suitH4.run {
-                    SpanStyle(
-                        color = WishBoardTheme.colors.green700,
-                        fontSize = fontSize,
-                        fontFamily = fontFamily,
-                        fontWeight = fontWeight,
-                        textDecoration = TextDecoration.Underline,
-                    )
-                }
+                Image(
+                    modifier = Modifier.height(24.dp),
+                    painter = painterResource(id = R.drawable.ic_app_text_logo),
+                    contentDescription = null,
+                )
+
+                Spacer(modifier = Modifier.size(16.dp))
 
                 Text(
-                    modifier = Modifier
-                        .noRippleClickable { navController.navigate(SignScreen.Login.route) }
-                        .padding(8.dp),
-                    text = buildStringWithSpans(
-                        spanStrings = listOf(
-                            WishBoardString.NormalString(stringResource(id = R.string.sign_main_login_guide)),
-                            WishBoardString.NormalString(" "),
-                            WishBoardString.SpanString(stringResource(id = R.string.sign_in)),
-                        ),
-                        spanStyle = linkedSpanStyle,
-                    ),
-                    style = WishBoardTheme.typography.suitD2,
-                    color = WishBoardTheme.colors.gray300,
+                    text = stringResource(id = R.string.sign_main_welcome_description),
+                    style = WishBoardTheme.typography.suitD2M,
+                    color = WishBoardTheme.colors.gray700,
+                    textAlign = TextAlign.Center,
                 )
             }
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            WishBoardWideButton(
+                enabled = true,
+                onClick = {
+                    navController.navigate(SignScreen.SignUp.route)
+                },
+                text = stringResource(id = R.string.sign_up_title),
+            )
+
+            Spacer(modifier = Modifier.size(8.dp))
+
+            val linkedSpanStyle = WishBoardTheme.typography.suitH4.run {
+                SpanStyle(
+                    color = WishBoardTheme.colors.green700,
+                    fontSize = fontSize,
+                    fontFamily = fontFamily,
+                    fontWeight = fontWeight,
+                    textDecoration = TextDecoration.Underline,
+                )
+            }
+
+            Text(
+                modifier = Modifier
+                    .noRippleClickable { navController.navigate(SignScreen.Login.route) }
+                    .padding(8.dp),
+                text = buildStringWithSpans(
+                    spanStrings = listOf(
+                        WishBoardString.NormalString(stringResource(id = R.string.sign_main_login_guide)),
+                        WishBoardString.NormalString(" "),
+                        WishBoardString.SpanString(stringResource(id = R.string.sign_in)),
+                    ),
+                    spanStyle = linkedSpanStyle,
+                ),
+                style = WishBoardTheme.typography.suitD2,
+                color = WishBoardTheme.colors.gray300,
+            )
         }
     }
 }

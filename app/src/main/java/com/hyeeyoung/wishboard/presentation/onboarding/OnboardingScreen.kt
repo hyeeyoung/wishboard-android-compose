@@ -3,13 +3,11 @@ package com.hyeeyoung.wishboard.presentation.onboarding
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -30,14 +28,13 @@ import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun OnboardingModalContent(onDismissRequest: () -> Unit) {
-    val onboardingRes = OnboardingRes.values()
+fun OnboardingModalContent(onClickConfirm: () -> Unit) {
+    val onboardingRes = OnboardingRes.entries
     val pagerState = rememberPagerState(pageCount = { onboardingRes.size })
 
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.Bottom,
     ) {
         Column(modifier = Modifier.clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))) {
@@ -64,7 +61,7 @@ fun OnboardingModalContent(onDismissRequest: () -> Unit) {
 
                 WishBoardWideButton(
                     enabled = pagerState.currentPage == onboardingRes.lastIndex,
-                    onClick = { onDismissRequest() },
+                    onClick = { onClickConfirm() },
                     text = stringResource(id = R.string.onboarding_yes_btn_text),
                     isGreen = false,
                 )
@@ -132,5 +129,5 @@ enum class OnboardingRes(
 @Preview(showSystemUi = true)
 @Composable
 fun PreviewOnboardingScreen() {
-    OnboardingModalContent(onDismissRequest = {})
+    OnboardingModalContent(onClickConfirm = {})
 }

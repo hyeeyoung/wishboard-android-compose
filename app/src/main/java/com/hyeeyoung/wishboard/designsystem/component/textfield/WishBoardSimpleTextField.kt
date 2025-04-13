@@ -25,6 +25,52 @@ import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 @Composable
 fun WishBoardSimpleTextField(
     modifier: Modifier = Modifier,
+    input: String,
+    placeholder: String,
+    onTextChange: (String) -> Unit = {},
+    singleLine: Boolean = true,
+    maxLength: Int = Int.MAX_VALUE,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions.Default,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+) {
+    Column {
+        BasicTextField(
+            value = input,
+            onValueChange = { s ->
+                if (s.length <= maxLength) {
+                    onTextChange(s)
+                }
+            },
+            textStyle = WishBoardTheme.typography.suitB3.copy(color = WishBoardTheme.colors.gray700),
+            singleLine = singleLine,
+            keyboardOptions = keyboardOptions,
+            keyboardActions = keyboardActions,
+            visualTransformation = visualTransformation,
+        ) { innerTextField ->
+            Row(
+                modifier = modifier
+                    .padding(16.dp),
+            ) {
+                Box(modifier = Modifier.weight(1f)) {
+                    if (input.isEmpty()) {
+                        Text(
+                            text = placeholder,
+                            color = WishBoardTheme.colors.gray200,
+                            style = WishBoardTheme.typography.suitB3,
+                        )
+                    }
+                    innerTextField()
+                }
+            }
+        }
+        WishBoardDivider()
+    }
+}
+
+@Composable
+fun WishBoardSimpleTextField(
+    modifier: Modifier = Modifier,
     input: MutableState<String>,
     placeholder: String,
     onTextChange: (String) -> Unit = {},

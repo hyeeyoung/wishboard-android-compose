@@ -13,165 +13,269 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen.Upload.ARG_ITEM_DETAIL
-import com.hyeeyoung.wishboard.designsystem.component.ColoredImage
+import com.hyeeyoung.wishboard.designsystem.component.WishBoardGlobalSnackbarMessage
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
-import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.WishBoardDialog
-import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
-import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
-import com.hyeeyoung.wishboard.designsystem.style.Gray700
-import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
-import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.DialogData
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.ModalData
-import com.hyeeyoung.wishboard.presentation.model.WishBoardString
-import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
-import com.hyeeyoung.wishboard.presentation.model.WishItemDetail
-import com.hyeeyoung.wishboard.presentation.upload.model.SelectedFolder
+import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.WishBoardTwoButtonDialog
+import com.hyeeyoung.wishboard.designsystem.component.dialog.temp.WishBoardModal
+import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
+import com.hyeeyoung.wishboard.designsystem.component.image.Image
+import com.hyeeyoung.wishboard.designsystem.component.image.WishBoardPlaceHolder
+import com.hyeeyoung.wishboard.designsystem.component.text.HyperlinkText
+import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
+import com.hyeeyoung.wishboard.designsystem.style.Gray100
+import com.hyeeyoung.wishboard.designsystem.style.Gray700
+import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
+import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
+import com.hyeeyoung.wishboard.domain.model.noti.NotiType
+import com.hyeeyoung.wishboard.presentation.folder.FolderListModalContent
+import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardString
+import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.util.buildStringWithSpans
-import com.hyeeyoung.wishboard.presentation.util.extension.getCurrentTime
+import com.hyeeyoung.wishboard.presentation.util.extension.formatAsTimeAgo
+import com.hyeeyoung.wishboard.presentation.util.extension.formatDday
 import com.hyeeyoung.wishboard.presentation.util.extension.getDomainName
 import com.hyeeyoung.wishboard.presentation.util.extension.moveToWebView
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
-import com.hyeeyoung.wishboard.presentation.util.extension.rememberModalLauncher
+import com.hyeeyoung.wishboard.presentation.util.extension.safePopBackStack
+import com.hyeeyoung.wishboard.presentation.util.extension.toBase64Json
 import com.hyeeyoung.wishboard.presentation.util.safeLet
-import com.hyeeyoung.wishboard.presentation.util.type.NotiType
 import com.hyeeyoung.wishboard.presentation.wish.component.PriceText
+import com.hyeeyoung.wishboard.presentation.wish.model.WishItemDetailUiModel
+import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDateTime
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 
 @Composable
-fun WishItemDetailScreen(navController: NavHostController, itemId: Long) {
-    var itemDetail by remember {
-        mutableStateOf(
-            WishItemDetail(
-                id = 1L,
-                name = "21SS SAGE SHIRT [4COLOR]",
-                image = "https://url.kr/8vwf1e",
-                price = 108000,
-                notiDate = getCurrentTime(),
-                notiType = NotiType.RESTOCK,
-                site = "https://www.naver.com/",
-                memo = "S사이즈",
-                folderId = 1L,
-                folderName = "상의",
-                createAt = "1주 전",
-            ),
-        )
-    } // TODO 시간 포맷 적용 및 서버 연동 시 삭제
+fun WishItemDetailScreen(
+    navController: NavController,
+    itemId: Long,
+    viewModel: WishItemViewModel = hiltViewModel(),
+) {
+    val systemUiController = rememberSystemUiController()
+    val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
+    val enabledShopButton by remember(uiModel.site) {
+        mutableStateOf(uiModel.site != null)
+    }
 
-    val context = LocalContext.current
-    val modalLauncher = rememberModalLauncher { _, data ->
-        when (data) {
-            is ModalData.Modal.FolderList -> {
-                itemDetail = itemDetail.copy(folderId = data.selectedFolderId, folderName = data.selectedFolderName)
-            }
+    WishBoardGlobalSnackbarMessage(snackbarChannel = viewModel.snackBarChannel)
 
-            else -> {}
+    SideEffect {
+        if (enabledShopButton) {
+            systemUiController.setNavigationBarColor(color = Gray700)
+        } else {
+            systemUiController.setNavigationBarColor(color = Gray100)
         }
     }
-    var dialogData by remember { mutableStateOf<DialogData?>(null) }
 
-    val systemUiController = rememberSystemUiController()
-    SideEffect {
-        systemUiController.setNavigationBarColor(color = Gray700)
+    LaunchedEffect(Unit) {
+        viewModel.getWishItemDetail(itemId)
     }
 
-    WishboardTheme { // TODO Theme 사용 여부 고려
-        Scaffold(topBar = {
-            WishBoardTopBar(
-                WishBoardTopBarModel(onClickStartIcon = { navController.popBackStack() }),
-                endComponent = { modifier ->
-                    TopBarEndIcons(
-                        modifier,
-                        onClickDelete = { dialogData = DialogData.WishItemDelete() },
-                        onClickEdit = {
-                            navController.navigate(
-                                "${MainScreen.Upload.route}?$ARG_ITEM_DETAIL=${
-                                    Json.encodeToString(itemDetail)
-                                }",
-                            )
-                        },
-                    )
+    WishItemDetailScreen(
+        uiModel = uiModel,
+        navController = navController,
+        enabledShopButton = enabledShopButton,
+        updateFolder = {
+            viewModel.updateFolder(it)
+        },
+        onClickEdit = {
+            navController.navigate(
+                "${MainScreen.Upload.route}?$ARG_ITEM_DETAIL=${
+                    uiModel.toBase64Json()
+                }",
+            )
+        },
+        onClickShop = {
+            if (!uiModel.site.isNullOrEmpty()) {
+                navController.moveToWebView(
+                    title = uiModel.site!!.getDomainName(),
+                    url = uiModel.site!!,
+                )
+            }
+        },
+        onClickDelete = { itemId ->
+            viewModel.deleteWishItem(itemId = itemId) {
+                navController.safePopBackStack()
+            }
+        },
+        onClickBack = navController::safePopBackStack,
+        onClickFolder = { afterSuccess ->
+            viewModel.getFolders(afterSuccess)
+        },
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun WishItemDetailScreen(
+    uiModel: WishItemDetailUiModel,
+    navController: NavController,
+    enabledShopButton: Boolean,
+    updateFolder: (FolderItem) -> Unit,
+    onClickFolder: ((List<FolderItem>) -> Unit) -> Unit,
+    onClickEdit: () -> Unit,
+    onClickShop: () -> Unit,
+    onClickBack: () -> Unit,
+    onClickDelete: (itemId: Long?) -> Unit,
+) {
+    var dialogData by remember { mutableStateOf<DialogData?>(null) }
+    var modalData by remember { mutableStateOf<ModalData?>(null) }
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true, confirmValueChange = { newState ->
+        if (modalData is ModalData.Modal.FolderList) {
+            newState != SheetValue.Hidden
+        } else {
+            true
+        }
+    })
+    val coroutineScope = rememberCoroutineScope()
+
+    Scaffold(topBar = {
+        WishBoardTopBar(
+            WishBoardTopBarModel(onClickStartIcon = onClickBack),
+            endComponent = { modifier ->
+                TopBarEndIcons(
+                    modifier,
+                    onClickDelete = { dialogData = DialogData.WishItemDelete(uiModel.id) },
+                    onClickEdit = onClickEdit,
+                )
+            },
+        )
+    }) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .background(WishBoardTheme.colors.white)
+                .padding(top = paddingValues.calculateTopPadding()),
+        ) {
+            WishItemDetailContents(
+                modifier = Modifier.weight(1f),
+                uiModel = uiModel,
+                navController = navController,
+                onClickFolder = {
+                    onClickFolder { folders ->
+                        modalData = ModalData.Modal.FolderList(
+                            selectedFolder = uiModel.folderId?.let { FolderItem(id = it) },
+                            folders = folders,
+                        )
+                        coroutineScope.launch {
+                            sheetState.show()
+                        }
+                    }
                 },
             )
-        }) { paddingValues ->
-            Column(
-                modifier = Modifier
-                    .background(WishBoardTheme.colors.white)
-                    .padding(top = paddingValues.calculateTopPadding()),
-            ) {
-                WishItemDetailContents(
-                    modifier = Modifier.weight(1f),
-                    itemDetail = itemDetail,
-                    onClickFolder = {
-                        ModalData.Modal.FolderList(itemDetail.folderId).openModal(context, modalLauncher)
-                    },
-                )
 
-                WishBoardWideButton(
-                    enabled = itemDetail.site != null,
-                    onClick = {
-                        if (!itemDetail.site.isNullOrEmpty()) {
-                            navController.moveToWebView(
-                                title = itemDetail.site!!.getDomainName(),
-                                url = itemDetail.site!!,
-                            )
-                        }
-                    },
-                    text = stringResource(id = R.string.wish_item_detail_go_to_shop),
-                    shape = RectangleShape,
-                    isGreen = false,
-                ) // TODO 비활성화 처리
-            }
-
-            WishBoardDialog(
-                dialogData = dialogData,
-                onClickConfirm = {},
-                onDismissRequest = { dialogData = null },
+            WishBoardWideButton(
+                enabled = enabledShopButton,
+                onClick = {
+                    onClickShop()
+                },
+                text = stringResource(id = R.string.wish_item_detail_go_to_shop),
+                shape = RectangleShape,
+                isGreen = false,
             )
         }
+
+        WishBoardTwoButtonDialog(
+            dialogData = dialogData,
+            onClickConfirm = {
+                when (dialogData) {
+                    is DialogData.WishItemDelete -> {
+                        val itemId = (dialogData as DialogData.WishItemDelete).itemId
+                        onClickDelete(itemId)
+                    }
+
+                    else -> {}
+                }
+            },
+            onDismissRequest = { dialogData = null },
+        )
+
+        WishBoardModal(
+            isOpen = modalData != null,
+            sheetState = sheetState,
+            onDismissRequest = {
+                modalData = null
+            },
+            content = {
+                when (modalData) {
+                    is ModalData.Modal.FolderList -> {
+                        val folderData = (modalData as ModalData.Modal.FolderList)
+                        FolderListModalContent(
+                            selectedFolder = folderData.selectedFolder,
+                            folders = folderData.folders,
+                            onClickFolder = { folder ->
+                                folder.let(updateFolder)
+                                coroutineScope.launch { sheetState.hide() }
+                                modalData = null
+                            },
+                            onDismissRequest = {
+                                coroutineScope.launch { sheetState.hide() }
+                                modalData = null
+                            },
+                        )
+                    }
+
+                    else -> {}
+                }
+            },
+        )
     }
 }
 
 @Composable
-private fun WishItemDetailContents(modifier: Modifier, itemDetail: WishItemDetail, onClickFolder: () -> Unit) {
+private fun WishItemDetailContents(
+    modifier: Modifier,
+    navController: NavController,
+    uiModel: WishItemDetailUiModel,
+    onClickFolder: () -> Unit,
+) {
+    val imageModifier = Modifier
+        .fillMaxWidth()
+        .clip(RoundedCornerShape(32.dp))
+        .aspectRatio(1f / 1.15f)
+
     Column(modifier = modifier.verticalScroll(rememberScrollState())) {
         Box(modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 8.dp)) {
-            ColoredImage(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(32.dp))
-                    .aspectRatio(1f / 1.15f),
-                model = itemDetail.image,
+            Image(
+                modifier = imageModifier,
+                model = uiModel.image,
+                placeHolder = {
+                    WishBoardPlaceHolder(modifier = imageModifier)
+                },
             )
 
-            safeLet(itemDetail.notiType, itemDetail.notiDate) { type, date ->
+            safeLet(uiModel.notiType, uiModel.notiDate) { type, date ->
                 NotiInfoLabel(
                     modifier = Modifier
                         .align(Alignment.BottomStart)
@@ -190,11 +294,11 @@ private fun WishItemDetailContents(modifier: Modifier, itemDetail: WishItemDetai
             verticalAlignment = Alignment.CenterVertically,
         ) {
             FolderGuideString(
-                folder = SelectedFolder(itemDetail.folderId, itemDetail.folderName),
+                folderName = uiModel.folderName,
                 onClickFolder = onClickFolder,
             )
             Text(
-                text = itemDetail.createAt,
+                text = uiModel.createAt?.formatAsTimeAgo() ?: "",
                 style = WishBoardTheme.typography.suitD3,
                 color = WishBoardTheme.colors.gray300,
             )
@@ -203,20 +307,20 @@ private fun WishItemDetailContents(modifier: Modifier, itemDetail: WishItemDetai
         Column(Modifier.padding(start = 16.dp, end = 16.dp, top = 10.dp, bottom = 20.dp)) {
             Text(
                 modifier = Modifier.fillMaxWidth(),
-                text = itemDetail.name,
+                text = uiModel.name,
                 style = WishBoardTheme.typography.suitB1M,
                 color = WishBoardTheme.colors.gray700,
             )
 
             PriceText(
                 modifier = Modifier.padding(top = 20.dp),
-                price = itemDetail.price,
+                price = uiModel.price,
                 priceStyle = WishBoardTheme.typography.montserratH2,
                 wonStyle = WishBoardTheme.typography.suitD2,
             )
         }
 
-        itemDetail.site?.getDomainName()?.let { site ->
+        uiModel.site?.getDomainName()?.let { site ->
             WishBoardDivider()
             Text(
                 modifier = Modifier.padding(16.dp),
@@ -226,22 +330,25 @@ private fun WishItemDetailContents(modifier: Modifier, itemDetail: WishItemDetai
             )
         }
 
-        itemDetail.memo?.let { memo ->
+        uiModel.memo?.let { memo ->
             WishBoardDivider()
-            Column(Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 64.dp)) {
+            Column(Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp)) {
                 Text(
                     modifier = Modifier.padding(bottom = 10.dp),
                     text = stringResource(id = R.string.memo),
                     style = WishBoardTheme.typography.suitB2,
                     color = WishBoardTheme.colors.gray700,
                 )
-                Text(
+                HyperlinkText(
+                    navController = navController,
                     text = memo,
                     style = WishBoardTheme.typography.suitD2,
                     color = WishBoardTheme.colors.gray700,
                 )
             }
         }
+
+        Spacer(modifier = Modifier.padding(bottom = 64.dp))
     }
 }
 
@@ -266,13 +373,13 @@ private fun NotiInfoLabel(modifier: Modifier, type: NotiType, date: LocalDateTim
     Row(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(
             modifier = labelModifier,
-            text = type.str,
+            text = type.label,
             style = WishBoardTheme.typography.suitB5,
             color = WishBoardTheme.colors.gray700,
         )
         Text(
             modifier = labelModifier,
-            text = date.toString(), // TODO 시간 포맷 적용
+            text = date.formatDday(),
             style = WishBoardTheme.typography.suitB5,
             color = WishBoardTheme.colors.gray700,
         )
@@ -280,12 +387,12 @@ private fun NotiInfoLabel(modifier: Modifier, type: NotiType, date: LocalDateTim
 }
 
 @Composable
-private fun FolderGuideString(folder: SelectedFolder?, onClickFolder: () -> Unit) {
+private fun FolderGuideString(folderName: String?, onClickFolder: () -> Unit) {
     val folderNameOrGuide =
-        if (folder?.name.isNullOrEmpty()) {
+        if (folderName.isNullOrEmpty()) {
             stringResource(id = R.string.wish_item_detail_folder_guild)
         } else {
-            folder!!.name!!
+            folderName
         }
     val spanStrings = listOf(
         WishBoardString.SpanString(value = folderNameOrGuide),
@@ -308,5 +415,29 @@ private fun FolderGuideString(folder: SelectedFolder?, onClickFolder: () -> Unit
 @Preview
 @Composable
 fun PreviewWishItemDetailScreen() {
-    WishItemDetailScreen(navController = rememberNavController(), itemId = 1L)
+    val uiModel = WishItemDetailUiModel(
+        id = 1L,
+        name = "21SS SAGE SHIRT [4COLOR]",
+        image = "https://url.kr/8vwf1e",
+        price = 108000,
+        notiDate = LocalDateTime(2024, 1, 13, 1, 13),
+        notiType = NotiType.RESTOCK,
+        site = "https://www.naver.com/",
+        memo = "S사이즈 https://www.naver.com",
+        folderId = 1L,
+        folderName = "상의",
+        createAt = LocalDateTime(2025, 3, 20, 2, 0),
+    )
+
+    WishItemDetailScreen(
+        uiModel = uiModel,
+        navController = rememberNavController(),
+        enabledShopButton = uiModel.site != null,
+        updateFolder = {},
+        onClickShop = {},
+        onClickEdit = {},
+        onClickDelete = {},
+        onClickBack = {},
+        onClickFolder = {},
+    )
 }

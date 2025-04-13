@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
@@ -18,65 +19,61 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hyeeyoung.wishboard.R
-import com.hyeeyoung.wishboard.designsystem.component.ColoredImage
+import com.hyeeyoung.wishboard.designsystem.component.WishBoardSnackbarHost
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
+import com.hyeeyoung.wishboard.designsystem.component.dialog.model.ModalData
+import com.hyeeyoung.wishboard.designsystem.component.image.Image
 import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardMiniSingleTextField
 import com.hyeeyoung.wishboard.designsystem.style.MontserratFamily
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
-import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
 import com.hyeeyoung.wishboard.designsystem.util.PriceTransformation
-import com.hyeeyoung.wishboard.designsystem.component.dialog.model.ModalData
-import com.hyeeyoung.wishboard.presentation.model.FolderSummary
-import com.hyeeyoung.wishboard.presentation.util.extension.rememberModalLauncher
-import com.hyeeyoung.wishboard.presentation.util.extension.isEmptyOrBlank
+import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
+import com.hyeeyoung.wishboard.domain.model.noti.NotiInfo
+import com.hyeeyoung.wishboard.domain.model.noti.NotiType
+import com.hyeeyoung.wishboard.presentation.upload.model.UploadInputType
+import com.hyeeyoung.wishboard.presentation.upload.model.WishItemUploadUiModel
 import com.hyeeyoung.wishboard.presentation.util.extension.makeValidPriceStr
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
+import com.hyeeyoung.wishboard.presentation.util.extension.toJson
+import com.hyeeyoung.wishboard.presentation.util.extension.toNotiDateStr
+import com.hyeeyoung.wishboard.presentation.util.safeLet
+import kotlinx.datetime.LocalDateTime
 
 private const val IMAGE_SIZE = 80
 
 @Composable
-fun LinkSharingWishUploadScreen(url: String, onClickClose: () -> Unit = {}) {
-    val nameInput = remember { mutableStateOf("") }
-    val priceInput = remember { mutableStateOf("") }
-    val image = "https://url.kr/8vwf1e" // TODO 서버 연동 필요
-
-    val context = LocalContext.current
-    val modalLauncher = rememberModalLauncher { _, data ->
-        when (data) {
-            is ModalData.Modal.Noti -> {}
-
-            is ModalData.Modal.NewFolder -> {}
-
-            else -> {}
-        }
-    }
-
-    WishboardTheme {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-        ) {
+fun LinkSharingWishUploadScreen(
+    uiModel: WishItemUploadUiModel,
+    snackbarHostState: SnackbarHostState,
+    updateModalData: (ModalData.Modal) -> Unit,
+    onTextChange: (UploadInputType, String) -> Unit,
+    setNotiInfo: (NotiInfo) -> Unit,
+    onSelectFolder: (FolderItem) -> Unit,
+    onClickSave: () -> Unit,
+    onClickClose: () -> Unit = {},
+) {
+    Box {
+        Column(modifier = Modifier.fillMaxSize()) {
             Spacer(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -112,14 +109,16 @@ fun LinkSharingWishUploadScreen(url: String, onClickClose: () -> Unit = {}) {
                     val textFieldModifier = Modifier.padding(horizontal = 16.dp, vertical = 3.dp)
                     WishBoardMiniSingleTextField(
                         modifier = textFieldModifier,
-                        input = nameInput,
+                        input = uiModel.itemName,
                         placeholder = stringResource(id = R.string.wish_item_link_sharing_upload_name),
-                        onTextChange = {},
+                        onTextChange = { input ->
+                            onTextChange(UploadInputType.ITEM_NAME, input)
+                        },
                     )
 
                     WishBoardMiniSingleTextField(
                         modifier = textFieldModifier,
-                        input = priceInput,
+                        input = uiModel.itemPrice,
                         style = TextStyle(
                             fontFamily = MontserratFamily,
                             fontWeight = FontWeight.Bold,
@@ -127,7 +126,7 @@ fun LinkSharingWishUploadScreen(url: String, onClickClose: () -> Unit = {}) {
                         ),
                         placeholder = stringResource(id = R.string.wish_item_link_sharing_upload_price),
                         onTextChange = { input ->
-                            priceInput.value = input.makeValidPriceStr() ?: ""
+                            onTextChange(UploadInputType.ITEM_PRICE, input.makeValidPriceStr() ?: "")
                         },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         visualTransformation = PriceTransformation(),
@@ -138,47 +137,48 @@ fun LinkSharingWishUploadScreen(url: String, onClickClose: () -> Unit = {}) {
                     Row(
                         modifier = Modifier
                             .noRippleClickable {
-                                ModalData.Modal
-                                    .Noti()
-                                    .openModal(context, modalLauncher)
+                                updateModalData(
+                                    ModalData.Modal.Noti(
+                                        NotiInfo(
+                                            notiType = uiModel.itemNotiType,
+                                            notiDate = uiModel.itemNotiDate,
+                                        ).toJson(),
+                                    ),
+                                )
                             }
                             .padding(8.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Icon(
                             modifier = Modifier.size(12.dp),
-                            painter = painterResource(id = R.drawable.ic_nav_notice),
+                            painter = painterResource(id = R.drawable.ic_notice),
                             contentDescription = null,
                             tint = WishBoardTheme.colors.gray700,
                         )
                         Text(
                             modifier = Modifier.padding(start = 4.dp),
-                            text = stringResource(id = R.string.wish_item_link_sharing_upload_noti_setting),
+                            text = safeLet(uiModel.itemNotiType, uiModel.itemNotiDate) { type, date ->
+                                "${date.toNotiDateStr()} ${type.label}"
+                            } ?: stringResource(id = R.string.wish_item_link_sharing_upload_noti_setting),
                             style = WishBoardTheme.typography.suitD3,
                             color = WishBoardTheme.colors.gray700,
                         )
 
-                        // TODO 사용자 입력 알림 데이터 여부에 따른 visibility 조절
-//                        Spacer(modifier = Modifier.size(2.dp))
-//                        Icon(
-//                            modifier = Modifier
-//                                .padding(2.dp)
-//                                .size(14.dp),
-//                            painter = painterResource(id = R.drawable.ic_delete_circle),
-//                            contentDescription = null,
-//                            tint = Color.Unspecified
-//                        )
+                        if (uiModel.itemNotiType != null) {
+                            Spacer(modifier = Modifier.size(2.dp))
+                            Icon(
+                                modifier = Modifier
+                                    .padding(2.dp)
+                                    .noRippleClickable {
+                                        setNotiInfo(NotiInfo(null, null))
+                                    }
+                                    .size(14.dp),
+                                painter = painterResource(id = R.drawable.ic_delete_circle),
+                                contentDescription = null,
+                                tint = Color.Unspecified,
+                            )
+                        }
                     }
-
-                    val folders = listOf(
-                        FolderSummary(1L, "아우터", "https://url.kr/8vwf1e"),
-                        FolderSummary(2L, "상의", "https://url.kr/8vwf1e"),
-                        FolderSummary(3L, "하ㅑ", "https://url.kr/8vwf1e"),
-                        FolderSummary(4L, "악세사리", "https://url.kr/8vwf1e"),
-                        FolderSummary(5L, "케이스", "https://url.kr/8vwf1e"),
-                    )
-
-                    var selectedFolder by remember { mutableStateOf(folders.first()) }
 
                     LazyRow(
                         modifier = Modifier
@@ -187,23 +187,26 @@ fun LinkSharingWishUploadScreen(url: String, onClickClose: () -> Unit = {}) {
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
                     ) {
                         item {
-                            NewFolder(onClickNew = { ModalData.Modal.NewFolder().openModal(context, modalLauncher) })
+                            NewFolder(isLogin = uiModel.isLogin, onClickNew = {
+                                updateModalData(
+                                    ModalData.Modal.NewFolder(folderName = ""),
+                                )
+                            })
                         }
-                        items(folders) {
+                        items(uiModel.folders) {
                             FolderItem(
-                                isSelected = selectedFolder == it,
+                                isSelected = uiModel.selectedFolder == it,
                                 folder = it,
-                                onClickFolder = { folder -> selectedFolder = folder },
-                            ) // TODO 상태 관리
+                                onClickFolder = { folder -> onSelectFolder(folder) },
+                            )
                         }
                         item {
                             Spacer(modifier = Modifier.size(16.dp))
                         }
                     }
 
-                    val isLogin = true // TODO 로컬 디비 연결
                     val buttonTextRes =
-                        if (isLogin) {
+                        if (uiModel.isLogin) {
                             R.string.wish_item_link_sharing_upload
                         } else {
                             R.string.wish_item_link_sharing_upload_after_login
@@ -211,22 +214,20 @@ fun LinkSharingWishUploadScreen(url: String, onClickClose: () -> Unit = {}) {
 
                     WishBoardWideButton(
                         modifier = Modifier.padding(horizontal = 16.dp),
-                        enabled = isLogin &&
-                            !nameInput.value.isEmptyOrBlank() &&
-                            !priceInput.value.isEmptyOrBlank() &&
-                            !image.isEmptyOrBlank(),
-                        onClick = { /*TODO*/ },
+                        enabled = uiModel.isLogin && uiModel.itemName.isNotBlank() && uiModel.itemPrice.isNotBlank(),
+                        onClick = onClickSave,
                         text = stringResource(id = buttonTextRes),
+                        state = uiModel.wishItemUploadState,
                     )
                 }
 
                 val imageModifier = Modifier
                     .size(IMAGE_SIZE.dp)
                     .clip(CircleShape)
-                if (!image.isNullOrEmpty()) {
-                    ColoredImage(
+                if (!uiModel.downloadImageUrl.isNullOrBlank()) {
+                    Image(
                         modifier = imageModifier,
-                        model = image,
+                        model = uiModel.downloadImageUrl,
                         contentDescription = null,
                     )
                 } else {
@@ -238,21 +239,29 @@ fun LinkSharingWishUploadScreen(url: String, onClickClose: () -> Unit = {}) {
                 }
             }
         }
+
+        WishBoardSnackbarHost(
+            modifier = Modifier
+                .navigationBarsPadding()
+                .align(Alignment.BottomCenter),
+            hostState = snackbarHostState,
+        )
     }
 }
 
 @Composable
 fun FolderItem(
     isSelected: Boolean,
-    folder: FolderSummary,
-    onClickFolder: (FolderSummary) -> Unit,
+    folder: FolderItem,
+    onClickFolder: (FolderItem) -> Unit,
 ) {
     Box(
         modifier = Modifier
+            .size(IMAGE_SIZE.dp)
             .noRippleClickable { onClickFolder(folder) }
             .clip((RoundedCornerShape(10.dp))),
     ) {
-        ColoredImage(
+        Image(
             model = folder.thumbnail,
             modifier = Modifier.size(IMAGE_SIZE.dp),
             alphaColor = if (isSelected) WishBoardTheme.colors.blackAlpha70 else WishBoardTheme.colors.blackAlpha30,
@@ -274,20 +283,26 @@ fun FolderItem(
             }
 
             Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 10.dp),
                 text = folder.name,
                 style = WishBoardTheme.typography.suitH6,
                 color = WishBoardTheme.colors.white,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center,
             )
         }
     }
 }
 
 @Composable
-fun NewFolder(onClickNew: () -> Unit) {
+fun NewFolder(isLogin: Boolean, onClickNew: () -> Unit) {
     Column(
         modifier = Modifier
             .size(IMAGE_SIZE.dp)
-            .noRippleClickable { onClickNew() }
+            .noRippleClickable(enabled = isLogin) { onClickNew() }
             .border(width = 1.dp, color = WishBoardTheme.colors.gray100, shape = RoundedCornerShape(10.dp)),
         verticalArrangement = Arrangement.Bottom,
     ) {
@@ -316,5 +331,17 @@ fun NewFolder(onClickNew: () -> Unit) {
 @Preview(showSystemUi = true)
 @Composable
 fun PreviewLinkSharingWishUploadScreen() {
-    LinkSharingWishUploadScreen(url = "")
+    LinkSharingWishUploadScreen(
+        uiModel = WishItemUploadUiModel(
+            isLogin = false,
+            itemNotiType = NotiType.SALE_START,
+            itemNotiDate = LocalDateTime(2024, 3, 22, 13, 0),
+        ),
+        snackbarHostState = SnackbarHostState(),
+        onTextChange = { _, _ -> },
+        setNotiInfo = { },
+        onSelectFolder = {},
+        onClickSave = {},
+        updateModalData = {},
+    )
 }

@@ -22,16 +22,15 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.hyeeyoung.wishboard.R
-import com.hyeeyoung.wishboard.designsystem.component.ColoredImage
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardEmptyView
+import com.hyeeyoung.wishboard.designsystem.component.image.Image
 import com.hyeeyoung.wishboard.designsystem.style.Gray700
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
-import com.hyeeyoung.wishboard.presentation.model.NotiItem
+import com.hyeeyoung.wishboard.domain.model.noti.NotiType
+import com.hyeeyoung.wishboard.presentation.sign.model.NotiItem
 import com.hyeeyoung.wishboard.presentation.util.extension.getScheduleTimeFormat
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
-import com.hyeeyoung.wishboard.presentation.util.type.NotiType
 import java.time.LocalDate
-import java.time.LocalDateTime
 
 @Composable
 fun CalendarSchedule(
@@ -90,22 +89,25 @@ fun ScheduleItem(
             .padding(16.dp),
     ) {
         val (image, notiType, notiDate, itemName) = createRefs()
-        ColoredImage(
+
+        Image(
             modifier = Modifier
                 .constrainAs(image) { start.linkTo(parent.start) }
                 .size(72.dp)
                 .clip(CircleShape),
-            model = noti.itemImg,
+            model = noti.itemImage,
         )
+
         Text(
             modifier = Modifier.constrainAs(notiType) {
                 start.linkTo(image.end, margin = 10.dp)
                 top.linkTo(parent.top)
             },
-            text = stringResource(id = R.string.noti_item_type, noti.notiType.str),
+            text = stringResource(id = R.string.noti_item_type, noti.notiType.label),
             color = WishBoardTheme.colors.gray700,
             style = WishBoardTheme.typography.suitH5,
         )
+
         Text(
             modifier = Modifier
                 .constrainAs(itemName) {
@@ -120,12 +122,13 @@ fun ScheduleItem(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
+
         Text(
             modifier = Modifier.constrainAs(notiDate) {
                 bottom.linkTo(parent.bottom)
                 start.linkTo(notiType.start)
             },
-            text = noti.notiDate.getScheduleTimeFormat(),
+            text = noti.notiDate?.getScheduleTimeFormat() ?: "",
             color = WishBoardTheme.colors.gray200,
             style = WishBoardTheme.typography.suitD3,
         )
@@ -153,18 +156,18 @@ fun CalendarSchedulePreview() {
                 "https://image.msscdn.net/images/goods_img/20220222/2377269/2377269_16777177260753_500.jpg",
                 "W CLASSIC LOGO TEE white",
                 "https://www.musinsa.com/app/goods/2377269",
-                0,
+                false,
                 NotiType.RESTOCK,
-                LocalDateTime.of(2023, 7, 3, 13, 30),
+                kotlinx.datetime.LocalDateTime(2023, 7, 3, 13, 30),
             ),
             NotiItem(
                 2,
                 "https://image.msscdn.net/images/goods_img/20230427/3267246/3267246_16825933559850_500.jpg",
                 "체리 자카드 패턴 숏 슬리브 가디건 [핑크]",
                 "https://www.musinsa.com/app/goods/3267246/0",
-                0,
+                true,
                 NotiType.PREORDER,
-                LocalDateTime.of(2023, 7, 20, 0, 0),
+                kotlinx.datetime.LocalDateTime(2023, 7, 20, 0, 0),
             ),
         ),
         onClickSchedule = {},

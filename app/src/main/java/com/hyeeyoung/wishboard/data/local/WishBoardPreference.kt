@@ -6,6 +6,9 @@ import androidx.core.content.edit
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.hyeeyoung.wishboard.BuildConfig
+import com.hyeeyoung.wishboard.data.util.getBase64Json
+import com.hyeeyoung.wishboard.domain.model.user.UserInfo
+import com.hyeeyoung.wishboard.presentation.util.extension.toBase64Json
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -29,13 +32,9 @@ class WishBoardPreference @Inject constructor(@ApplicationContext context: Conte
             )
         }
 
-    var userEmail: String
-        set(value) = dataStore.edit { putString(USER_EMAIL, value) }
-        get() = dataStore.getString(USER_EMAIL, null) ?: ""
-
-    var userNickname: String
-        set(value) = dataStore.edit { putString(USER_NICKNAME, value) }
-        get() = dataStore.getString(USER_NICKNAME, null) ?: ""
+    var userInfo: UserInfo
+        set(value) = dataStore.edit { putString(USER_INFO, value.toBase64Json()) }
+        get() = dataStore.getBase64Json<UserInfo?>(USER_INFO) ?: UserInfo()
 
     var accessToken: String
         set(value) = dataStore.edit { putString(ACCESS_TOKEN, value) }
@@ -55,17 +54,20 @@ class WishBoardPreference @Inject constructor(@ApplicationContext context: Conte
         set(value) = dataStore.edit { putBoolean(IS_LOGIN, value) }
         get() = dataStore.getBoolean(IS_LOGIN, false)
 
-    var fcmToken: String
-        set(value) = dataStore.edit { putString(FCM_TOKEN, value) }
-        get() = dataStore.getString(
-            FCM_TOKEN,
-            null,
-        ) ?: ""
+    var hasShownNotificationAlert: Boolean
+        set(value) = dataStore.edit { putBoolean(HAS_SHOWN_NOTIFICATION_ALERT, value) }
+        get() = dataStore.getBoolean(HAS_SHOWN_NOTIFICATION_ALERT, false)
+
+    var shouldShowOnboardingModal: Boolean
+        set(value) = dataStore.edit { putBoolean(SHOULD_SHOW_ONBOARDING_MODAL, value) }
+        get() = dataStore.getBoolean(SHOULD_SHOW_ONBOARDING_MODAL, false)
 
     fun setUserInfo(email: String, nickname: String?, accessToken: String, refreshToken: String) {
         isLogin = true
-        userEmail = email
-        nickname?.let { userNickname = it }
+        userInfo = UserInfo(
+            email = email,
+            nickname = nickname ?: "",
+        )
         this.accessToken = accessToken
         this.refreshToken = refreshToken
     }
@@ -76,8 +78,16 @@ class WishBoardPreference @Inject constructor(@ApplicationContext context: Conte
     }
 
     fun clear() {
+        val tempNotificationAlertState = hasShownNotificationAlert
         dataStore.edit {
             clear()
+        }
+        hasShownNotificationAlert = tempNotificationAlertState
+    }
+
+    fun clear(key: String) {
+        dataStore.edit {
+            remove(key).apply()
         }
     }
 
@@ -85,9 +95,9 @@ class WishBoardPreference @Inject constructor(@ApplicationContext context: Conte
         const val FILE_NAME = "wishboardPreferences"
         const val ACCESS_TOKEN = "accessToken"
         const val REFRESH_TOKEN = "refreshToken"
-        const val FCM_TOKEN = "fcmToken"
         const val IS_LOGIN = "isLogin"
-        const val USER_EMAIL = "userEmail"
-        const val USER_NICKNAME = "userNickname"
+        const val USER_INFO = "userInfo"
+        const val HAS_SHOWN_NOTIFICATION_ALERT = "hasShownNotificationAlert"
+        const val SHOULD_SHOW_ONBOARDING_MODAL = "shouldShowOnboardingModal"
     }
 }

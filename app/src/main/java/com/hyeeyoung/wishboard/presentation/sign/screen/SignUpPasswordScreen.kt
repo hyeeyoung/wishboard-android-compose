@@ -7,10 +7,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.input.KeyboardType
@@ -18,8 +22,8 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.config.navigation.screen.SignScreen
@@ -28,64 +32,111 @@ import com.hyeeyoung.wishboard.designsystem.component.text.WishBoardClickableTex
 import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardTextField
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBarWithStep
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
-import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
-import com.hyeeyoung.wishboard.presentation.model.WishBoardString
-import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
+import com.hyeeyoung.wishboard.presentation.common.getSharedViewModel
+import com.hyeeyoung.wishboard.presentation.sign.SignViewModel
 import com.hyeeyoung.wishboard.presentation.sign.component.SignDescription
+import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardString
+import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
+import com.hyeeyoung.wishboard.presentation.sign.model.auth.SignUiModel
 import com.hyeeyoung.wishboard.presentation.util.constant.WishBoardUrl
 import com.hyeeyoung.wishboard.presentation.util.extension.moveToWebView
+import com.hyeeyoung.wishboard.presentation.util.extension.safePopBackStack
+import kotlinx.coroutines.delay
 
 @Composable
-fun SignUpPasswordScreen(navController: NavHostController) {
-    WishboardTheme {
-        Scaffold(topBar = {
-            WishBoardTopBarWithStep(
-                topBarModel = WishBoardTopBarModel(
-                    title = stringResource(id = R.string.sign_up_title),
-                    onClickStartIcon = { navController.popBackStack() },
-                ),
-                step = Pair(2, 2),
+fun SignUpPasswordScreen(
+    navController: NavHostController,
+    viewModel: SignViewModel = getSharedViewModel<SignViewModel>(navController, SignScreen.Email.route),
+) {
+    val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    SignUpPasswordScreen(
+        uiModel = uiModel,
+        onPasswordChange = viewModel::onPasswordChange,
+        onClickTermsOrPolicy = { url, title ->
+            navController.moveToWebView(
+                title = title,
+                url = url,
             )
-        }) { paddingValues ->
-            val emailInput = remember { mutableStateOf("") }
-            Column(
+        },
+        onClickSignUp = {
+            viewModel.signUp(afterSuccess = {
+                keyboardController?.hide()
+                navController.navigate("${MainScreen.Root.route}/${true}") {
+                    popUpTo(route = SignScreen.Root.route) {
+                        inclusive = true
+                    }
+                }
+            })
+        },
+        onClickBack = {
+            navController.safePopBackStack()
+        },
+    )
+}
+
+@Composable
+fun SignUpPasswordScreen(
+    uiModel: SignUiModel,
+    onPasswordChange: (String) -> Unit,
+    onClickTermsOrPolicy: (url: String, title: String) -> Unit,
+    onClickSignUp: () -> Unit,
+    onClickBack: () -> Unit,
+) {
+    val focusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    LaunchedEffect(Unit) {
+        delay(300L)
+        focusRequester.requestFocus()
+        keyboardController?.show()
+    }
+
+    Scaffold(topBar = {
+        WishBoardTopBarWithStep(
+            topBarModel = WishBoardTopBarModel(
+                title = stringResource(id = R.string.sign_up_title),
+                onClickStartIcon = onClickBack,
+            ),
+            step = Pair(2, 2),
+        )
+    }) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .background(WishBoardTheme.colors.white)
+                .padding(top = paddingValues.calculateTopPadding(), bottom = 16.dp, start = 16.dp, end = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            SignDescription(descriptionRes = R.string.sign_up_password_description, iconRes = R.drawable.ic_lock)
+
+            WishBoardTextField(
                 modifier = Modifier
-                    .background(WishBoardTheme.colors.white)
-                    .padding(top = paddingValues.calculateTopPadding(), bottom = 16.dp, start = 16.dp, end = 16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                SignDescription(descriptionRes = R.string.sign_up_password_description, iconRes = R.drawable.ic_lock)
+                    .focusRequester(focusRequester),
+                input = uiModel.password,
+                placeholder = stringResource(id = R.string.sign_password_placeholder),
+                errorMsg = when {
+                    uiModel.isValidPassword == false -> stringResource(id = R.string.sign_up_password_format_error)
+                    uiModel.isAlreadyRegisteredError -> stringResource(id = R.string.sign_up_already_member_error)
+                    else -> ""
+                },
+                onTextChange = onPasswordChange,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                visualTransformation = PasswordVisualTransformation(),
+                isError = uiModel.isValidPassword == false || uiModel.isAlreadyRegisteredError,
+            )
 
-                WishBoardTextField(
-                    input = emailInput,
-                    placeholder = stringResource(id = R.string.sign_password_placeholder),
-                    errorMsg = stringResource(id = R.string.sign_up_password_format_error), // TODO 기존 가입자 에러 메세지 추가
-                    onTextChange = {},
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                    visualTransformation = PasswordVisualTransformation(),
-                )
+            Spacer(modifier = Modifier.weight(1f))
 
-                Spacer(modifier = Modifier.weight(1f))
+            TermsAndPolicyText(onClickTermsOrPolicy = { url, title ->
+                onClickTermsOrPolicy(url, title)
+            })
 
-                TermsAndPolicyText(onClickTermsOrPolicy = { url, title ->
-                    navController.moveToWebView(
-                        title = title,
-                        url = url,
-                    )
-                })
-
-                WishBoardWideButton(
-                    enabled = true,
-                    onClick = {
-                        navController.navigate(MainScreen.Root.route) {
-                            popUpTo(route = SignScreen.Root.route) {
-                                inclusive = true
-                            }
-                        }
-                    }, // TODO 비밀번호 검증 실패 처리 필요
-                    text = stringResource(id = R.string.sign_up_title),
-                )
-            }
+            WishBoardWideButton(
+                enabled = uiModel.isValidPassword == true,
+                onClick = onClickSignUp,
+                text = stringResource(id = R.string.sign_up_title),
+            )
         }
     }
 }
@@ -138,5 +189,11 @@ fun TermsAndPolicyText(onClickTermsOrPolicy: (String, String) -> Unit) {
 @Preview
 @Composable
 fun PreviewSignUpPasswordScreen() {
-    SignUpPasswordScreen(rememberNavController())
+    SignUpPasswordScreen(
+        uiModel = SignUiModel(),
+        onClickTermsOrPolicy = { _, _ -> },
+        onPasswordChange = {},
+        onClickSignUp = {},
+        onClickBack = {},
+    )
 }

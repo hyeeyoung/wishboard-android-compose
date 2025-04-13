@@ -9,14 +9,11 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.ModalData
-import com.hyeeyoung.wishboard.presentation.folder.FolderListModalContent
-import com.hyeeyoung.wishboard.presentation.folder.FolderUploadModalContent
-import com.hyeeyoung.wishboard.presentation.noti.NotiModalContent
 import com.hyeeyoung.wishboard.presentation.onboarding.OnboardingModalContent
-import com.hyeeyoung.wishboard.presentation.upload.component.ShopLinkModalContent
 import com.hyeeyoung.wishboard.presentation.util.extension.getSerializable
 
 class ModalActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -54,7 +51,9 @@ class ModalActivity : ComponentActivity() {
 
                 is ModalData.FullModal -> {
                     when (modalData) {
-                        is ModalData.FullModal.Onboarding -> OnboardingModalContent(onDismissRequest = { finish() })
+                        is ModalData.FullModal.Onboarding -> OnboardingModalContent(
+                            onClickConfirm = { finish() },
+                        )
                     }
                 }
 
@@ -64,35 +63,17 @@ class ModalActivity : ComponentActivity() {
     }
 
     @Composable
-    fun ModalContent(modalData: ModalData.Modal) {
+    fun ModalContent(modalData: ModalData.Modal) { // TODO 제거
         when (modalData) {
-            is ModalData.Modal.FolderList -> FolderListModalContent(
-                selectedFolderId = modalData.selectedFolderId,
-                onClickFolder = { folder -> moveToPrevious(modalData.copy(selectedFolderId = folder.id, folder.name)) },
-            )
+            is ModalData.Modal.FolderList -> {}
 
-            is ModalData.Modal.Noti -> NotiModalContent(
-                type = modalData.notiType,
-                date = modalData.notiDate,
-                onClickComplete = {},
-            )
+            is ModalData.Modal.NewFolder -> {}
 
-            is ModalData.Modal.NewFolder -> FolderUploadModalContent(onClickComplete = { name ->
-                moveToPrevious(modalData.copy(folderName = name))
-            })
+            is ModalData.Modal.FolderNameEdit -> {}
 
-            is ModalData.Modal.FolderNameEdit -> FolderUploadModalContent(
-                folder = Pair(
-                    modalData.folderId,
-                    modalData.folderName,
-                ),
-                onClickComplete = { name -> moveToPrevious(modalData.copy(folderName = name)) },
-            )
+            is ModalData.Modal.ShopLink -> {}
 
-            is ModalData.Modal.ShopLink -> ShopLinkModalContent(
-                link = modalData.link,
-                onClickComplete = { link -> moveToPrevious(modalData.copy(link = link)) },
-            )
+            else -> {}
         }
     }
 

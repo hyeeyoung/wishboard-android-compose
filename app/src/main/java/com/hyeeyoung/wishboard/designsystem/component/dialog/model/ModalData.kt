@@ -7,22 +7,25 @@ import androidx.activity.result.ActivityResult
 import androidx.annotation.StringRes
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.ModalActivity
-import com.hyeeyoung.wishboard.presentation.util.type.NotiType
-import kotlinx.datetime.LocalDateTime
+import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
 import java.io.Serializable
 
 sealed class ModalData : Serializable {
     sealed class Modal(@StringRes val title: Int) : ModalData() {
         data class Noti(
-            val notiType: NotiType? = null,
-            val notiDate: LocalDateTime? = null,
+            val notiInfo: String,
         ) : Modal(title = R.string.modal_noti_setting_title)
 
-        data class FolderList(val selectedFolderId: Long?, val selectedFolderName: String? = null) : Modal(
+        data class FolderList(
+            val selectedFolder: FolderItem?,
+            val folders: List<FolderItem>,
+        ) : Modal(
             title = R.string.modal_folder_selection_title,
         )
 
-        data class NewFolder(val folderName: String = "") : Modal(title = R.string.modal_new_folder_title) /*TODO*/
+        data class NewFolder(
+            val folderName: String,
+        ) : Modal(title = R.string.modal_new_folder_title)
 
         data class FolderNameEdit(
             val folderId: Long,

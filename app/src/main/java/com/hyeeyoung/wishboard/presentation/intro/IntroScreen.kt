@@ -1,6 +1,14 @@
 package com.hyeeyoung.wishboard.presentation.intro
 
+import android.Manifest
 import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
+import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -20,66 +28,144 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
+import androidx.core.content.ContextCompat
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.UpdateAvailability
 import com.hyeeyoung.wishboard.BuildConfig
 import com.hyeeyoung.wishboard.R
-import com.hyeeyoung.wishboard.config.navigation.screen.Intro
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.config.navigation.screen.SignScreen
-import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.WishBoardDialog
-import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
-import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.DialogData
+import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.WishBoardOneButtonDialog
+import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.WishBoardTwoButtonDialog
+import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import kotlinx.coroutines.delay
 
 @Composable
-fun IntroScreen(navController: NavHostController) {
+fun IntroScreen(
+    navController: NavController,
+    viewModel: IntroViewModel = hiltViewModel(),
+) {
     val context = LocalContext.current
-    var dialogData by remember { mutableStateOf<DialogData?>(null) }
+    val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
+    val requestPermissionLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { _ ->
+            viewModel.updateNotificationAlertDate()
+        }
+    var nextScreen by remember { mutableStateOf<String?>(null) }
+    var appUpdateType by remember { mutableStateOf<AppUpdateTime?>(null) }
 
-    LaunchedEffect(Unit) {
-        delay(2000L)
+    LaunchedEffect(uiModel.hasShownNotificationAlert) {
+        if (uiModel.hasShownNotificationAlert == false) {
+            checkNotificationPermission(
+                context = context,
+                requestPermissionLauncher = requestPermissionLauncher,
+                shouldSkip = {
+                    viewModel.updateNotificationAlertDate()
+                },
+            )
+        }
+    }
+
+    LaunchedEffect(uiModel.isLogin) {
+        if (uiModel.isLogin == null) return@LaunchedEffect
+
         checkForNewVersionUpdate(
             context = context,
-            showDialog = { dialogData = DialogData.Intro },
-            moveToNext = { navigateToNext(navController) },
+            checkRemoteAppVersion = { playStoreVersionCode ->
+                viewModel.checkForAppUpdate(
+                    playStoreVersionCode = playStoreVersionCode,
+                    moveToNext = {
+                        appUpdateType = null
+                        nextScreen = getNextScreen(uiModel.isLogin!!)
+                    },
+                    showUpdateDialog = {
+                        appUpdateType = it
+                    },
+                )
+            },
+            moveToNext = {
+                nextScreen = getNextScreen(uiModel.isLogin!!)
+            },
         )
     }
 
-    WishboardTheme {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(WishBoardTheme.colors.white),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Image(painter = painterResource(id = R.drawable.ic_app_text_logo), contentDescription = null)
-            Spacer(modifier = Modifier.size(10.dp))
+    LaunchedEffect(nextScreen, uiModel.hasShownNotificationAlert) {
+        if (nextScreen == null || uiModel.hasShownNotificationAlert != true) return@LaunchedEffect
+        delay(1500L)
+        navController.navigate(nextScreen!!) {
+            popUpTo(navController.graph.id) {
+                inclusive = true
+            }
         }
+    }
 
-        WishBoardDialog(
-            dialogData = dialogData,
-            onClickConfirm = {},
-            onDismissRequest = { dialogData = null },
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(WishBoardTheme.colors.white),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Image(painter = painterResource(id = R.drawable.ic_app_text_logo), contentDescription = null)
+        Spacer(modifier = Modifier.size(10.dp))
+    }
+
+    if (appUpdateType == AppUpdateTime.OPTIONAL_UPDATE && uiModel.hasShownNotificationAlert == true) {
+        WishBoardTwoButtonDialog(
+            dialogData = DialogData.AppUpdate,
+            onClickConfirm = {
+                moveToPlayStore(context)
+            },
+            onDismissRequest = {
+                appUpdateType = null
+                nextScreen = getNextScreen(uiModel.isLogin!!)
+            },
+        )
+    }
+
+    if (appUpdateType == AppUpdateTime.FORCED_UPDATE && uiModel.hasShownNotificationAlert == true) {
+        WishBoardOneButtonDialog(
+            dialogData = DialogData.AppUpdate,
+            onClickConfirm = {
+                moveToPlayStore(context)
+            },
+            onDismissRequest = {},
         )
     }
 }
 
-private fun checkForNewVersionUpdate(context: Context, showDialog: () -> Unit, moveToNext: () -> Unit) {
+private fun getNextScreen(isLogin: Boolean): String =
+    if (isLogin) "${MainScreen.Root.route}/${false}" else SignScreen.Root.route
+
+private fun moveToPlayStore(context: Context) {
+    val intent = Intent(
+        Intent.ACTION_VIEW,
+        Uri.parse("${context.getString(R.string.play_store_detail_url)}${context.packageName}"),
+    )
+    context.startActivity(intent)
+}
+
+private fun checkForNewVersionUpdate(
+    context: Context,
+    checkRemoteAppVersion: (playStoreVersionCode: Int) -> Unit,
+    moveToNext: () -> Unit,
+) {
     val appUpdateManager = AppUpdateManagerFactory.create(context)
     val appUpdateInfoTask = appUpdateManager.appUpdateInfo
 
     appUpdateInfoTask.addOnSuccessListener { appUpdateInfo ->
+        val playStoreVersionCode = appUpdateInfo.availableVersionCode()
         if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE &&
             appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE) &&
-            appUpdateInfo.availableVersionCode() != BuildConfig.VERSION_CODE
+            playStoreVersionCode != BuildConfig.VERSION_CODE
         ) {
-            showDialog()
+            checkRemoteAppVersion(playStoreVersionCode)
         } else {
             moveToNext()
         }
@@ -88,10 +174,23 @@ private fun checkForNewVersionUpdate(context: Context, showDialog: () -> Unit, m
     }
 }
 
-fun navigateToNext(navController: NavHostController) {
-    val isLogin = false // TODO 로컬 디비에서 로그인 여부 가져오기
-    val nextScreen = if (isLogin) MainScreen.Root.route else SignScreen.Root.route
-    navController.navigate(nextScreen) { popUpTo(Intro.route) { inclusive = true } }
+private fun checkNotificationPermission(
+    context: Context,
+    requestPermissionLauncher: ManagedActivityResultLauncher<String, Boolean>,
+    shouldSkip: () -> Unit,
+) {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+        shouldSkip()
+        return
+    }
+    val isGranted = ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) ==
+        PackageManager.PERMISSION_GRANTED
+
+    when (isGranted) {
+        false -> requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+
+        true -> {}
+    }
 }
 
 @Preview

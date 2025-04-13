@@ -1,16 +1,17 @@
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 import org.jetbrains.kotlin.konan.properties.Properties
 
 val properties = Properties()
 properties.load(project.rootProject.file("local.properties").inputStream())
 
 plugins {
-    id("com.android.application")
-    id("org.jetbrains.kotlin.android")
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
     id("kotlin-kapt")
-    id("kotlin-parcelize")
-    id("com.google.dagger.hilt.android")
+    alias(libs.plugins.dagger.hilt)
     id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics")
+    alias(libs.plugins.devtools.ksp)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.spotless)
 }
@@ -23,8 +24,8 @@ android {
         applicationId = "com.hyeeyoung.wishboard"
         minSdk = 24
         targetSdk = 34
-        versionCode = 30
-        versionName = "1.2.1"
+        versionCode = 41
+        versionName = "1.3.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -36,6 +37,15 @@ android {
         buildConfigField("String", "FILE_PROVIDER", "\"$contentProviderAuthority\"")
     }
 
+    signingConfigs {
+        create("release") {
+            keyAlias = getProperty("KEY_ALIAS")
+            keyPassword = getProperty("KEY_PASSWORD")
+            storeFile = file(getProperty("KEYSTORE_PATH"))
+            storePassword = getProperty("STORE_PASSWORD")
+        }
+    }
+
     buildTypes {
         getByName("debug") {
             buildConfigField("String", "BASE_URL", properties.getProperty("DEV_BASE_URL"))
@@ -45,6 +55,7 @@ android {
             isShrinkResources = true
             buildConfigField("String", "BASE_URL", properties.getProperty("PROD_BASE_URL"))
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 
@@ -63,7 +74,7 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = libs.versions.kotlin.complier.get()
     }
-    packagingOptions {
+    packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
@@ -79,10 +90,10 @@ dependencies {
     implementation(libs.compose.material.three)
 
     implementation(libs.bundles.dagger.hilt)
-    kapt(libs.bundles.compiler)
+    ksp(libs.bundles.compiler)
     implementation(platform(libs.firebase.bom))
     implementation(libs.bundles.firebase)
-    implementation(libs.accompanist)
+    implementation(libs.accompanist.ui.controller)
     implementation(platform(libs.okhttp.bom))
     implementation(libs.bundles.network)
     implementation(libs.kotlinx.datetime)
@@ -97,10 +108,6 @@ dependencies {
     androidTestImplementation(libs.bundles.android.test)
 }
 
-kapt {
-    correctErrorTypes = true
-}
-
 spotless {
     kotlin {
         target("**/*.kt")
@@ -109,4 +116,8 @@ spotless {
         indentWithSpaces()
         endWithNewline()
     }
+}
+
+fun getProperty(key: String): String {
+    return gradleLocalProperties(rootDir).getProperty(key)
 }

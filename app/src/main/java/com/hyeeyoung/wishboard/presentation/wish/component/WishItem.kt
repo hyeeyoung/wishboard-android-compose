@@ -9,34 +9,33 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.hyeeyoung.wishboard.designsystem.component.ColoredImage
-import com.hyeeyoung.wishboard.designsystem.component.button.CartButton
+import com.hyeeyoung.wishboard.designsystem.component.image.Image
+import com.hyeeyoung.wishboard.designsystem.component.image.WishBoardPlaceHolder
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
-import com.hyeeyoung.wishboard.domain.model.WishItem
+import com.hyeeyoung.wishboard.domain.model.wish.WishItem
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 
 @Composable
 fun WishItem(modifier: Modifier = Modifier, wishItem: WishItem, onClickItem: () -> Unit = {}) {
+    val imageModifier = Modifier.fillMaxWidth().aspectRatio(1f)
+//        var cartState by remember { mutableStateOf(wishItem.isInCart) }
+
     Column(modifier = modifier.noRippleClickable { onClickItem() }) {
-        var cartState by remember { mutableStateOf(wishItem.isInCart) }
-        // 이미지 및 장바구니 버튼
-        Box() {
-            ColoredImage(
+        // 이미지
+        Box {
+            Image(
                 model = wishItem.imageUrl,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(1f),
+                modifier = imageModifier,
+                placeHolder = {
+                    WishBoardPlaceHolder(modifier = imageModifier)
+                },
             )
 
+            /* 장바구니 버튼
             Column(
                 modifier = Modifier
                     .padding(10.dp)
@@ -46,7 +45,7 @@ fun WishItem(modifier: Modifier = Modifier, wishItem: WishItem, onClickItem: () 
                     isInCart = cartState,
                     changeCartState = { isInCart -> cartState = !isInCart },
                 )
-            }
+            }*/
         }
 
         // 상품명 및 가격
@@ -64,7 +63,7 @@ fun WishItem(modifier: Modifier = Modifier, wishItem: WishItem, onClickItem: () 
             )
             Spacer(modifier = Modifier.size(8.dp))
             PriceText(
-                price = wishItem.price,
+                price = wishItem.price ?: 0,
                 priceStyle = WishBoardTheme.typography.montserratH3,
                 wonStyle = WishBoardTheme.typography.suitD3,
             )
@@ -77,11 +76,11 @@ fun WishItem(modifier: Modifier = Modifier, wishItem: WishItem, onClickItem: () 
 fun PreviewWishItem() {
     WishItem(
         wishItem = WishItem(
-            1L,
-            "21SS SAGE SHIRT [4COLOR]",
-            "https://url.kr/8vwf1e",
-            108000,
-            true,
+            id = 1L,
+            name = "21SS SAGE SHIRT [4COLOR]",
+            imageUrl = "https://url.kr/8vwf1e",
+            price = 108000,
+//            true,
         ),
     )
 }

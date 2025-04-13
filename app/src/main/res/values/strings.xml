@@ -1,6 +1,7 @@
 <resources>
-    <string name="app_name">WishBoard</string>
+    <string name="app_name">위시보드</string>
     <string name="wishboard_email">wishboard2022@gmail.com</string>
+    <string name="play_store_detail_url">https://play.google.com/store/apps/details?id=</string>
 
     <!-- Global -->
     <string name="won">원</string>
@@ -15,6 +16,7 @@
 
     <!-- Format -->
     <string name="step">%d/%d 단계</string>
+    <string name="text_length">(%d/%d)자</string>
     <string name="timer_format">%d:%d</string>
 
     <!-- Snackbar -->
@@ -172,7 +174,7 @@
     <string name="modal_noti_setting_guide">30분 전에 일정을 알려드려요. 시간은 30분 단위로 설정 가능해요!</string>
     <string name="modal_noti_setting_time_delimiter">:</string>
 
-    <string name="modal_shop_link_title">쇼핑몰 링크로 아이템 불러오기</string>
+    <string name="modal_shop_link_title">쇼핑몰 링크 추가</string>
     <string name="modal_shop_link_item_load_btn_text">아이템 불러오기</string>
     <string name="modal_shop_link_placeholder">쇼핑몰 링크를 입력해 주세요.</string>
     <string name="modal_shop_link_error">쇼핑몰 링크를 다시 확인해 주세요.</string>
@@ -183,7 +185,7 @@
     <string name="modal_folder_upload_placeholder">폴더명을 입력해 주세요.</string>
     <string name="modal_folder_upload_error">동일 이름의 폴더가 있어요!</string>
 
-    <string name="modal_image_upload_camera">사진 촬영</string>
-    <string name="modal_image_upload_gallery">사진 선택</string>
+    <string name="modal_image_upload_camera">카메라로 촬영하기</string>
+    <string name="modal_image_upload_gallery">사진 선택하기</string>
 
 </resources>

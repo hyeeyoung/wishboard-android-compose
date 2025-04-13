@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.dp
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
-import com.hyeeyoung.wishboard.presentation.model.WishBoardTopBarModel
+import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
 
 @Composable
 fun WishBoardTopBar(topBarModel: WishBoardTopBarModel, endComponent: (@Composable (Modifier) -> Unit)? = null) {
