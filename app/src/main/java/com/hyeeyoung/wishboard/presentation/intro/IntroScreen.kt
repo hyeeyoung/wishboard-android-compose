@@ -49,7 +49,7 @@ import kotlinx.coroutines.delay
 @Composable
 fun IntroScreen(
     navController: NavController,
-    viewModel: IntroViewModel = hiltViewModel()
+    viewModel: IntroViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
     val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
@@ -67,7 +67,8 @@ fun IntroScreen(
                 requestPermissionLauncher = requestPermissionLauncher,
                 shouldSkip = {
                     viewModel.updateNotificationAlertDate()
-                })
+                },
+            )
         }
     }
 
@@ -85,7 +86,7 @@ fun IntroScreen(
                     },
                     showUpdateDialog = {
                         appUpdateType = it
-                    }
+                    },
                 )
             },
             moveToNext = {
@@ -145,7 +146,7 @@ private fun getNextScreen(isLogin: Boolean): String =
 private fun moveToPlayStore(context: Context) {
     val intent = Intent(
         Intent.ACTION_VIEW,
-        Uri.parse("${context.getString(R.string.play_store_detail_url)}${context.packageName}")
+        Uri.parse("${context.getString(R.string.play_store_detail_url)}${context.packageName}"),
     )
     context.startActivity(intent)
 }
@@ -153,7 +154,7 @@ private fun moveToPlayStore(context: Context) {
 private fun checkForNewVersionUpdate(
     context: Context,
     checkRemoteAppVersion: (playStoreVersionCode: Int) -> Unit,
-    moveToNext: () -> Unit
+    moveToNext: () -> Unit,
 ) {
     val appUpdateManager = AppUpdateManagerFactory.create(context)
     val appUpdateInfoTask = appUpdateManager.appUpdateInfo
@@ -183,7 +184,7 @@ private fun checkNotificationPermission(
         return
     }
     val isGranted = ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) ==
-            PackageManager.PERMISSION_GRANTED
+        PackageManager.PERMISSION_GRANTED
 
     when (isGranted) {
         false -> requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)

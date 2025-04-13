@@ -46,7 +46,11 @@ class FolderViewModel @Inject constructor(
                 when (errorCode) {
                     404 -> {
                         _uiModel.update {
-                            it.copy(folders = emptyList(), fetchState = WishBoardState.Success(Unit), isRefreshing = false)
+                            it.copy(
+                                folders = emptyList(),
+                                fetchState = WishBoardState.Success(Unit),
+                                isRefreshing = false,
+                            )
                         }
                     }
 
@@ -57,7 +61,6 @@ class FolderViewModel @Inject constructor(
                         }
                     }
                 }
-
             }
         }
     }
@@ -94,15 +97,17 @@ class FolderViewModel @Inject constructor(
         viewModelScope.launch {
             putFolderNameUseCase(folderId = folderId, folderName = trimmedName).onSuccess {
                 val folders = uiModel.value.folders.map { folder ->
-                    if (folder.id == folderId)
+                    if (folder.id == folderId) {
                         folder.copy(name = trimmedName)
-                    else folder
+                    } else {
+                        folder
+                    }
                 }
                 _uiModel.update {
                     it.copy(
                         folders = folders,
                         updateState = WishBoardState.Success(Unit),
-                        existingFolderName = ""
+                        existingFolderName = "",
                     )
                 }
                 afterSuccess()
@@ -161,7 +166,7 @@ class FolderViewModel @Inject constructor(
                 addState = WishBoardState.Idle,
                 updateState = WishBoardState.Idle,
                 deleteState = WishBoardState.Idle,
-                existingFolderName = null
+                existingFolderName = null,
             )
         }
     }

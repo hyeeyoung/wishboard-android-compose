@@ -39,7 +39,6 @@ import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
-import timber.log.Timber
 
 @Composable
 fun WishBoardBottomBar(
@@ -74,14 +73,14 @@ fun WishBoardBottomBar(
                     restoreState = true
                 }
             }
-        }
+        },
     )
 }
 
 @Composable
 fun WishBoardBottomBar(
     onSelect: (BottomNavItem) -> Unit,
-    isSelected: (BottomNavItem) -> Boolean
+    isSelected: (BottomNavItem) -> Boolean,
 ) {
     val density = LocalDensity.current
     val textMeasure = rememberTextMeasurer()
@@ -128,12 +127,12 @@ fun isSelectedMenu(currentRoute: String?, navItem: BottomNavItem): Boolean {
 }
 
 fun getSelectedScreen(currentRoute: String?): String? =
-    when(currentRoute) {
-        MainScreen.Wishlist.route ->  MainScreen.Wishlist.route
+    when (currentRoute) {
+        MainScreen.Wishlist.route -> MainScreen.Wishlist.route
         MainScreen.Folder.getStartRouteForMainTab() -> MainScreen.Folder.getStartRouteForMainTab()
         MainScreen.FolderDetail.routeWithArg -> MainScreen.FolderDetail.routeWithArg
-        MainScreen.Upload.route ->MainScreen.Upload.route
-        MainScreen.My.route ->MainScreen.My.route
+        MainScreen.Upload.route -> MainScreen.Upload.route
+        MainScreen.My.route -> MainScreen.My.route
         else -> null
     }
 
@@ -143,7 +142,7 @@ fun BottomBarIconButton(
     textStyle: TextStyle,
     navItem: BottomNavItem,
     isSelected: Boolean,
-    onSelect: () -> Unit
+    onSelect: () -> Unit,
 ) {
     Column(
         modifier = Modifier

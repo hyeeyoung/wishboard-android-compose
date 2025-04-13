@@ -81,7 +81,7 @@ import kotlinx.datetime.LocalDateTime
 fun WishItemDetailScreen(
     navController: NavController,
     itemId: Long,
-    viewModel: WishItemViewModel = hiltViewModel()
+    viewModel: WishItemViewModel = hiltViewModel(),
 ) {
     val systemUiController = rememberSystemUiController()
     val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
@@ -133,7 +133,7 @@ fun WishItemDetailScreen(
         onClickBack = navController::safePopBackStack,
         onClickFolder = { afterSuccess ->
             viewModel.getFolders(afterSuccess)
-        }
+        },
     )
 }
 
@@ -186,7 +186,7 @@ fun WishItemDetailScreen(
                     onClickFolder { folders ->
                         modalData = ModalData.Modal.FolderList(
                             selectedFolder = uiModel.folderId?.let { FolderItem(id = it) },
-                            folders = folders
+                            folders = folders,
                         )
                         coroutineScope.launch {
                             sheetState.show()
@@ -242,19 +242,24 @@ fun WishItemDetailScreen(
                             onDismissRequest = {
                                 coroutineScope.launch { sheetState.hide() }
                                 modalData = null
-                            }
+                            },
                         )
                     }
 
                     else -> {}
                 }
-            }
+            },
         )
     }
 }
 
 @Composable
-private fun WishItemDetailContents(modifier: Modifier, navController: NavController, uiModel: WishItemDetailUiModel, onClickFolder: () -> Unit) {
+private fun WishItemDetailContents(
+    modifier: Modifier,
+    navController: NavController,
+    uiModel: WishItemDetailUiModel,
+    onClickFolder: () -> Unit,
+) {
     val imageModifier = Modifier
         .fillMaxWidth()
         .clip(RoundedCornerShape(32.dp))
@@ -267,7 +272,7 @@ private fun WishItemDetailContents(modifier: Modifier, navController: NavControl
                 model = uiModel.image,
                 placeHolder = {
                     WishBoardPlaceHolder(modifier = imageModifier)
-                }
+                },
             )
 
             safeLet(uiModel.notiType, uiModel.notiDate) { type, date ->
@@ -342,7 +347,7 @@ private fun WishItemDetailContents(modifier: Modifier, navController: NavControl
                 )
             }
         }
-        
+
         Spacer(modifier = Modifier.padding(bottom = 64.dp))
     }
 }

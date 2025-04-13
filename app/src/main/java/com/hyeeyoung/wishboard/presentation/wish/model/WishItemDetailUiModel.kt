@@ -37,7 +37,7 @@ data class WishItemDetailUiModel(
                 notiType = domain.notiType,
                 price = domain.price.toLongOrNull() ?: 0,
                 site = domain.site,
-                createAt = domain.createAt.toLocalDateTime(WishBoardDateFormat.YYYY_MM_DD_HH_MM_SS)
+                createAt = domain.createAt.toLocalDateTime(WishBoardDateFormat.YYYY_MM_DD_HH_MM_SS),
             )
     }
 }

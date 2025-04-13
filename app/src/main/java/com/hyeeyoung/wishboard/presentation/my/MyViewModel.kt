@@ -48,9 +48,9 @@ class MyViewModel @Inject constructor(
     val uiModel = _uiModel.asStateFlow()
 
     fun fetchUserInfo(isRefreshing: Boolean) {
-        val needsFetch = isRefreshing
-                || uiModel.value.fetchProfileState !is WishBoardState.Success
-                || localStorage.userInfo.isPushAllowed == null
+        val needsFetch = isRefreshing ||
+            uiModel.value.fetchProfileState !is WishBoardState.Success ||
+            localStorage.userInfo.isPushAllowed == null
         if (!needsFetch) return
         if (uiModel.value.fetchProfileState == WishBoardState.Loading) return
         _uiModel.update {
@@ -63,7 +63,7 @@ class MyViewModel @Inject constructor(
                     it.copy(
                         fetchProfileState = WishBoardState.Success(Unit),
                         userInfo = userInfo,
-                        isRefreshing = false
+                        isRefreshing = false,
                     )
                 }
             }.onFailure { exception, _, _ ->
@@ -97,11 +97,15 @@ class MyViewModel @Inject constructor(
         viewModelScope.launch {
             putUserProfileUseCase(
                 userProfile = UserProfile(
-                    nickName = if (uiModel.value.userInfo.nickname == trimmedName) null else trimmedName.ifBlank { null },
+                    nickName = if (uiModel.value.userInfo.nickname == trimmedName) {
+                        null
+                    } else {
+                        trimmedName.ifBlank { null }
+                    },
                     profileImage = safeLet(file, requestBody) { file, requestBody ->
                         MultipartBody.Part.createFormData("profile_img", file.name, requestBody)
-                    }
-                )
+                    },
+                ),
             ).onSuccess {
                 afterSuccess()
                 updateSnackbarMessage("프로필이 수정되었어요!👩‍🎤")
@@ -167,7 +171,11 @@ class MyViewModel @Inject constructor(
                 it.copy(rePasswordInput = trimmedPassword)
             } else {
                 val passwordPattern = Pattern.compile(WishBoardFormat.PASSWORD_PATTERN)
-                val isValid = if (trimmedPassword.isBlank()) null else passwordPattern.matcher(password).matches()
+                val isValid = if (trimmedPassword.isBlank()) {
+                    null
+                } else {
+                    passwordPattern.matcher(password).matches()
+                }
                 it.copy(passwordInput = trimmedPassword, isValidPassword = isValid)
             }
         }
@@ -185,7 +193,7 @@ class MyViewModel @Inject constructor(
                 userInfo = userInfo,
                 nicknameInput = TextFieldValue(
                     text = userInfo.nickname,
-                    selection = TextRange(userInfo.nickname.length)
+                    selection = TextRange(userInfo.nickname.length),
                 ),
             )
         }

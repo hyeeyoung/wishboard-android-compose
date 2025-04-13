@@ -11,6 +11,6 @@ data class AppVersionDto(
 ) {
     fun toDomain(): AppVersion = AppVersion(
         minVersionCode = minVersion.toIntOrNull() ?: 0,
-        latestVersionCode = recommendedVersion.toIntOrNull() ?: 0
+        latestVersionCode = recommendedVersion.toIntOrNull() ?: 0,
     )
 }

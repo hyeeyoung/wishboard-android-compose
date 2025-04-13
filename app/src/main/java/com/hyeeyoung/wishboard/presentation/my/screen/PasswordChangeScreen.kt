@@ -80,7 +80,7 @@ fun PasswordChangeScreen(
     val focusRequester = remember { FocusRequester() }
     val isCorrectPassword by remember(uiModel.passwordInput, uiModel.rePasswordInput) {
         mutableStateOf(
-            uiModel.passwordInput == uiModel.rePasswordInput
+            uiModel.passwordInput == uiModel.rePasswordInput,
         )
     }
 

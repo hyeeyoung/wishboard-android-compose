@@ -29,6 +29,6 @@ fun Image(
         },
         error = {
             placeHolder?.invoke(modifier)
-        }
+        },
     )
 }

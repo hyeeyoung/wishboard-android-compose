@@ -18,6 +18,9 @@ data class WishItemDto(
     val price: Long? = null,
 ) {
     fun toDomain(): WishItem = WishItem(
-        id = id, name = name, imageUrl = image, price = price,
+        id = id,
+        name = name,
+        imageUrl = image,
+        price = price,
     )
 }

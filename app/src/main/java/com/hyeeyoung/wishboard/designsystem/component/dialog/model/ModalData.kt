@@ -8,9 +8,6 @@ import androidx.annotation.StringRes
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.ModalActivity
 import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
-import com.hyeeyoung.wishboard.domain.model.noti.NotiInfo
-import com.hyeeyoung.wishboard.domain.model.noti.NotiType
-import kotlinx.datetime.LocalDateTime
 import java.io.Serializable
 
 sealed class ModalData : Serializable {

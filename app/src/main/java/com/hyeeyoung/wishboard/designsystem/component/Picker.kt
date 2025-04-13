@@ -1,6 +1,5 @@
 package com.hyeeyoung.wishboard.designsystem.component
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -35,7 +34,6 @@ import com.hyeeyoung.wishboard.domain.model.noti.NotiType
 import com.hyeeyoung.wishboard.presentation.util.extension.pxToDp
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
-import timber.log.Timber
 
 private const val EMPTY = " "
 private const val VISIBLE_ITEM_COUNT = 3

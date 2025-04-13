@@ -1,6 +1,5 @@
 package com.hyeeyoung.wishboard.config.navigation.screen
 
-import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.runtime.Composable

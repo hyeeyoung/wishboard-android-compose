@@ -23,7 +23,7 @@ class AuthRepositoryImpl @Inject constructor(
             authInfo.email,
             it.tempNickname,
             it.token.accessToken,
-            it.token.refreshToken
+            it.token.refreshToken,
         )
         localStorage.shouldShowOnboardingModal = true
     }.map { }
@@ -36,7 +36,7 @@ class AuthRepositoryImpl @Inject constructor(
             authInfo.email,
             it.tempNickname,
             it.token.accessToken,
-            it.token.refreshToken
+            it.token.refreshToken,
         )
     }.map { }
 
@@ -52,7 +52,7 @@ class AuthRepositoryImpl @Inject constructor(
             authInfo.email,
             it.tempNickname,
             it.token.accessToken,
-            it.token.refreshToken
+            it.token.refreshToken,
         )
     }.map { }
 
@@ -64,5 +64,5 @@ class AuthRepositoryImpl @Inject constructor(
         authService.logout()
     }.onSuccess {
         localStorage.clear()
-    }.map {  }
+    }.map { }
 }

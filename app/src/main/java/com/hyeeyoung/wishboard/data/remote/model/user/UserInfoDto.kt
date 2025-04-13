@@ -17,6 +17,6 @@ data class UserInfoDto(
         email = email,
         nickname = nickname ?: "",
         profileImage = profileImage,
-        isPushAllowed = if (isPushAllowed != null) isPushAllowed != 0 else null
+        isPushAllowed = if (isPushAllowed != null) isPushAllowed != 0 else null,
     )
 }

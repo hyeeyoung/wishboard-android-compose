@@ -25,4 +25,3 @@ inline fun <reified T> T?.toBase64Json(): String? {
         }
     }
 }
-

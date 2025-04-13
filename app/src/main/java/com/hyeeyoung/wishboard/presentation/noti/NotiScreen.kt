@@ -57,7 +57,7 @@ import com.hyeeyoung.wishboard.presentation.util.extension.safePopBackStack
 @Composable
 fun NotiScreen(
     navController: NavHostController,
-    viewModel: NotiViewModel = hiltViewModel()
+    viewModel: NotiViewModel = hiltViewModel(),
 ) {
     val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
     var isFetched by rememberSaveable { mutableStateOf(false) }
@@ -90,7 +90,7 @@ fun NotiScreen(
             onClickCalendar = {
                 navController.navigate(Calendar.route)
             },
-            onClickBack = navController::safePopBackStack
+            onClickBack = navController::safePopBackStack,
         )
     }
 }
@@ -118,9 +118,9 @@ fun NotiScreen(
                         WishBoardIconButton(iconRes = R.drawable.ic_calendar, onClick = { onClickCalendar() })
                         Spacer(modifier = Modifier.width(6.dp))
                     }
-                }
+                },
             )
-        }
+        },
     ) { paddingValues ->
         val contentModifier = Modifier
             .fillMaxSize()
@@ -220,7 +220,8 @@ fun PreviewNotiScreen() {
 
     val notiList = List(7) { idx -> notiItem.copy(itemId = idx.toLong()) }
 
-    NotiScreen(notiList = notiList, updateReadState = {}, updateSnackbarMessage = {}, moveToWebView = { _, _ -> }, onClickCalendar = {}, onClickBack = {})
+    NotiScreen(notiList = notiList, updateReadState = {
+    }, updateSnackbarMessage = {}, moveToWebView = { _, _ -> }, onClickCalendar = {}, onClickBack = {})
 }
 
 @Preview(showBackground = true)
@@ -238,7 +239,7 @@ fun PreviewNotiItem() {
 
     Column {
         NotiItem(
-            noti = notiItem
+            noti = notiItem,
         )
     }
 }

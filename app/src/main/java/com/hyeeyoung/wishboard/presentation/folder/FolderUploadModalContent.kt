@@ -26,7 +26,7 @@ fun FolderUploadModalContent(
     folderName: String? = null,
     uploadState: WishBoardState<Unit>,
     existingFolderName: String?,
-    onClickComplete: (String) -> Unit
+    onClickComplete: (String) -> Unit,
 ) {
     val nameInput = remember { mutableStateOf(folderName ?: "") }
 
@@ -45,12 +45,12 @@ fun FolderUploadModalContent(
                     text = stringResource(
                         id = R.string.text_length,
                         nameInput.value.length,
-                        MAX_LENGTH_FOLDER_NAME
+                        MAX_LENGTH_FOLDER_NAME,
                     ),
                     color = WishBoardTheme.colors.gray200,
-                    style = WishBoardTheme.typography.suitD3
+                    style = WishBoardTheme.typography.suitD3,
                 )
-            }
+            },
         )
 
         Spacer(modifier = Modifier.height(58.dp))
@@ -59,7 +59,11 @@ fun FolderUploadModalContent(
             enabled = nameInput.value.isNotBlank(),
             state = uploadState,
             onClick = { onClickComplete(nameInput.value) },
-            text = if (uploadState !is WishBoardState.Loading) stringResource(id = if (folderName == null) R.string.add else R.string.modal_folder_name_edit_btn_text) else "",
+            text = if (uploadState !is WishBoardState.Loading) {
+                stringResource(id = if (folderName == null) R.string.add else R.string.modal_folder_name_edit_btn_text)
+            } else {
+                ""
+            },
         )
     }
 }
@@ -71,7 +75,7 @@ fun PreviewNewFolderModalContent() {
         folderName = "",
         existingFolderName = null,
         uploadState = WishBoardState.Loading,
-        onClickComplete = {}
+        onClickComplete = {},
     )
 }
 
@@ -82,5 +86,6 @@ fun PreviewFolderEditModalContent() {
         folderName = "셀린느",
         existingFolderName = null,
         uploadState = WishBoardState.Idle,
-        onClickComplete = {})
+        onClickComplete = {},
+    )
 }

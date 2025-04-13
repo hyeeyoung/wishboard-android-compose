@@ -10,7 +10,6 @@ import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import java.lang.Exception
 import java.net.ConnectException
 
 open class BaseViewModel : ViewModel() {

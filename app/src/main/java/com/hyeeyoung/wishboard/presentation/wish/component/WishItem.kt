@@ -32,7 +32,7 @@ fun WishItem(modifier: Modifier = Modifier, wishItem: WishItem, onClickItem: () 
                 modifier = imageModifier,
                 placeHolder = {
                     WishBoardPlaceHolder(modifier = imageModifier)
-                }
+                },
             )
 
             /* 장바구니 버튼

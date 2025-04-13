@@ -61,7 +61,7 @@ fun SignInScreen(navController: NavHostController, viewModel: SignViewModel = hi
                             inclusive = true
                         }
                     }
-                }
+                },
             )
         },
         onClickEmailLogin = {
@@ -70,7 +70,7 @@ fun SignInScreen(navController: NavHostController, viewModel: SignViewModel = hi
         onClickBack = {
             keyboardController?.hide()
             navController.safePopBackStack()
-        }
+        },
     )
 }
 
@@ -81,7 +81,7 @@ fun SignInScreen(
     onPasswordChange: (String) -> Unit,
     onClickLogin: () -> Unit,
     onClickEmailLogin: () -> Unit,
-    onClickBack: () -> Unit
+    onClickBack: () -> Unit,
 ) {
     val focusRequester = remember { FocusRequester() }
 
@@ -159,6 +159,6 @@ fun PreviewSignInScreen() {
         onPasswordChange = {},
         onClickLogin = {},
         onClickEmailLogin = {},
-        onClickBack = {}
+        onClickBack = {},
     )
 }

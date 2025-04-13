@@ -26,21 +26,22 @@ import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardTextFie
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBarWithStep
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.presentation.common.getSharedViewModel
+import com.hyeeyoung.wishboard.presentation.sign.SignViewModel
+import com.hyeeyoung.wishboard.presentation.sign.component.SignDescription
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTextFieldComponent
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.sign.model.auth.SignUiModel
-import com.hyeeyoung.wishboard.presentation.sign.SignViewModel
-import com.hyeeyoung.wishboard.presentation.sign.component.SignDescription
 import com.hyeeyoung.wishboard.presentation.util.extension.safePopBackStack
 
 private const val VERIFICATION_CODE_MAX_LENGTH = 6
 
 @Composable
 fun SignInVerificationCodeScreen(
-    navController: NavController, viewModel: SignViewModel = getSharedViewModel(
+    navController: NavController,
+    viewModel: SignViewModel = getSharedViewModel(
         navController = navController,
-        route = SignScreen.Email.route
-    )
+        route = SignScreen.Email.route,
+    ),
 ) {
     val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -64,7 +65,7 @@ fun SignInVerificationCodeScreen(
         },
         onClickBack = {
             navController.safePopBackStack()
-        }
+        },
     )
 }
 
@@ -73,7 +74,7 @@ fun SignInVerificationCodeScreen(
     uiModel: SignUiModel,
     onAuthCodeChange: (String) -> Unit,
     onClickLogin: () -> Unit,
-    onClickBack: () -> Unit
+    onClickBack: () -> Unit,
 ) {
     Scaffold(topBar = {
         WishBoardTopBarWithStep(
@@ -99,7 +100,11 @@ fun SignInVerificationCodeScreen(
             WishBoardTextField(
                 input = verificationCodeInput,
                 placeholder = stringResource(id = R.string.sign_in_verification_code_placeholder),
-                errorMsg = if (uiModel.isCorrectAuthCode == false) stringResource(id = R.string.sign_in_verification_code_error) else "",
+                errorMsg = if (uiModel.isCorrectAuthCode == false) {
+                    stringResource(id = R.string.sign_in_verification_code_error)
+                } else {
+                    ""
+                },
                 onTextChange = onAuthCodeChange,
                 maxLength = VERIFICATION_CODE_MAX_LENGTH,
                 isError = uiModel.isCorrectAuthCode == false,

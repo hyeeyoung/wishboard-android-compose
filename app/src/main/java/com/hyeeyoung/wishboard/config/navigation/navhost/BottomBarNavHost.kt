@@ -21,7 +21,7 @@ fun BottomBarNavHost(
     NavHost(
         modifier = modifier,
         navController = bottomNavController,
-        startDestination = MainScreen.Wishlist.route
+        startDestination = MainScreen.Wishlist.route,
     ) {
         // 메인 탭
         composable(route = MainScreen.Wishlist.route) {

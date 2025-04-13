@@ -25,7 +25,7 @@ fun LocalDateTime.getScheduleTimeFormat(): String {
 }
 
 fun LocalDateTime.toNotiDateStr(): String {
-    val year = this.year % 100  // 2022 → 22
+    val year = this.year % 100 // 2022 → 22
     val month = this.monthNumber
     val day = this.dayOfMonth
     val hour = this.hour
@@ -89,6 +89,9 @@ fun LocalDateTime.formatDday(): String {
 
 // 시간을 "오늘 13시 30분" 혹은 "오늘 13시" 형식으로 변환
 private fun formatTime(prefix: String, time: LocalTime): String {
-    return if (time.minute == 0) "$prefix ${time.hour}시"
-    else "$prefix ${time.hour}시 ${time.minute}분"
+    return if (time.minute == 0) {
+        "$prefix ${time.hour}시"
+    } else {
+        "$prefix ${time.hour}시 ${time.minute}분"
+    }
 }

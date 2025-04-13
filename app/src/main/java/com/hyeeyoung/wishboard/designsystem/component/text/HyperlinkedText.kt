@@ -5,7 +5,6 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorProducer
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
@@ -45,13 +44,17 @@ fun HyperlinkText(
             append(url)
 
             addLink(
-                LinkAnnotation.Clickable(url, styles = TextLinkStyles(
-                    style = SpanStyle(color = Color(0xFF3776E7))
-                ), linkInteractionListener = {
-                    navController.moveToWebView(title = url.getDomainName(), url = url)
-                }),
+                LinkAnnotation.Clickable(
+                    url,
+                    styles = TextLinkStyles(
+                        style = SpanStyle(color = Color(0xFF3776E7)),
+                    ),
+                    linkInteractionListener = {
+                        navController.moveToWebView(title = url.getDomainName(), url = url)
+                    },
+                ),
                 start = length - url.length,
-                end = length
+                end = length,
             )
 
             currentIndex = end
@@ -70,7 +73,6 @@ fun HyperlinkText(
     )
 }
 
-
 @Preview(showBackground = true)
 @Composable
 fun PreviewHyperlinkText() {
@@ -78,6 +80,6 @@ fun PreviewHyperlinkText() {
         navController = rememberNavController(),
         style = WishBoardTheme.typography.suitD1,
         color = WishBoardTheme.colors.gray700,
-        text = "네이버 링크는 https://www.naver.com 입니다."
+        text = "네이버 링크는 https://www.naver.com 입니다.",
     )
 }

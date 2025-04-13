@@ -4,5 +4,5 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class WishItemIdDto(
-    val id: Long
+    val id: Long,
 )

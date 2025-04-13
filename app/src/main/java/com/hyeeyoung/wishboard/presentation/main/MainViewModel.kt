@@ -14,12 +14,11 @@ import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    @ApplicationContext context: Context
+    @ApplicationContext context: Context,
 ) : BaseViewModel() {
     /** 스낵바 시각 정보(전역으로 사용) */
     val globalSnackbarChannel = Channel<WishBoardSnackbarVisuals>(
@@ -47,8 +46,8 @@ class MainViewModel @Inject constructor(
                     else -> globalSnackbarChannel.send(
                         WishBoardSnackbarVisuals(
                             message = SnackbarMessage.NETWORK_CONNECTION_ERROR,
-                            duration = SnackbarDuration.Indefinite
-                        )
+                            duration = SnackbarDuration.Indefinite,
+                        ),
                     )
                 }
             }

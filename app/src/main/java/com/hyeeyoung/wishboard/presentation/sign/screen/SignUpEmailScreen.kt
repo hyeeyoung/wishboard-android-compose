@@ -39,7 +39,7 @@ import kotlinx.coroutines.delay
 @Composable
 fun SignUpEmailScreen(
     navController: NavHostController,
-    viewModel: SignViewModel = hiltViewModel()
+    viewModel: SignViewModel = hiltViewModel(),
 ) {
     val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -52,12 +52,13 @@ fun SignUpEmailScreen(
                 afterSuccess = {
                     keyboardController?.hide()
                     navController.navigate(SignScreen.Password.route)
-                })
+                },
+            )
         },
         onClickBack = {
             keyboardController?.hide()
             navController.safePopBackStack()
-        }
+        },
     )
 }
 
@@ -66,7 +67,7 @@ fun SignUpEmailScreen(
     uiModel: SignUiModel,
     onEmailChange: (String) -> Unit,
     onClickNext: () -> Unit,
-    onClickBack: () -> Unit
+    onClickBack: () -> Unit,
 ) {
     val focusRequester = remember { FocusRequester() }
     val isRegisteredEmail by remember(uiModel.email, uiModel.registeredEmail) {
@@ -100,9 +101,13 @@ fun SignUpEmailScreen(
                     .focusRequester(focusRequester),
                 input = uiModel.email,
                 placeholder = stringResource(id = R.string.sign_email_placeholder),
-                errorMsg = if (uiModel.isValidEmail == false) stringResource(id = R.string.sign_in_email_error) else stringResource(
-                    id = R.string.sign_up_already_member_error
-                ),
+                errorMsg = if (uiModel.isValidEmail == false) {
+                    stringResource(id = R.string.sign_in_email_error)
+                } else {
+                    stringResource(
+                        id = R.string.sign_up_already_member_error,
+                    )
+                },
                 isError = uiModel.isValidEmail == false || isRegisteredEmail,
                 onTextChange = onEmailChange,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
@@ -126,10 +131,10 @@ fun PreviewSignUpEmailScreen() {
         uiModel = SignUiModel(
             email = "",
             registeredEmail = "cyjin6@naver.com",
-            isValidEmail = null
+            isValidEmail = null,
         ),
         onEmailChange = {},
         onClickNext = {},
-        onClickBack = {}
+        onClickBack = {},
     )
 }

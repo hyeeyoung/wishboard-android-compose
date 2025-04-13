@@ -89,7 +89,7 @@ fun ScheduleItem(
             .padding(16.dp),
     ) {
         val (image, notiType, notiDate, itemName) = createRefs()
-        
+
         Image(
             modifier = Modifier
                 .constrainAs(image) { start.linkTo(parent.start) }

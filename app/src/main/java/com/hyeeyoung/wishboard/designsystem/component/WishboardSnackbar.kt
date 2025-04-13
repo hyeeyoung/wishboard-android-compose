@@ -25,19 +25,16 @@ import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.presentation.main.MainActivity
 import com.hyeeyoung.wishboard.presentation.sign.model.snackbar.WishBoardSnackbarVisuals
 import com.hyeeyoung.wishboard.presentation.util.extension.toMillis
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
 
 @Composable
 @Stable
 fun WishBoardSnackbarMessage(
     snackbarHostState: SnackbarHostState = MainActivity.wishBoardSnackbarHostState,
-    snackbarChannel: Channel<WishBoardSnackbarVisuals>
+    snackbarChannel: Channel<WishBoardSnackbarVisuals>,
 ) {
     LaunchedEffect(Unit) {
         snackbarChannel.receiveAsFlow().collectLatest { snackBar ->
@@ -62,7 +59,9 @@ fun WishBoardSnackbarMessage(
 fun WishBoardGlobalSnackbarMessage(
     snackbarChannel: Channel<WishBoardSnackbarVisuals>,
     context: Context = LocalContext.current,
-    sendSnackbarChannel: (WishBoardSnackbarVisuals) -> Unit = { (context as? MainActivity)?.sendSnackbarVisualChannel(it) }
+    sendSnackbarChannel: (WishBoardSnackbarVisuals) -> Unit = {
+        (context as? MainActivity)?.sendSnackbarVisualChannel(it)
+    },
 ) {
     LaunchedEffect(Unit) {
         snackbarChannel.receiveAsFlow().collectLatest { snackBar ->

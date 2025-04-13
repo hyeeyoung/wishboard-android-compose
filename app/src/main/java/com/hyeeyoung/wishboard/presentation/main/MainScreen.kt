@@ -24,7 +24,7 @@ fun MainScreen(wishNavController: NavHostController, isFirstLaunch: Boolean, onC
     Scaffold(bottomBar = {
         WishBoardBottomBar(
             navController = bottomBarNavController,
-            onClickAdd = onClickAdd
+            onClickAdd = onClickAdd,
         )
     }) { paddingValues ->
         val modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding())

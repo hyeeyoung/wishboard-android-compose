@@ -55,7 +55,8 @@ fun WishBoardNavHost(modifier: Modifier = Modifier, navController: NavHostContro
                 MainScreen(
                     wishNavController = navController,
                     isFirstLaunch = it.getBoolean(MainScreen.Root.ARG_IS_FIRST_LAUNCH),
-                    onClickAdd = { navController.navigate(MainScreen.Upload.route) })
+                    onClickAdd = { navController.navigate(MainScreen.Upload.route) },
+                )
             }
         }
 
@@ -69,7 +70,7 @@ fun WishBoardNavHost(modifier: Modifier = Modifier, navController: NavHostContro
             exitTransition = { slideOutVertically(targetOffsetY = { -it }) },
             popEnterTransition = { slideInVertically(initialOffsetY = { -it }) },
             popExitTransition = { slideOutVertically(targetOffsetY = { it }) },
-            route = Calendar.route
+            route = Calendar.route,
         ) {
             CalendarScreen(navController = navController)
         }
@@ -81,7 +82,7 @@ fun WishBoardNavHost(modifier: Modifier = Modifier, navController: NavHostContro
                 navArgument(MainScreen.MyProfile.ARG_USER_INFO) {
                     type = NavType.StringType
                 },
-            )
+            ),
         ) { backStackEntry ->
             backStackEntry.arguments?.let {
                 val profileInfo =
@@ -113,22 +114,30 @@ fun NavGraphBuilder.snackbarComposable(
     route: String,
     arguments: List<NamedNavArgument> = emptyList(),
     enterTransition:
-    (@JvmSuppressWildcards
-    AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?)? =
+    (
+        @JvmSuppressWildcards
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?
+    )? =
         null,
     exitTransition:
-    (@JvmSuppressWildcards
-    AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?)? =
+    (
+        @JvmSuppressWildcards
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?
+    )? =
         null,
     popEnterTransition:
-    (@JvmSuppressWildcards
-    AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?)? =
+    (
+        @JvmSuppressWildcards
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?
+    )? =
         enterTransition,
     popExitTransition:
-    (@JvmSuppressWildcards
-    AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?)? =
+    (
+        @JvmSuppressWildcards
+        AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?
+    )? =
         exitTransition,
-    content: @Composable AnimatedContentScope.(NavBackStackEntry) -> Unit
+    content: @Composable AnimatedContentScope.(NavBackStackEntry) -> Unit,
 ) {
     composable(
         route = route,
@@ -136,10 +145,11 @@ fun NavGraphBuilder.snackbarComposable(
         enterTransition = enterTransition,
         exitTransition = exitTransition,
         popEnterTransition = popEnterTransition,
-        popExitTransition = popExitTransition
+        popExitTransition = popExitTransition,
     ) { navBackStackEntry ->
         Scaffold(
             snackbarHost = { WishBoardSnackbarHost(hostState = snackbarHostState) },
-            content = { content(navBackStackEntry) })
+            content = { content(navBackStackEntry) },
+        )
     }
 }

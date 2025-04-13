@@ -52,7 +52,7 @@ fun FolderDetailScreen(
         folderName = folderName,
         lazyGridState = lazyGridState,
         onClickItem = { id ->
-            wishNavController.navigate("${MainScreen.WishItemDetail.route}/${id}")
+            wishNavController.navigate("${MainScreen.WishItemDetail.route}/$id")
         },
         onClickBack = bottomNavController::safePopBackStack,
     )

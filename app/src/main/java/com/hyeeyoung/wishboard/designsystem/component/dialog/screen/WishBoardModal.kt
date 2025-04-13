@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -77,6 +76,11 @@ fun WishBoardModal(@StringRes titleRes: Int, onDismissRequest: () -> Unit = {}, 
 @Composable
 fun PreviewFolderUploadModal() {
     WishBoardModal(titleRes = R.string.modal_new_folder_title) {
-        FolderUploadModalContent(folderName = "", uploadState = WishBoardState.Idle, existingFolderName = null, onClickComplete = {})
+        FolderUploadModalContent(
+            folderName = "",
+            uploadState = WishBoardState.Idle,
+            existingFolderName = null,
+            onClickComplete = {},
+        )
     }
 }

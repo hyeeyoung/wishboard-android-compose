@@ -39,7 +39,9 @@ object NetworkModule {
         Retrofit.Builder()
             .baseUrl(BuildConfig.BASE_URL)
             .client(client)
-            .addConverterFactory(JsonUtil.json.asConverterFactory(requireNotNull("application/json".toMediaTypeOrNull())))
+            .addConverterFactory(
+                JsonUtil.json.asConverterFactory(requireNotNull("application/json".toMediaTypeOrNull())),
+            )
             .build()
 
     @Provides

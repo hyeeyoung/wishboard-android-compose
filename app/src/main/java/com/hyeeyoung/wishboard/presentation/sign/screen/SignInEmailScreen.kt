@@ -39,7 +39,7 @@ import kotlinx.coroutines.delay
 @Composable
 fun SignInEmailScreen(
     navController: NavController,
-    viewModel: SignViewModel = hiltViewModel()
+    viewModel: SignViewModel = hiltViewModel(),
 ) {
     val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
 
@@ -96,9 +96,13 @@ fun SignInEmailScreen(
                 modifier = Modifier.focusRequester(focusRequester),
                 input = emailInput,
                 placeholder = stringResource(id = R.string.sign_email_placeholder),
-                errorMsg = if (uiModel.isValidEmail == false) stringResource(id = R.string.sign_in_email_error) else stringResource(
-                    id = R.string.sign_in_unregister_error
-                ),
+                errorMsg = if (uiModel.isValidEmail == false) {
+                    stringResource(id = R.string.sign_in_email_error)
+                } else {
+                    stringResource(
+                        id = R.string.sign_in_unregister_error,
+                    )
+                },
                 isError = uiModel.isValidEmail == false || isNonRegisteredEmail,
                 onTextChange = onEmailChange,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
@@ -122,6 +126,6 @@ fun PreviewSignInEmailScreen() {
         uiModel = SignUiModel(),
         onEmailChange = {},
         onClickReceiveMail = {},
-        onClickBack = {}
+        onClickBack = {},
     )
 }

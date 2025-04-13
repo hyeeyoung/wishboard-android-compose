@@ -35,9 +35,9 @@ data class WishItemUploadUiModel(
     fun toDomain(itemImage: ImageType?, uploadType: WishItemUploadType): WishItemUploadInfo {
         val dateStr = itemNotiDate?.getFormattedDateStr(WishBoardDateFormat.YYYY_MM_DD_HH_MM_SS)
         val site =
-            if (itemUrl.isEmpty()) null
-            else if (uploadType == WishItemUploadType.PARSING) { itemUrl.getValidUrl() }
-            else { itemUrl }
+            if (itemUrl.isEmpty()) {
+                null
+            } else if (uploadType == WishItemUploadType.PARSING) { itemUrl.getValidUrl() } else { itemUrl }
 
         return WishItemUploadInfo(
             folderId = selectedFolder?.id,

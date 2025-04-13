@@ -46,7 +46,7 @@ import kotlinx.coroutines.delay
 @Composable
 fun SignUpPasswordScreen(
     navController: NavHostController,
-    viewModel: SignViewModel = getSharedViewModel<SignViewModel>(navController, SignScreen.Email.route)
+    viewModel: SignViewModel = getSharedViewModel<SignViewModel>(navController, SignScreen.Email.route),
 ) {
     val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -72,7 +72,7 @@ fun SignUpPasswordScreen(
         },
         onClickBack = {
             navController.safePopBackStack()
-        }
+        },
     )
 }
 
@@ -123,7 +123,7 @@ fun SignUpPasswordScreen(
                 onTextChange = onPasswordChange,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 visualTransformation = PasswordVisualTransformation(),
-                isError = uiModel.isValidPassword == false || uiModel.isAlreadyRegisteredError
+                isError = uiModel.isValidPassword == false || uiModel.isAlreadyRegisteredError,
             )
 
             Spacer(modifier = Modifier.weight(1f))
@@ -194,6 +194,6 @@ fun PreviewSignUpPasswordScreen() {
         onClickTermsOrPolicy = { _, _ -> },
         onPasswordChange = {},
         onClickSignUp = {},
-        onClickBack = {}
+        onClickBack = {},
     )
 }

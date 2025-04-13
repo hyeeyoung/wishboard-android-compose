@@ -24,7 +24,7 @@ interface FolderService {
     @PUT("folder/{folder_id}")
     suspend fun updateName(
         @Path("folder_id") folderId: Long,
-        @Body folderName: FolderNameDto
+        @Body folderName: FolderNameDto,
     ): BaseResponseWithoutData
 
     @DELETE("folder/{folder_id}")

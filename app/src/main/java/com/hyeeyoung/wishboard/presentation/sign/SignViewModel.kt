@@ -62,8 +62,8 @@ class SignViewModel @Inject constructor(
                     AuthInfo(
                         email = uiModel.value.email,
                         password = uiModel.value.password,
-                        fcmToken = fcmToken
-                    )
+                        fcmToken = fcmToken,
+                    ),
                 ).onSuccess {
                     _uiModel.update {
                         it.copy(signProcessStatus = WishBoardState.Success(Unit))
@@ -91,14 +91,14 @@ class SignViewModel @Inject constructor(
                     AuthInfo(
                         email = uiModel.value.email,
                         password = uiModel.value.password,
-                        fcmToken = fcmToken
-                    )
+                        fcmToken = fcmToken,
+                    ),
                 ).onSuccess {
                     afterSuccess()
                 }.onFailure { exception, errorCode, errorBody ->
                     when {
-                        errorCode == 400 && errorBody?.contains("입력하신 비밀번호가 올바르지 않음") == true
-                                || errorCode == 404 && errorBody?.contains("존재하지 않는 유저") == true
+                        errorCode == 400 && errorBody?.contains("입력하신 비밀번호가 올바르지 않음") == true ||
+                            errorCode == 404 && errorBody?.contains("존재하지 않는 유저") == true
                         -> updateSnackbarMessage("아이디 또는 비밀번호를 다시 확인해 주세요.")
 
                         else -> updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
@@ -130,8 +130,8 @@ class SignViewModel @Inject constructor(
                 postSignInEmailUseCase(
                     AuthInfo(
                         email = uiModel.value.email,
-                        fcmToken = fcmToken
-                    )
+                        fcmToken = fcmToken,
+                    ),
                 ).onSuccess {
                     afterSuccess()
                 }.onFailure { _, errorCode, errorBody ->
@@ -180,7 +180,9 @@ class SignViewModel @Inject constructor(
 
         val passwordPattern = Pattern.compile(WishBoardFormat.PASSWORD_PATTERN)
         _uiModel.update {
-            it.copy(isValidPassword = if (trimmedPassword.isBlank()) null else passwordPattern.matcher(password).matches())
+            it.copy(
+                isValidPassword = if (trimmedPassword.isBlank()) null else passwordPattern.matcher(password).matches(),
+            )
         }
     }
 

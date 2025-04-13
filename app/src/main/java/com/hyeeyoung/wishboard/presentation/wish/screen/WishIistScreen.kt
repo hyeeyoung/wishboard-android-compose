@@ -58,7 +58,7 @@ import kotlinx.coroutines.launch
 fun WishListScreen(
     navController: NavHostController,
     isFirstLaunch: Boolean,
-    viewModel: WishListViewModel = hiltViewModel()
+    viewModel: WishListViewModel = hiltViewModel(),
 ) {
     val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
     val coroutineScope = rememberCoroutineScope()
@@ -97,8 +97,8 @@ fun WishListScreen(
                 navController.navigate(MainScreen.Noti.route)
             },
             onClickWishItem = { id ->
-                navController.navigate("${MainScreen.WishItemDetail.route}/${id}")
-            }
+                navController.navigate("${MainScreen.WishItemDetail.route}/$id")
+            },
         )
     }
 
@@ -118,9 +118,9 @@ fun WishListScreen(
                     coroutineScope.launch {
                         onboardingSheetState.hide()
                     }
-                }
+                },
             )
-        }
+        },
     )
 }
 
@@ -129,7 +129,7 @@ fun WishlistScreen(
     uiModel: WishListUiModel,
     lazyGridState: LazyGridState,
     onClickCalendar: () -> Unit,
-    onClickWishItem: (id: Long) -> Unit
+    onClickWishItem: (id: Long) -> Unit,
 ) {
     Scaffold(topBar = {
         WishlistTopBar(onClickCalendar = onClickCalendar)
@@ -142,12 +142,12 @@ fun WishlistScreen(
         if (uiModel.withItems.isEmpty()) {
             LazyColumn(
                 modifier = contentModifier,
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = Arrangement.Center,
             ) {
                 item {
                     WishBoardEmptyView(
                         modifier = contentModifier,
-                        guideTextRes = R.string.empty_wishlist_guide_text
+                        guideTextRes = R.string.empty_wishlist_guide_text,
                     )
                 }
             }
@@ -189,7 +189,7 @@ fun WishlistTopBar(onClickCalendar: () -> Unit) {
                 .noRippleClickable { onClickCalendar() }
                 .padding(14.dp)
                 .size(24.dp),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
         ) {
 //            WishBoardIconButton(iconRes = R.drawable.ic_cart, onClick = { onClickCart() })
 
@@ -244,7 +244,7 @@ fun PreviewWishlistScreen() {
                     imageUrl = "https://url.kr/8vwf1e",
                     price = 108000,
                 ),
-            )
+            ),
         ),
         lazyGridState = rememberLazyGridState(),
         onClickCalendar = {},

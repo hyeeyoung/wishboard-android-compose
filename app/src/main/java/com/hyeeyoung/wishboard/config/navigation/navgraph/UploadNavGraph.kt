@@ -26,7 +26,7 @@ fun NavGraphBuilder.uploadNavGraph(navController: NavHostController, snackbarHos
         enterTransition = { slideInVertically(initialOffsetY = { it }) },
         exitTransition = { slideOutVertically(targetOffsetY = { -it }) },
         popEnterTransition = { slideInVertically(initialOffsetY = { -it }) },
-        popExitTransition = { slideOutVertically(targetOffsetY = { it }) }
+        popExitTransition = { slideOutVertically(targetOffsetY = { it }) },
     ) { backStackEntry ->
         backStackEntry.arguments?.let {
             val itemDetail = it.getBase64Json<WishItemDetail>(MainScreen.Upload.ARG_ITEM_DETAIL)

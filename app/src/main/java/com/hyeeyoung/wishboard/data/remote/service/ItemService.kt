@@ -23,7 +23,7 @@ interface ItemService {
 
     @GET("item/{item_id}")
     suspend fun fetchWishItemDetail(
-        @Path("item_id") itemId: Long
+        @Path("item_id") itemId: Long,
     ): List<WishItemDetailDto>
 
     @Multipart
@@ -57,7 +57,7 @@ interface ItemService {
     @PUT("item/{item_id}/folder/{folder_id}")
     suspend fun updateFolderOfItem(
         @Path("item_id") itemId: Long,
-        @Path("folder_id") folderId: Long
+        @Path("folder_id") folderId: Long,
     ): BaseResponseWithoutData
 
     @DELETE("item/{item_id}")
@@ -65,6 +65,6 @@ interface ItemService {
 
     @GET("item/parse")
     suspend fun getParsedItemInfo(
-        @Query("site") site: String
+        @Query("site") site: String,
     ): BaseResponse<ParsedWishItem>
 }

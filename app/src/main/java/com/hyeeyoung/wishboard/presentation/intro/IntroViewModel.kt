@@ -28,7 +28,7 @@ class IntroViewModel @Inject constructor(
         _uiModel.update {
             it.copy(
                 isLogin = localStorage.isLogin,
-                hasShownNotificationAlert = localStorage.hasShownNotificationAlert
+                hasShownNotificationAlert = localStorage.hasShownNotificationAlert,
             )
         }
     }
@@ -43,7 +43,7 @@ class IntroViewModel @Inject constructor(
     fun checkForAppUpdate(
         playStoreVersionCode: Int,
         moveToNext: () -> Unit,
-        showUpdateDialog: (appUpdateType: AppUpdateTime) -> Unit
+        showUpdateDialog: (appUpdateType: AppUpdateTime) -> Unit,
     ) {
         if (BuildConfig.VERSION_CODE >= playStoreVersionCode) {
             moveToNext()
@@ -52,9 +52,11 @@ class IntroViewModel @Inject constructor(
 
         viewModelScope.launch {
             getAppVersionUseCase().onSuccess { remoteVersion ->
-                val updateType = if (BuildConfig.VERSION_CODE < remoteVersion.minVersionCode)
-                    AppUpdateTime.FORCED_UPDATE else
+                val updateType = if (BuildConfig.VERSION_CODE < remoteVersion.minVersionCode) {
+                    AppUpdateTime.FORCED_UPDATE
+                } else {
                     AppUpdateTime.OPTIONAL_UPDATE
+                }
                 showUpdateDialog(updateType)
             }.onFailure {
                 moveToNext()

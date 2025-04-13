@@ -1,4 +1,4 @@
-package com.hyeeyoung.wishboard.presentation
+package com.hyeeyoung.wishboard.presentation.common
 
 import android.annotation.SuppressLint
 import android.view.ViewGroup

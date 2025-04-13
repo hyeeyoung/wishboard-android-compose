@@ -40,7 +40,7 @@ object BitmapUtil {
                     return@withContext BitmapFactory.decodeByteArray(
                         compressedByteArray,
                         0,
-                        compressedByteArray.size
+                        compressedByteArray.size,
                     )
                 }
 
@@ -69,7 +69,7 @@ object BitmapUtil {
 
     private fun makeFileName(token: String): String {
         val timestamp = getTimestamp()
-        return ("${token.substring(7)}_${timestamp}.jpg")
+        return ("${token.substring(7)}_$timestamp.jpg")
     }
 
     private fun getTimestamp(): String {
@@ -89,7 +89,9 @@ object BitmapUtil {
             this.compress(format, quality, outputStream)
             quality -= IMAGE_COMPRESSION_DECREASE_FACTOR
             attempt++
-        } while (outputStream.size() > MAXIMUM_IMAGE_SIZE && quality > IMAGE_COMPRESSION_DECREASE_FACTOR && attempt < maxAttempts)
+        } while (outputStream.size() > MAXIMUM_IMAGE_SIZE && quality
+            > IMAGE_COMPRESSION_DECREASE_FACTOR && attempt < maxAttempts
+        )
 
         return outputStream.toByteArray()
     }

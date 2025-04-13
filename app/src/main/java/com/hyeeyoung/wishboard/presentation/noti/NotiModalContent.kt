@@ -22,7 +22,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.component.Picker
-import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
 import com.hyeeyoung.wishboard.designsystem.component.dialog.temp.ModalTitle
 import com.hyeeyoung.wishboard.designsystem.style.Gray100
@@ -55,7 +54,7 @@ fun NotiModalContent(
     Column(modifier = Modifier.padding(bottom = 16.dp)) {
         ModalTitle(
             title = stringResource(id = R.string.modal_noti_setting_title),
-            onDismissRequest = onDismissRequest
+            onDismissRequest = onDismissRequest,
         )
 
         Spacer(modifier = Modifier.height(48.dp))
@@ -137,11 +136,11 @@ fun NotiModalContent(
                         NumberPickerUtil.toLocalDateTime(
                             date = selectedDate.value,
                             hour = selectedHour.value,
-                            minute = selectedMinute.value
-                        )
+                            minute = selectedMinute.value,
+                        ),
                     )
                 },
-                text = stringResource(id = R.string.complete)
+                text = stringResource(id = R.string.complete),
             )
         }
     }
@@ -153,7 +152,7 @@ fun PreviewNotiModalContent() {
     NotiModalContent(
         notiInfo = NotiInfo(
             notiType = NotiType.OPEN,
-            notiDate = LocalDateTime(25, 3, 25, 12, 30)
+            notiDate = LocalDateTime(25, 3, 25, 12, 30),
         ),
         onClickComplete = { _, _ -> },
         onDismissRequest = {},

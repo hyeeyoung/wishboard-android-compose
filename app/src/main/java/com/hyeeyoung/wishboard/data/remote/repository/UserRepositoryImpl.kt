@@ -15,8 +15,11 @@ class UserRepositoryImpl @Inject constructor(
 ) : UserRepository {
     override suspend fun fetchUserInfo(): Result<UserInfo> = runCatching {
         val remoteUserInfo = userService.fetchUserInfo().firstOrNull()
-        val nickName = if (remoteUserInfo?.nickname != null) remoteUserInfo.nickname
-        else localStorage.userInfo.nickname.ifBlank { null }
+        val nickName = if (remoteUserInfo?.nickname != null) {
+            remoteUserInfo.nickname
+        } else {
+            localStorage.userInfo.nickname.ifBlank { null }
+        }
 
         remoteUserInfo?.copy(nickname = nickName)?.toDomain() ?: UserInfo()
     }.onSuccess { localStorage.userInfo = it }
@@ -24,7 +27,7 @@ class UserRepositoryImpl @Inject constructor(
     override suspend fun updateUserInfo(userProfile: UserProfile): Result<Unit> = runCatching {
         userService.updateUserInfo(
             nickname = userProfile.nickName.toPlainNullableRequestBody(),
-            profileImg = userProfile.profileImage
+            profileImg = userProfile.profileImage,
         )
     }.onSuccess {
         localStorage.clear(WishBoardPreference.USER_INFO)

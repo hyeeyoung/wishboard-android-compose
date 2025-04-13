@@ -31,7 +31,7 @@ fun ShopLinkModalContent(link: String? = null, onClickComplete: (String) -> Unit
     Column {
         ModalTitle(
             title = stringResource(id = R.string.modal_shop_link_title),
-            onDismissRequest = onDismissRequest
+            onDismissRequest = onDismissRequest,
         )
 
         Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)) {

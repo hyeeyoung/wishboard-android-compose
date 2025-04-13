@@ -8,6 +8,6 @@ import retrofit2.http.Query
 interface SystemService {
     @GET("version/check")
     suspend fun fetchAppVersion(
-        @Query("osType") osType: String = "AOS"
+        @Query("osType") osType: String = "AOS",
     ): BaseResponse<AppVersionDto>
 }

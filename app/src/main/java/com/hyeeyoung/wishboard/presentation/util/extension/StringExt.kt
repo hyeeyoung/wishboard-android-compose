@@ -46,7 +46,6 @@ fun String.checkValidationItemUrl(): Boolean {
     return URLUtil.isValidUrl(this) && Patterns.WEB_URL.matcher(this).matches()
 }
 
-
 private fun getRefinedUrl(url: String): String? {
     val httpStartIdx = url.indexOf("http")
     if (httpStartIdx == -1) return null

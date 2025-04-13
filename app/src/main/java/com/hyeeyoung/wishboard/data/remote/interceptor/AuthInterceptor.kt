@@ -54,7 +54,7 @@ class AuthInterceptor @Inject constructor(
                 ).data.token
                 localStorage.updateToken(
                     accessToken = tokens.accessToken,
-                    refreshToken = tokens.refreshToken
+                    refreshToken = tokens.refreshToken,
                 )
                 return@runBlocking tokens
             } catch (e: Exception) {

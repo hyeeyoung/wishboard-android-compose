@@ -100,7 +100,7 @@ import timber.log.Timber
 fun WishUploadScreen(
     navController: NavController,
     itemDetail: WishItemDetail? = null,
-    viewModel: WishItemUploadViewModel = hiltViewModel()
+    viewModel: WishItemUploadViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -129,7 +129,7 @@ fun WishUploadScreen(
                 true -> {
                     viewModel.uploadWishItem(
                         context = context,
-                        uploadType = WishItemUploadType.MANUAL
+                        uploadType = WishItemUploadType.MANUAL,
                     ) { id ->
                         navController.navigate("${MainScreen.WishItemDetail.route}/$id") {
                             keyboardController?.hide()
@@ -164,7 +164,7 @@ fun WishUploadScreen(
         onUriChange = { uri ->
             viewModel.setItemImageUrl(uri)
         },
-        isValidNotiDate = viewModel::isValidNotiDate
+        isValidNotiDate = viewModel::isValidNotiDate,
 
     )
 }
@@ -212,12 +212,12 @@ fun WishUploadScreen(
         uiModel.itemName,
         uiModel.itemPrice,
         uiModel.itemImageUri,
-        uiModel.downloadImageUrl
+        uiModel.downloadImageUrl,
     ) {
         mutableStateOf(
-            uiModel.itemName.isNotBlank()
-                    && uiModel.itemPrice.isNotBlank()
-                    && (uiModel.itemImageUri != null || !uiModel.downloadImageUrl.isNullOrBlank())
+            uiModel.itemName.isNotBlank() &&
+                uiModel.itemPrice.isNotBlank() &&
+                (uiModel.itemImageUri != null || !uiModel.downloadImageUrl.isNullOrBlank()),
         )
     }
 
@@ -278,7 +278,7 @@ fun WishUploadScreen(
                         .zIndex(2f)
                         .align(Alignment.Center),
                     composition = composition,
-                    iterations = LottieConstants.IterateForever
+                    iterations = LottieConstants.IterateForever,
                 )
             }
 
@@ -351,7 +351,7 @@ fun WishUploadScreen(
                         ?: stringResource(id = R.string.wish_item_upload_noti),
                     onClickRow = {
                         modalData = ModalData.Modal.Noti(
-                            NotiInfo(notiType = uiModel.itemNotiType, notiDate = uiModel.itemNotiDate).toJson()
+                            NotiInfo(notiType = uiModel.itemNotiType, notiDate = uiModel.itemNotiDate).toJson(),
                         )
                         coroutineScope.launch { sheetState.show() }
                     },
@@ -397,7 +397,7 @@ fun WishUploadScreen(
                             onDismissRequest = {
                                 coroutineScope.launch { sheetState.hide() }
                                 modalData = null
-                            }
+                            },
                         )
                     }
 
@@ -414,7 +414,7 @@ fun WishUploadScreen(
                             onDismissRequest = {
                                 coroutineScope.launch { sheetState.hide() }
                                 modalData = null
-                            }
+                            },
                         )
                     }
 
@@ -430,13 +430,13 @@ fun WishUploadScreen(
                             onDismissRequest = {
                                 coroutineScope.launch { sheetState.hide() }
                                 modalData = null
-                            }
+                            },
                         )
                     }
 
                     else -> {}
                 }
-            }
+            },
         )
     }
 }
@@ -486,7 +486,7 @@ fun getNotiInfo(notiType: NotiType?, notiDate: LocalDateTime?): String? =
         "[${
             stringResource(
                 id = R.string.noti_item_type,
-                formatArgs = arrayOf(notiType.label)
+                formatArgs = arrayOf(notiType.label),
             )
         }] ${notiDate.getFormattedDateStr(WishBoardDateFormat.YY_M_D_A_H_MM)}"
     }
@@ -512,6 +512,6 @@ fun PreviewWishUploadScreen() {
         onUriChange = {},
         onClickSave = {},
         onClickClose = {},
-        isValidNotiDate = { true }
+        isValidNotiDate = { true },
     )
 }

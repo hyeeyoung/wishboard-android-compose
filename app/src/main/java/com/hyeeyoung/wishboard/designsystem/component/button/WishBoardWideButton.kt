@@ -61,7 +61,7 @@ fun WishBoardWideButton(
                     .zIndex(2f)
                     .align(Alignment.Center),
                 composition = composition,
-                iterations = LottieConstants.IterateForever
+                iterations = LottieConstants.IterateForever,
             )
         }
 

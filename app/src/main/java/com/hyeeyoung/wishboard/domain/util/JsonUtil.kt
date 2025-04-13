@@ -7,7 +7,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.contextual
 
-object JsonUtil{
+object JsonUtil {
     @OptIn(ExperimentalSerializationApi::class)
     val json = Json {
         isLenient = true

@@ -141,9 +141,9 @@ fun LinkSharingWishUploadScreen(
                                     ModalData.Modal.Noti(
                                         NotiInfo(
                                             notiType = uiModel.itemNotiType,
-                                            notiDate = uiModel.itemNotiDate
-                                        ).toJson()
-                                    )
+                                            notiDate = uiModel.itemNotiDate,
+                                        ).toJson(),
+                                    ),
                                 )
                             }
                             .padding(8.dp),
@@ -175,7 +175,7 @@ fun LinkSharingWishUploadScreen(
                                     .size(14.dp),
                                 painter = painterResource(id = R.drawable.ic_delete_circle),
                                 contentDescription = null,
-                                tint = Color.Unspecified
+                                tint = Color.Unspecified,
                             )
                         }
                     }
@@ -189,7 +189,7 @@ fun LinkSharingWishUploadScreen(
                         item {
                             NewFolder(isLogin = uiModel.isLogin, onClickNew = {
                                 updateModalData(
-                                    ModalData.Modal.NewFolder(folderName = "")
+                                    ModalData.Modal.NewFolder(folderName = ""),
                                 )
                             })
                         }
@@ -244,7 +244,7 @@ fun LinkSharingWishUploadScreen(
             modifier = Modifier
                 .navigationBarsPadding()
                 .align(Alignment.BottomCenter),
-            hostState = snackbarHostState
+            hostState = snackbarHostState,
         )
     }
 }
@@ -335,7 +335,7 @@ fun PreviewLinkSharingWishUploadScreen() {
         uiModel = WishItemUploadUiModel(
             isLogin = false,
             itemNotiType = NotiType.SALE_START,
-            itemNotiDate = LocalDateTime(2024, 3, 22, 13, 0)
+            itemNotiDate = LocalDateTime(2024, 3, 22, 13, 0),
         ),
         snackbarHostState = SnackbarHostState(),
         onTextChange = { _, _ -> },

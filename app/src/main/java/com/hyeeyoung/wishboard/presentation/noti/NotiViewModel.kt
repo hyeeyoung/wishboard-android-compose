@@ -29,9 +29,9 @@ class NotiViewModel @Inject constructor(
             getPreviousNotiListUseCase().onSuccess { notiList ->
                 _uiModel.update { it.copy(notiList = notiList, isRefreshing = false) }
             }.onFailure { exception, errorCode, _ ->
-                when(errorCode) {
+                when (errorCode) {
                     404 -> {
-                        _uiModel.update { it.copy(notiList = emptyList(),  isRefreshing = false) }
+                        _uiModel.update { it.copy(notiList = emptyList(), isRefreshing = false) }
                     }
                     else -> {
                         _uiModel.update { it.copy(isRefreshing = false) }
@@ -50,7 +50,7 @@ class NotiViewModel @Inject constructor(
             it.copy(
                 notiList = it.notiList.map { noti ->
                     if (noti.itemId == itemId) { noti.copy(isRead = true) } else noti
-                }
+                },
             )
         }
 

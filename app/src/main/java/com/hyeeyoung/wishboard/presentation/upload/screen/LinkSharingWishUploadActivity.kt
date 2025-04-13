@@ -6,14 +6,10 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
@@ -22,23 +18,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.component.LocalSnackbarHostState
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardGlobalSnackbarMessage
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardSnackbarMessage
-import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.ModalData
 import com.hyeeyoung.wishboard.designsystem.component.dialog.temp.ModalTitle
 import com.hyeeyoung.wishboard.designsystem.component.dialog.temp.WishBoardModal
-import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.domain.model.noti.NotiInfo
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemUploadType
 import com.hyeeyoung.wishboard.presentation.folder.FolderUploadModalContent
@@ -73,13 +64,16 @@ class LinkSharingWishUploadActivity : ComponentActivity() {
             val systemUiController = rememberSystemUiController()
             val coroutineScope = rememberCoroutineScope()
             var modalData by remember { mutableStateOf<ModalData.Modal?>(null) }
-            val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true, confirmValueChange = {newState ->
-                if (modalData is ModalData.Modal.Noti) {
-                    newState != SheetValue.Hidden
-                } else {
-                    true
-                }
-            })
+            val sheetState = rememberModalBottomSheetState(
+                skipPartiallyExpanded = true,
+                confirmValueChange = { newState ->
+                    if (modalData is ModalData.Modal.Noti) {
+                        newState != SheetValue.Hidden
+                    } else {
+                        true
+                    }
+                },
+            )
 
             CompositionLocalProvider(LocalSnackbarHostState provides wishBoardSnackbarHostState) {
                 val snackbarHostState = LocalSnackbarHostState.current
@@ -90,14 +84,15 @@ class LinkSharingWishUploadActivity : ComponentActivity() {
 
                 WishBoardSnackbarMessage(
                     snackbarHostState = snackbarHostState,
-                    snackbarChannel = viewModel.globalSnackbarChannel
+                    snackbarChannel = viewModel.globalSnackbarChannel,
                 )
 
                 WishBoardGlobalSnackbarMessage(
                     snackbarChannel = viewModel.snackBarChannel,
                     sendSnackbarChannel = {
                         sendSnackbarVisualChannel(it)
-                    })
+                    },
+                )
 
                 LinkSharingWishUploadScreen(
                     uiModel = uiModel,
@@ -123,7 +118,8 @@ class LinkSharingWishUploadActivity : ComponentActivity() {
                             uploadType = WishItemUploadType.PARSING,
                             afterSuccess = {
                                 finish()
-                            })
+                            },
+                        )
                     },
                     onClickClose = { finish() },
                 )
@@ -144,7 +140,8 @@ class LinkSharingWishUploadActivity : ComponentActivity() {
                                     onDismissRequest = {
                                         coroutineScope.launch { sheetState.hide() }
                                         modalData = null
-                                    })
+                                    },
+                                )
 
                                 FolderUploadModalContent(
                                     folderName = null,
@@ -155,31 +152,36 @@ class LinkSharingWishUploadActivity : ComponentActivity() {
                                             coroutineScope.launch { sheetState.hide() }
                                             modalData = null
                                         }
-                                    })
+                                    },
+                                )
                             }
                         }
 
                         is ModalData.Modal.Noti -> {
                             val notiData = (modalData as ModalData.Modal.Noti)
 
-
                             NotiModalContent(
                                 notiInfo = notiData.notiInfo.fromJson<NotiInfo>(),
                                 onClickComplete = { type, date ->
-                                    viewModel.isValidNotiDate(NotiInfo(notiType = type, notiDate = date))
+                                    viewModel.isValidNotiDate(
+                                        NotiInfo(
+                                            notiType = type,
+                                            notiDate = date,
+                                        ),
+                                    )
                                     coroutineScope.launch { sheetState.hide() }
                                     modalData = null
                                 },
                                 onDismissRequest = {
                                     coroutineScope.launch { sheetState.hide() }
                                     modalData = null
-                                }
+                                },
                             )
                         }
 
                         else -> {}
                     }
-                }
+                },
             )
         }
     }

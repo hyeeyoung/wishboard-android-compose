@@ -80,7 +80,7 @@ fun WishBoardTextField(
                 innerTextField = innerTextField,
                 onClickClear = {
                     onTextChange(TextFieldValue())
-                }
+                },
             )
         }
 
@@ -89,7 +89,7 @@ fun WishBoardTextField(
                 errorHidingStrategy = errorHidingStrategy,
                 isFocused = isFocused,
                 isError = isError,
-                errorMsg = errorMsg
+                errorMsg = errorMsg,
             )
         }
     }
@@ -140,7 +140,7 @@ fun WishBoardTextField(
                 innerTextField = innerTextField,
                 onClickClear = {
                     onTextChange("")
-                }
+                },
             )
         }
 
@@ -149,7 +149,7 @@ fun WishBoardTextField(
                 errorHidingStrategy = errorHidingStrategy,
                 isFocused = isFocused,
                 isError = isError,
-                errorMsg = errorMsg
+                errorMsg = errorMsg,
             )
         }
     }
@@ -201,7 +201,7 @@ fun WishBoardTextField(
                 innerTextField = innerTextField,
                 onClickClear = {
                     input.value = ""
-                }
+                },
             )
         }
 
@@ -210,7 +210,7 @@ fun WishBoardTextField(
                 errorHidingStrategy = errorHidingStrategy,
                 isFocused = isFocused,
                 isError = isError,
-                errorMsg = errorMsg
+                errorMsg = errorMsg,
             )
 
             Spacer(modifier = Modifier.weight(1f))
@@ -242,7 +242,7 @@ private fun TextFieldErrorMessage(
     errorHidingStrategy: Int,
     isFocused: Boolean,
     isError: Boolean,
-    errorMsg: String?
+    errorMsg: String?,
 ) {
     when (errorHidingStrategy) {
         View.GONE -> {
@@ -286,7 +286,7 @@ private fun DecorationBox(
             modifier = Modifier
                 .weight(1f)
                 .padding(vertical = 12.dp)
-                .padding(start = 10.dp)
+                .padding(start = 10.dp),
         ) {
             if (input.isEmpty()) {
                 Text(

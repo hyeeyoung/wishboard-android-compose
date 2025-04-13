@@ -80,13 +80,13 @@ class WishItemUploadViewModel @Inject constructor(
                         itemName = parsedItem.name ?: "",
                         itemPrice = parsedItem.price ?: "",
                         downloadImageUrl = parsedItem.image,
-                        itemUrl = itemSite
+                        itemUrl = itemSite,
                     )
                 }
             }.onFailure { _, _, _ ->
                 _uiModel.update {
                     it.copy(
-                        itemUrl = itemSite
+                        itemUrl = itemSite,
                     )
                 }
                 updateSnackbarMessage("앗, 아이템 정보를 불러오지 못했어요🥲")
@@ -97,11 +97,13 @@ class WishItemUploadViewModel @Inject constructor(
     fun uploadWishItem(
         context: Context,
         uploadType: WishItemUploadType,
-        afterSuccess: (Long) -> Unit
+        afterSuccess: (Long) -> Unit,
     ) {
-        if (uiModel.value.wishItemUploadState is WishBoardState.Loading
-            || uiModel.value.wishItemUploadState is WishBoardState.Success
-        ) return
+        if (uiModel.value.wishItemUploadState is WishBoardState.Loading ||
+            uiModel.value.wishItemUploadState is WishBoardState.Success
+        ) {
+            return
+        }
         _uiModel.update { it.copy(wishItemUploadState = WishBoardState.Loading) }
 
         viewModelScope.launch {
@@ -114,7 +116,7 @@ class WishItemUploadViewModel @Inject constructor(
 
                     requestBody?.let {
                         ImageType.Picture(
-                            MultipartBody.Part.createFormData("item_img", file.name, requestBody)
+                            MultipartBody.Part.createFormData("item_img", file.name, requestBody),
                         )
                     }
                 }
@@ -148,7 +150,7 @@ class WishItemUploadViewModel @Inject constructor(
     fun updateWishItem(
         context: Context,
         itemId: Long?,
-        afterSuccess: () -> Unit
+        afterSuccess: () -> Unit,
     ) {
         if (itemId == null) {
             updateSnackbarMessage(SnackbarMessage.DEFAULT)
@@ -169,7 +171,7 @@ class WishItemUploadViewModel @Inject constructor(
 
                     requestBody?.let {
                         ImageType.Picture(
-                            MultipartBody.Part.createFormData("item_img", file.name, requestBody)
+                            MultipartBody.Part.createFormData("item_img", file.name, requestBody),
                         )
                     }
                 }
@@ -201,8 +203,8 @@ class WishItemUploadViewModel @Inject constructor(
                 downloadImageUrl = itemDetail.image,
                 selectedFolder = safeLet(
                     itemDetail.folderId,
-                    itemDetail.folderName
-                ) { id, name -> FolderItem(id = id, name = name) }
+                    itemDetail.folderName,
+                ) { id, name -> FolderItem(id = id, name = name) },
             )
         }
     }
@@ -297,8 +299,11 @@ class WishItemUploadViewModel @Inject constructor(
         _uiModel.update {
             it.copy(
                 selectedFolder =
-                if (folderItem?.id != uiModel.value.selectedFolder?.id) folderItem
-                else null
+                if (folderItem?.id != uiModel.value.selectedFolder?.id) {
+                    folderItem
+                } else {
+                    null
+                },
             )
         }
     }

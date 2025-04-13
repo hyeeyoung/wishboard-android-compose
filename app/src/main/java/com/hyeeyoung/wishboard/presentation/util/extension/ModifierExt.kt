@@ -35,7 +35,7 @@ inline fun Modifier.rippleClickable(
     ripple: Boolean = true,
     bounded: Boolean = true,
     debounceIntervalMillis: Long = 400L,
-    crossinline onClick: () -> Unit
+    crossinline onClick: () -> Unit,
 ): Modifier = composed {
     val interactionSource = remember { MutableInteractionSource() }
     var lastClickTime by remember { mutableLongStateOf(0L) }
@@ -57,7 +57,6 @@ inline fun Modifier.rippleClickable(
         }
     }
 }
-
 
 fun Modifier.coloredForeground(alphaColor: Color) = this.drawWithContent {
     drawContent()

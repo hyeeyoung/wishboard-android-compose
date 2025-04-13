@@ -90,7 +90,7 @@ fun FolderScreen(navController: NavHostController, viewModel: FolderViewModel = 
             },
             clearModalData = {
                 viewModel.clearModalData()
-            }
+            },
         )
     }
 
@@ -111,7 +111,8 @@ fun FolderScreen(navController: NavHostController, viewModel: FolderViewModel = 
                             viewModel.createFolder(folderName = name, afterSuccess = {
                                 modalData = null
                             })
-                        })
+                        },
+                    )
                 }
 
                 is ModalData.Modal.FolderNameEdit -> {
@@ -130,7 +131,7 @@ fun FolderScreen(navController: NavHostController, viewModel: FolderViewModel = 
 
                 else -> {}
             }
-        }
+        },
     )
 }
 
@@ -152,7 +153,6 @@ fun FolderScreen(
             is ModalData.OptionModal.FolderMore -> {
                 if (isTopOption) {
                     showModal(ModalData.Modal.FolderNameEdit(folderId = data.folderId, folderName = data.folderName))
-
                 } else {
                     dialogData = DialogData.FolderDelete(folderId = data.folderId)
                 }
@@ -200,7 +200,7 @@ fun FolderScreen(
         if (uiModel.folders.isEmpty()) {
             LazyColumn(
                 modifier = contentModifier,
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = Arrangement.Center,
             ) {
                 item {
                     WishBoardEmptyView(modifier = contentModifier, guideTextRes = R.string.empty_folder_guide_text)
@@ -244,7 +244,7 @@ fun FolderItem(folder: FolderItem, onClickFolder: () -> Unit, onClickMore: (Fold
                 .clip(RoundedCornerShape(10.dp)),
             placeHolder = { modifier ->
                 WishBoardPlaceHolder(modifier = modifier)
-            }
+            },
         )
         Row(modifier = Modifier.fillMaxWidth()) {
             Column(
@@ -301,7 +301,7 @@ fun PreviewFolderScreen() {
         onClickFolder = {},
         deleteFolder = {},
         showModal = {},
-        clearModalData = {}
+        clearModalData = {},
     )
 }
 

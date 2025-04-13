@@ -57,7 +57,7 @@ import kotlinx.coroutines.delay
 fun ProfileEditScreen(
     navController: NavController,
     userInfo: UserInfo,
-    viewModel: MyViewModel = hiltViewModel()
+    viewModel: MyViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
     val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
@@ -76,15 +76,17 @@ fun ProfileEditScreen(
         onNicknameChange = viewModel::onNicknameChange,
         setImageUri = viewModel::setProfileImageUri,
         updateProfile = {
-            viewModel.updateUserProfile(context,
+            viewModel.updateUserProfile(
+                context,
                 afterSuccess = {
                     navController.safePopBackStack()
-                })
+                },
+            )
         },
         onClickBack = {
             keyboardController?.hide()
             navController.safePopBackStack()
-        }
+        },
     )
 }
 
@@ -161,7 +163,7 @@ fun ProfileEditScreen(
                             contentDescription = null,
                             tint = Color.Unspecified,
                         )
-                    }
+                    },
                 )
 
                 Icon(
@@ -193,9 +195,11 @@ fun ProfileEditScreen(
             Spacer(modifier = Modifier.weight(1f))
 
             WishBoardWideButton(
-                enabled = (uiModel.nicknameInput.text.isNotBlank()
-                        && uiModel.userInfo.nickname != uiModel.nicknameInput.text)
-                        || uiModel.imageUriInput != null,
+                enabled = (
+                    uiModel.nicknameInput.text.isNotBlank() &&
+                        uiModel.userInfo.nickname != uiModel.nicknameInput.text
+                    ) ||
+                    uiModel.imageUriInput != null,
                 onClick = updateProfile,
                 text = stringResource(id = R.string.complete),
             )
@@ -212,6 +216,6 @@ fun PreviewProfileEditScreen() {
         setImageUri = {},
         onNicknameChange = {},
         updateProfile = {},
-        onClickBack = {}
+        onClickBack = {},
     )
 }

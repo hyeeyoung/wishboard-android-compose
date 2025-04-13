@@ -4,5 +4,5 @@ import okhttp3.MultipartBody
 
 data class UserProfile(
     val nickName: String?,
-    val profileImage:  MultipartBody.Part?,
+    val profileImage: MultipartBody.Part?,
 )

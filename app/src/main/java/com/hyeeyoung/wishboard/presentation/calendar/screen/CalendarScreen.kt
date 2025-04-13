@@ -38,7 +38,7 @@ import java.time.LocalDate
 @Composable
 fun CalendarScreen(
     navController: NavController,
-    viewModel: CalendarViewModel = hiltViewModel()
+    viewModel: CalendarViewModel = hiltViewModel(),
 ) {
     val systemUiController = rememberSystemUiController()
     val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
@@ -60,7 +60,7 @@ fun CalendarScreen(
         },
         updateSelectedDate = viewModel::updateSelectedDate,
         changeCalendarPage = viewModel::changeCalendarPage,
-        onClickClose = navController::safePopBackStack
+        onClickClose = navController::safePopBackStack,
     )
 }
 
@@ -75,8 +75,9 @@ fun CalendarScreen(
     val curMonthNoti by remember(uiModel.schedules, uiModel.selectedDate) {
         mutableStateOf(
             uiModel.schedules.filter {
-                it.notiDate != null && it.notiDate.year == uiModel.selectedDate.year && it.notiDate.month == uiModel.selectedDate.month
-            }
+                it.notiDate != null && it.notiDate.year == uiModel.selectedDate.year &&
+                    it.notiDate.month == uiModel.selectedDate.month
+            },
         )
     }
     val curDateNoti by remember(curMonthNoti, uiModel.selectedDate) {
@@ -122,7 +123,8 @@ fun CalendarPreview() {
     val schedules = listOf(
         NotiItem(
             1,
-            "https://image.msscdn.net/images/goods_img/20220222/2377269/2377269_16777177260753_500.jpg",
+            "https://image.msscdn.net/images/goods_img/20220222/" +
+                "2377269/2377269_16777177260753_500.jpg",
             "W CLASSIC LOGO TEE white",
             "https://www.musinsa.com/app/goods/2377269",
             false,
@@ -131,7 +133,8 @@ fun CalendarPreview() {
         ),
         NotiItem(
             1,
-            "https://image.msscdn.net/images/goods_img/20220222/2377269/2377269_16777177260753_500.jpg",
+            "https://image.msscdn.net/images/goods_img/20220222/" +
+                "2377269/2377269_16777177260753_500.jpg",
             "W CLASSIC LOGO TEE white",
             "https://www.musinsa.com/app/goods/2377269",
             false,
@@ -140,7 +143,8 @@ fun CalendarPreview() {
         ),
         NotiItem(
             1,
-            "https://image.msscdn.net/images/goods_img/20220222/2377269/2377269_16777177260753_500.jpg",
+            "https://image.msscdn.net/images/goods_img/20220222/" +
+                "2377269/2377269_16777177260753_500.jpg",
             "W CLASSIC LOGO TEE white",
             "https://www.musinsa.com/app/goods/2377269",
             true,
@@ -149,7 +153,8 @@ fun CalendarPreview() {
         ),
         NotiItem(
             2,
-            "https://image.msscdn.net/images/goods_img/20230427/3267246/3267246_16825933559850_500.jpg",
+            "https://image.msscdn.net/images/goods_img/20230427/" +
+                "3267246/3267246_16825933559850_500.jpg",
             "체리 자카드 패턴 숏 슬리브 가디건 [핑크]",
             "https://www.musinsa.com/app/goods/3267246/0",
             false,
@@ -158,7 +163,8 @@ fun CalendarPreview() {
         ),
         NotiItem(
             2,
-            "https://image.msscdn.net/images/goods_img/20230427/3267246/3267246_16825933559850_500.jpg",
+            "https://image.msscdn.net/images/goods_img/20230427/" +
+                "3267246/3267246_16825933559850_500.jpg",
             "체리 자카드 패턴 숏 슬리브 가디건 [핑크]",
             "https://www.musinsa.com/app/goods/3267246/0",
             false,
@@ -167,7 +173,8 @@ fun CalendarPreview() {
         ),
         NotiItem(
             2,
-            "https://image.msscdn.net/images/goods_img/20230427/3267246/3267246_16825933559850_500.jpg",
+            "https://image.msscdn.net/images/goods_img/" +
+                "20230427/3267246/3267246_16825933559850_500.jpg",
             "체리 자카드 패턴 숏 슬리브 가디건 [핑크]",
             "https://www.musinsa.com/app/goods/3267246/0",
             false,
@@ -176,7 +183,8 @@ fun CalendarPreview() {
         ),
         NotiItem(
             2,
-            "https://image.msscdn.net/images/goods_img/20230427/3267246/3267246_16825933559850_500.jpg",
+            "https://image.msscdn.net/images/goods_img/20230427/" +
+                "3267246/3267246_16825933559850_500.jpg",
             "체리 자카드 패턴 숏 슬리브 가디건 [핑크]",
             "https://www.musinsa.com/app/goods/3267246/0",
             false,
@@ -185,7 +193,8 @@ fun CalendarPreview() {
         ),
         NotiItem(
             1,
-            "https://image.msscdn.net/images/goods_img/20220222/2377269/2377269_16777177260753_500.jpg",
+            "https://image.msscdn.net/images/goods_img/20220222/" +
+                "2377269/2377269_16777177260753_500.jpg",
             "W CLASSIC LOGO TEE white",
             "https://www.musinsa.com/app/goods/2377269",
             false,
@@ -202,5 +211,6 @@ fun CalendarPreview() {
         onClickSchedule = {},
         updateSelectedDate = {},
         changeCalendarPage = {},
-        onClickClose = {})
+        onClickClose = {},
+    )
 }

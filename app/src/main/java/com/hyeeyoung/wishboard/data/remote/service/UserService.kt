@@ -21,7 +21,7 @@ interface UserService {
     @PUT("user")
     suspend fun updateUserInfo(
         @Part("nickname") nickname: RequestBody?,
-        @Part profileImg: MultipartBody.Part?
+        @Part profileImg: MultipartBody.Part?,
     ): BaseResponseWithoutData
 
     @DELETE("user")

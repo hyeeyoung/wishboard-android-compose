@@ -42,14 +42,16 @@ class ItemRepositoryImpl @Inject constructor(
                 itemImg = when (itemInfo.itemImage) {
                     is ImageType.DownloadImage -> {
                         MultipartBody.Part.createFormData(
-                            formDataName, itemInfo.itemImage.file.name, itemInfo.itemImage.file.asRequestBody()
+                            formDataName,
+                            itemInfo.itemImage.file.name,
+                            itemInfo.itemImage.file.asRequestBody(),
                         )
                     }
 
                     is ImageType.Picture -> itemInfo.itemImage.image
 
                     else -> null
-                }
+                },
             ).data.id
         }
 
@@ -71,14 +73,16 @@ class ItemRepositoryImpl @Inject constructor(
             itemImg = when (itemInfo.itemImage) {
                 is ImageType.DownloadImage -> {
                     MultipartBody.Part.createFormData(
-                        formDataName, itemInfo.itemImage.file.name, itemInfo.itemImage.file.asRequestBody()
+                        formDataName,
+                        itemInfo.itemImage.file.name,
+                        itemInfo.itemImage.file.asRequestBody(),
                     )
                 }
 
                 is ImageType.Picture -> itemInfo.itemImage.image
 
                 else -> null
-            }
+            },
         )
     }
 

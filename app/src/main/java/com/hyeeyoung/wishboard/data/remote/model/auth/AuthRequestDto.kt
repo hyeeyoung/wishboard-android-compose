@@ -7,13 +7,13 @@ import kotlinx.serialization.Serializable
 data class AuthRequestDto(
     val email: String,
     val fcmToken: String,
-    val password: String
+    val password: String,
 ) {
     companion object {
         fun fromDomain(domain: AuthInfo): AuthRequestDto = AuthRequestDto(
             email = domain.email,
             password = domain.password ?: "",
-            fcmToken = domain.fcmToken
+            fcmToken = domain.fcmToken,
         )
     }
 }

@@ -66,7 +66,7 @@ import com.hyeeyoung.wishboard.presentation.util.extension.toBase64Json
 @Composable
 fun MyScreen(
     navController: NavHostController,
-    viewModel: MyViewModel = hiltViewModel()
+    viewModel: MyViewModel = hiltViewModel(),
 ) {
     val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -114,7 +114,7 @@ fun MyScreen(
             },
             moveToWebView = { title, url ->
                 navController.moveToWebView(title = title, url = url)
-            }
+            },
         )
     }
 }
@@ -134,8 +134,8 @@ fun MyScreen(
     val withdrawalEmailInput = remember { mutableStateOf("") }
     val isEnableWithdrawal by remember(withdrawalEmailInput.value, uiModel.userInfo.email) {
         mutableStateOf(
-            withdrawalEmailInput.value.isNotBlank()
-                    && withdrawalEmailInput.value.trimEnd() == uiModel.userInfo.email
+            withdrawalEmailInput.value.isNotBlank() &&
+                withdrawalEmailInput.value.trimEnd() == uiModel.userInfo.email,
         )
     }
 
@@ -145,7 +145,7 @@ fun MyScreen(
             MyMenuComponent.Menu(nameRes = R.string.my_menu_push_setting, endComponent = {
                 WishBoardToggleButton(
                     selected = uiModel.userInfo.isPushAllowed ?: false,
-                    onUpdate = updatePushState
+                    onUpdate = updatePushState,
                 )
             }),
             MyMenuComponent.Menu(nameRes = R.string.my_menu_change_password, onClickMenu = {
@@ -180,7 +180,7 @@ fun MyScreen(
                 onClickMenu = {
                     moveToWebView(
                         WishBoardUrl.PRIVACY_POLICY.title,
-                        WishBoardUrl.PRIVACY_POLICY.url
+                        WishBoardUrl.PRIVACY_POLICY.url,
                     )
                 },
             ),
@@ -217,7 +217,7 @@ fun MyScreen(
     Scaffold(
         topBar = {
             WishBoardMainTopBar(titleRes = R.string.my)
-        }
+        },
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
@@ -228,7 +228,9 @@ fun MyScreen(
             item {
                 Profile(
                     userInfo = uiModel.userInfo,
-                    onClickProfileEdit = { navigate("${MainScreen.MyProfile.route}/${uiModel.userInfo.toBase64Json()}") }
+                    onClickProfileEdit = {
+                        navigate("${MainScreen.MyProfile.route}/${uiModel.userInfo.toBase64Json()}")
+                    },
                 )
             }
 
@@ -286,7 +288,7 @@ fun Profile(userInfo: UserInfo, onClickProfileEdit: () -> Unit) {
                     painter = painterResource(id = R.drawable.ic_placeholder_user_profile),
                     contentDescription = "",
                 )
-            }
+            },
         )
 
         Column(modifier = Modifier.padding(start = 16.dp)) {
@@ -323,7 +325,7 @@ fun WithdrawDialogContent(emailInput: MutableState<String>, isEnableWithdrawal: 
             isError = emailInput.value.isNotBlank() && !isEnableWithdrawal,
             errorHidingStrategy = View.INVISIBLE,
             placeholder = stringResource(id = R.string.sign_email_placeholder),
-            errorMsg = stringResource(id = R.string.dialog_withdraw_email_error)
+            errorMsg = stringResource(id = R.string.dialog_withdraw_email_error),
         )
     }
 }
@@ -347,7 +349,7 @@ fun MenuItem(menu: MyMenuComponent.Menu) {
             .fillMaxWidth()
             .rippleClickable(
                 enabled = enabled,
-                debounceIntervalMillis = if (menu.nameRes == R.string.my_menu_contact_us) 500L else 0L
+                debounceIntervalMillis = if (menu.nameRes == R.string.my_menu_contact_us) 500L else 0L,
             ) { menu.onClickMenu?.let { onclick -> onclick() } }
             .padding(16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -370,8 +372,8 @@ fun PreviewMyScreen() {
             userInfo = UserInfo(
                 email = "youngjin@naver.com",
                 nickname = "새침한 진주",
-                isPushAllowed = true
-            )
+                isPushAllowed = true,
+            ),
         ),
         lazyListState = rememberLazyListState(),
         navigate = {},

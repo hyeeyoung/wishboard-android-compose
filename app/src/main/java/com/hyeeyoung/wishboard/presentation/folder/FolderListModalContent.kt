@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -46,7 +45,7 @@ fun FolderListModalContent(
     Column(modifier = Modifier.heightIn(max = 317.dp)) {
         ModalTitle(
             title = stringResource(id = R.string.modal_folder_selection_title),
-            onDismissRequest = onDismissRequest
+            onDismissRequest = onDismissRequest,
         )
 
         if (folders.isEmpty()) {

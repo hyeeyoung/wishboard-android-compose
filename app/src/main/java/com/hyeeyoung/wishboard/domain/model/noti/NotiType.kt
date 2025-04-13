@@ -2,7 +2,7 @@ package com.hyeeyoung.wishboard.domain.model.noti
 
 import java.io.Serializable
 
-enum class NotiType(val label: String): Serializable {
+enum class NotiType(val label: String) : Serializable {
     RESTOCK("재입고"),
     OPEN("오픈"),
     PREORDER("프리오더"),
