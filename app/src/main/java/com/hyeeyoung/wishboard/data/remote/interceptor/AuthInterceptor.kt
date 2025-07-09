@@ -13,6 +13,7 @@ import okhttp3.Request
 import okhttp3.Response
 import okhttp3.ResponseBody.Companion.toResponseBody
 import timber.log.Timber
+import java.util.UUID
 import javax.inject.Inject
 
 class AuthInterceptor @Inject constructor(
@@ -50,6 +51,7 @@ class AuthInterceptor @Inject constructor(
         val newToken = runBlocking {
             try {
                 val tokens = authService.refreshToken(
+                    deviceInfoHeader = UUID.randomUUID().toString(),
                     refreshToken = RefreshTokenDto(localStorage.refreshToken),
                 ).data.token
                 localStorage.updateToken(
@@ -86,5 +88,6 @@ class AuthInterceptor @Inject constructor(
     companion object {
         private const val AUTHORIZATION = "Authorization"
         private const val TOKEN_PREF = "Bearer "
+        const val DEVICE_INFO_HEADER_NAME = "Device-Info"
     }
 }
