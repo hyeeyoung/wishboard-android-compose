@@ -11,7 +11,7 @@ class FolderRepositoryImpl @Inject constructor(
     private val folderService: FolderService,
 ) : FolderRepository {
     override suspend fun fetchFolders(): Result<List<FolderItem>> = runCatching {
-        folderService.fetchFolders().map { it.toDomain() }
+        folderService.fetchFolders().data.map { it.toDomain() }
     }
 
     override suspend fun fetchFolderDetail(folderId: Long): Result<List<WishItem>> = runCatching {

@@ -18,7 +18,7 @@ class ItemRepositoryImpl @Inject constructor(
     private val itemService: ItemService,
 ) : ItemRepository {
     override suspend fun fetchWishList(): Result<List<WishItem>> = runCatching {
-        itemService.fetchWishList().map { it.toDomain() }
+        itemService.fetchWishList().data.map { it.toDomain() }
     }
 
     override suspend fun fetchWishItemDetail(itemId: Long): Result<List<WishItemDetail>> =

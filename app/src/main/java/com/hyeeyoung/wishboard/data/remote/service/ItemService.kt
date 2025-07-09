@@ -19,7 +19,7 @@ import retrofit2.http.Query
 
 interface ItemService {
     @GET("item")
-    suspend fun fetchWishList(): List<WishItemDto>
+    suspend fun fetchWishList(): BaseResponse<List<WishItemDto>>
 
     @GET("item/{item_id}")
     suspend fun fetchWishItemDetail(

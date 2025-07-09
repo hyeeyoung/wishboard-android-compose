@@ -1,5 +1,6 @@
 package com.hyeeyoung.wishboard.data.remote.service
 
+import com.hyeeyoung.wishboard.data.remote.model.base.BaseResponse
 import com.hyeeyoung.wishboard.data.remote.model.base.BaseResponseWithoutData
 import com.hyeeyoung.wishboard.data.remote.model.folder.FolderItemDto
 import com.hyeeyoung.wishboard.data.remote.model.folder.FolderNameDto
@@ -13,7 +14,7 @@ import retrofit2.http.Path
 
 interface FolderService {
     @GET("folder")
-    suspend fun fetchFolders(): List<FolderItemDto>
+    suspend fun fetchFolders(): BaseResponse<List<FolderItemDto>>
 
     @GET("folder/item/{folder_id}")
     suspend fun fetchFolderDetail(@Path("folder_id") folderId: Long): List<WishItemDto>
