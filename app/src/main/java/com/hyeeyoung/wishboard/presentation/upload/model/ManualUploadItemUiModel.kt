@@ -1,5 +1,6 @@
 package com.hyeeyoung.wishboard.presentation.upload.model
 
+import androidx.compose.ui.text.input.TextFieldValue
 import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
 import com.hyeeyoung.wishboard.domain.model.noti.NotiType
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemUploadInfo
@@ -12,13 +13,13 @@ import kotlinx.datetime.LocalDateTime
 data class ManualUploadItemUiModel(
     val accessToken: String = "",
     val selectedFolder: FolderItem? = null,
-    val itemName: String = "",
-    val itemPrice: String = "",
-    val itemUrl: String = "",
+    val itemName: TextFieldValue = TextFieldValue(),
+    val itemPrice: TextFieldValue = TextFieldValue(),
+    val itemUrl: TextFieldValue = TextFieldValue(),
     val itemNotiType: NotiType? = null,
     val itemNotiDate: LocalDateTime? = null,
     val images: List<UploadImage> = emptyList(),
-    val itemMemo: String = "",
+    val itemMemo: TextFieldValue = TextFieldValue(),
     val wishItemUploadState: WishBoardState<Unit> = WishBoardState.Idle,
     val folders: List<FolderItem> = emptyList(),
     val existingFolderName: String? = null,
@@ -30,10 +31,10 @@ data class ManualUploadItemUiModel(
 
         return WishItemUploadInfo(
             folderId = selectedFolder?.id,
-            itemName = itemName.trim(),
-            itemPrice = itemPrice.replace(",", "").toIntOrNull(),
-            itemUrl = itemUrl.ifEmpty { null }?.trim(),
-            itemMemo = itemMemo.trim(),
+            itemName = itemName.text.trim(),
+            itemPrice = itemPrice.text.replace(",", "").toIntOrNull(),
+            itemUrl = itemUrl.text.ifEmpty { null }?.trim(),
+            itemMemo = itemMemo.text.trim(),
             itemNotiType = itemNotiType,
             itemNotiDate = dateStr,
             itemImage = itemImage,

@@ -28,7 +28,7 @@ class ItemRepositoryImpl @Inject constructor(
 
     override suspend fun uploadWishItem(uploadType: WishItemUploadType, itemInfo: WishItemUploadInfo): Result<Long> =
         runCatching {
-            val formDataName = "item_img"
+            val formDataName = "itemImages"
 
             itemService.uploadWishItem(
                 type = uploadType.toString(),
@@ -39,7 +39,7 @@ class ItemRepositoryImpl @Inject constructor(
                 itemNotificationDate = itemInfo.itemNotiDate?.toPlainNullableRequestBody(),
                 itemNotificationType = itemInfo.itemNotiType?.label?.toPlainNullableRequestBody(),
                 itemUrl = itemInfo.itemUrl.toPlainNullableRequestBody(),
-                itemImg = itemInfo.itemImage?.map {
+                itemImg = itemInfo.itemImage?.mapNotNull {
                     when (it) {
                         is ImageType.DownloadImage -> {
                             MultipartBody.Part.createFormData(
@@ -51,7 +51,7 @@ class ItemRepositoryImpl @Inject constructor(
 
                         is ImageType.Picture -> it.image
                     }
-                }?.filterNotNull(),
+                },
             ).data.id
         }
 
@@ -59,7 +59,7 @@ class ItemRepositoryImpl @Inject constructor(
         itemId: Long,
         itemInfo: WishItemUploadInfo,
     ): Result<Unit> = runCatching {
-        val formDataName = "item_img"
+        val formDataName = "itemImages"
 
         itemService.updateWishItem(
             itemId = itemId,
@@ -70,7 +70,7 @@ class ItemRepositoryImpl @Inject constructor(
             itemNotificationDate = itemInfo.itemNotiDate?.toPlainNullableRequestBody(),
             itemNotificationType = itemInfo.itemNotiType?.label?.toPlainNullableRequestBody(),
             itemUrl = itemInfo.itemUrl.toPlainNullableRequestBody(),
-            itemImg = itemInfo.itemImage?.map {
+            itemImg = itemInfo.itemImage?.mapNotNull {
                 when (it) {
                     is ImageType.DownloadImage -> {
                         MultipartBody.Part.createFormData(
@@ -84,7 +84,7 @@ class ItemRepositoryImpl @Inject constructor(
 
                     else -> null
                 }
-            }?.filterNotNull(),
+            },
         )
     }
 

@@ -10,6 +10,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -48,6 +49,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -68,10 +70,9 @@ import com.hyeeyoung.wishboard.designsystem.component.dialog.model.ModalData
 import com.hyeeyoung.wishboard.designsystem.component.dialog.temp.WishBoardModal
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
 import com.hyeeyoung.wishboard.designsystem.component.image.Image
-import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardSimpleTextField
+import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardLabelTextField
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
-import com.hyeeyoung.wishboard.designsystem.util.PriceTransformation
 import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
 import com.hyeeyoung.wishboard.domain.model.noti.NotiInfo
 import com.hyeeyoung.wishboard.domain.model.noti.NotiType
@@ -81,10 +82,10 @@ import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat.getFormattedDateS
 import com.hyeeyoung.wishboard.presentation.folder.FolderListModalContent
 import com.hyeeyoung.wishboard.presentation.noti.NotiModalContent
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
+import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardString
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.sign.model.WishItemDetail
 import com.hyeeyoung.wishboard.presentation.upload.WishItemUploadViewModel
-import com.hyeeyoung.wishboard.presentation.upload.component.ShopLinkModalContent
 import com.hyeeyoung.wishboard.presentation.upload.model.ManualUploadItemUiModel
 import com.hyeeyoung.wishboard.presentation.upload.model.UploadImage
 import com.hyeeyoung.wishboard.presentation.upload.model.UploadInputType
@@ -121,6 +122,9 @@ fun WishUploadScreen(
 
     LaunchedEffect(Unit) {
         viewModel.setTokenForProfileImageUri()
+        viewModel.getFolders {
+            // TODO
+        }
     }
 
     WishBoardGlobalSnackbarMessage(snackbarChannel = viewModel.snackBarChannel)
@@ -185,7 +189,7 @@ fun WishUploadScreen(
     onClickClose: () -> Unit,
     getFolders: ((List<FolderItem>) -> Unit) -> Unit,
     onSelectFolder: (FolderItem?) -> Unit,
-    onTextChange: (UploadInputType, String) -> Unit,
+    onTextChange: (UploadInputType, TextFieldValue) -> Unit,
     onUriChange: (List<Uri>) -> Unit,
     deleteImage: (id: String) -> Unit,
     isValidNotiDate: (NotiInfo) -> Boolean,
@@ -225,11 +229,14 @@ fun WishUploadScreen(
         uiModel.images,
     ) {
         mutableStateOf(
-            uiModel.itemName.isNotBlank() &&
-                uiModel.itemPrice.isNotBlank() &&
+            uiModel.itemName.text.isNotBlank() &&
+                uiModel.itemPrice.text.isNotBlank() &&
                 (uiModel.images.isNotEmpty()),
         )
     }
+
+    val spanStyle = WishBoardTheme.typography.suitB2.copy(color = WishBoardTheme.colors.green700).toSpanStyle()
+    val inputFieldModifier = Modifier.padding(horizontal = dimensionResource(R.dimen.spacing_base))
 
     val modalLauncher = rememberModalLauncher { isTopOption, data ->
         when (data) {
@@ -306,63 +313,98 @@ fun WishUploadScreen(
                     },
                 )
 
-                WishBoardSimpleTextField(
-                    input = uiModel.itemName,
-                    placeholder = stringResource(id = R.string.wish_item_upload_item_name),
-                    onTextChange = { input ->
-                        onTextChange(UploadInputType.ITEM_NAME, input)
-                    },
-                )
+                Column(modifier = Modifier.padding(top = 28.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    WishBoardLabelTextField(
+                        modifier = inputFieldModifier,
+                        label = listOf(
+                            WishBoardString.NormalString("상품명 "),
+                            WishBoardString.SpanString("*"),
+                        ),
+                        spanStyle = spanStyle,
+                        textFieldValue = uiModel.itemName,
+                        placeholder = stringResource(id = R.string.wish_item_upload_item_name),
+                        onTextChange = { input ->
+                            onTextChange(UploadInputType.ITEM_NAME, input)
+                        },
+                    )
 
-                WishBoardSimpleTextField(
-                    input = uiModel.itemPrice,
-                    placeholder = stringResource(id = R.string.wish_item_upload_item_price),
-                    onTextChange = { input ->
-                        onTextChange(UploadInputType.ITEM_PRICE, input.makeValidPriceStr() ?: "")
-                    },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    visualTransformation = PriceTransformation(prefix = "₩ "),
-                )
+                    WishBoardDivider()
 
-                ItemInfoRow(
-                    label = uiModel.selectedFolder?.name ?: stringResource(id = R.string.folder),
-                    onClickRow = {
-                        getFolders { folders ->
-                            modalData =
-                                ModalData.Modal.FolderList(selectedFolder = uiModel.selectedFolder, folders = folders)
+                    WishBoardLabelTextField(
+                        modifier = inputFieldModifier,
+                        label = listOf(
+                            WishBoardString.NormalString("가격 "),
+                            WishBoardString.SpanString("*"),
+                        ),
+                        spanStyle = spanStyle,
+                        textFieldValue = uiModel.itemPrice,
+                        placeholder = stringResource(id = R.string.wish_item_upload_item_price),
+                        onTextChange = { input ->
+                            onTextChange(
+                                UploadInputType.ITEM_PRICE,
+                                input.copy(text = input.text.makeValidPriceStr() ?: ""),
+                            )
+                        },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+//                    visualTransformation = PriceTransformation(prefix = "₩ "), // TODO
+                    )
+
+                    WishBoardDivider()
+
+                    FolderList(
+                        modifier = inputFieldModifier,
+                        folders = uiModel.folders,
+                        selectedFolder = uiModel.selectedFolder,
+                        onClickNewFolder = {
+                            // TODO
+                        },
+                        onClickFolder = { folder ->
+                            onSelectFolder(folder)
+                        },
+                    )
+
+                    WishBoardDivider()
+
+                    NotiField(
+                        modifier = inputFieldModifier,
+                        notiInfo = getNotiInfo(notiType = uiModel.itemNotiType, notiDate = uiModel.itemNotiDate),
+                        onClick = {
+                            modalData = ModalData.Modal.Noti(
+                                NotiInfo(notiType = uiModel.itemNotiType, notiDate = uiModel.itemNotiDate).toJson(),
+                            )
                             coroutineScope.launch { sheetState.show() }
-                        }
-                    },
-                )
+                        },
+                    )
 
-                ItemInfoRow(
-                    label = getNotiInfo(notiType = uiModel.itemNotiType, notiDate = uiModel.itemNotiDate)
-                        ?: stringResource(id = R.string.wish_item_upload_noti),
-                    onClickRow = {
-                        modalData = ModalData.Modal.Noti(
-                            NotiInfo(notiType = uiModel.itemNotiType, notiDate = uiModel.itemNotiDate).toJson(),
-                        )
-                        coroutineScope.launch { sheetState.show() }
-                    },
-                )
+                    WishBoardDivider()
 
-                ItemInfoRow(
-                    label = uiModel.itemUrl.ifBlank { stringResource(id = R.string.wish_item_upload_shop_link) },
-                    onClickRow = {
-                        modalData = ModalData.Modal.ShopLink(uiModel.itemUrl)
-                        coroutineScope.launch { sheetState.show() }
-                    },
-                )
+                    ShopField(
+                        modifier = inputFieldModifier,
+                        shopLink = uiModel.itemUrl.text,
+                        onClick = {
+                            modalData = ModalData.Modal.ShopLink(uiModel.itemUrl.text)
+                            coroutineScope.launch { sheetState.show() }
+                        },
+                    )
 
-                WishBoardSimpleTextField(
-                    input = uiModel.itemMemo,
-                    placeholder = stringResource(id = R.string.wish_item_upload_memo),
-                    singleLine = false,
-                    onTextChange = { input ->
-                        onTextChange(UploadInputType.ITEM_MEMO, input)
-                    },
-                )
-                Spacer(modifier = Modifier.size(64.dp))
+                    WishBoardDivider()
+
+                    WishBoardLabelTextField(
+                        modifier = inputFieldModifier,
+                        label = listOf(
+                            WishBoardString.NormalString("메모"),
+                        ),
+                        spanStyle = spanStyle,
+                        textFieldValue = uiModel.itemMemo,
+                        placeholder = stringResource(id = R.string.wish_item_upload_memo),
+                        singleLine = false,
+                        onTextChange = { input ->
+                            onTextChange(UploadInputType.ITEM_MEMO, input)
+                        },
+                    )
+
+                    Spacer(modifier = Modifier.size(64.dp))
+                }
             }
         }
 
@@ -409,18 +451,18 @@ fun WishUploadScreen(
 
                     is ModalData.Modal.ShopLink -> {
                         val linkData = (modalData as ModalData.Modal.ShopLink)
-                        ShopLinkModalContent(
-                            link = linkData.link,
-                            onClickComplete = { link ->
-                                onTextChange(UploadInputType.ITEM_URL, link)
-                                coroutineScope.launch { sheetState.hide() }
-                                modalData = null
-                            },
-                            onDismissRequest = {
-                                coroutineScope.launch { sheetState.hide() }
-                                modalData = null
-                            },
-                        )
+//                        ShopLinkModalContent(
+//                            link = linkData.link,
+//                            onClickComplete = { link ->
+//                                onTextChange(UploadInputType.ITEM_URL, link)
+//                                coroutineScope.launch { sheetState.hide() }
+//                                modalData = null
+//                            },
+//                            onDismissRequest = {
+//                                coroutineScope.launch { sheetState.hide() }
+//                                modalData = null
+//                            },
+//                        )
                     }
 
                     else -> {}
@@ -443,11 +485,12 @@ fun ItemImageRow(
     LazyRow(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 18.dp)
-            .padding(start = dimensionResource(id = R.dimen.spacing_base)),
+            .padding(top = 18.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         item {
+            Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.spacing_base)))
+
             Column(
                 modifier = Modifier
                     .size(containerSize)
@@ -522,43 +565,6 @@ fun ItemImageRow(
 }
 
 @Composable
-fun ItemInfoRow(label: String, guideText: String? = null, onClickRow: () -> Unit) {
-    Column {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .noRippleClickable { onClickRow() }
-                .padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                modifier = Modifier.padding(vertical = 16.dp),
-                text = label,
-                style = WishBoardTheme.typography.suitB3,
-                color = WishBoardTheme.colors.gray700,
-            )
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                if (!guideText.isNullOrEmpty()) {
-                    Text(
-                        text = guideText,
-                        style = WishBoardTheme.typography.suitD3,
-                        color = WishBoardTheme.colors.green700,
-                    )
-                }
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_detail),
-                    contentDescription = null,
-                    tint = Color.Unspecified,
-                )
-            }
-        }
-        WishBoardDivider()
-    }
-}
-
-@Composable
 fun getNotiInfo(notiType: NotiType?, notiDate: LocalDateTime?): String? =
     if (notiType == null || notiDate == null) {
         null
@@ -571,22 +577,175 @@ fun getNotiInfo(notiType: NotiType?, notiDate: LocalDateTime?): String? =
         }] ${notiDate.getFormattedDateStr(WishBoardDateFormat.YY_M_D_A_H_MM)}"
     }
 
+@Composable
+private fun FolderList(
+    modifier: Modifier = Modifier,
+    folders: List<FolderItem>,
+    selectedFolder: FolderItem?,
+    onClickFolder: (FolderItem) -> Unit,
+    onClickNewFolder: () -> Unit,
+) {
+    val itemShape = RoundedCornerShape(16.dp)
+    val itemPadding = PaddingValues(vertical = 6.dp, horizontal = 10.dp)
+
+    Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        Text(
+            modifier = modifier,
+            text = stringResource(id = R.string.folder),
+            color = WishBoardTheme.colors.gray700,
+            style = WishBoardTheme.typography.suitB2,
+        )
+
+        LazyRow(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            item {
+                Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.spacing_base)))
+
+                // TODO 아이템 없을 때 분기처리
+                Box(
+                    modifier = Modifier
+                        .clip(itemShape)
+                        .border(width = 1.dp, color = WishBoardTheme.colors.gray100, shape = itemShape)
+                        .padding(itemPadding)
+                        .rippleClickable {
+                            onClickNewFolder()
+                        },
+                ) {
+                    Text(
+                        text = "+ 새 폴더",
+                        style = WishBoardTheme.typography.suitH5,
+                        color = WishBoardTheme.colors.gray600,
+                    )
+                }
+            }
+
+            items(folders) { folder ->
+                val isSelected = folder.id == selectedFolder?.id
+
+                Box(
+                    modifier = Modifier
+                        .clip(itemShape)
+                        .background(if (!isSelected) WishBoardTheme.colors.gray50 else WishBoardTheme.colors.gray600)
+                        .padding(itemPadding)
+                        .rippleClickable {
+                            onClickFolder(folder)
+                        },
+                ) {
+                    Text(
+                        text = folder.name,
+                        style = WishBoardTheme.typography.suitB5,
+                        color = if (!isSelected) WishBoardTheme.colors.gray200 else WishBoardTheme.colors.gray50,
+                    )
+                }
+            }
+
+            // TODO 그라데이션
+
+            item {
+                Spacer(modifier = Modifier.width(10.dp))
+            }
+        }
+    }
+}
+
+@Composable
+private fun NotiField(
+    modifier: Modifier = Modifier,
+    notiInfo: String?,
+    onClick: () -> Unit,
+) {
+    ItemFieldWithDetailIcon(
+        modifier = modifier,
+        label = "상품 일정",
+        placeholder = "재입고, 세일 시작 등 일정 알림을 받아보세요.",
+        value = notiInfo,
+        onClick = onClick,
+    )
+}
+
+@Composable
+private fun ShopField(
+    modifier: Modifier = Modifier,
+    shopLink: String?,
+    onClick: () -> Unit,
+) {
+    ItemFieldWithDetailIcon(
+        modifier = modifier,
+        label = stringResource(id = R.string.wish_item_upload_shop_link),
+        placeholder = "쇼핑몰 링크를 추가해 보세요.",
+        value = shopLink,
+        onClick = onClick,
+    )
+}
+
+@Composable
+private fun ItemFieldWithDetailIcon(
+    modifier: Modifier = Modifier,
+    label: String,
+    value: String?,
+    placeholder: String,
+    onClick: () -> Unit,
+) {
+    // 리플, 터치 영역
+    val isEmptyValue = value.isNullOrEmpty()
+    Column(
+        modifier = Modifier.noRippleClickable {
+            onClick()
+        },
+        verticalArrangement = Arrangement.spacedBy(13.dp),
+    ) {
+        Text(
+            modifier = modifier,
+            text = label,
+            color = WishBoardTheme.colors.gray700,
+            style = WishBoardTheme.typography.suitB2,
+        )
+
+        Row(
+            modifier = modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                modifier = Modifier.weight(1f),
+                text = if (value.isNullOrEmpty()) placeholder else value,
+                style = WishBoardTheme.typography.suitD1,
+                color = if (value.isNullOrEmpty()) WishBoardTheme.colors.gray200 else WishBoardTheme.colors.gray700,
+            )
+
+            Icon(
+                painter = painterResource(id = R.drawable.ic_detail),
+                tint = Color.Unspecified,
+                contentDescription = "상세보기",
+            )
+        }
+    }
+}
+
 @Preview
 @Composable
 fun PreviewWishUploadScreen() {
     WishUploadScreen(
         uiModel = ManualUploadItemUiModel(
-            itemName = "21SS SAGE SHIRT [4COLOR]",
+            itemName = TextFieldValue("21SS SAGE SHIRT [4COLOR]"),
             images = listOf(
                 UploadImage.Remote(url = "https://url.kr/8vwf1e"),
                 UploadImage.Remote(url = "https://url.kr/8vwf1e"),
                 UploadImage.Remote(url = "https://url.kr/8vwf1e"),
             ),
-            itemPrice = "108000",
+            folders = listOf(
+                FolderItem(id = 1L, name = "상의"),
+                FolderItem(id = 2L, name = "하의"),
+                FolderItem(id = 3L, name = "잡화"),
+            ),
+            itemPrice = TextFieldValue("108000"),
             itemNotiDate = getCurrentTime(),
             itemNotiType = NotiType.RESTOCK,
-            itemUrl = "https://www.naver.com/",
-            itemMemo = "",
+            itemUrl = TextFieldValue("https://www.naver.com/"),
+            itemMemo = TextFieldValue(""),
             selectedFolder = FolderItem(id = 1L, name = "상의"),
         ),
         enteredAddFlow = false,

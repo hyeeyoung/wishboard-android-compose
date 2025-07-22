@@ -3,6 +3,7 @@ package com.hyeeyoung.wishboard.presentation.upload
 import android.content.Context
 import android.net.Uri
 import androidx.compose.material3.SnackbarDuration
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
@@ -121,7 +122,7 @@ class WishItemUploadViewModel @Inject constructor(
 
                     requestBody?.let {
                         ImageType.Picture(
-                            MultipartBody.Part.createFormData("item_img", file.name, requestBody),
+                            MultipartBody.Part.createFormData("itemImages", file.name, requestBody),
                         )
                     }
                 }
@@ -207,7 +208,7 @@ class WishItemUploadViewModel @Inject constructor(
 
                     requestBody?.let {
                         ImageType.Picture(
-                            MultipartBody.Part.createFormData("item_img", file.name, requestBody),
+                            MultipartBody.Part.createFormData("itemImages", file.name, requestBody),
                         )
                     }
                 }
@@ -331,6 +332,24 @@ class WishItemUploadViewModel @Inject constructor(
         }
     }
 
+    fun onItemNameChanged(name: TextFieldValue) {
+        _manualUploadUiModel.update {
+            it.copy(itemName = name)
+        }
+    }
+
+    fun onItemPriceChanged(price: TextFieldValue) {
+        _manualUploadUiModel.update {
+            it.copy(itemPrice = price)
+        }
+    }
+
+    fun onItemMemoChanged(memo: TextFieldValue) {
+        _manualUploadUiModel.update {
+            it.copy(itemMemo = memo)
+        }
+    }
+
     fun updateSelectedFolder(folderItem: FolderItem?) {
         _uiModel.update {
             it.copy(
@@ -346,6 +365,12 @@ class WishItemUploadViewModel @Inject constructor(
 
     fun setItemUri(url: String) {
         _uiModel.update {
+            it.copy(itemUrl = url)
+        }
+    }
+
+    fun setItemUri(url: TextFieldValue) {
+        _manualUploadUiModel.update {
             it.copy(itemUrl = url)
         }
     }
@@ -400,7 +425,7 @@ class WishItemUploadViewModel @Inject constructor(
 
                     requestBody?.let {
                         ImageType.Picture(
-                            MultipartBody.Part.createFormData("item_img", file.name, requestBody),
+                            MultipartBody.Part.createFormData("itemImages", file.name, requestBody),
                         )
                     }
                 }
