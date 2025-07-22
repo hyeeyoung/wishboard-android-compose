@@ -10,6 +10,6 @@ data class WishItemUploadInfo(
     val itemUrl: String? = null,
     val itemNotiType: NotiType? = null,
     val itemNotiDate: String? = null,
-    val itemImage: ImageType?,
+    val itemImage: List<ImageType>?,
     val itemMemo: String? = null,
 )

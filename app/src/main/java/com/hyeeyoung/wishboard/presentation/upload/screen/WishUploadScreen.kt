@@ -6,18 +6,21 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -39,19 +42,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import coil.compose.AsyncImage
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
@@ -60,11 +63,11 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardGlobalSnackbarMessage
-import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardNarrowButton
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.ModalData
 import com.hyeeyoung.wishboard.designsystem.component.dialog.temp.WishBoardModal
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
+import com.hyeeyoung.wishboard.designsystem.component.image.Image
 import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardSimpleTextField
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
@@ -82,19 +85,23 @@ import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.sign.model.WishItemDetail
 import com.hyeeyoung.wishboard.presentation.upload.WishItemUploadViewModel
 import com.hyeeyoung.wishboard.presentation.upload.component.ShopLinkModalContent
+import com.hyeeyoung.wishboard.presentation.upload.model.ManualUploadItemUiModel
+import com.hyeeyoung.wishboard.presentation.upload.model.UploadImage
 import com.hyeeyoung.wishboard.presentation.upload.model.UploadInputType
-import com.hyeeyoung.wishboard.presentation.upload.model.WishItemUploadUiModel
 import com.hyeeyoung.wishboard.presentation.util.extension.createImageUri
 import com.hyeeyoung.wishboard.presentation.util.extension.fromJson
 import com.hyeeyoung.wishboard.presentation.util.extension.getCurrentTime
 import com.hyeeyoung.wishboard.presentation.util.extension.makeValidPriceStr
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.util.extension.rememberModalLauncher
+import com.hyeeyoung.wishboard.presentation.util.extension.rippleClickable
 import com.hyeeyoung.wishboard.presentation.util.extension.safePopBackStack
 import com.hyeeyoung.wishboard.presentation.util.extension.toJson
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDateTime
 import timber.log.Timber
+
+const val MAX_IMAGE_COUNT = 10
 
 @Composable
 fun WishUploadScreen(
@@ -104,7 +111,7 @@ fun WishUploadScreen(
 ) {
     val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
-    val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
+    val uiModel by viewModel.manualUploadUiModel.collectAsStateWithLifecycle()
     val enteredAddFlow = itemDetail == null
 
     BackHandler {
@@ -161,25 +168,26 @@ fun WishUploadScreen(
                 UploadInputType.ITEM_URL -> viewModel.setItemUri(input)
             }
         },
-        onUriChange = { uri ->
-            viewModel.setItemImageUrl(uri)
+        onUriChange = { uris ->
+            viewModel.addItemImageUrl(uris)
         },
         isValidNotiDate = viewModel::isValidNotiDate,
-
+        deleteImage = viewModel::deleteImage,
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WishUploadScreen(
-    uiModel: WishItemUploadUiModel,
+    uiModel: ManualUploadItemUiModel,
     enteredAddFlow: Boolean,
     onClickSave: () -> Unit,
     onClickClose: () -> Unit,
     getFolders: ((List<FolderItem>) -> Unit) -> Unit,
     onSelectFolder: (FolderItem?) -> Unit,
     onTextChange: (UploadInputType, String) -> Unit,
-    onUriChange: (Uri?) -> Unit,
+    onUriChange: (List<Uri>) -> Unit,
+    deleteImage: (id: String) -> Unit,
     isValidNotiDate: (NotiInfo) -> Boolean,
 ) {
     val context = LocalContext.current
@@ -197,27 +205,29 @@ fun WishUploadScreen(
     val coroutineScope = rememberCoroutineScope()
 
     var cameraUri: Uri? = null
-    val albumLauncher = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-        uri?.let {
-            Timber.e("uri : $it")
-            onUriChange(it)
+    val albumLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia(MAX_IMAGE_COUNT)) { uris ->
+            Timber.e("uri : $uris")
+            onUriChange(uris)
         }
-    }
     val cameraLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { isSuccess ->
-            if (isSuccess) onUriChange(cameraUri)
+            if (isSuccess) {
+                cameraUri?.let {
+                    onUriChange(listOf(it))
+                }
+            }
         }
 
     val isEnabledSave by remember(
         uiModel.itemName,
         uiModel.itemPrice,
-        uiModel.itemImageUri,
-        uiModel.downloadImageUrl,
+        uiModel.images,
     ) {
         mutableStateOf(
             uiModel.itemName.isNotBlank() &&
                 uiModel.itemPrice.isNotBlank() &&
-                (uiModel.itemImageUri != null || !uiModel.downloadImageUrl.isNullOrBlank()),
+                (uiModel.images.isNotEmpty()),
         )
     }
 
@@ -235,8 +245,6 @@ fun WishUploadScreen(
             else -> {}
         }
     }
-    val imageHeight = LocalConfiguration.current.screenWidthDp * 0.66
-    val imageContainerShape = RoundedCornerShape(32.dp)
 
     SideEffect {
         systemUiController.setNavigationBarColor(color = Color.White)
@@ -289,33 +297,14 @@ fun WishUploadScreen(
                     .padding(top = 6.dp + paddingValues.calculateTopPadding(), bottom = 16.dp)
                     .verticalScroll(rememberScrollState()),
             ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(imageHeight.dp)
-                        .background(
-                            color = WishBoardTheme.colors.gray100,
-                            shape = imageContainerShape,
-                        )
-                        .clip(imageContainerShape)
-                        .noRippleClickable {
-                            ModalData.OptionModal.ImageSelection.openModal(context, modalLauncher)
-                        },
-                    contentAlignment = Alignment.Center,
-                ) {
-                    AsyncImage(
-                        modifier = Modifier.fillMaxHeight(),
-                        model = uiModel.itemImageUri ?: uiModel.downloadImageUrl,
-                        contentDescription = null,
-                    )
-
-                    WishBoardIconButton(
-                        iconRes = R.drawable.ic_item_upload_camera,
-                        onClick = {
-                            ModalData.OptionModal.ImageSelection.openModal(context, modalLauncher)
-                        },
-                    )
-                }
+                ItemImageRow(
+                    images = uiModel.images,
+                    selectedImageCount = uiModel.images.size,
+                    onClickDelete = deleteImage,
+                    addImage = {
+                        ModalData.OptionModal.ImageSelection.openModal(context, modalLauncher)
+                    },
+                )
 
                 WishBoardSimpleTextField(
                     input = uiModel.itemName,
@@ -442,6 +431,97 @@ fun WishUploadScreen(
 }
 
 @Composable
+fun ItemImageRow(
+    images: List<UploadImage>,
+    selectedImageCount: Int,
+    onClickDelete: (id: String) -> Unit,
+    addImage: () -> Unit,
+) {
+    val containerSize = 100.dp
+    val containerShape = RoundedCornerShape(10.dp)
+
+    LazyRow(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 18.dp)
+            .padding(start = dimensionResource(id = R.dimen.spacing_base)),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        item {
+            Column(
+                modifier = Modifier
+                    .size(containerSize)
+                    .clip(containerShape)
+                    .background(Color(0xFFF3F3F3))
+                    .rippleClickable {
+                        addImage()
+                    },
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Icon(
+                    modifier = Modifier.size(26.dp),
+                    painter = painterResource(id = R.drawable.ic_item_upload_camera),
+                    tint = Color.Unspecified,
+                    contentDescription = "카메라 아이콘",
+                )
+
+                Text(
+                    modifier = Modifier.padding(top = 6.dp),
+                    text = "$selectedImageCount/$MAX_IMAGE_COUNT",
+                    style = WishBoardTheme.typography.suitD3,
+                    color = WishBoardTheme.colors.gray200,
+                    textAlign = TextAlign.Center,
+                )
+            }
+        }
+
+        items(images) { image ->
+            Box(
+                modifier = Modifier
+                    .size(containerSize)
+                    .clip(containerShape),
+            ) {
+                Box(
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .rippleClickable {
+                            onClickDelete(image.id)
+                        }
+                        .padding(5.dp)
+                        .size(16.dp)
+                        .zIndex(2f)
+                        .border(width = 0.5.dp, shape = CircleShape, color = WishBoardTheme.colors.white)
+                        .background(color = WishBoardTheme.colors.gray700, shape = CircleShape)
+                        .align(Alignment.TopEnd),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_delete_small),
+                        tint = Color.Unspecified,
+                        contentDescription = "이미지 삭제 아이콘",
+                    )
+                }
+
+                Image(
+                    modifier = Modifier.size(containerSize),
+                    model = when (image) {
+                        is UploadImage.Remote -> image.url
+                        is UploadImage.Local -> image.uri
+                    },
+                    alphaColor = WishBoardTheme.colors.gray700.copy(alpha = 0.05f),
+                    contentDescription = null,
+                )
+            }
+        }
+
+        item {
+            Spacer(modifier = Modifier.width(10.dp))
+        }
+    }
+}
+
+@Composable
 fun ItemInfoRow(label: String, guideText: String? = null, onClickRow: () -> Unit) {
     Column {
         Row(
@@ -495,9 +575,13 @@ fun getNotiInfo(notiType: NotiType?, notiDate: LocalDateTime?): String? =
 @Composable
 fun PreviewWishUploadScreen() {
     WishUploadScreen(
-        uiModel = WishItemUploadUiModel(
+        uiModel = ManualUploadItemUiModel(
             itemName = "21SS SAGE SHIRT [4COLOR]",
-            downloadImageUrl = "https://url.kr/8vwf1e",
+            images = listOf(
+                UploadImage.Remote(url = "https://url.kr/8vwf1e"),
+                UploadImage.Remote(url = "https://url.kr/8vwf1e"),
+                UploadImage.Remote(url = "https://url.kr/8vwf1e"),
+            ),
             itemPrice = "108000",
             itemNotiDate = getCurrentTime(),
             itemNotiType = NotiType.RESTOCK,
@@ -513,5 +597,6 @@ fun PreviewWishUploadScreen() {
         onClickSave = {},
         onClickClose = {},
         isValidNotiDate = { true },
+        deleteImage = {},
     )
 }

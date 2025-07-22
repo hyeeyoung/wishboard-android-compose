@@ -24,6 +24,8 @@ import com.hyeeyoung.wishboard.presentation.common.model.ImageType
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
 import com.hyeeyoung.wishboard.presentation.sign.model.snackbar.SnackbarMessage
 import com.hyeeyoung.wishboard.presentation.sign.model.snackbar.WishBoardSnackbarVisuals
+import com.hyeeyoung.wishboard.presentation.upload.model.ManualUploadItemUiModel
+import com.hyeeyoung.wishboard.presentation.upload.model.UploadImage
 import com.hyeeyoung.wishboard.presentation.upload.model.WishItemUploadUiModel
 import com.hyeeyoung.wishboard.presentation.util.extension.BitmapUtil.toBitmap
 import com.hyeeyoung.wishboard.presentation.util.extension.BitmapUtil.toFile
@@ -58,6 +60,9 @@ class WishItemUploadViewModel @Inject constructor(
 ) : BaseViewModel() {
     private var _uiModel = MutableStateFlow(WishItemUploadUiModel())
     val uiModel = _uiModel.asStateFlow()
+
+    private var _manualUploadUiModel = MutableStateFlow(ManualUploadItemUiModel())
+    val manualUploadUiModel = _manualUploadUiModel.asStateFlow()
 
     init {
         val detail = savedStateHandle.getBase64Json<WishItemDetail>(MainScreen.Upload.ARG_ITEM_DETAIL)
@@ -138,6 +143,37 @@ class WishItemUploadViewModel @Inject constructor(
                 if (uploadType == WishItemUploadType.PARSING) {
                     delay(SnackbarDuration.Short.toMillis())
                 }
+
+                afterSuccess(id)
+            }.onFailure { exception, _, _ ->
+                _uiModel.update { it.copy(wishItemUploadState = WishBoardState.Failure) }
+                updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
+            }
+        }
+    }
+
+    fun uploadWishItemForManual(
+        context: Context,
+        afterSuccess: (Long) -> Unit,
+    ) {
+        if (_manualUploadUiModel.value.wishItemUploadState is WishBoardState.Loading ||
+            _manualUploadUiModel.value.wishItemUploadState is WishBoardState.Success
+        ) {
+            return
+        }
+        _manualUploadUiModel.update { it.copy(wishItemUploadState = WishBoardState.Loading) }
+
+        viewModelScope.launch {
+            postWishItemUseCase(
+                uploadType = WishItemUploadType.MANUAL,
+                itemInfo = _manualUploadUiModel.value.toDomain(
+                    itemImage = _manualUploadUiModel.value.images.toImageType(
+                        context = context,
+                    ),
+                ),
+            ).onSuccess { id ->
+                _uiModel.update { it.copy(wishItemUploadState = WishBoardState.Success(Unit)) }
+                updateSnackbarMessage("아이템을 위시리스트에 추가했어요!👜")
 
                 afterSuccess(id)
             }.onFailure { exception, _, _ ->
@@ -320,6 +356,12 @@ class WishItemUploadViewModel @Inject constructor(
         }
     }
 
+    fun addItemImageUrl(uris: List<Uri>) {
+        _manualUploadUiModel.update {
+            it.copy(images = it.images + uris.map { uri -> UploadImage.Local(uri) })
+        }
+    }
+
     fun setNotiInfo(notiInfo: NotiInfo) {
         _uiModel.update {
             it.copy(itemNotiType = notiInfo.notiType, itemNotiDate = notiInfo.notiDate)
@@ -328,6 +370,9 @@ class WishItemUploadViewModel @Inject constructor(
 
     fun setTokenForProfileImageUri() {
         _uiModel.update {
+            it.copy(accessToken = localStorage.accessToken)
+        }
+        _manualUploadUiModel.update {
             it.copy(accessToken = localStorage.accessToken)
         }
     }
@@ -341,6 +386,37 @@ class WishItemUploadViewModel @Inject constructor(
     fun sendSnackbarChannel(snackbarVisuals: WishBoardSnackbarVisuals) {
         viewModelScope.launch {
             globalSnackbarChannel.send(snackbarVisuals)
+        }
+    }
+
+    private suspend fun List<UploadImage>.toImageType(context: Context): List<ImageType> {
+        return this.map {
+            when (it) {
+                is UploadImage.Local -> {
+                    val file = it.uri.let { uri ->
+                        context.convertResizeImage(uri)
+                    }
+                    val requestBody = file?.asRequestBody("image/jpeg".toMediaTypeOrNull())
+
+                    requestBody?.let {
+                        ImageType.Picture(
+                            MultipartBody.Part.createFormData("item_img", file.name, requestBody),
+                        )
+                    }
+                }
+
+                is UploadImage.Remote -> {
+                    val bitmap = it.url.toBitmap()
+                    val file = bitmap?.toFile(localStorage.accessToken, context = context)
+                    file?.let { ImageType.DownloadImage(file = it) }
+                }
+            }
+        }.filterNotNull()
+    }
+
+    fun deleteImage(id: String) {
+        _manualUploadUiModel.update {
+            it.copy(images = it.images.filter { it.id != id })
         }
     }
 }

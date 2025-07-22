@@ -39,19 +39,19 @@ class ItemRepositoryImpl @Inject constructor(
                 itemNotificationDate = itemInfo.itemNotiDate?.toPlainNullableRequestBody(),
                 itemNotificationType = itemInfo.itemNotiType?.label?.toPlainNullableRequestBody(),
                 itemUrl = itemInfo.itemUrl.toPlainNullableRequestBody(),
-                itemImg = when (itemInfo.itemImage) {
-                    is ImageType.DownloadImage -> {
-                        MultipartBody.Part.createFormData(
-                            formDataName,
-                            itemInfo.itemImage.file.name,
-                            itemInfo.itemImage.file.asRequestBody(),
-                        )
+                itemImg = itemInfo.itemImage?.map {
+                    when (it) {
+                        is ImageType.DownloadImage -> {
+                            MultipartBody.Part.createFormData(
+                                formDataName,
+                                it.file.name,
+                                it.file.asRequestBody(),
+                            )
+                        }
+
+                        is ImageType.Picture -> it.image
                     }
-
-                    is ImageType.Picture -> itemInfo.itemImage.image
-
-                    else -> null
-                },
+                }?.filterNotNull(),
             ).data.id
         }
 
@@ -70,19 +70,21 @@ class ItemRepositoryImpl @Inject constructor(
             itemNotificationDate = itemInfo.itemNotiDate?.toPlainNullableRequestBody(),
             itemNotificationType = itemInfo.itemNotiType?.label?.toPlainNullableRequestBody(),
             itemUrl = itemInfo.itemUrl.toPlainNullableRequestBody(),
-            itemImg = when (itemInfo.itemImage) {
-                is ImageType.DownloadImage -> {
-                    MultipartBody.Part.createFormData(
-                        formDataName,
-                        itemInfo.itemImage.file.name,
-                        itemInfo.itemImage.file.asRequestBody(),
-                    )
+            itemImg = itemInfo.itemImage?.map {
+                when (it) {
+                    is ImageType.DownloadImage -> {
+                        MultipartBody.Part.createFormData(
+                            formDataName,
+                            it.file.name,
+                            it.file.asRequestBody(),
+                        )
+                    }
+
+                    is ImageType.Picture -> it.image
+
+                    else -> null
                 }
-
-                is ImageType.Picture -> itemInfo.itemImage.image
-
-                else -> null
-            },
+            }?.filterNotNull(),
         )
     }
 

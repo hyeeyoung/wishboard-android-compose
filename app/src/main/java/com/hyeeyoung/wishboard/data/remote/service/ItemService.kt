@@ -37,7 +37,7 @@ interface ItemService {
         @Part("item_url") itemUrl: RequestBody?,
         @Part("item_notification_type") itemNotificationType: RequestBody?,
         @Part("item_notification_date") itemNotificationDate: RequestBody?,
-        @Part itemImg: MultipartBody.Part?,
+        @Part itemImg: List<MultipartBody.Part>?,
     ): BaseResponse<WishItemIdDto>
 
     @Multipart
@@ -51,7 +51,7 @@ interface ItemService {
         @Part("item_url") itemUrl: RequestBody?,
         @Part("item_notification_type") itemNotificationType: RequestBody?,
         @Part("item_notification_date") itemNotificationDate: RequestBody?,
-        @Part itemImg: MultipartBody.Part?,
+        @Part itemImg: List<MultipartBody.Part>?,
     ): BaseResponseWithoutData
 
     @PUT("item/{item_id}/folder/{folder_id}")
