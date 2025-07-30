@@ -108,7 +108,7 @@ class LinkSharingWishUploadActivity : ComponentActivity() {
                             else -> {}
                         }
                     },
-                    setNotiInfo = viewModel::setNotiInfo,
+                    setNotiInfo = { viewModel.setNotiInfo(notiInfo = it, uploadType = WishItemUploadType.PARSING) },
                     onSelectFolder = {
                         viewModel.updateSelectedFolder(it)
                     },
@@ -164,10 +164,11 @@ class LinkSharingWishUploadActivity : ComponentActivity() {
                                 notiInfo = notiData.notiInfo.fromJson<NotiInfo>(),
                                 onClickComplete = { type, date ->
                                     viewModel.isValidNotiDate(
-                                        NotiInfo(
+                                        notiInfo = NotiInfo(
                                             notiType = type,
                                             notiDate = date,
                                         ),
+                                        uploadType = WishItemUploadType.PARSING,
                                     )
                                     coroutineScope.launch { sheetState.hide() }
                                     modalData = null

@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -28,6 +29,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -42,14 +44,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -101,12 +106,14 @@ import com.hyeeyoung.wishboard.presentation.util.extension.rememberModalLauncher
 import com.hyeeyoung.wishboard.presentation.util.extension.rippleClickable
 import com.hyeeyoung.wishboard.presentation.util.extension.safePopBackStack
 import com.hyeeyoung.wishboard.presentation.util.extension.toJson
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDateTime
 import timber.log.Timber
 
 const val MAX_IMAGE_COUNT = 10
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WishUploadScreen(
     navController: NavController,
@@ -117,6 +124,15 @@ fun WishUploadScreen(
     val keyboardController = LocalSoftwareKeyboardController.current
     val uiModel by viewModel.manualUploadUiModel.collectAsStateWithLifecycle()
     val enteredAddFlow = itemDetail == null
+    var modalData by remember { mutableStateOf<ModalData?>(null) }
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true, confirmValueChange = { newState ->
+        if (modalData !is ModalData.Modal.ShopLink) {
+            newState != SheetValue.Hidden
+        } else {
+            true
+        }
+    })
+    val coroutineScope = rememberCoroutineScope()
 
     BackHandler {
         keyboardController?.hide()
@@ -135,6 +151,9 @@ fun WishUploadScreen(
     WishUploadScreen(
         uiModel = uiModel,
         enteredAddFlow = enteredAddFlow,
+        modalData = modalData,
+        coroutineScope = coroutineScope,
+        sheetState = sheetState,
         onSelectFolder = { folder ->
             viewModel.updateSelectedFolder(folder)
         },
@@ -163,6 +182,9 @@ fun WishUploadScreen(
 //        getFolders = {
 //            viewModel.getFolders(it)
 //        },
+        updateModalData = { modal ->
+            modalData = modal
+        },
         onClickClose = {
             keyboardController?.hide()
             navController.safePopBackStack()
@@ -178,12 +200,17 @@ fun WishUploadScreen(
         onUriChange = { uris ->
             viewModel.addItemImageUrl(uris)
         },
-        isValidNotiDate = viewModel::isValidNotiDate,
+        isValidNotiDate = {
+            viewModel.isValidNotiDate(
+                notiInfo = it,
+                uploadType = WishItemUploadType.MANUAL,
+            )
+        },
         deleteImage = viewModel::deleteImage,
         createFolder = { name ->
-            viewModel.createFolder(name) { // TODO
-//                coroutineScope.launch { sheetState.hide() }
-//                modalData = null
+            viewModel.createFolder(name) {
+                coroutineScope.launch { sheetState.hide() }
+                modalData = null
             }
         },
     )
@@ -193,7 +220,11 @@ fun WishUploadScreen(
 @Composable
 fun WishUploadScreen(
     uiModel: ManualUploadItemUiModel,
+    modalData: ModalData?,
     enteredAddFlow: Boolean,
+    coroutineScope: CoroutineScope,
+    sheetState: SheetState,
+    updateModalData: (ModalData?) -> Unit,
     onClickSave: () -> Unit,
     onClickClose: () -> Unit,
     createFolder: (name: String) -> Unit,
@@ -207,15 +238,6 @@ fun WishUploadScreen(
     val systemUiController = rememberSystemUiController()
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.loading_spin))
     val keyboardController = LocalSoftwareKeyboardController.current
-    var modalData by remember { mutableStateOf<ModalData?>(null) }
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true, confirmValueChange = { newState ->
-        if (modalData !is ModalData.Modal.ShopLink) {
-            newState != SheetValue.Hidden
-        } else {
-            true
-        }
-    })
-    val coroutineScope = rememberCoroutineScope()
 
     var cameraUri: Uri? = null
     val albumLauncher =
@@ -365,7 +387,7 @@ fun WishUploadScreen(
                         folders = uiModel.folders,
                         selectedFolder = uiModel.selectedFolder,
                         onClickNewFolder = {
-                            modalData = ModalData.Modal.NewFolder(folderName = "")
+                            updateModalData(ModalData.Modal.NewFolder(folderName = ""))
                         },
                         onClickFolder = { folder ->
                             onSelectFolder(folder)
@@ -378,8 +400,10 @@ fun WishUploadScreen(
                         modifier = inputFieldModifier,
                         notiInfo = getNotiInfo(notiType = uiModel.itemNotiType, notiDate = uiModel.itemNotiDate),
                         onClick = {
-                            modalData = ModalData.Modal.Noti(
-                                NotiInfo(notiType = uiModel.itemNotiType, notiDate = uiModel.itemNotiDate).toJson(),
+                            updateModalData(
+                                ModalData.Modal.Noti(
+                                    NotiInfo(notiType = uiModel.itemNotiType, notiDate = uiModel.itemNotiDate).toJson(),
+                                ),
                             )
                             coroutineScope.launch { sheetState.show() }
                         },
@@ -391,7 +415,7 @@ fun WishUploadScreen(
                         modifier = inputFieldModifier,
                         shopLink = uiModel.itemUrl.text,
                         onClick = {
-                            modalData = ModalData.Modal.ShopLink(uiModel.itemUrl.text)
+                            updateModalData(ModalData.Modal.ShopLink(uiModel.itemUrl.text))
                             coroutineScope.launch { sheetState.show() }
                         },
                     )
@@ -421,7 +445,7 @@ fun WishUploadScreen(
             isOpen = modalData != null,
             sheetState = sheetState,
             onDismissRequest = {
-                modalData = null
+                updateModalData(null)
             },
             content = {
                 when (modalData) {
@@ -432,11 +456,11 @@ fun WishUploadScreen(
                             onClickComplete = { type, date ->
                                 isValidNotiDate(NotiInfo(notiType = type, notiDate = date))
                                 coroutineScope.launch { sheetState.hide() }
-                                modalData = null
+                                updateModalData(null)
                             },
                             onDismissRequest = {
                                 coroutineScope.launch { sheetState.hide() }
-                                modalData = null
+                                updateModalData(null)
                             },
                         )
                     }
@@ -447,7 +471,7 @@ fun WishUploadScreen(
                                 title = stringResource(id = R.string.modal_new_folder_title),
                                 onDismissRequest = {
                                     coroutineScope.launch { sheetState.hide() }
-                                    modalData = null
+                                    updateModalData(null)
                                 },
                             )
 
@@ -470,11 +494,11 @@ fun WishUploadScreen(
                             onClickFolder = { folder ->
                                 onSelectFolder(folder)
                                 coroutineScope.launch { sheetState.hide() }
-                                modalData = null
+                                updateModalData(null)
                             },
                             onDismissRequest = {
                                 coroutineScope.launch { sheetState.hide() }
-                                modalData = null
+                                updateModalData(null)
                             },
                         )
                     }
@@ -486,11 +510,11 @@ fun WishUploadScreen(
                             onClickComplete = { link ->
                                 onTextChange(UploadInputType.ITEM_URL, TextFieldValue(link))
                                 coroutineScope.launch { sheetState.hide() }
-                                modalData = null
+                                updateModalData(null)
                             },
                             onDismissRequest = {
                                 coroutineScope.launch { sheetState.hide() }
-                                modalData = null
+                                updateModalData(null)
                             },
                         )
                     }
@@ -617,6 +641,15 @@ private fun FolderList(
 ) {
     val itemShape = RoundedCornerShape(16.dp)
     val itemPadding = PaddingValues(vertical = 6.dp, horizontal = 10.dp)
+    val density = LocalDensity.current
+    val textMeasure = rememberTextMeasurer()
+    val textStyle = WishBoardTheme.typography.suitB5
+    val folderItemHeight = density.run {
+        textMeasure.measure(
+            "폴더",
+            textStyle,
+        ).size.width.toDp()
+    } + itemPadding.calculateTopPadding() + itemPadding.calculateBottomPadding()
 
     Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
         Text(
@@ -628,103 +661,96 @@ private fun FolderList(
         Row(
             verticalAlignment = Alignment.CenterVertically,
         ) {
-//            Box(
-//                modifier = Modifier
-//                    .weight(1f)
-//                    .height(IntrinsicSize.Max)
-//                    .background(Color.Cyan)
-//            ) {
-            LazyRow(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalAlignment = Alignment.CenterVertically,
+            Box(
+                modifier = Modifier.weight(1f),
+                contentAlignment = Alignment.Center,
             ) {
-                item {
-                    Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.spacing_base)))
+                LazyRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    item {
+                        Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.spacing_base)))
 
-                    // TODO 아이템 없을 때 분기처리
-                    Box(
-                        modifier = Modifier
-                            .clip(itemShape)
-                            .border(width = 1.dp, color = WishBoardTheme.colors.gray100, shape = itemShape)
-                            .padding(itemPadding)
-                            .rippleClickable {
-                                onClickNewFolder()
-                            },
-                    ) {
-                        Text(
-                            text = "+ 새 폴더",
-                            style = WishBoardTheme.typography.suitH5,
-                            color = WishBoardTheme.colors.gray600,
-                        )
+                        Box(
+                            modifier = Modifier
+                                .clip(itemShape)
+                                .rippleClickable {
+                                    onClickNewFolder()
+                                }
+                                .border(width = 1.dp, color = WishBoardTheme.colors.gray100, shape = itemShape)
+                                .padding(itemPadding),
+                        ) {
+                            Text(
+                                text = "+ 새 폴더",
+                                style = WishBoardTheme.typography.suitH5,
+                                color = WishBoardTheme.colors.gray600,
+                            )
+                        }
                     }
-                }
 
-                items(folders) { folder ->
-                    val isSelected = folder.id == selectedFolder?.id
+                    items(folders) { folder ->
+                        val isSelected = folder.id == selectedFolder?.id
 
-                    Box(
-                        modifier = Modifier
-                            .clip(itemShape)
-                            .background(
-                                if (!isSelected) {
-                                    WishBoardTheme.colors.gray50
+                        Box(
+                            modifier = Modifier
+                                .clip(itemShape)
+                                .background(
+                                    if (!isSelected) {
+                                        WishBoardTheme.colors.gray50
+                                    } else {
+                                        WishBoardTheme.colors.gray600
+                                    },
+                                )
+                                .padding(itemPadding)
+                                .rippleClickable {
+                                    onClickFolder(folder)
+                                },
+                        ) {
+                            Text(
+                                text = folder.name,
+                                style = textStyle,
+                                color = if (!isSelected) {
+                                    WishBoardTheme.colors.gray200
                                 } else {
-                                    WishBoardTheme.colors.gray600
+                                    WishBoardTheme.colors.gray50
                                 },
                             )
-                            .padding(itemPadding)
-                            .rippleClickable {
-                                onClickFolder(folder)
-                            },
-                    ) {
-                        Text(
-                            text = folder.name,
-                            style = WishBoardTheme.typography.suitB5,
-                            color = if (!isSelected) {
-                                WishBoardTheme.colors.gray200
-                            } else {
-                                WishBoardTheme.colors.gray50
-                            },
-                        )
+                        }
                     }
                 }
+
+                Box(
+                    modifier = Modifier
+                        .zIndex(2f)
+                        .width(16.dp)
+                        .height(folderItemHeight)
+                        .align(Alignment.CenterEnd)
+                        .background(
+                            brush = Brush.horizontalGradient(
+                                colors = listOf(
+                                    Color.Transparent,
+                                    Color(0x80FFFFFF), // 50%
+                                    Color(0xE6FFFFFF), // 90%
+                                    Color.White,
+                                ),
+                            ),
+                        ),
+                )
             }
 
-//                Box(
-//                    modifier = Modifier
-//                        .zIndex(2f)
-//                        .width(16.dp)
-//                        .fillMaxHeight()
-//                        .align(Alignment.CenterEnd)
-//                        .background(
-//                            brush = Brush.verticalGradient(
-//                                colors = listOf(
-//                                    Color.Transparent,
-//                                    Color(0x0DFFFFFF), // 5%
-//                                    Color(0x26FFFFFF), // 15%
-//                                    Color(0x4DFFFFFF), // 30%
-//                                    Color(0x80FFFFFF), // 50%
-//                                    Color(0x99FFFFFF), // 60%
-//                                    Color(0xB3FFFFFF), // 70%
-//                                    Color(0xE6FFFFFF), // 90%
-//                                    Color.White,
-//                                ),
-//                            ),
-//                        )
-//                    ,
-//                )
-//            }
-
-            Row(
-                modifier = Modifier
-                    .padding(end = dimensionResource(id = R.dimen.spacing_base)),
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_detail),
-                    tint = Color.Unspecified,
-                    contentDescription = "상세보기",
-                )
+            if (folders.isNotEmpty()) {
+                Row(
+                    modifier = Modifier
+                        .padding(end = dimensionResource(id = R.dimen.spacing_base)),
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_detail),
+                        tint = Color.Unspecified,
+                        contentDescription = "상세보기",
+                    )
+                }
             }
         }
     }
@@ -803,6 +829,7 @@ private fun ItemFieldWithDetailIcon(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
 fun PreviewWishUploadScreen() {
@@ -826,7 +853,11 @@ fun PreviewWishUploadScreen() {
             itemMemo = TextFieldValue(""),
             selectedFolder = FolderItem(id = 1L, name = "상의"),
         ),
+        modalData = null,
+        sheetState = rememberModalBottomSheetState(),
+        coroutineScope = rememberCoroutineScope(),
         enteredAddFlow = false,
+        updateModalData = {},
         onTextChange = { _, _ -> },
         onSelectFolder = {},
         onUriChange = {},
