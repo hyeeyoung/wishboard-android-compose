@@ -16,7 +16,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hyeeyoung.wishboard.R
-import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
+import com.hyeeyoung.wishboard.designsystem.component.button.LegacyWishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import java.time.LocalDate
 import java.time.Month
@@ -41,7 +41,7 @@ fun CalendarTopBar(month: Month, year: Int, onClickClose: () -> Unit) {
     ) {
         Row(modifier = Modifier.align(Alignment.CenterStart)) {
             Spacer(modifier = Modifier.width(5.dp))
-            WishBoardIconButton(iconRes = R.drawable.ic_close, onClick = { onClickClose() })
+            LegacyWishBoardIconButton(iconRes = R.drawable.ic_close, onClick = { onClickClose() })
         }
         Text(
             modifier = Modifier

@@ -140,7 +140,7 @@ fun NotiModalContent(
                         ),
                     )
                 },
-                text = stringResource(id = R.string.complete),
+                text = "등록",
             )
         }
     }

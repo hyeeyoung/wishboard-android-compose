@@ -31,7 +31,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hyeeyoung.wishboard.R
-import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
+import com.hyeeyoung.wishboard.designsystem.component.button.LegacyWishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTextFieldComponent
 
@@ -304,7 +304,7 @@ private fun DecorationBox(
                 if (isFocused) {
                     if (input.isNotEmpty()) {
                         Spacer(modifier = Modifier.size(2.dp))
-                        WishBoardIconButton(iconRes = R.drawable.ic_delete_circle, onClick = onClickClear)
+                        LegacyWishBoardIconButton(iconRes = R.drawable.ic_delete_circle, onClick = onClickClear)
                     } else {
                         Spacer(modifier = Modifier.size(width = 10.dp, height = 32.dp))
                     }

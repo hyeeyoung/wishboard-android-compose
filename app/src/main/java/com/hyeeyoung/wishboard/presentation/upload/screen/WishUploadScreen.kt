@@ -67,6 +67,7 @@ import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardGlobalSnackbarMessage
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardNarrowButton
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.ModalData
+import com.hyeeyoung.wishboard.designsystem.component.dialog.temp.ModalTitle
 import com.hyeeyoung.wishboard.designsystem.component.dialog.temp.WishBoardModal
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
 import com.hyeeyoung.wishboard.designsystem.component.image.Image
@@ -80,12 +81,14 @@ import com.hyeeyoung.wishboard.domain.model.wish.WishItemUploadType
 import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat
 import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat.getFormattedDateStr
 import com.hyeeyoung.wishboard.presentation.folder.FolderListModalContent
+import com.hyeeyoung.wishboard.presentation.folder.FolderUploadModalContent
 import com.hyeeyoung.wishboard.presentation.noti.NotiModalContent
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardString
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.sign.model.WishItemDetail
 import com.hyeeyoung.wishboard.presentation.upload.WishItemUploadViewModel
+import com.hyeeyoung.wishboard.presentation.upload.component.ShopLinkModalContent
 import com.hyeeyoung.wishboard.presentation.upload.model.ManualUploadItemUiModel
 import com.hyeeyoung.wishboard.presentation.upload.model.UploadImage
 import com.hyeeyoung.wishboard.presentation.upload.model.UploadInputType
@@ -157,9 +160,9 @@ fun WishUploadScreen(
                 }
             }
         },
-        getFolders = {
-            viewModel.getFolders(it)
-        },
+//        getFolders = {
+//            viewModel.getFolders(it)
+//        },
         onClickClose = {
             keyboardController?.hide()
             navController.safePopBackStack()
@@ -177,6 +180,12 @@ fun WishUploadScreen(
         },
         isValidNotiDate = viewModel::isValidNotiDate,
         deleteImage = viewModel::deleteImage,
+        createFolder = { name ->
+            viewModel.createFolder(name) { // TODO
+//                coroutineScope.launch { sheetState.hide() }
+//                modalData = null
+            }
+        },
     )
 }
 
@@ -187,7 +196,7 @@ fun WishUploadScreen(
     enteredAddFlow: Boolean,
     onClickSave: () -> Unit,
     onClickClose: () -> Unit,
-    getFolders: ((List<FolderItem>) -> Unit) -> Unit,
+    createFolder: (name: String) -> Unit,
     onSelectFolder: (FolderItem?) -> Unit,
     onTextChange: (UploadInputType, TextFieldValue) -> Unit,
     onUriChange: (List<Uri>) -> Unit,
@@ -356,7 +365,7 @@ fun WishUploadScreen(
                         folders = uiModel.folders,
                         selectedFolder = uiModel.selectedFolder,
                         onClickNewFolder = {
-                            // TODO
+                            modalData = ModalData.Modal.NewFolder(folderName = "")
                         },
                         onClickFolder = { folder ->
                             onSelectFolder(folder)
@@ -432,6 +441,27 @@ fun WishUploadScreen(
                         )
                     }
 
+                    is ModalData.Modal.NewFolder -> {
+                        Column {
+                            ModalTitle(
+                                title = stringResource(id = R.string.modal_new_folder_title),
+                                onDismissRequest = {
+                                    coroutineScope.launch { sheetState.hide() }
+                                    modalData = null
+                                },
+                            )
+
+                            FolderUploadModalContent(
+                                folderName = null,
+                                uploadState = uiModel.folderAddState,
+                                existingFolderName = uiModel.existingFolderName,
+                                onClickComplete = { name ->
+                                    createFolder(name)
+                                },
+                            )
+                        }
+                    }
+
                     is ModalData.Modal.FolderList -> {
                         val folderData = (modalData as ModalData.Modal.FolderList)
                         FolderListModalContent(
@@ -451,18 +481,18 @@ fun WishUploadScreen(
 
                     is ModalData.Modal.ShopLink -> {
                         val linkData = (modalData as ModalData.Modal.ShopLink)
-//                        ShopLinkModalContent(
-//                            link = linkData.link,
-//                            onClickComplete = { link ->
-//                                onTextChange(UploadInputType.ITEM_URL, link)
-//                                coroutineScope.launch { sheetState.hide() }
-//                                modalData = null
-//                            },
-//                            onDismissRequest = {
-//                                coroutineScope.launch { sheetState.hide() }
-//                                modalData = null
-//                            },
-//                        )
+                        ShopLinkModalContent(
+                            link = linkData.link,
+                            onClickComplete = { link ->
+                                onTextChange(UploadInputType.ITEM_URL, TextFieldValue(link))
+                                coroutineScope.launch { sheetState.hide() }
+                                modalData = null
+                            },
+                            onDismissRequest = {
+                                coroutineScope.launch { sheetState.hide() }
+                                modalData = null
+                            },
+                        )
                     }
 
                     else -> {}
@@ -595,58 +625,106 @@ private fun FolderList(
             color = WishBoardTheme.colors.gray700,
             style = WishBoardTheme.typography.suitB2,
         )
-
-        LazyRow(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
+        Row(
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            item {
-                Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.spacing_base)))
+//            Box(
+//                modifier = Modifier
+//                    .weight(1f)
+//                    .height(IntrinsicSize.Max)
+//                    .background(Color.Cyan)
+//            ) {
+            LazyRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                item {
+                    Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.spacing_base)))
 
-                // TODO 아이템 없을 때 분기처리
-                Box(
-                    modifier = Modifier
-                        .clip(itemShape)
-                        .border(width = 1.dp, color = WishBoardTheme.colors.gray100, shape = itemShape)
-                        .padding(itemPadding)
-                        .rippleClickable {
-                            onClickNewFolder()
-                        },
-                ) {
-                    Text(
-                        text = "+ 새 폴더",
-                        style = WishBoardTheme.typography.suitH5,
-                        color = WishBoardTheme.colors.gray600,
-                    )
+                    // TODO 아이템 없을 때 분기처리
+                    Box(
+                        modifier = Modifier
+                            .clip(itemShape)
+                            .border(width = 1.dp, color = WishBoardTheme.colors.gray100, shape = itemShape)
+                            .padding(itemPadding)
+                            .rippleClickable {
+                                onClickNewFolder()
+                            },
+                    ) {
+                        Text(
+                            text = "+ 새 폴더",
+                            style = WishBoardTheme.typography.suitH5,
+                            color = WishBoardTheme.colors.gray600,
+                        )
+                    }
+                }
+
+                items(folders) { folder ->
+                    val isSelected = folder.id == selectedFolder?.id
+
+                    Box(
+                        modifier = Modifier
+                            .clip(itemShape)
+                            .background(
+                                if (!isSelected) {
+                                    WishBoardTheme.colors.gray50
+                                } else {
+                                    WishBoardTheme.colors.gray600
+                                },
+                            )
+                            .padding(itemPadding)
+                            .rippleClickable {
+                                onClickFolder(folder)
+                            },
+                    ) {
+                        Text(
+                            text = folder.name,
+                            style = WishBoardTheme.typography.suitB5,
+                            color = if (!isSelected) {
+                                WishBoardTheme.colors.gray200
+                            } else {
+                                WishBoardTheme.colors.gray50
+                            },
+                        )
+                    }
                 }
             }
 
-            items(folders) { folder ->
-                val isSelected = folder.id == selectedFolder?.id
+//                Box(
+//                    modifier = Modifier
+//                        .zIndex(2f)
+//                        .width(16.dp)
+//                        .fillMaxHeight()
+//                        .align(Alignment.CenterEnd)
+//                        .background(
+//                            brush = Brush.verticalGradient(
+//                                colors = listOf(
+//                                    Color.Transparent,
+//                                    Color(0x0DFFFFFF), // 5%
+//                                    Color(0x26FFFFFF), // 15%
+//                                    Color(0x4DFFFFFF), // 30%
+//                                    Color(0x80FFFFFF), // 50%
+//                                    Color(0x99FFFFFF), // 60%
+//                                    Color(0xB3FFFFFF), // 70%
+//                                    Color(0xE6FFFFFF), // 90%
+//                                    Color.White,
+//                                ),
+//                            ),
+//                        )
+//                    ,
+//                )
+//            }
 
-                Box(
-                    modifier = Modifier
-                        .clip(itemShape)
-                        .background(if (!isSelected) WishBoardTheme.colors.gray50 else WishBoardTheme.colors.gray600)
-                        .padding(itemPadding)
-                        .rippleClickable {
-                            onClickFolder(folder)
-                        },
-                ) {
-                    Text(
-                        text = folder.name,
-                        style = WishBoardTheme.typography.suitB5,
-                        color = if (!isSelected) WishBoardTheme.colors.gray200 else WishBoardTheme.colors.gray50,
-                    )
-                }
-            }
-
-            // TODO 그라데이션
-
-            item {
-                Spacer(modifier = Modifier.width(10.dp))
+            Row(
+                modifier = Modifier
+                    .padding(end = dimensionResource(id = R.dimen.spacing_base)),
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_detail),
+                    tint = Color.Unspecified,
+                    contentDescription = "상세보기",
+                )
             }
         }
     }
@@ -739,7 +817,7 @@ fun PreviewWishUploadScreen() {
             folders = listOf(
                 FolderItem(id = 1L, name = "상의"),
                 FolderItem(id = 2L, name = "하의"),
-                FolderItem(id = 3L, name = "잡화"),
+                FolderItem(id = 3L, name = "잡화 xptmxm gkrpTtmqslek."),
             ),
             itemPrice = TextFieldValue("108000"),
             itemNotiDate = getCurrentTime(),
@@ -749,7 +827,6 @@ fun PreviewWishUploadScreen() {
             selectedFolder = FolderItem(id = 1L, name = "상의"),
         ),
         enteredAddFlow = false,
-        getFolders = {},
         onTextChange = { _, _ -> },
         onSelectFolder = {},
         onUriChange = {},
@@ -757,5 +834,6 @@ fun PreviewWishUploadScreen() {
         onClickClose = {},
         isValidNotiDate = { true },
         deleteImage = {},
+        createFolder = {},
     )
 }

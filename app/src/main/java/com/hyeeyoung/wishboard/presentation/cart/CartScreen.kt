@@ -35,7 +35,7 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardEmptyView
-import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
+import com.hyeeyoung.wishboard.designsystem.component.button.LegacyWishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.WishBoardTwoButtonDialog
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
@@ -148,7 +148,7 @@ fun CartItem(
                 )
 
                 Surface(modifier = Modifier.padding(top = 6.dp, end = 4.dp)) {
-                    WishBoardIconButton(
+                    LegacyWishBoardIconButton(
                         modifier = Modifier.background(WishBoardTheme.colors.white),
                         iconRes = R.drawable.ic_delete_small_gray,
                         onClick = { onClickDelete() },
@@ -175,9 +175,9 @@ fun CartItem(
 @Composable
 fun ItemCountController(count: Int, onChangeItemCount: (Int) -> Unit) {
     Row(modifier = Modifier.padding(start = 2.dp, bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-        WishBoardIconButton(iconRes = R.drawable.ic_cart_minus, onClick = { onChangeItemCount(-1) })
+        LegacyWishBoardIconButton(iconRes = R.drawable.ic_cart_minus, onClick = { onChangeItemCount(-1) })
         Text(modifier = Modifier.width(18.dp), text = count.toString(), textAlign = TextAlign.Center)
-        WishBoardIconButton(iconRes = R.drawable.ic_cart_plus, onClick = { onChangeItemCount(+1) })
+        LegacyWishBoardIconButton(iconRes = R.drawable.ic_cart_plus, onClick = { onChangeItemCount(+1) })
     }
 }
 

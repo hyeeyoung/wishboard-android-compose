@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -29,7 +31,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.style.TextDecoration
@@ -61,6 +63,7 @@ import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
 import com.hyeeyoung.wishboard.domain.model.noti.NotiType
 import com.hyeeyoung.wishboard.presentation.folder.FolderListModalContent
+import com.hyeeyoung.wishboard.presentation.onboarding.WishBoardIndicator
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardString
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.util.buildStringWithSpans
@@ -196,12 +199,14 @@ fun WishItemDetailScreen(
             )
 
             WishBoardWideButton(
+                modifier = Modifier
+                    .padding(horizontal = dimensionResource(id = R.dimen.spacing_base))
+                    .padding(bottom = 34.dp),
                 enabled = enabledShopButton,
                 onClick = {
                     onClickShop()
                 },
                 text = stringResource(id = R.string.wish_item_detail_go_to_shop),
-                shape = RectangleShape,
                 isGreen = false,
             )
         }
@@ -262,18 +267,23 @@ private fun WishItemDetailContents(
 ) {
     val imageModifier = Modifier
         .fillMaxWidth()
-        .clip(RoundedCornerShape(32.dp))
         .aspectRatio(1f / 1.15f)
+    val pagerState = rememberPagerState(pageCount = { uiModel.images.size })
 
     Column(modifier = modifier.verticalScroll(rememberScrollState())) {
-        Box(modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 8.dp)) {
-            Image(
-                modifier = imageModifier,
-                model = uiModel.image,
-                placeHolder = {
-                    WishBoardPlaceHolder(modifier = imageModifier)
-                },
-            )
+        Box(modifier = Modifier.padding(start = 16.dp, end = 16.dp)) {
+            HorizontalPager(
+                modifier = Modifier.clip(RoundedCornerShape(32.dp)),
+                state = pagerState,
+            ) {
+                Image(
+                    modifier = imageModifier,
+                    model = uiModel.images[pagerState.currentPage],
+                    placeHolder = {
+                        WishBoardPlaceHolder(modifier = imageModifier)
+                    },
+                )
+            }
 
             safeLet(uiModel.notiType, uiModel.notiDate) { type, date ->
                 NotiInfoLabel(
@@ -286,10 +296,18 @@ private fun WishItemDetailContents(
             }
         }
 
+        WishBoardIndicator(
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .padding(top = 20.dp, bottom = 12.dp),
+            size = uiModel.images.size,
+            pagerState = pagerState,
+        )
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 16.dp, end = 16.dp, top = 10.dp),
+                .padding(start = 16.dp, end = 16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -332,6 +350,7 @@ private fun WishItemDetailContents(
 
         uiModel.memo?.let { memo ->
             WishBoardDivider()
+
             Column(Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp)) {
                 Text(
                     modifier = Modifier.padding(bottom = 10.dp),
@@ -357,7 +376,7 @@ private fun TopBarEndIcons(modifier: Modifier, onClickDelete: () -> Unit, onClic
     Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
         WishBoardIconButton(iconRes = R.drawable.ic_trash, onClick = { onClickDelete() })
         WishBoardIconButton(iconRes = R.drawable.ic_edit, onClick = { onClickEdit() })
-        Spacer(modifier = Modifier.size(8.dp))
+        Spacer(modifier = Modifier.size(6.dp))
     }
 }
 
@@ -418,7 +437,7 @@ fun PreviewWishItemDetailScreen() {
     val uiModel = WishItemDetailUiModel(
         id = 1L,
         name = "21SS SAGE SHIRT [4COLOR]",
-        image = "https://url.kr/8vwf1e",
+        images = listOf("https://url.kr/8vwf1e", "https://url.kr/8vwf1e", "https://url.kr/8vwf1e"),
         price = 108000,
         notiDate = LocalDateTime(2024, 1, 13, 1, 13),
         notiType = NotiType.RESTOCK,

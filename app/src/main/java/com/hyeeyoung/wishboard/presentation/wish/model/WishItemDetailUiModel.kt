@@ -12,7 +12,7 @@ data class WishItemDetailUiModel(
     val id: Long = 0L,
     var folderId: Long? = 0L,
     var folderName: String? = "",
-    var image: String? = null,
+    var images: List<String> = emptyList(),
     val memo: String? = null,
     val name: String = "",
     val notiDate: LocalDateTime? = null,
@@ -27,7 +27,7 @@ data class WishItemDetailUiModel(
                 id = domain.id,
                 folderId = domain.folderId,
                 folderName = domain.folderName,
-                image = domain.image,
+                images = listOf(domain.image ?: ""), // TODO
                 memo = domain.memo,
                 name = domain.name,
                 notiDate = with(domain.notiDate) {

@@ -15,7 +15,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hyeeyoung.wishboard.R
-import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
+import com.hyeeyoung.wishboard.designsystem.component.button.LegacyWishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
 
@@ -31,7 +31,7 @@ fun WishBoardTopBar(topBarModel: WishBoardTopBarModel, endComponent: (@Composabl
         Row(modifier = Modifier.align(Alignment.CenterStart), verticalAlignment = Alignment.CenterVertically) {
             Spacer(modifier = Modifier.size(5.dp))
 
-            WishBoardIconButton(
+            LegacyWishBoardIconButton(
                 iconRes = topBarModel.startIcon.iconRes,
                 onClick = { topBarModel.onClickStartIcon() },
                 contentDescription = topBarModel.startIcon.contentDescription,
@@ -71,8 +71,8 @@ fun PreviewWishBoardTopBarWithEndIcons() {
                 modifier = modifier,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                WishBoardIconButton(iconRes = R.drawable.ic_trash, onClick = { /*TODO*/ })
-                WishBoardIconButton(iconRes = R.drawable.ic_edit, onClick = { /*TODO*/ })
+                LegacyWishBoardIconButton(iconRes = R.drawable.ic_trash, onClick = { /*TODO*/ })
+                LegacyWishBoardIconButton(iconRes = R.drawable.ic_edit, onClick = { /*TODO*/ })
                 Spacer(modifier = Modifier.size(8.dp))
             }
         },

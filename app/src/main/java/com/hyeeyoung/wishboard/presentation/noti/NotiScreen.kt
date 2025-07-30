@@ -38,7 +38,7 @@ import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.config.navigation.screen.Calendar
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardEmptyView
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardGlobalSnackbarMessage
-import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
+import com.hyeeyoung.wishboard.designsystem.component.button.LegacyWishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
 import com.hyeeyoung.wishboard.designsystem.component.image.Image
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
@@ -115,7 +115,7 @@ fun NotiScreen(
                 ),
                 endComponent = {
                     Row(modifier = it) {
-                        WishBoardIconButton(iconRes = R.drawable.ic_calendar, onClick = { onClickCalendar() })
+                        LegacyWishBoardIconButton(iconRes = R.drawable.ic_calendar, onClick = { onClickCalendar() })
                         Spacer(modifier = Modifier.width(6.dp))
                     }
                 },

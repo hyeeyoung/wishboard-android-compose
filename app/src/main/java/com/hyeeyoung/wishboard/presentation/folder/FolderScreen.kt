@@ -41,7 +41,7 @@ import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardEmptyView
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardGlobalSnackbarMessage
-import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
+import com.hyeeyoung.wishboard.designsystem.component.button.LegacyWishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.DialogData
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.ModalData
 import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.WishBoardTwoButtonDialog
@@ -181,7 +181,7 @@ fun FolderScreen(
         WishBoardMainTopBar(
             titleRes = R.string.folder,
             endComponent = {
-                WishBoardIconButton(
+                LegacyWishBoardIconButton(
                     modifier = Modifier.padding(end = 8.dp),
                     iconRes = R.drawable.ic_plus,
                     onClick = {

@@ -39,7 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardSnackbarHost
-import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
+import com.hyeeyoung.wishboard.designsystem.component.button.LegacyWishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.ModalData
 import com.hyeeyoung.wishboard.designsystem.component.image.Image
@@ -97,7 +97,7 @@ fun LinkSharingWishUploadScreen(
                             .align(Alignment.End)
                             .padding(top = 5.dp, end = 8.dp),
                     ) {
-                        WishBoardIconButton(
+                        LegacyWishBoardIconButton(
                             modifier = Modifier.background(WishBoardTheme.colors.white),
                             iconRes = R.drawable.ic_close,
                             onClick = { onClickClose() },
