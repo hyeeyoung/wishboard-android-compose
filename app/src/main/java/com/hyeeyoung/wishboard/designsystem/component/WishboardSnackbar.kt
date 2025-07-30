@@ -86,7 +86,7 @@ fun WishBoardSnackbar(message: String) {
     ) {
         Text(
             modifier = Modifier
-                .background(WishBoardTheme.colors.gray700, RoundedCornerShape(45.dp))
+                .background(WishBoardTheme.colors.gray600, RoundedCornerShape(45.dp))
                 .padding(vertical = 16.dp, horizontal = 32.dp),
             text = message,
             color = WishBoardTheme.colors.white,
