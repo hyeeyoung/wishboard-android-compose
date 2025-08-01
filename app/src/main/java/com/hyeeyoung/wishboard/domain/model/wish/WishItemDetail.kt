@@ -8,7 +8,7 @@ data class WishItemDetail(
     val id: Long,
     var folderId: Long?,
     var folderName: String?,
-    var image: String?,
+    var image: List<String>?,
     val memo: String?,
     val name: String,
     val notiDate: String?,

@@ -7,34 +7,34 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class WishItemDetailDto(
-    @SerialName("item_id")
+    @SerialName("id")
     val id: Long,
-    @SerialName("folder_id")
+    @SerialName("folderId")
     val folderId: Long?,
-    @SerialName("folder_name")
+    @SerialName("folderName")
     val folderName: String?,
-    @SerialName("item_img_url")
-    val image: String?,
-    @SerialName("item_name")
+    @SerialName("itemImages")
+    val image: List<WishItemImage>?,
+    @SerialName("itemName")
     val name: String,
-    @SerialName("item_price")
+    @SerialName("itemPrice")
     val price: String,
-    @SerialName("item_url")
+    @SerialName("itemUrl")
     val site: String?,
-    @SerialName("item_memo")
+    @SerialName("itemMemo")
     val memo: String?,
-    @SerialName("item_notification_date")
+    @SerialName("itemNotificationDate")
     val notiDate: String?,
-    @SerialName("item_notification_type")
+    @SerialName("itemNotificationType") // TODO
     val notiType: String?,
-    @SerialName("create_at")
+    @SerialName("createAt")
     val createAt: String,
 ) {
     fun toDomain() = WishItemDetail(
         id = id,
         folderId = folderId,
         folderName = if (folderName.isNullOrBlank()) null else folderName,
-        image = image,
+        image = image?.map { it.url },
         memo = if (memo.isNullOrBlank()) null else memo,
         name = name,
         notiDate = notiDate,

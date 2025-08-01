@@ -33,8 +33,7 @@ class WishItemViewModel @Inject constructor(
 
     fun getWishItemDetail(id: Long) {
         viewModelScope.launch {
-            getWishItemUseCase(id).onSuccess {
-                val detail = it.firstOrNull() ?: return@launch
+            getWishItemUseCase(id).onSuccess { detail ->
                 _uiModel.update {
                     WishItemDetailUiModel.fromDomain(detail)
                 }

@@ -229,15 +229,15 @@ class WishItemUploadViewModel @Inject constructor(
     }
 
     private fun setWishItemUploadModel(itemDetail: WishItemDetail) {
-        _uiModel.update {
+        _manualUploadUiModel.update {
             it.copy(
-                itemName = itemDetail.name,
-                itemPrice = itemDetail.price,
-                itemMemo = itemDetail.memo ?: "",
-                itemUrl = itemDetail.site ?: "",
+                itemName = TextFieldValue(itemDetail.name),
+                itemPrice = TextFieldValue(itemDetail.price),
+                itemMemo = TextFieldValue(itemDetail.memo ?: ""),
+                itemUrl = TextFieldValue(itemDetail.site ?: ""),
                 itemNotiType = itemDetail.notiType,
                 itemNotiDate = itemDetail.notiDate?.toLocalDateTime(WishBoardDateFormat.YYYY_MM_DD_T_HH_MM),
-                downloadImageUrl = itemDetail.image,
+                images = itemDetail.image?.map { UploadImage.Remote(it) } ?: emptyList(),
                 selectedFolder = safeLet(
                     itemDetail.folderId,
                     itemDetail.folderName,
@@ -302,14 +302,14 @@ class WishItemUploadViewModel @Inject constructor(
         }
     }
 
-    fun isValidNotiDate(notiInfo: NotiInfo): Boolean {
+    fun isValidNotiDate(notiInfo: NotiInfo, uploadType: WishItemUploadType): Boolean {
         val date = notiInfo.notiDate?.toJavaLocalDateTime() ?: return true
         val isInvalid = !date.isAfter(java.time.LocalDateTime.now())
         return if (isInvalid) {
             updateSnackbarMessage("현재 시간 이후로만 선택할 수 있어요")
             false
         } else {
-            setNotiInfo(notiInfo)
+            setNotiInfo(notiInfo = notiInfo, uploadType = uploadType)
             true
         }
     }
@@ -387,9 +387,19 @@ class WishItemUploadViewModel @Inject constructor(
         }
     }
 
-    fun setNotiInfo(notiInfo: NotiInfo) {
-        _uiModel.update {
-            it.copy(itemNotiType = notiInfo.notiType, itemNotiDate = notiInfo.notiDate)
+    fun setNotiInfo(notiInfo: NotiInfo, uploadType: WishItemUploadType) {
+        when (uploadType) {
+            WishItemUploadType.MANUAL -> {
+                _manualUploadUiModel.update {
+                    it.copy(itemNotiType = notiInfo.notiType, itemNotiDate = notiInfo.notiDate)
+                }
+            }
+
+            WishItemUploadType.PARSING -> {
+                _uiModel.update {
+                    it.copy(itemNotiType = notiInfo.notiType, itemNotiDate = notiInfo.notiDate)
+                }
+            }
         }
     }
 

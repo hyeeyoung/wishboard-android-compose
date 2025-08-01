@@ -9,7 +9,7 @@ import com.hyeeyoung.wishboard.domain.model.wish.WishItemUploadType
 interface ItemRepository {
     suspend fun fetchWishList(): Result<List<WishItem>>
 
-    suspend fun fetchWishItemDetail(itemId: Long): Result<List<WishItemDetail>>
+    suspend fun fetchWishItemDetail(itemId: Long): Result<WishItemDetail>
 
     suspend fun uploadWishItem(uploadType: WishItemUploadType, itemInfo: WishItemUploadInfo): Result<Long>
 

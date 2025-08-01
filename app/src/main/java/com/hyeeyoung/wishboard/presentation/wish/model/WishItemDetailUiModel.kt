@@ -27,7 +27,7 @@ data class WishItemDetailUiModel(
                 id = domain.id,
                 folderId = domain.folderId,
                 folderName = domain.folderName,
-                images = listOf(domain.image ?: ""), // TODO
+                images = domain.image ?: emptyList(),
                 memo = domain.memo,
                 name = domain.name,
                 notiDate = with(domain.notiDate) {

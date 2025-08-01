@@ -24,7 +24,7 @@ interface ItemService {
     @GET("item/{item_id}")
     suspend fun fetchWishItemDetail(
         @Path("item_id") itemId: Long,
-    ): List<WishItemDetailDto>
+    ): BaseResponse<WishItemDetailDto>
 
     @Multipart
     @POST("item")
