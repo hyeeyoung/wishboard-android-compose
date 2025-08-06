@@ -14,12 +14,16 @@ class FolderRepositoryImpl @Inject constructor(
         folderService.fetchFolders().data.map { it.toDomain() }
     }
 
+    override suspend fun fetchFolderSummaries(): Result<List<FolderItem>> = runCatching {
+        folderService.fetchFolderSummaries().data.map { it.toDomain() }
+    }
+
     override suspend fun fetchFolderDetail(folderId: Long): Result<List<WishItem>> = runCatching {
         folderService.fetchFolderDetail(folderId = folderId).map { it.toDomain() }
     }
 
-    override suspend fun createFolder(folderName: String): Result<Unit> = runCatching {
-        folderService.createFolder(folderName = FolderNameDto(folderName))
+    override suspend fun createFolder(folderName: String): Result<FolderItem> = runCatching {
+        folderService.createFolder(folderName = FolderNameDto(folderName)).data.toDomain()
     }
 
     override suspend fun updateName(folderId: Long, folderName: String): Result<Unit> = runCatching {

@@ -5,6 +5,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class FolderNameDto(
-    @SerialName("folder_name")
+    @SerialName("folderName")
     var name: String = "",
 )

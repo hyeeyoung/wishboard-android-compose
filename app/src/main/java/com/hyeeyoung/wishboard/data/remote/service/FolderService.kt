@@ -4,6 +4,7 @@ import com.hyeeyoung.wishboard.data.remote.model.base.BaseResponse
 import com.hyeeyoung.wishboard.data.remote.model.base.BaseResponseWithoutData
 import com.hyeeyoung.wishboard.data.remote.model.folder.FolderItemDto
 import com.hyeeyoung.wishboard.data.remote.model.folder.FolderNameDto
+import com.hyeeyoung.wishboard.data.remote.model.folder.FolderSummaryDto
 import com.hyeeyoung.wishboard.presentation.upload.model.WishItemDto
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -16,11 +17,14 @@ interface FolderService {
     @GET("folder")
     suspend fun fetchFolders(): BaseResponse<List<FolderItemDto>>
 
+    @GET("folder/list")
+    suspend fun fetchFolderSummaries(): BaseResponse<List<FolderSummaryDto>>
+
     @GET("folder/item/{folder_id}")
     suspend fun fetchFolderDetail(@Path("folder_id") folderId: Long): List<WishItemDto>
 
     @POST("folder")
-    suspend fun createFolder(@Body folderName: FolderNameDto): BaseResponseWithoutData
+    suspend fun createFolder(@Body folderName: FolderNameDto): BaseResponse<FolderSummaryDto>
 
     @PUT("folder/{folder_id}")
     suspend fun updateName(

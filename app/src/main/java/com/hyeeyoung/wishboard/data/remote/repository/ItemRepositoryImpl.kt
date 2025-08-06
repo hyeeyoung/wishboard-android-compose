@@ -5,6 +5,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
 import com.hyeeyoung.wishboard.data.remote.model.common.PageSize
+import com.hyeeyoung.wishboard.data.remote.model.wish.WishItemUploadInfoDto
 import com.hyeeyoung.wishboard.data.remote.paging.WishItemPagingSource
 import com.hyeeyoung.wishboard.data.remote.service.ItemService
 import com.hyeeyoung.wishboard.data.util.extension.toPlainNullableRequestBody
@@ -16,10 +17,13 @@ import com.hyeeyoung.wishboard.domain.model.wish.WishItemUploadInfo
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemUploadType
 import com.hyeeyoung.wishboard.domain.repository.ItemRepository
 import com.hyeeyoung.wishboard.presentation.common.model.ImageType
+import com.hyeeyoung.wishboard.presentation.util.extension.toJson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -52,13 +56,9 @@ class ItemRepositoryImpl @Inject constructor(
 
             itemService.uploadWishItem(
                 type = uploadType.toString(),
-                folderId = itemInfo.folderId?.toString()?.toPlainNullableRequestBody(),
-                itemName = itemInfo.itemName.toPlainRequestBody(),
-                itemPrice = itemInfo.itemPrice?.toString()?.toPlainNullableRequestBody(),
-                itemMemo = itemInfo.itemMemo.toPlainNullableRequestBody(),
-                itemNotificationDate = itemInfo.itemNotiDate?.toPlainNullableRequestBody(),
-                itemNotificationType = itemInfo.itemNotiType?.label?.toPlainNullableRequestBody(),
-                itemUrl = itemInfo.itemUrl.toPlainNullableRequestBody(),
+                item = WishItemUploadInfoDto.fromDomain(itemInfo).toJson().toRequestBody(
+                    "application/json".toMediaTypeOrNull(),
+                ),
                 itemImg = itemInfo.itemImage?.mapNotNull {
                     when (it) {
                         is ImageType.DownloadImage -> {

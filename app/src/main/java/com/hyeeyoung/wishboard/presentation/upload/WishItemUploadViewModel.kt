@@ -13,7 +13,7 @@ import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
 import com.hyeeyoung.wishboard.domain.model.noti.NotiInfo
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemDetail
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemUploadType
-import com.hyeeyoung.wishboard.domain.usecase.folder.GetFoldersUseCase
+import com.hyeeyoung.wishboard.domain.usecase.folder.GetFolderSummariesUseCase
 import com.hyeeyoung.wishboard.domain.usecase.folder.PostNewFolderUseCase
 import com.hyeeyoung.wishboard.domain.usecase.item.GetParsedItemInfoUseCase
 import com.hyeeyoung.wishboard.domain.usecase.item.PostWishItemUseCase
@@ -55,7 +55,7 @@ class WishItemUploadViewModel @Inject constructor(
     private val localStorage: WishBoardPreference,
     private val postWishItemUseCase: PostWishItemUseCase,
     private val putWishItemUseCase: PutWishItemUseCase,
-    private val getFoldersUseCase: GetFoldersUseCase,
+    private val getFolderSummariesUseCase: GetFolderSummariesUseCase,
     private val getParsedItemInfoUseCase: GetParsedItemInfoUseCase,
     private val postNewFolderUseCase: PostNewFolderUseCase,
 ) : BaseViewModel() {
@@ -246,6 +246,56 @@ class WishItemUploadViewModel @Inject constructor(
         }
     }
 
+    fun getFoldersNew() {
+//        if (!localStorage.isLogin) {
+//            return
+//        }
+        if (uiModel.value.folderFetchState is WishBoardState.Loading) return
+        _manualUploadUiModel.update { it.copy(folderFetchState = WishBoardState.Loading) }
+
+        viewModelScope.launch {
+            getFolderSummariesUseCase().onSuccess { folders ->
+                _manualUploadUiModel.update {
+                    it.copy(folders = folders, folderFetchState = WishBoardState.Success(Unit))
+                }
+            }.onFailure { exception, _, _ ->
+                updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
+                _manualUploadUiModel.update {
+                    it.copy(folderFetchState = WishBoardState.Failure)
+                }
+            }
+        }
+    }
+
+    fun createFolderNew(folderName: String, afterSuccess: () -> Unit) {
+        if (uiModel.value.folderAddState is WishBoardState.Loading) return
+        _manualUploadUiModel.update { it.copy(folderAddState = WishBoardState.Loading) }
+
+        val trimmedName = folderName.trim()
+        viewModelScope.launch {
+            postNewFolderUseCase(trimmedName)
+                .onSuccess { folder ->
+                    _manualUploadUiModel.update {
+                        it.copy(
+                            folderAddState = WishBoardState.Success(Unit),
+                            existingFolderName = "",
+                            folders = listOf(folder) + it.folders,
+                        )
+                    }
+
+                    updateSelectedFolder(folder)
+
+                    afterSuccess()
+                }.onFailure { exception, errorCode, _ ->
+                    when (errorCode) {
+                        400 -> _manualUploadUiModel.update { it.copy(existingFolderName = trimmedName) }
+                        else -> updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
+                    }
+                    _manualUploadUiModel.update { it.copy(folderAddState = WishBoardState.Failure) }
+                }
+        }
+    }
+
     fun getFolders(afterSuccess: (List<FolderItem>) -> Unit) {
         if (!localStorage.isLogin) {
             return
@@ -254,7 +304,7 @@ class WishItemUploadViewModel @Inject constructor(
         _uiModel.update { it.copy(folderFetchState = WishBoardState.Loading) }
 
         viewModelScope.launch {
-            getFoldersUseCase().onSuccess { folders ->
+            getFolderSummariesUseCase().onSuccess { folders ->
                 _uiModel.update {
                     it.copy(folders = folders, folderFetchState = WishBoardState.Success(Unit))
                 }
@@ -351,6 +401,17 @@ class WishItemUploadViewModel @Inject constructor(
     }
 
     fun updateSelectedFolder(folderItem: FolderItem?) {
+        _manualUploadUiModel.update {
+            it.copy(
+                selectedFolder =
+                if (folderItem?.id != _manualUploadUiModel.value.selectedFolder?.id) {
+                    folderItem
+                } else {
+                    null
+                },
+            )
+        }
+        // TODO
         _uiModel.update {
             it.copy(
                 selectedFolder =

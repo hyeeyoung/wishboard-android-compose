@@ -3,7 +3,7 @@ package com.hyeeyoung.wishboard.presentation.wish.screen
 import androidx.lifecycle.viewModelScope
 import com.hyeeyoung.wishboard.core.extension.onFailure
 import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
-import com.hyeeyoung.wishboard.domain.usecase.folder.GetFoldersUseCase
+import com.hyeeyoung.wishboard.domain.usecase.folder.GetFolderSummariesUseCase
 import com.hyeeyoung.wishboard.domain.usecase.item.DeleteWishItemUseCase
 import com.hyeeyoung.wishboard.domain.usecase.item.GetWishItemDetailUseCase
 import com.hyeeyoung.wishboard.domain.usecase.item.PutFolderOfWishItemUseCase
@@ -22,7 +22,7 @@ import javax.inject.Inject
 @HiltViewModel
 class WishItemViewModel @Inject constructor(
     private val getWishItemUseCase: GetWishItemDetailUseCase,
-    private val getFoldersUseCase: GetFoldersUseCase,
+    private val getFolderSummariesUseCase: GetFolderSummariesUseCase,
     private val putFolderOfWishItemUseCase: PutFolderOfWishItemUseCase,
     private val deleteWishItemUseCase: DeleteWishItemUseCase,
 ) : BaseViewModel() {
@@ -48,7 +48,7 @@ class WishItemViewModel @Inject constructor(
         folderUiModel.update { it.copy(fetchState = WishBoardState.Loading) }
 
         viewModelScope.launch {
-            getFoldersUseCase().onSuccess { folders ->
+            getFolderSummariesUseCase().onSuccess { folders ->
                 folderUiModel.update {
                     it.copy(folders = folders, fetchState = WishBoardState.Success(Unit))
                 }

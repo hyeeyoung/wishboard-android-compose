@@ -5,20 +5,17 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class FolderItemDto(
+data class FolderSummaryDto(
     @SerialName("id")
     val id: Long,
     @SerialName("folderName")
     var name: String = "",
     @SerialName("folderThumbnail")
     val thumbnail: String = "",
-    @SerialName("itemCount")
-    val numOfWishItem: Int = 0,
 ) {
     fun toDomain(): FolderItem = FolderItem(
         id = id,
         name = name,
         thumbnail = thumbnail,
-        numOfWishItem = numOfWishItem,
     )
 }

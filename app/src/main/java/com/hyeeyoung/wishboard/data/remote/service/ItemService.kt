@@ -34,13 +34,7 @@ interface ItemService {
     @POST("item")
     suspend fun uploadWishItem(
         @Query("type") type: String,
-        @Part("folder_id") folderId: RequestBody?,
-        @Part("item_name") itemName: RequestBody,
-        @Part("item_price") itemPrice: RequestBody?,
-        @Part("item_memo") itemMemo: RequestBody?,
-        @Part("item_url") itemUrl: RequestBody?,
-        @Part("item_notification_type") itemNotificationType: RequestBody?,
-        @Part("item_notification_date") itemNotificationDate: RequestBody?,
+        @Part("request") item: RequestBody,
         @Part itemImg: List<MultipartBody.Part>?,
     ): BaseResponse<WishItemIdDto>
 
