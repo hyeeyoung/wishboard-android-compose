@@ -2,6 +2,7 @@ package com.hyeeyoung.wishboard.data.remote.service
 
 import com.hyeeyoung.wishboard.data.remote.model.base.BaseResponse
 import com.hyeeyoung.wishboard.data.remote.model.base.BaseResponseWithoutData
+import com.hyeeyoung.wishboard.data.remote.model.base.PagedResponse
 import com.hyeeyoung.wishboard.data.remote.model.wish.WishItemDetailDto
 import com.hyeeyoung.wishboard.data.remote.model.wish.WishItemIdDto
 import com.hyeeyoung.wishboard.domain.model.wish.ParsedWishItem
@@ -19,7 +20,10 @@ import retrofit2.http.Query
 
 interface ItemService {
     @GET("item")
-    suspend fun fetchWishList(): BaseResponse<List<WishItemDto>>
+    suspend fun fetchWishList(
+        @Query("page") page: Int,
+        @Query("size") size: Int,
+    ): BaseResponse<PagedResponse<WishItemDto>>
 
     @GET("item/{item_id}")
     suspend fun fetchWishItemDetail(

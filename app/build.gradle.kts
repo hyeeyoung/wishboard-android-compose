@@ -100,6 +100,7 @@ dependencies {
     implementation(libs.bundles.app.update)
     implementation(libs.junit)
     implementation(libs.timber)
+    implementation(libs.bundles.paging)
 
     coreLibraryDesugaring(libs.desugar)
     debugImplementation(libs.bundles.debug)

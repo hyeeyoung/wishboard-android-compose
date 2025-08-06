@@ -1,6 +1,6 @@
 package com.hyeeyoung.wishboard.data.remote.model.noti
 
-import com.hyeeyoung.wishboard.domain.model.noti.NotiType.Companion.toNotiType
+import com.hyeeyoung.wishboard.domain.model.noti.NotiType
 import com.hyeeyoung.wishboard.presentation.sign.model.NotiItem
 import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat
 import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat.toLocalDateTime
@@ -30,7 +30,7 @@ data class NotiItemDto(
         itemName = itemName,
         itemUrl = if (itemUrl.isNullOrBlank()) null else itemUrl,
         isRead = readState != 0,
-        notiType = notiType.toNotiType(),
+        notiType = NotiType.fromDomain(notiType) ?: NotiType.OPEN,
         notiDate = notiDate.toLocalDateTime(WishBoardDateFormat.YYYY_MM_DD_HH_MM_SS),
     )
 }

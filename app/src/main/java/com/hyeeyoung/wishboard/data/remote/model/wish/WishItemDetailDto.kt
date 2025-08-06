@@ -1,6 +1,6 @@
 package com.hyeeyoung.wishboard.data.remote.model.wish
 
-import com.hyeeyoung.wishboard.domain.model.noti.NotiType.Companion.toNotiType
+import com.hyeeyoung.wishboard.domain.model.noti.NotiType
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemDetail
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -25,7 +25,7 @@ data class WishItemDetailDto(
     val memo: String?,
     @SerialName("itemNotificationDate")
     val notiDate: String?,
-    @SerialName("itemNotificationType") // TODO
+    @SerialName("itemNotificationType")
     val notiType: String?,
     @SerialName("createAt")
     val createAt: String,
@@ -38,7 +38,7 @@ data class WishItemDetailDto(
         memo = if (memo.isNullOrBlank()) null else memo,
         name = name,
         notiDate = notiDate,
-        notiType = notiType?.toNotiType(),
+        notiType = NotiType.fromDomain(notiType),
         price = price,
         site = if (site.isNullOrBlank()) null else site,
         createAt = createAt,

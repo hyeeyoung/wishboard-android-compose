@@ -1,13 +1,15 @@
 package com.hyeeyoung.wishboard.domain.repository
 
+import androidx.paging.PagingData
 import com.hyeeyoung.wishboard.domain.model.wish.ParsedWishItem
 import com.hyeeyoung.wishboard.domain.model.wish.WishItem
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemDetail
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemUploadInfo
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemUploadType
+import kotlinx.coroutines.flow.Flow
 
 interface ItemRepository {
-    suspend fun fetchWishList(): Result<List<WishItem>>
+    fun fetchWishList(): Flow<PagingData<WishItem>>
 
     suspend fun fetchWishItemDetail(itemId: Long): Result<WishItemDetail>
 

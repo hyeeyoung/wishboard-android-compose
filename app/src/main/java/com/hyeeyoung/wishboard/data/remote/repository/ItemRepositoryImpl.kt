@@ -1,5 +1,11 @@
 package com.hyeeyoung.wishboard.data.remote.repository
 
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.map
+import com.hyeeyoung.wishboard.data.remote.model.common.PageSize
+import com.hyeeyoung.wishboard.data.remote.paging.WishItemPagingSource
 import com.hyeeyoung.wishboard.data.remote.service.ItemService
 import com.hyeeyoung.wishboard.data.util.extension.toPlainNullableRequestBody
 import com.hyeeyoung.wishboard.data.util.extension.toPlainRequestBody
@@ -10,16 +16,30 @@ import com.hyeeyoung.wishboard.domain.model.wish.WishItemUploadInfo
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemUploadType
 import com.hyeeyoung.wishboard.domain.repository.ItemRepository
 import com.hyeeyoung.wishboard.presentation.common.model.ImageType
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
+import timber.log.Timber
 import javax.inject.Inject
 
 class ItemRepositoryImpl @Inject constructor(
     private val itemService: ItemService,
 ) : ItemRepository {
-    override suspend fun fetchWishList(): Result<List<WishItem>> = runCatching {
-        itemService.fetchWishList().data.map { it.toDomain() }
-    }
+    override fun fetchWishList(): Flow<PagingData<WishItem>> =
+        Pager(
+            config = PagingConfig(
+                pageSize = PageSize.DEFAULT_SIZE,
+                enablePlaceholders = true,
+                prefetchDistance = PageSize.DEFAULT_PREFETCH_SIZE,
+            ),
+            pagingSourceFactory = {
+                WishItemPagingSource(itemService)
+            },
+        ).flow.map {
+            Timber.e(it.toString())
+            it.map { it.toDomain() }
+        }
 
     override suspend fun fetchWishItemDetail(itemId: Long): Result<WishItemDetail> =
         runCatching {
