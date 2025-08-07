@@ -6,7 +6,7 @@ import androidx.paging.PagingData
 import androidx.paging.map
 import com.hyeeyoung.wishboard.data.remote.model.common.PageSize
 import com.hyeeyoung.wishboard.data.remote.model.wish.WishItemUploadInfoDto
-import com.hyeeyoung.wishboard.data.remote.paging.WishItemPagingSource
+import com.hyeeyoung.wishboard.data.remote.paging.GeneralPagingSource
 import com.hyeeyoung.wishboard.data.remote.service.ItemService
 import com.hyeeyoung.wishboard.data.util.extension.toPlainNullableRequestBody
 import com.hyeeyoung.wishboard.data.util.extension.toPlainRequestBody
@@ -24,7 +24,6 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import timber.log.Timber
 import javax.inject.Inject
 
 class ItemRepositoryImpl @Inject constructor(
@@ -38,10 +37,14 @@ class ItemRepositoryImpl @Inject constructor(
                 prefetchDistance = PageSize.DEFAULT_PREFETCH_SIZE,
             ),
             pagingSourceFactory = {
-                WishItemPagingSource(itemService)
+                GeneralPagingSource(loadPage = { page, size ->
+                    itemService.fetchWishList(
+                        page = page,
+                        size = size,
+                    )
+                })
             },
         ).flow.map {
-            Timber.e(it.toString())
             it.map { it.toDomain() }
         }
 
