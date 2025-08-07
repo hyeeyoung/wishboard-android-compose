@@ -20,7 +20,7 @@ data class WishItemUploadInfoDto(
             itemPrice = domain.itemPrice,
             itemUrl = domain.itemUrl,
             itemNotiDate = domain.itemNotiDate,
-            itemNotiType = domain.itemNotiType?.label,
+            itemNotiType = domain.itemNotiType?.name,
             itemMemo = domain.itemMemo,
         )
     }

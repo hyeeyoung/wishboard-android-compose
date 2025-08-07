@@ -1,5 +1,6 @@
 package com.hyeeyoung.wishboard.data.remote.model.noti
 
+import com.hyeeyoung.wishboard.data.remote.model.wish.WishItemImage
 import com.hyeeyoung.wishboard.domain.model.noti.NotiType
 import com.hyeeyoung.wishboard.presentation.sign.model.NotiItem
 import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat
@@ -9,27 +10,27 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class NotiItemDto(
-    @SerialName("item_id")
+    @SerialName("id")
     val itemId: Long,
-    @SerialName("item_img_url")
-    val itemImage: String? = null,
-    @SerialName("item_name")
+    @SerialName("itemImages")
+    val itemImage: List<WishItemImage> = emptyList(),
+    @SerialName("itemName")
     val itemName: String,
-    @SerialName("item_url")
+    @SerialName("itemUrl")
     val itemUrl: String? = null,
-    @SerialName("read_state")
-    var readState: Int,
-    @SerialName("item_notification_type")
+    @SerialName("readState")
+    var isRead: Boolean,
+    @SerialName("itemNotificationType")
     val notiType: String,
-    @SerialName("item_notification_date")
+    @SerialName("itemNotificationDate")
     val notiDate: String,
 ) {
     fun toDomain() = NotiItem(
         itemId = itemId,
-        itemImage = itemImage,
+        itemImage = itemImage.firstOrNull()?.url,
         itemName = itemName,
         itemUrl = if (itemUrl.isNullOrBlank()) null else itemUrl,
-        isRead = readState != 0,
+        isRead = isRead,
         notiType = NotiType.fromDomain(notiType) ?: NotiType.OPEN,
         notiDate = notiDate.toLocalDateTime(WishBoardDateFormat.YYYY_MM_DD_HH_MM_SS),
     )
