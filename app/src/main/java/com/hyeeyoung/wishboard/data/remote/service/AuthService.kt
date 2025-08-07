@@ -8,7 +8,7 @@ import com.hyeeyoung.wishboard.data.remote.model.auth.EmailCheckRequestDto
 import com.hyeeyoung.wishboard.data.remote.model.auth.VerificationMailDto
 import com.hyeeyoung.wishboard.data.remote.model.auth.VerificationMailRequestDto
 import com.hyeeyoung.wishboard.data.remote.model.base.BaseResponse
-import com.hyeeyoung.wishboard.data.remote.model.base.BaseResponseWithoutData
+import com.hyeeyoung.wishboard.data.remote.model.base.BaseResponseNoData
 import retrofit2.http.Body
 import retrofit2.http.Header
 import retrofit2.http.POST
@@ -35,7 +35,7 @@ interface AuthService {
     @POST("auth/check-email")
     suspend fun checkRegisteredUser(
         @Body email: EmailCheckRequestDto,
-    ): BaseResponseWithoutData
+    ): BaseResponseNoData
 
     @POST("auth/password-mail")
     suspend fun requestVerificationMail(
@@ -45,5 +45,5 @@ interface AuthService {
     @POST("auth/logout")
     suspend fun logout(
         @Header(DEVICE_INFO_HEADER_NAME) deviceInfoHeader: String,
-    ): BaseResponseWithoutData
+    ): BaseResponseNoData
 }

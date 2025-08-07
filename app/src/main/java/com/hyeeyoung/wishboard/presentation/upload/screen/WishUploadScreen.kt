@@ -141,7 +141,7 @@ fun WishUploadScreen(
 
     LaunchedEffect(Unit) {
         viewModel.setTokenForProfileImageUri()
-        viewModel.getFoldersNew()
+        viewModel.getFolders(uploadType = WishItemUploadType.MANUAL)
     }
 
     WishBoardGlobalSnackbarMessage(snackbarChannel = viewModel.snackBarChannel)
@@ -153,7 +153,7 @@ fun WishUploadScreen(
         coroutineScope = coroutineScope,
         sheetState = sheetState,
         onSelectFolder = { folder ->
-            viewModel.updateSelectedFolder(folder)
+            viewModel.updateSelectedFolder(folderItem = folder, uploadType = WishItemUploadType.MANUAL)
         },
         onClickSave = {
             when (enteredAddFlow) {
@@ -208,7 +208,7 @@ fun WishUploadScreen(
         },
         deleteImage = viewModel::deleteImage,
         createFolder = { name ->
-            viewModel.createFolderNew(name) {
+            viewModel.createFolder(folderName = name, uploadType = WishItemUploadType.MANUAL) {
                 coroutineScope.launch { sheetState.hide() }
                 modalData = null
             }

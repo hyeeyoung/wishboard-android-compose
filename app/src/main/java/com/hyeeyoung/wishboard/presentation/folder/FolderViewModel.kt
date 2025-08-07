@@ -1,6 +1,8 @@
 package com.hyeeyoung.wishboard.presentation.folder
 
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import com.hyeeyoung.wishboard.core.extension.onFailure
 import com.hyeeyoung.wishboard.domain.model.wish.WishItem
 import com.hyeeyoung.wishboard.domain.usecase.folder.DeleteFolderUseCase
@@ -14,56 +16,34 @@ import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
 import com.hyeeyoung.wishboard.presentation.sign.model.snackbar.SnackbarMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class FolderViewModel @Inject constructor(
-    private val getFoldersUseCase: GetFoldersUseCase,
+    getFoldersUseCase: GetFoldersUseCase,
     private val postNewFolderUseCase: PostNewFolderUseCase,
     private val putFolderNameUseCase: PutFolderNameUseCase,
     private val deleteFolderUseCase: DeleteFolderUseCase,
     private val getFolderDetailUseCase: GetFolderDetailUseCase,
 ) : BaseViewModel() {
+    val folders = getFoldersUseCase() // TODO fetchState
+        .cachedIn(viewModelScope)
+        .catch { exception ->
+            updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
+        }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, PagingData.empty())
+
     private var _uiModel = MutableStateFlow(FolderTabUiModel())
     val uiModel = _uiModel.asStateFlow()
 
     private var _detailUiModel = MutableStateFlow(emptyList<WishItem>())
     val detailUiModel = _detailUiModel.asStateFlow()
-
-    fun getFolders(didRefresh: Boolean = false) {
-        if (uiModel.value.fetchState is WishBoardState.Loading) return
-        _uiModel.update { it.copy(fetchState = WishBoardState.Loading, isRefreshing = didRefresh) }
-
-        viewModelScope.launch {
-            getFoldersUseCase().onSuccess { folders ->
-                _uiModel.update {
-                    it.copy(folders = folders, fetchState = WishBoardState.Success(Unit), isRefreshing = false)
-                }
-            }.onFailure { exception, errorCode, _ ->
-                when (errorCode) {
-                    404 -> {
-                        _uiModel.update {
-                            it.copy(
-                                folders = emptyList(),
-                                fetchState = WishBoardState.Success(Unit),
-                                isRefreshing = false,
-                            )
-                        }
-                    }
-
-                    else -> {
-                        updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
-                        _uiModel.update {
-                            it.copy(fetchState = WishBoardState.Failure, isRefreshing = false)
-                        }
-                    }
-                }
-            }
-        }
-    }
 
     fun createFolder(folderName: String, afterSuccess: () -> Unit) {
         if (uiModel.value.addState is WishBoardState.Loading) return
@@ -75,7 +55,6 @@ class FolderViewModel @Inject constructor(
             postNewFolderUseCase(trimmedName)
                 .onSuccess {
                     _uiModel.update { it.copy(addState = WishBoardState.Success(Unit), existingFolderName = "") }
-                    getFolders(false)
                     afterSuccess()
                     updateSnackbarMessage("폴더를 추가했어요!😉")
                 }.onFailure { exception, errorCode, _ ->
@@ -96,16 +75,8 @@ class FolderViewModel @Inject constructor(
 
         viewModelScope.launch {
             putFolderNameUseCase(folderId = folderId, folderName = trimmedName).onSuccess {
-                val folders = uiModel.value.folders.map { folder ->
-                    if (folder.id == folderId) {
-                        folder.copy(name = trimmedName)
-                    } else {
-                        folder
-                    }
-                }
                 _uiModel.update {
                     it.copy(
-                        folders = folders,
                         updateState = WishBoardState.Success(Unit),
                         existingFolderName = "",
                     )
@@ -122,7 +93,7 @@ class FolderViewModel @Inject constructor(
         }
     }
 
-    fun deleteFolder(folderId: Long?) {
+    fun deleteFolder(folderId: Long?, afterSuccess: () -> Unit) {
         if (folderId == null) {
             updateSnackbarMessage(SnackbarMessage.DEFAULT)
             return
@@ -134,9 +105,8 @@ class FolderViewModel @Inject constructor(
 
         viewModelScope.launch {
             deleteFolderUseCase(folderId = folderId).onSuccess {
-                val folder = uiModel.value.folders.find { it.id == folderId } ?: return@launch
-                val folders = uiModel.value.folders.minus(folder)
-                _uiModel.update { it.copy(folders = folders, deleteState = WishBoardState.Success(Unit)) }
+                afterSuccess()
+                _uiModel.update { it.copy(deleteState = WishBoardState.Success(Unit)) }
                 updateSnackbarMessage("폴더를 삭제했어요!🗑️")
             }.onFailure { exception, _, _ ->
                 updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
@@ -154,6 +124,7 @@ class FolderViewModel @Inject constructor(
                     404 -> {
                         _detailUiModel.update { emptyList() }
                     }
+
                     else -> updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
                 }
             }

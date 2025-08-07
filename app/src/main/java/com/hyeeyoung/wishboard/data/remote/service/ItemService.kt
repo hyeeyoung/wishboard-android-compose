@@ -1,7 +1,7 @@
 package com.hyeeyoung.wishboard.data.remote.service
 
 import com.hyeeyoung.wishboard.data.remote.model.base.BaseResponse
-import com.hyeeyoung.wishboard.data.remote.model.base.BaseResponseWithoutData
+import com.hyeeyoung.wishboard.data.remote.model.base.BaseResponseNoData
 import com.hyeeyoung.wishboard.data.remote.model.base.PagedResponse
 import com.hyeeyoung.wishboard.data.remote.model.wish.WishItemDetailDto
 import com.hyeeyoung.wishboard.data.remote.model.wish.WishItemIdDto
@@ -50,16 +50,16 @@ interface ItemService {
         @Part("item_notification_type") itemNotificationType: RequestBody?,
         @Part("item_notification_date") itemNotificationDate: RequestBody?,
         @Part itemImg: List<MultipartBody.Part>?,
-    ): BaseResponseWithoutData
+    ): BaseResponseNoData
 
     @PUT("item/{item_id}/folder/{folder_id}")
     suspend fun updateFolderOfItem(
         @Path("item_id") itemId: Long,
         @Path("folder_id") folderId: Long,
-    ): BaseResponseWithoutData
+    ): BaseResponseNoData
 
     @DELETE("item/{item_id}")
-    suspend fun deleteWishItem(@Path("item_id") itemId: Long): BaseResponseWithoutData
+    suspend fun deleteWishItem(@Path("item_id") itemId: Long): BaseResponseNoData
 
     @GET("item/parse")
     suspend fun getParsedItemInfo(

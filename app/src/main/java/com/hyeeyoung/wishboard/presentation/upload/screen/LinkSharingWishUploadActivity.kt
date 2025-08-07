@@ -54,7 +54,7 @@ class LinkSharingWishUploadActivity : ComponentActivity() {
             if (intent.type == "text/plain") {
                 url = intent.getStringExtra(Intent.EXTRA_TEXT) ?: throw NullPointerException("Url is null")
                 viewModel.getParsedWishItem(url)
-                viewModel.getFolders {}
+                viewModel.getFolders(uploadType = WishItemUploadType.PARSING)
             }
         }
 
@@ -116,7 +116,7 @@ class LinkSharingWishUploadActivity : ComponentActivity() {
                     },
                     setNotiInfo = { viewModel.setNotiInfo(notiInfo = it, uploadType = WishItemUploadType.PARSING) },
                     onSelectFolder = {
-                        viewModel.updateSelectedFolder(it)
+                        viewModel.updateSelectedFolder(folderItem = it, uploadType = WishItemUploadType.PARSING)
                     },
                     onClickSave = {
                         viewModel.uploadWishItemForParsing(
@@ -153,7 +153,10 @@ class LinkSharingWishUploadActivity : ComponentActivity() {
                                     uploadState = uiModel.folderAddState,
                                     existingFolderName = uiModel.existingFolderName,
                                     onClickComplete = { name ->
-                                        viewModel.createFolder(name) {
+                                        viewModel.createFolder(
+                                            folderName = name,
+                                            uploadType = WishItemUploadType.PARSING,
+                                        ) {
                                             coroutineScope.launch { sheetState.hide() }
                                             modalData = null
                                         }

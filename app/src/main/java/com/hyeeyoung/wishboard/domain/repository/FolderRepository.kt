@@ -1,10 +1,12 @@
 package com.hyeeyoung.wishboard.domain.repository
 
+import androidx.paging.PagingData
 import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
 import com.hyeeyoung.wishboard.domain.model.wish.WishItem
+import kotlinx.coroutines.flow.Flow
 
 interface FolderRepository {
-    suspend fun fetchFolders(): Result<List<FolderItem>>
+    fun fetchFolders(): Flow<PagingData<FolderItem>>
 
     suspend fun fetchFolderSummaries(): Result<List<FolderItem>>
 

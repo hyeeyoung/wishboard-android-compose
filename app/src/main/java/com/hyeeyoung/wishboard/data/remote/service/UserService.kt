@@ -1,6 +1,6 @@
 package com.hyeeyoung.wishboard.data.remote.service
 
-import com.hyeeyoung.wishboard.data.remote.model.base.BaseResponseWithoutData
+import com.hyeeyoung.wishboard.data.remote.model.base.BaseResponseNoData
 import com.hyeeyoung.wishboard.data.remote.model.user.PasswordDto
 import com.hyeeyoung.wishboard.data.remote.model.user.UserInfoDto
 import okhttp3.MultipartBody
@@ -22,14 +22,14 @@ interface UserService {
     suspend fun updateUserInfo(
         @Part("nickname") nickname: RequestBody?,
         @Part profileImg: MultipartBody.Part?,
-    ): BaseResponseWithoutData
+    ): BaseResponseNoData
 
     @DELETE("user")
-    suspend fun deleteUserAccount(): BaseResponseWithoutData
+    suspend fun deleteUserAccount(): BaseResponseNoData
 
     @PUT("user/push-state/{push}")
-    suspend fun updatePushState(@Path("push") push: Boolean): BaseResponseWithoutData
+    suspend fun updatePushState(@Path("push") push: Boolean): BaseResponseNoData
 
     @PUT("user/re-passwd")
-    suspend fun changePassword(@Body password: PasswordDto): BaseResponseWithoutData
+    suspend fun changePassword(@Body password: PasswordDto): BaseResponseNoData
 }

@@ -12,7 +12,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -21,7 +20,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,6 +35,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardEmptyView
@@ -54,10 +56,15 @@ import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
 import com.hyeeyoung.wishboard.presentation.folder.model.FolderTabUiModel
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.util.extension.rememberModalLauncher
+import com.hyeeyoung.wishboard.presentation.util.getFakePagingData
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FolderScreen(navController: NavHostController, viewModel: FolderViewModel = hiltViewModel()) {
+fun FolderScreen(
+    navController: NavHostController,
+    viewModel: FolderViewModel = hiltViewModel(),
+) {
+    val folders = viewModel.folders.collectAsLazyPagingItems()
     val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
     var modalData by remember { mutableStateOf<ModalData.Modal?>(null) }
     val lazyGridState = rememberLazyGridState()
@@ -66,24 +73,26 @@ fun FolderScreen(navController: NavHostController, viewModel: FolderViewModel = 
 
     MainScreen.Folder.ScrollToTopEffect(lazyGridState)
 
-    LaunchedEffect(Unit) {
-        viewModel.getFolders()
-    }
-
     PullToRefreshBox(
-        isRefreshing = uiModel.isRefreshing,
+        isRefreshing = folders.loadState.refresh is LoadState.Loading,
         onRefresh = {
-            viewModel.getFolders(true)
+            folders.refresh()
         },
     ) {
         FolderScreen(
             uiModel = uiModel,
+            folders = folders,
             lazyGridState = lazyGridState,
             onClickFolder = { folder ->
                 navController.navigate("${MainScreen.FolderDetail.route}/${folder.id}/${folder.name}")
             },
             deleteFolder = { id ->
-                viewModel.deleteFolder(id)
+                viewModel.deleteFolder(
+                    folderId = id,
+                    afterSuccess = {
+                        folders.refresh()
+                    },
+                )
             },
             showModal = { modal: ModalData.Modal ->
                 modalData = modal
@@ -110,6 +119,7 @@ fun FolderScreen(navController: NavHostController, viewModel: FolderViewModel = 
                         onClickComplete = { name ->
                             viewModel.createFolder(folderName = name, afterSuccess = {
                                 modalData = null
+                                folders.refresh()
                             })
                         },
                     )
@@ -124,6 +134,7 @@ fun FolderScreen(navController: NavHostController, viewModel: FolderViewModel = 
                         onClickComplete = { name ->
                             viewModel.updateFolder(folderId = data.folderId, folderName = name, afterSuccess = {
                                 modalData = null
+                                folders.refresh()
                             })
                         },
                     )
@@ -138,6 +149,7 @@ fun FolderScreen(navController: NavHostController, viewModel: FolderViewModel = 
 @Composable
 fun FolderScreen(
     uiModel: FolderTabUiModel,
+    folders: LazyPagingItems<FolderItem>,
     lazyGridState: LazyGridState,
     onClickFolder: (FolderItem) -> Unit,
     deleteFolder: (id: Long?) -> Unit,
@@ -197,7 +209,11 @@ fun FolderScreen(
             .background(WishBoardTheme.colors.white)
             .padding(top = paddingValues.calculateTopPadding(), start = 8.dp, end = 8.dp)
 
-        if (uiModel.folders.isEmpty()) {
+        if (
+            folders.itemCount == 0 &&
+            folders.loadState.refresh is LoadState.NotLoading &&
+            folders.loadState.append.endOfPaginationReached
+        ) {
             LazyColumn(
                 modifier = contentModifier,
                 verticalArrangement = Arrangement.Center,
@@ -212,17 +228,21 @@ fun FolderScreen(
                 state = lazyGridState,
                 columns = GridCells.Fixed(2),
             ) {
-                items(uiModel.folders) { folder ->
-                    FolderItem(
-                        folder = folder,
-                        onClickFolder = {
-                            onClickFolder(folder)
-                        },
-                        onClickMore = { selectedFolder ->
-                            ModalData.OptionModal.FolderMore(selectedFolder.id, selectedFolder.name)
-                                .openModal(context = context, resultLauncher = modalLauncher)
-                        },
-                    )
+                items(count = folders.itemCount, key = folders.itemKey { it.id }) { idx ->
+                    val folder = folders[idx]
+
+                    folder?.let {
+                        FolderItem(
+                            folder = folder,
+                            onClickFolder = {
+                                onClickFolder(folder)
+                            },
+                            onClickMore = { selectedFolder ->
+                                ModalData.OptionModal.FolderMore(selectedFolder.id, selectedFolder.name)
+                                    .openModal(context = context, resultLauncher = modalLauncher)
+                            },
+                        )
+                    }
                 }
             }
         }
@@ -291,12 +311,13 @@ fun PreviewFolderScreen() {
         numOfWishItem = 1,
     )
 
-    val folders = List(8) { index: Int ->
-        folder.copy(id = index.toLong())
-    }
-
     FolderScreen(
-        uiModel = FolderTabUiModel(folders = folders),
+        uiModel = FolderTabUiModel(),
+        folders = getFakePagingData(
+            List(8) { index: Int ->
+                folder.copy(id = index.toLong())
+            },
+        ),
         lazyGridState = LazyGridState(),
         onClickFolder = {},
         deleteFolder = {},
