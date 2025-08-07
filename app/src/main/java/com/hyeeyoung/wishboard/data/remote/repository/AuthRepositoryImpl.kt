@@ -25,7 +25,7 @@ class AuthRepositoryImpl @Inject constructor(
         Timber.d("회원가입 성공")
         localStorage.setUserInfo(
             authInfo.email,
-            it.tempNickname,
+            it.temporaryNickname,
             it.token.accessToken,
             it.token.refreshToken,
         )
@@ -41,7 +41,7 @@ class AuthRepositoryImpl @Inject constructor(
         Timber.d("회원가입 성공")
         localStorage.setUserInfo(
             authInfo.email,
-            it.tempNickname,
+            it.temporaryNickname,
             it.token.accessToken,
             it.token.refreshToken,
         )
@@ -60,7 +60,7 @@ class AuthRepositoryImpl @Inject constructor(
         Timber.d("이메일 로그인 성공")
         localStorage.setUserInfo(
             authInfo.email,
-            it.tempNickname,
+            it.temporaryNickname,
             it.token.accessToken,
             it.token.refreshToken,
         )

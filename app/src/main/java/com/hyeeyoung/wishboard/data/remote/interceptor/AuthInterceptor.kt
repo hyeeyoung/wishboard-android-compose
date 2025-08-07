@@ -2,8 +2,8 @@ package com.hyeeyoung.wishboard.data.remote.interceptor
 
 import com.hyeeyoung.wishboard.config.GlobalState
 import com.hyeeyoung.wishboard.data.local.WishBoardPreference
-import com.hyeeyoung.wishboard.data.remote.model.auth.RefreshTokenDto
 import com.hyeeyoung.wishboard.data.remote.service.GuestAuthService
+import com.hyeeyoung.wishboard.domain.model.auth.Token
 import com.hyeeyoung.wishboard.presentation.sign.model.snackbar.SnackbarMessage
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
@@ -52,8 +52,8 @@ class AuthInterceptor @Inject constructor(
             try {
                 val tokens = authService.refreshToken(
                     deviceInfoHeader = UUID.randomUUID().toString(),
-                    refreshToken = RefreshTokenDto(localStorage.refreshToken),
-                ).data.token
+                    token = Token(accessToken = localStorage.accessToken, refreshToken = localStorage.refreshToken),
+                ).data
                 localStorage.updateToken(
                     accessToken = tokens.accessToken,
                     refreshToken = tokens.refreshToken,

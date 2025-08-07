@@ -28,7 +28,7 @@ interface UserService {
     @DELETE("user")
     suspend fun deleteUserAccount(): BaseResponseNoData
 
-    @PUT("user/push-state/{push}")
+    @PUT("user/push-state/{pushState}")
     suspend fun updatePushState(@Path("pushState") push: Boolean): BaseResponseNoData
 
     @PUT("user/re-passwd")
