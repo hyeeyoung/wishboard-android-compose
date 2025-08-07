@@ -1,5 +1,6 @@
 package com.hyeeyoung.wishboard.data.remote.service
 
+import com.hyeeyoung.wishboard.data.remote.model.base.BaseResponse
 import com.hyeeyoung.wishboard.data.remote.model.base.BaseResponseNoData
 import com.hyeeyoung.wishboard.data.remote.model.user.PasswordDto
 import com.hyeeyoung.wishboard.data.remote.model.user.UserInfoDto
@@ -15,12 +16,12 @@ import retrofit2.http.Path
 
 interface UserService {
     @GET("user")
-    suspend fun fetchUserInfo(): List<UserInfoDto>
+    suspend fun fetchUserInfo(): BaseResponse<UserInfoDto>
 
     @Multipart
     @PUT("user")
     suspend fun updateUserInfo(
-        @Part("nickname") nickname: RequestBody?,
+        @Part("request") nickname: RequestBody,
         @Part profileImg: MultipartBody.Part?,
     ): BaseResponseNoData
 
@@ -28,7 +29,7 @@ interface UserService {
     suspend fun deleteUserAccount(): BaseResponseNoData
 
     @PUT("user/push-state/{push}")
-    suspend fun updatePushState(@Path("push") push: Boolean): BaseResponseNoData
+    suspend fun updatePushState(@Path("pushState") push: Boolean): BaseResponseNoData
 
     @PUT("user/re-passwd")
     suspend fun changePassword(@Body password: PasswordDto): BaseResponseNoData

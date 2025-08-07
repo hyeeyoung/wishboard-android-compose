@@ -8,15 +8,15 @@ import kotlinx.serialization.Serializable
 data class UserInfoDto(
     var email: String = "",
     var nickname: String? = null,
-    @SerialName("profile_img_url")
+    @SerialName("profileImgUrl")
     var profileImage: String? = null,
-    @SerialName("push_state")
-    val isPushAllowed: Int? = null,
+    @SerialName("pushState")
+    val isPushAllowed: Boolean? = null,
 ) {
     fun toDomain(): UserInfo = UserInfo(
         email = email,
         nickname = nickname ?: "",
         profileImage = profileImage,
-        isPushAllowed = if (isPushAllowed != null) isPushAllowed != 0 else null,
+        isPushAllowed = isPushAllowed ?: false,
     )
 }

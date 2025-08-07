@@ -97,13 +97,9 @@ class MyViewModel @Inject constructor(
         viewModelScope.launch {
             putUserProfileUseCase(
                 userProfile = UserProfile(
-                    nickName = if (uiModel.value.userInfo.nickname == trimmedName) {
-                        null
-                    } else {
-                        trimmedName.ifBlank { null }
-                    },
+                    nickName = trimmedName,
                     profileImage = safeLet(file, requestBody) { file, requestBody ->
-                        MultipartBody.Part.createFormData("profile_img", file.name, requestBody)
+                        MultipartBody.Part.createFormData("profileImage", file.name, requestBody)
                     },
                 ),
             ).onSuccess {

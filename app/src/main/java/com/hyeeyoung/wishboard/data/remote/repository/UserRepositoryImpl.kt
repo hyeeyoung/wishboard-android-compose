@@ -1,12 +1,15 @@
 package com.hyeeyoung.wishboard.data.remote.repository
 
 import com.hyeeyoung.wishboard.data.local.WishBoardPreference
+import com.hyeeyoung.wishboard.data.remote.model.user.NicknameRequestDto
 import com.hyeeyoung.wishboard.data.remote.model.user.PasswordDto
 import com.hyeeyoung.wishboard.data.remote.service.UserService
-import com.hyeeyoung.wishboard.data.util.extension.toPlainNullableRequestBody
 import com.hyeeyoung.wishboard.domain.model.user.UserInfo
 import com.hyeeyoung.wishboard.domain.model.user.UserProfile
 import com.hyeeyoung.wishboard.domain.repository.UserRepository
+import com.hyeeyoung.wishboard.presentation.util.extension.toJson
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody.Companion.toRequestBody
 import javax.inject.Inject
 
 class UserRepositoryImpl @Inject constructor(
@@ -14,19 +17,21 @@ class UserRepositoryImpl @Inject constructor(
     private val localStorage: WishBoardPreference,
 ) : UserRepository {
     override suspend fun fetchUserInfo(): Result<UserInfo> = runCatching {
-        val remoteUserInfo = userService.fetchUserInfo().firstOrNull()
-        val nickName = if (remoteUserInfo?.nickname != null) {
+        val remoteUserInfo = userService.fetchUserInfo().data
+        val nickName = if (remoteUserInfo.nickname != null) {
             remoteUserInfo.nickname
         } else {
             localStorage.userInfo.nickname.ifBlank { null }
         }
 
-        remoteUserInfo?.copy(nickname = nickName)?.toDomain() ?: UserInfo()
+        remoteUserInfo.copy(nickname = nickName).toDomain()
     }.onSuccess { localStorage.userInfo = it }
 
     override suspend fun updateUserInfo(userProfile: UserProfile): Result<Unit> = runCatching {
         userService.updateUserInfo(
-            nickname = userProfile.nickName.toPlainNullableRequestBody(),
+            nickname = NicknameRequestDto(nickname = userProfile.nickName).toJson().toRequestBody(
+                "application/json".toMediaTypeOrNull(),
+            ),
             profileImg = userProfile.profileImage,
         )
     }.onSuccess {
