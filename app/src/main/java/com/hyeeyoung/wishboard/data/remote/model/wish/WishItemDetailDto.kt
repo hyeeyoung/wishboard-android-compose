@@ -27,7 +27,7 @@ data class WishItemDetailDto(
     val notiDate: String?,
     @SerialName("itemNotificationType")
     val notiType: String?,
-    @SerialName("createAt")
+    @SerialName("createdAt")
     val createAt: String,
 ) {
     fun toDomain() = WishItemDetail(

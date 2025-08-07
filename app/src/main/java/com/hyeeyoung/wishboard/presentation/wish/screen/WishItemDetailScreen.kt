@@ -201,7 +201,7 @@ fun WishItemDetailScreen(
             WishBoardWideButton(
                 modifier = Modifier
                     .padding(horizontal = dimensionResource(id = R.dimen.spacing_base))
-                    .padding(bottom = 34.dp),
+                    .padding(bottom = 30.dp),
                 enabled = enabledShopButton,
                 onClick = {
                     onClickShop()
@@ -296,13 +296,17 @@ private fun WishItemDetailContents(
             }
         }
 
-        WishBoardIndicator(
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .padding(top = 20.dp, bottom = 12.dp),
-            size = uiModel.images.size,
-            pagerState = pagerState,
-        )
+        if (uiModel.images.size > 1) {
+            WishBoardIndicator(
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(top = 20.dp, bottom = 12.dp),
+                size = uiModel.images.size,
+                pagerState = pagerState,
+            )
+        } else {
+            Spacer(modifier = Modifier.padding(top = 12.dp))
+        }
 
         Row(
             modifier = Modifier

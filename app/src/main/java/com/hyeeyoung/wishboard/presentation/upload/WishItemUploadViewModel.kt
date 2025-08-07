@@ -47,6 +47,7 @@ import kotlinx.datetime.toJavaLocalDateTime
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -173,12 +174,12 @@ class WishItemUploadViewModel @Inject constructor(
                     ),
                 ),
             ).onSuccess { id ->
-                _uiModel.update { it.copy(wishItemUploadState = WishBoardState.Success(Unit)) }
+                _manualUploadUiModel.update { it.copy(wishItemUploadState = WishBoardState.Success(Unit)) }
                 updateSnackbarMessage("아이템을 위시리스트에 추가했어요!👜")
 
                 afterSuccess(id)
             }.onFailure { exception, _, _ ->
-                _uiModel.update { it.copy(wishItemUploadState = WishBoardState.Failure) }
+                _manualUploadUiModel.update { it.copy(wishItemUploadState = WishBoardState.Failure) }
                 updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
             }
         }
@@ -386,6 +387,7 @@ class WishItemUploadViewModel @Inject constructor(
         _manualUploadUiModel.update {
             it.copy(itemName = name)
         }
+        Timber.e("name: ${manualUploadUiModel.value.itemName}")
     }
 
     fun onItemPriceChanged(price: TextFieldValue) {

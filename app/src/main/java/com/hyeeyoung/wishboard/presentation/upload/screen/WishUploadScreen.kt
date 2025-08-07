@@ -158,9 +158,8 @@ fun WishUploadScreen(
         onClickSave = {
             when (enteredAddFlow) {
                 true -> {
-                    viewModel.uploadWishItem(
+                    viewModel.uploadWishItemForManual(
                         context = context,
-                        uploadType = WishItemUploadType.MANUAL,
                     ) { id ->
                         navController.navigate("${MainScreen.WishItemDetail.route}/$id") {
                             keyboardController?.hide()
@@ -177,9 +176,6 @@ fun WishUploadScreen(
                 }
             }
         },
-//        getFolders = {
-//            viewModel.getFolders(it)
-//        },
         updateModalData = { modal ->
             modalData = modal
         },
