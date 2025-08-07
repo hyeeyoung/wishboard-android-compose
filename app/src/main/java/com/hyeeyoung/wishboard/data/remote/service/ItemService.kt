@@ -52,14 +52,14 @@ interface ItemService {
         @Part itemImg: List<MultipartBody.Part>?,
     ): BaseResponseNoData
 
-    @PUT("item/{item_id}/folder/{folder_id}")
+    @PUT("item/{itemId}/folder/{folderId}")
     suspend fun updateFolderOfItem(
-        @Path("item_id") itemId: Long,
-        @Path("folder_id") folderId: Long,
+        @Path("itemId") itemId: Long,
+        @Path("folderId") folderId: Long,
     ): BaseResponseNoData
 
-    @DELETE("item/{item_id}")
-    suspend fun deleteWishItem(@Path("item_id") itemId: Long): BaseResponseNoData
+    @DELETE("item/{itemId}")
+    suspend fun deleteWishItem(@Path("itemId") itemId: Long): BaseResponseNoData
 
     @GET("item/parse")
     suspend fun getParsedItemInfo(
