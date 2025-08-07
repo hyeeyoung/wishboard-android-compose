@@ -27,12 +27,13 @@ import com.hyeeyoung.wishboard.presentation.sign.model.snackbar.SnackbarMessage
 import com.hyeeyoung.wishboard.presentation.sign.model.snackbar.WishBoardSnackbarVisuals
 import com.hyeeyoung.wishboard.presentation.upload.model.ManualUploadItemUiModel
 import com.hyeeyoung.wishboard.presentation.upload.model.UploadImage
-import com.hyeeyoung.wishboard.presentation.upload.model.WishItemUploadUiModel
+import com.hyeeyoung.wishboard.presentation.upload.model.ParsingUploadItemUiModel
 import com.hyeeyoung.wishboard.presentation.util.extension.BitmapUtil.toBitmap
 import com.hyeeyoung.wishboard.presentation.util.extension.BitmapUtil.toFile
 import com.hyeeyoung.wishboard.presentation.util.extension.convertResizeImage
 import com.hyeeyoung.wishboard.presentation.util.extension.getBase64Json
 import com.hyeeyoung.wishboard.presentation.util.extension.getValidUrl
+import com.hyeeyoung.wishboard.presentation.util.extension.makeValidPriceStr
 import com.hyeeyoung.wishboard.presentation.util.extension.toMillis
 import com.hyeeyoung.wishboard.presentation.util.safeLet
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -47,7 +48,6 @@ import kotlinx.datetime.toJavaLocalDateTime
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
-import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -60,8 +60,8 @@ class WishItemUploadViewModel @Inject constructor(
     private val getParsedItemInfoUseCase: GetParsedItemInfoUseCase,
     private val postNewFolderUseCase: PostNewFolderUseCase,
 ) : BaseViewModel() {
-    private var _uiModel = MutableStateFlow(WishItemUploadUiModel())
-    val uiModel = _uiModel.asStateFlow()
+    private var _parsingUiModel = MutableStateFlow(ParsingUploadItemUiModel())
+    val parsingUiModel = _parsingUiModel.asStateFlow()
 
     private var _manualUploadUiModel = MutableStateFlow(ManualUploadItemUiModel())
     val manualUploadUiModel = _manualUploadUiModel.asStateFlow()
@@ -74,7 +74,7 @@ class WishItemUploadViewModel @Inject constructor(
     }
 
     fun getParsedWishItem(site: String) {
-        _uiModel.update { it.copy(isLogin = localStorage.isLogin) }
+        _parsingUiModel.update { it.copy(isLogin = localStorage.isLogin) }
         if (!localStorage.isLogin) {
             return
         }
@@ -82,16 +82,16 @@ class WishItemUploadViewModel @Inject constructor(
         val itemSite = site.getValidUrl() ?: ""
         viewModelScope.launch {
             getParsedItemInfoUseCase(itemSite).onSuccess { parsedItem ->
-                _uiModel.update {
+                _parsingUiModel.update {
                     it.copy(
-                        itemName = parsedItem.name ?: "",
-                        itemPrice = parsedItem.price ?: "",
+                        itemName = TextFieldValue(parsedItem.name ?: ""),
+                        itemPrice = TextFieldValue(parsedItem.price ?: ""),
                         downloadImageUrl = parsedItem.image,
                         itemUrl = itemSite,
                     )
                 }
             }.onFailure { _, _, _ ->
-                _uiModel.update {
+                _parsingUiModel.update {
                     it.copy(
                         itemUrl = itemSite,
                     )
@@ -101,54 +101,36 @@ class WishItemUploadViewModel @Inject constructor(
         }
     }
 
-    fun uploadWishItem(
+    fun uploadWishItemForParsing(
         context: Context,
-        uploadType: WishItemUploadType,
         afterSuccess: (Long) -> Unit,
     ) {
-        if (uiModel.value.wishItemUploadState is WishBoardState.Loading ||
-            uiModel.value.wishItemUploadState is WishBoardState.Success
+        if (parsingUiModel.value.wishItemUploadState is WishBoardState.Loading ||
+            parsingUiModel.value.wishItemUploadState is WishBoardState.Success
         ) {
             return
         }
-        _uiModel.update { it.copy(wishItemUploadState = WishBoardState.Loading) }
+
+        _parsingUiModel.update { it.copy(wishItemUploadState = WishBoardState.Loading) }
 
         viewModelScope.launch {
-            val image = when (uploadType) {
-                WishItemUploadType.MANUAL -> {
-                    val file = uiModel.value.itemImageUri?.let { uri ->
-                        context.convertResizeImage(uri)
-                    }
-                    val requestBody = file?.asRequestBody("image/jpeg".toMediaTypeOrNull())
-
-                    requestBody?.let {
-                        ImageType.Picture(
-                            MultipartBody.Part.createFormData("itemImages", file.name, requestBody),
-                        )
-                    }
-                }
-
-                WishItemUploadType.PARSING -> {
-                    val bitmap = uiModel.value.downloadImageUrl?.toBitmap()
-                    val file = bitmap?.toFile(localStorage.accessToken, context = context)
-                    file?.let { ImageType.DownloadImage(file = it) }
-                }
-            }
+            val bitmap = parsingUiModel.value.downloadImageUrl?.toBitmap()
+            val file = bitmap?.toFile(localStorage.accessToken, context = context)
+            val image = file?.let { ImageType.DownloadImage(file = it) }
 
             postWishItemUseCase(
-                uploadType = uploadType,
-                itemInfo = uiModel.value.toDomain(itemImage = image, uploadType = uploadType),
+                uploadType = WishItemUploadType.PARSING,
+                itemInfo = parsingUiModel.value.toDomain(
+                    itemImage = image,
+                    uploadType = WishItemUploadType.PARSING,
+                ),
             ).onSuccess { id ->
-                _uiModel.update { it.copy(wishItemUploadState = WishBoardState.Success(Unit)) }
-                updateSnackbarMessage("아이템을 위시리스트에 추가했어요!👜")
-
-                if (uploadType == WishItemUploadType.PARSING) {
-                    delay(SnackbarDuration.Short.toMillis())
-                }
-
+                _parsingUiModel.update { it.copy(wishItemUploadState = WishBoardState.Success(Unit)) }
+                updateSnackbarMessage(ITEM_UPLOAD_SUCCESS_MESSAGE)
+                delay(SnackbarDuration.Short.toMillis())
                 afterSuccess(id)
             }.onFailure { exception, _, _ ->
-                _uiModel.update { it.copy(wishItemUploadState = WishBoardState.Failure) }
+                _parsingUiModel.update { it.copy(wishItemUploadState = WishBoardState.Failure) }
                 updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
             }
         }
@@ -163,6 +145,7 @@ class WishItemUploadViewModel @Inject constructor(
         ) {
             return
         }
+
         _manualUploadUiModel.update { it.copy(wishItemUploadState = WishBoardState.Loading) }
 
         viewModelScope.launch {
@@ -175,7 +158,7 @@ class WishItemUploadViewModel @Inject constructor(
                 ),
             ).onSuccess { id ->
                 _manualUploadUiModel.update { it.copy(wishItemUploadState = WishBoardState.Success(Unit)) }
-                updateSnackbarMessage("아이템을 위시리스트에 추가했어요!👜")
+                updateSnackbarMessage(ITEM_UPLOAD_SUCCESS_MESSAGE)
 
                 afterSuccess(id)
             }.onFailure { exception, _, _ ->
@@ -195,14 +178,14 @@ class WishItemUploadViewModel @Inject constructor(
             return
         }
 
-        if (uiModel.value.wishItemUploadState is WishBoardState.Loading) return
-        _uiModel.update { it.copy(wishItemUploadState = WishBoardState.Loading) }
+        if (parsingUiModel.value.wishItemUploadState is WishBoardState.Loading) return
+        _parsingUiModel.update { it.copy(wishItemUploadState = WishBoardState.Loading) }
 
         viewModelScope.launch {
-            val image = when (uiModel.value.itemImageUri) {
+            val image = when (parsingUiModel.value.itemImageUri) {
                 null -> null
-                else -> uiModel.value.itemImageUri?.let {
-                    val file = uiModel.value.itemImageUri?.let { uri ->
+                else -> parsingUiModel.value.itemImageUri?.let {
+                    val file = parsingUiModel.value.itemImageUri?.let { uri ->
                         context.convertResizeImage(uri)
                     }
                     val requestBody = file?.asRequestBody("image/jpeg".toMediaTypeOrNull())
@@ -217,13 +200,13 @@ class WishItemUploadViewModel @Inject constructor(
 
             putWishItemUseCase(
                 itemId = itemId,
-                itemInfo = uiModel.value.toDomain(itemImage = image, uploadType = WishItemUploadType.MANUAL),
+                itemInfo = parsingUiModel.value.toDomain(itemImage = image, uploadType = WishItemUploadType.MANUAL),
             ).onSuccess {
-                _uiModel.update { it.copy(wishItemUploadState = WishBoardState.Success(Unit)) }
+                _parsingUiModel.update { it.copy(wishItemUploadState = WishBoardState.Success(Unit)) }
                 updateSnackbarMessage("아이템을 수정했어요!✍️")
                 afterSuccess()
             }.onFailure { exception, _, _ ->
-                _uiModel.update { it.copy(wishItemUploadState = WishBoardState.Failure) }
+                _parsingUiModel.update { it.copy(wishItemUploadState = WishBoardState.Failure) }
                 updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
             }
         }
@@ -251,7 +234,7 @@ class WishItemUploadViewModel @Inject constructor(
 //        if (!localStorage.isLogin) {
 //            return
 //        }
-        if (uiModel.value.folderFetchState is WishBoardState.Loading) return
+        if (parsingUiModel.value.folderFetchState is WishBoardState.Loading) return
         _manualUploadUiModel.update { it.copy(folderFetchState = WishBoardState.Loading) }
 
         viewModelScope.launch {
@@ -269,7 +252,7 @@ class WishItemUploadViewModel @Inject constructor(
     }
 
     fun createFolderNew(folderName: String, afterSuccess: () -> Unit) {
-        if (uiModel.value.folderAddState is WishBoardState.Loading) return
+        if (parsingUiModel.value.folderAddState is WishBoardState.Loading) return
         _manualUploadUiModel.update { it.copy(folderAddState = WishBoardState.Loading) }
 
         val trimmedName = folderName.trim()
@@ -301,19 +284,19 @@ class WishItemUploadViewModel @Inject constructor(
         if (!localStorage.isLogin) {
             return
         }
-        if (uiModel.value.folderFetchState is WishBoardState.Loading) return
-        _uiModel.update { it.copy(folderFetchState = WishBoardState.Loading) }
+        if (parsingUiModel.value.folderFetchState is WishBoardState.Loading) return
+        _parsingUiModel.update { it.copy(folderFetchState = WishBoardState.Loading) }
 
         viewModelScope.launch {
             getFolderSummariesUseCase().onSuccess { folders ->
-                _uiModel.update {
+                _parsingUiModel.update {
                     it.copy(folders = folders, folderFetchState = WishBoardState.Success(Unit))
                 }
                 afterSuccess(folders)
             }.onFailure { exception, errorCode, _ ->
                 when (errorCode) {
                     404 -> {
-                        _uiModel.update {
+                        _parsingUiModel.update {
                             it.copy(folders = emptyList(), folderFetchState = WishBoardState.Success(Unit))
                         }
                         afterSuccess(emptyList())
@@ -321,7 +304,7 @@ class WishItemUploadViewModel @Inject constructor(
 
                     else -> {
                         updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
-                        _uiModel.update {
+                        _parsingUiModel.update {
                             it.copy(folderFetchState = WishBoardState.Failure)
                         }
                     }
@@ -331,24 +314,29 @@ class WishItemUploadViewModel @Inject constructor(
     }
 
     fun createFolder(folderName: String, afterSuccess: () -> Unit) {
-        if (uiModel.value.folderAddState is WishBoardState.Loading) return
-        _uiModel.update { it.copy(folderAddState = WishBoardState.Loading) }
+        if (parsingUiModel.value.folderAddState is WishBoardState.Loading) return
+        _parsingUiModel.update { it.copy(folderAddState = WishBoardState.Loading) }
 
         val trimmedName = folderName.trim()
         viewModelScope.launch {
             postNewFolderUseCase(trimmedName)
                 .onSuccess {
-                    _uiModel.update { it.copy(folderAddState = WishBoardState.Success(Unit), existingFolderName = "") }
+                    _parsingUiModel.update {
+                        it.copy(
+                            folderAddState = WishBoardState.Success(Unit),
+                            existingFolderName = "",
+                        )
+                    }
                     getFolders { folders ->
                         updateSelectedFolder(folders.firstOrNull())
                     }
                     afterSuccess()
                 }.onFailure { exception, errorCode, _ ->
                     when (errorCode) {
-                        409 -> _uiModel.update { it.copy(existingFolderName = trimmedName) }
+                        409 -> _parsingUiModel.update { it.copy(existingFolderName = trimmedName) }
                         else -> updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
                     }
-                    _uiModel.update { it.copy(folderAddState = WishBoardState.Failure) }
+                    _parsingUiModel.update { it.copy(folderAddState = WishBoardState.Failure) }
                 }
         }
     }
@@ -365,34 +353,37 @@ class WishItemUploadViewModel @Inject constructor(
         }
     }
 
-    fun onItemNameChanged(name: String) {
-        _uiModel.update {
-            it.copy(itemName = name)
+    fun onItemNameChanged(name: TextFieldValue, uploadType: WishItemUploadType) {
+        when (uploadType) {
+            WishItemUploadType.PARSING -> {
+                _parsingUiModel.update {
+                    it.copy(itemName = name)
+                }
+            }
+
+            WishItemUploadType.MANUAL -> {
+                _manualUploadUiModel.update {
+                    it.copy(itemName = name)
+                }
+            }
         }
     }
 
-    fun onItemPriceChanged(price: String) {
-        _uiModel.update {
-            it.copy(itemPrice = price)
-        }
-    }
+    fun onItemPriceChanged(price: TextFieldValue, uploadType: WishItemUploadType) {
+        val refinedPrice = price.copy(text = price.text.makeValidPriceStr() ?: "")
 
-    fun onItemMemoChanged(memo: String) {
-        _uiModel.update {
-            it.copy(itemMemo = memo)
-        }
-    }
+        when (uploadType) {
+            WishItemUploadType.PARSING -> {
+                _parsingUiModel.update {
+                    it.copy(itemPrice = refinedPrice)
+                }
+            }
 
-    fun onItemNameChanged(name: TextFieldValue) {
-        _manualUploadUiModel.update {
-            it.copy(itemName = name)
-        }
-        Timber.e("name: ${manualUploadUiModel.value.itemName}")
-    }
-
-    fun onItemPriceChanged(price: TextFieldValue) {
-        _manualUploadUiModel.update {
-            it.copy(itemPrice = price)
+            WishItemUploadType.MANUAL -> {
+                _manualUploadUiModel.update {
+                    it.copy(itemPrice = refinedPrice)
+                }
+            }
         }
     }
 
@@ -414,10 +405,10 @@ class WishItemUploadViewModel @Inject constructor(
             )
         }
         // TODO
-        _uiModel.update {
+        _parsingUiModel.update {
             it.copy(
                 selectedFolder =
-                if (folderItem?.id != uiModel.value.selectedFolder?.id) {
+                if (folderItem?.id != parsingUiModel.value.selectedFolder?.id) {
                     folderItem
                 } else {
                     null
@@ -426,21 +417,9 @@ class WishItemUploadViewModel @Inject constructor(
         }
     }
 
-    fun setItemUri(url: String) {
-        _uiModel.update {
-            it.copy(itemUrl = url)
-        }
-    }
-
-    fun setItemUri(url: TextFieldValue) {
+    fun setItemUrl(url: TextFieldValue) {
         _manualUploadUiModel.update {
             it.copy(itemUrl = url)
-        }
-    }
-
-    fun setItemImageUrl(uri: Uri?) {
-        _uiModel.update {
-            it.copy(itemImageUri = uri)
         }
     }
 
@@ -459,7 +438,7 @@ class WishItemUploadViewModel @Inject constructor(
             }
 
             WishItemUploadType.PARSING -> {
-                _uiModel.update {
+                _parsingUiModel.update {
                     it.copy(itemNotiType = notiInfo.notiType, itemNotiDate = notiInfo.notiDate)
                 }
             }
@@ -467,7 +446,7 @@ class WishItemUploadViewModel @Inject constructor(
     }
 
     fun setTokenForProfileImageUri() {
-        _uiModel.update {
+        _parsingUiModel.update {
             it.copy(accessToken = localStorage.accessToken)
         }
         _manualUploadUiModel.update {
@@ -516,5 +495,9 @@ class WishItemUploadViewModel @Inject constructor(
         _manualUploadUiModel.update {
             it.copy(images = it.images.filter { it.id != id })
         }
+    }
+
+    companion object {
+        private const val ITEM_UPLOAD_SUCCESS_MESSAGE = "아이템을 위시리스트에 추가했어요!👜"
     }
 }

@@ -65,7 +65,7 @@ class ItemRepositoryImpl @Inject constructor(
                             MultipartBody.Part.createFormData(
                                 formDataName,
                                 it.file.name,
-                                it.file.asRequestBody(),
+                                it.file.asRequestBody("image/jpeg".toMediaTypeOrNull()),
                             )
                         }
 

@@ -185,10 +185,16 @@ fun WishUploadScreen(
         },
         onTextChange = { type, input ->
             when (type) {
-                UploadInputType.ITEM_NAME -> viewModel.onItemNameChanged(input)
-                UploadInputType.ITEM_PRICE -> viewModel.onItemPriceChanged(input)
-                UploadInputType.ITEM_MEMO -> viewModel.onItemMemoChanged(input)
-                UploadInputType.ITEM_URL -> viewModel.setItemUri(input)
+                UploadInputType.ITEM_NAME -> viewModel.onItemNameChanged(
+                    name = input,
+                    uploadType = WishItemUploadType.MANUAL,
+                )
+                UploadInputType.ITEM_PRICE -> viewModel.onItemPriceChanged(
+                    price = input,
+                    uploadType = WishItemUploadType.MANUAL,
+                )
+                UploadInputType.ITEM_MEMO -> viewModel.onItemMemoChanged(memo = input)
+                UploadInputType.ITEM_URL -> viewModel.setItemUrl(url = input)
             }
         },
         onUriChange = { uris ->

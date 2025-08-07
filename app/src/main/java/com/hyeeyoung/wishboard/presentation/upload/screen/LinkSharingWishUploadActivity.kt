@@ -60,7 +60,7 @@ class LinkSharingWishUploadActivity : ComponentActivity() {
 
         setContent {
             val context = LocalContext.current
-            val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
+            val uiModel by viewModel.parsingUiModel.collectAsStateWithLifecycle()
             val systemUiController = rememberSystemUiController()
             val coroutineScope = rememberCoroutineScope()
             var modalData by remember { mutableStateOf<ModalData.Modal?>(null) }
@@ -103,8 +103,14 @@ class LinkSharingWishUploadActivity : ComponentActivity() {
                     },
                     onTextChange = { type, input ->
                         when (type) {
-                            UploadInputType.ITEM_NAME -> viewModel.onItemNameChanged(input)
-                            UploadInputType.ITEM_PRICE -> viewModel.onItemPriceChanged(input)
+                            UploadInputType.ITEM_NAME -> viewModel.onItemNameChanged(
+                                name = input,
+                                uploadType = WishItemUploadType.PARSING,
+                            )
+                            UploadInputType.ITEM_PRICE -> viewModel.onItemPriceChanged(
+                                price = input,
+                                uploadType = WishItemUploadType.PARSING,
+                            )
                             else -> {}
                         }
                     },
@@ -113,9 +119,8 @@ class LinkSharingWishUploadActivity : ComponentActivity() {
                         viewModel.updateSelectedFolder(it)
                     },
                     onClickSave = {
-                        viewModel.uploadWishItem(
+                        viewModel.uploadWishItemForParsing(
                             context = context,
-                            uploadType = WishItemUploadType.PARSING,
                             afterSuccess = {
                                 finish()
                             },

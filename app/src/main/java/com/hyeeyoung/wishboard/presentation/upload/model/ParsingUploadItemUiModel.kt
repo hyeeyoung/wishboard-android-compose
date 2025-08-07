@@ -1,6 +1,7 @@
 package com.hyeeyoung.wishboard.presentation.upload.model
 
 import android.net.Uri
+import androidx.compose.ui.text.input.TextFieldValue
 import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
 import com.hyeeyoung.wishboard.domain.model.noti.NotiType
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemUploadInfo
@@ -12,11 +13,11 @@ import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat.getFormattedDateS
 import com.hyeeyoung.wishboard.presentation.util.extension.getValidUrl
 import kotlinx.datetime.LocalDateTime
 
-data class WishItemUploadUiModel(
+data class ParsingUploadItemUiModel(
     val accessToken: String = "",
     val selectedFolder: FolderItem? = null,
-    val itemName: String = "",
-    val itemPrice: String = "",
+    val itemName: TextFieldValue = TextFieldValue(),
+    val itemPrice: TextFieldValue = TextFieldValue(),
     val itemUrl: String = "",
     val itemNotiType: NotiType? = null,
     val itemNotiDate: LocalDateTime? = null,
@@ -41,8 +42,8 @@ data class WishItemUploadUiModel(
 
         return WishItemUploadInfo(
             folderId = selectedFolder?.id,
-            itemName = itemName.trim(),
-            itemPrice = itemPrice.replace(",", "").toIntOrNull(),
+            itemName = itemName.text.trim(),
+            itemPrice = itemPrice.text.replace(",", "").toIntOrNull(),
             itemUrl = site?.trim(),
             itemMemo = itemMemo.trim(),
             itemNotiType = itemNotiType,

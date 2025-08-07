@@ -7,12 +7,10 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -63,27 +61,25 @@ fun WishBoardMiniSingleTextField(
 @Composable
 fun WishBoardMiniSingleTextField(
     modifier: Modifier = Modifier,
-    input: MutableState<String>,
+    textFieldValue: TextFieldValue,
     style: TextStyle = WishBoardTheme.typography.suitD2,
     placeholder: String,
-    onTextChange: (String) -> Unit = {},
-    maxLength: Int? = null,
+    onTextChange: (TextFieldValue) -> Unit = {},
+    maxLength: Int = Int.MAX_VALUE,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     visualTransformation: VisualTransformation = VisualTransformation.None,
 ) {
-    val textFieldTextAlign = if (input.value.isEmpty()) TextAlign.Start else TextAlign.Center
+    val textFieldTextAlign = if (textFieldValue.text.isEmpty()) TextAlign.Start else TextAlign.Center
+
     Column(modifier = modifier) {
         BasicTextField(
-            value = input.value,
+            value = textFieldValue,
             onValueChange = {
-                if (maxLength != null) { // TODO 붙여넣기 예외처리
-                    if (it.length <= maxLength) input.value = it
-                } else {
-                    input.value = it
+                // TODO 붙여넣기 예외처리
+                if (it.text.length <= maxLength) {
+                    onTextChange(it)
                 }
-
-                onTextChange(it)
             },
             textStyle = style.copy(color = WishBoardTheme.colors.gray700, textAlign = textFieldTextAlign),
             singleLine = true,
@@ -91,8 +87,8 @@ fun WishBoardMiniSingleTextField(
             keyboardActions = keyboardActions,
             visualTransformation = visualTransformation,
         ) { innerTextField ->
-            Box() {
-                if (input.value.isEmpty()) {
+            Box {
+                if (textFieldValue.text.isEmpty()) {
                     Text(
                         text = placeholder,
                         color = WishBoardTheme.colors.gray300,
@@ -108,9 +104,8 @@ fun WishBoardMiniSingleTextField(
 @Preview(showBackground = true, backgroundColor = 0xFFFFFF)
 @Composable
 fun PreviewWishBoardMiniSingleTextField() {
-    val input = remember { mutableStateOf("") }
     WishBoardMiniSingleTextField(
-        input = input,
+        textFieldValue = TextFieldValue(),
         placeholder = stringResource(id = R.string.wish_item_link_sharing_upload_name),
     )
 }
