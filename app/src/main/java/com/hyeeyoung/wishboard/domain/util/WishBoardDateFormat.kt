@@ -5,6 +5,7 @@ import kotlinx.datetime.toJavaLocalDate
 import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toKotlinLocalDateTime
 import java.time.LocalDate
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
@@ -27,6 +28,15 @@ object WishBoardDateFormat {
     fun LocalDateTime.getFormattedDateStr(pattern: String): String {
         val formatter = DateTimeFormatter.ofPattern(pattern, Locale.KOREA)
         return this.toJavaLocalDateTime().format(formatter)
+    }
+
+    fun LocalDateTime.toUtcFormattedString(pattern: String): String {
+        val utcZoneId = ZoneId.of("UTC")
+        val formatter = DateTimeFormatter.ofPattern(pattern, Locale.KOREA)
+
+        return this.toJavaLocalDateTime().atZone(ZoneId.systemDefault())
+            .withZoneSameInstant(utcZoneId)
+            .format(formatter)
     }
 
     fun LocalDate.getFormattedDateStr(pattern: String): String {

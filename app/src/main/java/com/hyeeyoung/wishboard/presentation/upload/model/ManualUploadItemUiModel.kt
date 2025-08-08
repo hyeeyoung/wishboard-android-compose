@@ -5,7 +5,7 @@ import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
 import com.hyeeyoung.wishboard.domain.model.noti.NotiType
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemUploadInfo
 import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat
-import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat.getFormattedDateStr
+import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat.toUtcFormattedString
 import com.hyeeyoung.wishboard.presentation.common.model.ImageType
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
 import kotlinx.datetime.LocalDateTime
@@ -27,7 +27,7 @@ data class ManualUploadItemUiModel(
     val folderAddState: WishBoardState<Unit> = WishBoardState.Idle,
 ) {
     fun toDomain(itemImage: List<ImageType>): WishItemUploadInfo {
-        val dateStr = itemNotiDate?.getFormattedDateStr(WishBoardDateFormat.YYYY_MM_DD_HH_MM_SS)
+        val dateStr = itemNotiDate?.toUtcFormattedString(WishBoardDateFormat.YYYY_MM_DD_HH_MM_SS)
 
         return WishItemUploadInfo(
             folderId = selectedFolder?.id,
