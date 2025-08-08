@@ -11,6 +11,7 @@ enum class NotiType(val label: String) : Serializable {
     SALE_END("세일 마감"),
     REMINDER("리마인드"),
     ;
+
     companion object {
         fun fromLabel(label: String) =
             when (label) {

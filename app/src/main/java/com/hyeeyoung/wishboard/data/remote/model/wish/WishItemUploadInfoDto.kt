@@ -9,8 +9,8 @@ data class WishItemUploadInfoDto(
     val itemName: String,
     val itemPrice: Int? = null,
     val itemUrl: String? = null,
-    val itemNotiDate: String? = null,
-    val itemNotiType: String? = null,
+    val itemNotificationType: String? = null,
+    val itemNotificationDate: String? = null,
     val itemMemo: String? = null,
 ) {
     companion object {
@@ -19,8 +19,8 @@ data class WishItemUploadInfoDto(
             itemName = domain.itemName,
             itemPrice = domain.itemPrice,
             itemUrl = domain.itemUrl,
-            itemNotiDate = domain.itemNotiDate,
-            itemNotiType = domain.itemNotiType?.name,
+            itemNotificationType = domain.itemNotiType?.name,
+            itemNotificationDate = domain.itemNotiDate,
             itemMemo = domain.itemMemo,
         )
     }

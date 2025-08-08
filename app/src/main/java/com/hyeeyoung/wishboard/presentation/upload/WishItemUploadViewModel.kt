@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.core.extension.onFailure
 import com.hyeeyoung.wishboard.data.local.WishBoardPreference
+import com.hyeeyoung.wishboard.data.util.extension.toInstantToLocalDateTime
 import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
 import com.hyeeyoung.wishboard.domain.model.noti.NotiInfo
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemDetail
@@ -18,8 +19,6 @@ import com.hyeeyoung.wishboard.domain.usecase.folder.PostNewFolderUseCase
 import com.hyeeyoung.wishboard.domain.usecase.item.GetParsedItemInfoUseCase
 import com.hyeeyoung.wishboard.domain.usecase.item.PostWishItemUseCase
 import com.hyeeyoung.wishboard.domain.usecase.item.PutWishItemUseCase
-import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat
-import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat.toLocalDateTime
 import com.hyeeyoung.wishboard.presentation.common.BaseViewModel
 import com.hyeeyoung.wishboard.presentation.common.model.ImageType
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
@@ -220,7 +219,7 @@ class WishItemUploadViewModel @Inject constructor(
                 itemMemo = TextFieldValue(itemDetail.memo ?: ""),
                 itemUrl = TextFieldValue(itemDetail.site ?: ""),
                 itemNotiType = itemDetail.notiType,
-                itemNotiDate = itemDetail.notiDate?.toLocalDateTime(WishBoardDateFormat.YYYY_MM_DD_T_HH_MM),
+                itemNotiDate = itemDetail.notiDate?.toInstantToLocalDateTime(),
                 images = itemDetail.image?.map { UploadImage.Remote(it) } ?: emptyList(),
                 selectedFolder = safeLet(
                     itemDetail.folderId,
