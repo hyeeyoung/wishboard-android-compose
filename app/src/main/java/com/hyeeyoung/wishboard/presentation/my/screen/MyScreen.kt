@@ -291,21 +291,20 @@ fun Profile(userInfo: UserInfo, onClickProfileEdit: () -> Unit) {
             },
         )
 
-        Column(modifier = Modifier.padding(start = 16.dp)) {
+        Column(modifier = Modifier.weight(1f).padding(start = 16.dp, end = 18.dp)) {
             Text(
+                modifier = Modifier.fillMaxWidth(),
                 text = userInfo.nickname,
                 style = WishBoardTheme.typography.suitH2,
                 color = WishBoardTheme.colors.gray700,
             )
             Text(
-                modifier = Modifier.padding(top = 8.dp),
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                 text = userInfo.email,
                 style = WishBoardTheme.typography.suitB3,
                 color = WishBoardTheme.colors.gray200,
             )
         }
-
-        Spacer(modifier = Modifier.weight(1f))
 
         WishBoardMiniButton(
             onClick = { onClickProfileEdit() },

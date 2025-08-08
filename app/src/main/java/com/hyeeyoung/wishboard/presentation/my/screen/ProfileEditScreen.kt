@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -52,6 +53,8 @@ import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.util.extension.rememberModalLauncher
 import com.hyeeyoung.wishboard.presentation.util.extension.safePopBackStack
 import kotlinx.coroutines.delay
+
+private const val MAX_LENGTH_NICKNAME_NAME = 10
 
 @Composable
 fun ProfileEditScreen(
@@ -186,9 +189,20 @@ fun ProfileEditScreen(
                 label = stringResource(id = R.string.my_profile_nickname),
                 placeholder = stringResource(id = R.string.my_profile_nickname_placeholder),
                 errorMsg = stringResource(id = R.string.my_profile_nickname_already_exist_error),
-                maxLength = 12,
+                maxLength = MAX_LENGTH_NICKNAME_NAME,
                 onTextChange = {
                     onNicknameChange(it)
+                },
+                bottomEndComponent = {
+                    Text(
+                        text = stringResource(
+                            id = R.string.text_length,
+                            uiModel.nicknameInput.text.length,
+                            MAX_LENGTH_NICKNAME_NAME,
+                        ),
+                        color = WishBoardTheme.colors.gray200,
+                        style = WishBoardTheme.typography.suitD3,
+                    )
                 },
             )
 

@@ -51,6 +51,7 @@ fun WishBoardTextField(
     visualTransformation: VisualTransformation = VisualTransformation.None,
     errorHidingStrategy: Int = View.GONE,
     endComponent: WishBoardTextFieldComponent = WishBoardTextFieldComponent.DeleteButton,
+    bottomEndComponent: (@Composable () -> Unit)? = null,
 ) {
     var isFocused by remember { mutableStateOf(false) }
 
@@ -84,13 +85,23 @@ fun WishBoardTextField(
             )
         }
 
-        if (isFocused) {
-            TextFieldErrorMessage(
-                errorHidingStrategy = errorHidingStrategy,
-                isFocused = isFocused,
-                isError = isError,
-                errorMsg = errorMsg,
-            )
+        if (isFocused || bottomEndComponent != null) {
+            Row(modifier = Modifier.fillMaxWidth().padding(top = 6.dp)) {
+                if (isFocused) {
+                    TextFieldErrorMessage(
+                        errorHidingStrategy = errorHidingStrategy,
+                        isFocused = isFocused,
+                        isError = isError,
+                        errorMsg = errorMsg,
+                    )
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                bottomEndComponent?.let {
+                    bottomEndComponent()
+                }
+            }
         }
     }
 }
