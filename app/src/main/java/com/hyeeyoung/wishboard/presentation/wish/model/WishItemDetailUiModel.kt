@@ -26,7 +26,7 @@ data class WishItemDetailUiModel(
                 id = domain.id,
                 folderId = domain.folderId,
                 folderName = domain.folderName,
-                images = domain.image ?: emptyList(),
+                images = domain.images,
                 memo = domain.memo,
                 name = domain.name,
                 notiDate = domain.notiDate?.toInstantToLocalDateTime(),

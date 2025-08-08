@@ -34,7 +34,7 @@ data class WishItemDetailDto(
         id = id,
         folderId = folderId,
         folderName = if (folderName.isNullOrBlank()) null else folderName,
-        image = image?.map { it.url },
+        images = image?.map { it.url } ?: emptyList(),
         memo = if (memo.isNullOrBlank()) null else memo,
         name = name,
         notiDate = notiDate,

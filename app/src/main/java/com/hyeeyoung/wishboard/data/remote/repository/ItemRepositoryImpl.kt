@@ -8,8 +8,6 @@ import com.hyeeyoung.wishboard.data.remote.model.common.PageSize
 import com.hyeeyoung.wishboard.data.remote.model.wish.WishItemUploadInfoDto
 import com.hyeeyoung.wishboard.data.remote.paging.GeneralPagingSource
 import com.hyeeyoung.wishboard.data.remote.service.ItemService
-import com.hyeeyoung.wishboard.data.util.extension.toPlainNullableRequestBody
-import com.hyeeyoung.wishboard.data.util.extension.toPlainRequestBody
 import com.hyeeyoung.wishboard.domain.model.wish.ParsedWishItem
 import com.hyeeyoung.wishboard.domain.model.wish.WishItem
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemDetail
@@ -86,26 +84,20 @@ class ItemRepositoryImpl @Inject constructor(
 
         itemService.updateWishItem(
             itemId = itemId,
-            folderId = itemInfo.folderId?.toString()?.toPlainNullableRequestBody(),
-            itemName = itemInfo.itemName.toPlainRequestBody(),
-            itemPrice = itemInfo.itemPrice?.toString()?.toPlainNullableRequestBody(),
-            itemMemo = itemInfo.itemMemo.toPlainNullableRequestBody(),
-            itemNotificationDate = itemInfo.itemNotiDate?.toPlainNullableRequestBody(),
-            itemNotificationType = itemInfo.itemNotiType?.label?.toPlainNullableRequestBody(),
-            itemUrl = itemInfo.itemUrl.toPlainNullableRequestBody(),
+            item = WishItemUploadInfoDto.fromDomain(itemInfo).toJson().toRequestBody(
+                "application/json".toMediaTypeOrNull(),
+            ),
             itemImg = itemInfo.itemImage?.mapNotNull {
                 when (it) {
                     is ImageType.DownloadImage -> {
                         MultipartBody.Part.createFormData(
                             formDataName,
                             it.file.name,
-                            it.file.asRequestBody(),
+                            it.file.asRequestBody("image/jpeg".toMediaTypeOrNull()),
                         )
                     }
 
                     is ImageType.Picture -> it.image
-
-                    else -> null
                 }
             },
         )

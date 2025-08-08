@@ -25,9 +25,9 @@ interface ItemService {
         @Query("size") size: Int,
     ): BaseResponse<PagedResponse<WishItemDto>>
 
-    @GET("item/{item_id}")
+    @GET("item/{itemId}")
     suspend fun fetchWishItemDetail(
-        @Path("item_id") itemId: Long,
+        @Path("itemId") itemId: Long,
     ): BaseResponse<WishItemDetailDto>
 
     @Multipart
@@ -42,13 +42,7 @@ interface ItemService {
     @PUT("item/{item_id}")
     suspend fun updateWishItem(
         @Path("item_id") itemId: Long,
-        @Part("folder_id") folderId: RequestBody?,
-        @Part("item_name") itemName: RequestBody,
-        @Part("item_price") itemPrice: RequestBody?,
-        @Part("item_memo") itemMemo: RequestBody?,
-        @Part("item_url") itemUrl: RequestBody?,
-        @Part("item_notification_type") itemNotificationType: RequestBody?,
-        @Part("item_notification_date") itemNotificationDate: RequestBody?,
+        @Part("request") item: RequestBody,
         @Part itemImg: List<MultipartBody.Part>?,
     ): BaseResponseNoData
 

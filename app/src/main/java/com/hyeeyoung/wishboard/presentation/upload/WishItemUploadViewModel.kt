@@ -9,10 +9,8 @@ import androidx.lifecycle.viewModelScope
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.core.extension.onFailure
 import com.hyeeyoung.wishboard.data.local.WishBoardPreference
-import com.hyeeyoung.wishboard.data.util.extension.toInstantToLocalDateTime
 import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
 import com.hyeeyoung.wishboard.domain.model.noti.NotiInfo
-import com.hyeeyoung.wishboard.domain.model.wish.WishItemDetail
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemUploadType
 import com.hyeeyoung.wishboard.domain.usecase.folder.GetFolderSummariesUseCase
 import com.hyeeyoung.wishboard.domain.usecase.folder.PostNewFolderUseCase
@@ -35,6 +33,7 @@ import com.hyeeyoung.wishboard.presentation.util.extension.getValidUrl
 import com.hyeeyoung.wishboard.presentation.util.extension.makeValidPriceStr
 import com.hyeeyoung.wishboard.presentation.util.extension.toMillis
 import com.hyeeyoung.wishboard.presentation.util.safeLet
+import com.hyeeyoung.wishboard.presentation.wish.model.WishItemDetailUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
@@ -66,7 +65,7 @@ class WishItemUploadViewModel @Inject constructor(
     val manualUploadUiModel = _manualUploadUiModel.asStateFlow()
 
     init {
-        val detail = savedStateHandle.getBase64Json<WishItemDetail>(MainScreen.Upload.ARG_ITEM_DETAIL)
+        val detail = savedStateHandle.getBase64Json<WishItemDetailUiModel>(MainScreen.Upload.ARG_ITEM_DETAIL)
         detail?.let {
             setWishItemUploadModel(it)
         }
@@ -177,50 +176,38 @@ class WishItemUploadViewModel @Inject constructor(
             return
         }
 
-        if (parsingUiModel.value.wishItemUploadState is WishBoardState.Loading) return
-        _parsingUiModel.update { it.copy(wishItemUploadState = WishBoardState.Loading) }
+        if (manualUploadUiModel.value.wishItemUploadState is WishBoardState.Loading) return
+        _manualUploadUiModel.update { it.copy(wishItemUploadState = WishBoardState.Loading) }
 
         viewModelScope.launch {
-            val image = when (parsingUiModel.value.itemImageUri) {
-                null -> null
-                else -> parsingUiModel.value.itemImageUri?.let {
-                    val file = parsingUiModel.value.itemImageUri?.let { uri ->
-                        context.convertResizeImage(uri)
-                    }
-                    val requestBody = file?.asRequestBody("image/jpeg".toMediaTypeOrNull())
-
-                    requestBody?.let {
-                        ImageType.Picture(
-                            MultipartBody.Part.createFormData("itemImages", file.name, requestBody),
-                        )
-                    }
-                }
-            }
-
             putWishItemUseCase(
                 itemId = itemId,
-                itemInfo = parsingUiModel.value.toDomain(itemImage = image, uploadType = WishItemUploadType.MANUAL),
+                itemInfo = _manualUploadUiModel.value.toDomain(
+                    itemImage = _manualUploadUiModel.value.images.toImageType(
+                        context = context,
+                    ),
+                ),
             ).onSuccess {
-                _parsingUiModel.update { it.copy(wishItemUploadState = WishBoardState.Success(Unit)) }
+                _manualUploadUiModel.update { it.copy(wishItemUploadState = WishBoardState.Success(Unit)) }
                 updateSnackbarMessage("아이템을 수정했어요!✍️")
                 afterSuccess()
             }.onFailure { exception, _, _ ->
-                _parsingUiModel.update { it.copy(wishItemUploadState = WishBoardState.Failure) }
+                _manualUploadUiModel.update { it.copy(wishItemUploadState = WishBoardState.Failure) }
                 updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
             }
         }
     }
 
-    private fun setWishItemUploadModel(itemDetail: WishItemDetail) {
+    private fun setWishItemUploadModel(itemDetail: WishItemDetailUiModel) {
         _manualUploadUiModel.update {
             it.copy(
                 itemName = TextFieldValue(itemDetail.name),
-                itemPrice = TextFieldValue(itemDetail.price),
+                itemPrice = TextFieldValue(itemDetail.price.toString()),
                 itemMemo = TextFieldValue(itemDetail.memo ?: ""),
                 itemUrl = TextFieldValue(itemDetail.site ?: ""),
                 itemNotiType = itemDetail.notiType,
-                itemNotiDate = itemDetail.notiDate?.toInstantToLocalDateTime(),
-                images = itemDetail.image?.map { UploadImage.Remote(it) } ?: emptyList(),
+                itemNotiDate = itemDetail.notiDate,
+                images = itemDetail.images.map { UploadImage.Remote(it) },
                 selectedFolder = safeLet(
                     itemDetail.folderId,
                     itemDetail.folderName,

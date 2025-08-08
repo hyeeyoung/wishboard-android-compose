@@ -1,10 +1,10 @@
 package com.hyeeyoung.wishboard.data.util.extension
 
+import com.hyeeyoung.wishboard.presentation.util.TimeUtil.koreaTimeZone
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody
@@ -17,13 +17,13 @@ fun String?.toPlainNullableRequestBody(): RequestBody? =
     this?.toRequestBody("text/plain".toMediaTypeOrNull())
 
 fun String.toInstantToLocalDateTime(): LocalDateTime = try {
-    Instant.parse(this).toLocalDateTime(TimeZone.currentSystemDefault())
+    Instant.parse(this).toLocalDateTime(timeZone = koreaTimeZone)
 } catch (e: Exception) {
-    Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+    Clock.System.now().toLocalDateTime(koreaTimeZone)
 }
 
 fun String.toInstantToLocalDate(): LocalDate = try {
-    Instant.parse(this).toLocalDateTime(TimeZone.currentSystemDefault()).date
+    Instant.parse(this).toLocalDateTime(koreaTimeZone).date
 } catch (e: Exception) {
-    Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+    Clock.System.now().toLocalDateTime(koreaTimeZone).date
 }
