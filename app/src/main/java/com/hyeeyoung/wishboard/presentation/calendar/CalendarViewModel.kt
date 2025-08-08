@@ -28,16 +28,8 @@ class CalendarViewModel @Inject constructor(
                 _uiModel.update {
                     it.copy(schedules = schedules)
                 }
-            }.onFailure { exception, errorCode, _ ->
-                when (errorCode) {
-                    404 -> {
-                        _uiModel.update { it.copy(schedules = emptyList()) }
-                    }
-
-                    else -> {
-                        updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
-                    }
-                }
+            }.onFailure { exception, _, _ ->
+                updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
             }
         }
     }
