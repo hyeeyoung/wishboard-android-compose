@@ -1,6 +1,7 @@
 package com.hyeeyoung.wishboard.data.remote.model.wish
 
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemUploadInfo
+import com.hyeeyoung.wishboard.presentation.util.extension.isEmptyOrBlank
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -21,7 +22,7 @@ data class WishItemUploadInfoDto(
             itemUrl = domain.itemUrl,
             itemNotificationType = domain.itemNotiType?.name,
             itemNotificationDate = domain.itemNotiDate,
-            itemMemo = domain.itemMemo,
+            itemMemo = if (domain.itemMemo?.isEmptyOrBlank() == true) null else domain.itemMemo,
         )
     }
 }

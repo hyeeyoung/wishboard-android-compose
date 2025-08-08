@@ -147,7 +147,15 @@ class FolderViewModel @Inject constructor(
         folderId.update { id }
     }
 
-    fun markAsLaunched() {
+    fun markAsLaunchedForMain() {
+        _uiModel.update {
+            it.copy(
+                hasLaunched = true,
+            )
+        }
+    }
+
+    fun markAsLaunchedForDetail() {
         _folderDetailUiModel.update {
             it.copy(
                 hasLaunched = true,

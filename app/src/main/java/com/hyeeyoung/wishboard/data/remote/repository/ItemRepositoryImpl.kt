@@ -14,10 +14,12 @@ import com.hyeeyoung.wishboard.domain.model.wish.WishItemDetail
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemUploadInfo
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemUploadType
 import com.hyeeyoung.wishboard.domain.repository.ItemRepository
+import com.hyeeyoung.wishboard.domain.util.JsonUtil
 import com.hyeeyoung.wishboard.presentation.common.model.ImageType
 import com.hyeeyoung.wishboard.presentation.util.extension.toJson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.serialization.encodeToString
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -53,7 +55,7 @@ class ItemRepositoryImpl @Inject constructor(
 
     override suspend fun uploadWishItem(uploadType: WishItemUploadType, itemInfo: WishItemUploadInfo): Result<Long> =
         runCatching {
-            val formDataName = "itemImages"
+            val formDataName = FORM_DATA_IMAGE_KEY
 
             itemService.uploadWishItem(
                 type = uploadType.toString(),
@@ -80,18 +82,16 @@ class ItemRepositoryImpl @Inject constructor(
         itemId: Long,
         itemInfo: WishItemUploadInfo,
     ): Result<Unit> = runCatching {
-        val formDataName = "itemImages"
-
         itemService.updateWishItem(
             itemId = itemId,
-            item = WishItemUploadInfoDto.fromDomain(itemInfo).toJson().toRequestBody(
-                "application/json".toMediaTypeOrNull(),
+            item = JsonUtil.json.encodeToString(WishItemUploadInfoDto.fromDomain(itemInfo)).toRequestBody(
+                "application/json".toMediaTypeOrNull(), // TODO 상수화 필요
             ),
             itemImg = itemInfo.itemImage?.mapNotNull {
                 when (it) {
                     is ImageType.DownloadImage -> {
                         MultipartBody.Part.createFormData(
-                            formDataName,
+                            FORM_DATA_IMAGE_KEY,
                             it.file.name,
                             it.file.asRequestBody("image/jpeg".toMediaTypeOrNull()),
                         )
@@ -116,4 +116,8 @@ class ItemRepositoryImpl @Inject constructor(
         runCatching {
             itemService.getParsedItemInfo(site).data
         }
+
+    companion object {
+        private const val FORM_DATA_IMAGE_KEY = "itemImages"
+    }
 }

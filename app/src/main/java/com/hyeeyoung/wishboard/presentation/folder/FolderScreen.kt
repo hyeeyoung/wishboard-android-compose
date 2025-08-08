@@ -57,6 +57,7 @@ import com.hyeeyoung.wishboard.presentation.folder.model.FolderTabUiModel
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.util.extension.rememberModalLauncher
 import com.hyeeyoung.wishboard.presentation.util.getFakePagingData
+import com.hyeeyoung.wishboard.presentation.util.rememberPagingAutoRefresh
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -72,6 +73,12 @@ fun FolderScreen(
     WishBoardGlobalSnackbarMessage(snackbarChannel = viewModel.snackBarChannel)
 
     MainScreen.Folder.ScrollToTopEffect(lazyGridState)
+
+    rememberPagingAutoRefresh(
+        hasLaunched = uiModel.hasLaunched,
+        onFirstLaunch = viewModel::markAsLaunchedForMain,
+        refresh = folders::refresh,
+    )
 
     PullToRefreshBox(
         isRefreshing = folders.loadState.refresh is LoadState.Loading,

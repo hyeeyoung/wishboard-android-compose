@@ -55,7 +55,7 @@ fun FolderDetailScreen(
 
     rememberPagingAutoRefresh(
         hasLaunched = uiModel.hasLaunched,
-        onFirstLaunch = viewModel::markAsLaunched,
+        onFirstLaunch = viewModel::markAsLaunchedForDetail,
         refresh = wishItems::refresh,
     )
 

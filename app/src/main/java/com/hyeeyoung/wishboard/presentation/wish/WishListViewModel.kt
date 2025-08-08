@@ -51,4 +51,10 @@ class WishListViewModel @Inject constructor(
             it.copy(shouldShowOnboardingModal = false)
         }
     }
+
+    fun markAsLaunched() {
+        _uiModel.update {
+            it.copy(hasLaunched = true)
+        }
+    }
 }
