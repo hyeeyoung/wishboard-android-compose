@@ -25,8 +25,12 @@ interface FolderService {
     @GET("folder/list")
     suspend fun fetchFolderSummaries(): BaseResponse<List<FolderSummaryDto>>
 
-    @GET("folder/item/{folder_id}")
-    suspend fun fetchFolderDetail(@Path("folder_id") folderId: Long): List<WishItemDto>
+    @GET("folder/item/{folderId}")
+    suspend fun fetchFolderDetail(
+        @Path("folderId") folderId: Long,
+        @Query("page") page: Int,
+        @Query("size") size: Int,
+    ): BaseResponse<PagedResponse<WishItemDto>>
 
     @POST("folder")
     suspend fun createFolder(@Body folderName: FolderNameDto): BaseResponse<FolderSummaryDto>

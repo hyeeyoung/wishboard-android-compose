@@ -40,8 +40,21 @@ class FolderRepositoryImpl @Inject constructor(
         folderService.fetchFolderSummaries().data.map { it.toDomain() }
     }
 
-    override suspend fun fetchFolderDetail(folderId: Long): Result<List<WishItem>> = runCatching {
-        folderService.fetchFolderDetail(folderId = folderId).map { it.toDomain() }
+    override fun fetchFolderDetail(folderId: Long): Flow<PagingData<WishItem>> = Pager(
+        config = PagingConfig(
+            pageSize = PageSize.DEFAULT_SIZE,
+            enablePlaceholders = true,
+            prefetchDistance = PageSize.DEFAULT_PREFETCH_SIZE,
+        ),
+        pagingSourceFactory = {
+            GeneralPagingSource(
+                loadPage = { page, size ->
+                    folderService.fetchFolderDetail(folderId = folderId, page = page, size = size)
+                },
+            )
+        },
+    ).flow.map {
+        it.map { it.toDomain() }
     }
 
     override suspend fun createFolder(folderName: String): Result<FolderItem> = runCatching {

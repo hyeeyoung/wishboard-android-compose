@@ -10,7 +10,7 @@ interface FolderRepository {
 
     suspend fun fetchFolderSummaries(): Result<List<FolderItem>>
 
-    suspend fun fetchFolderDetail(folderId: Long): Result<List<WishItem>>
+    fun fetchFolderDetail(folderId: Long): Flow<PagingData<WishItem>>
 
     suspend fun createFolder(folderName: String): Result<FolderItem>
 

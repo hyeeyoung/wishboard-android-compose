@@ -4,21 +4,24 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.hyeeyoung.wishboard.core.extension.onFailure
-import com.hyeeyoung.wishboard.domain.model.wish.WishItem
 import com.hyeeyoung.wishboard.domain.usecase.folder.DeleteFolderUseCase
 import com.hyeeyoung.wishboard.domain.usecase.folder.GetFolderDetailUseCase
 import com.hyeeyoung.wishboard.domain.usecase.folder.GetFoldersUseCase
 import com.hyeeyoung.wishboard.domain.usecase.folder.PostNewFolderUseCase
 import com.hyeeyoung.wishboard.domain.usecase.folder.PutFolderNameUseCase
 import com.hyeeyoung.wishboard.presentation.common.BaseViewModel
+import com.hyeeyoung.wishboard.presentation.folder.model.FolderDetailUiModel
 import com.hyeeyoung.wishboard.presentation.folder.model.FolderTabUiModel
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
 import com.hyeeyoung.wishboard.presentation.sign.model.snackbar.SnackbarMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -27,11 +30,18 @@ import javax.inject.Inject
 @HiltViewModel
 class FolderViewModel @Inject constructor(
     getFoldersUseCase: GetFoldersUseCase,
+    getFolderDetailUseCase: GetFolderDetailUseCase,
     private val postNewFolderUseCase: PostNewFolderUseCase,
     private val putFolderNameUseCase: PutFolderNameUseCase,
     private val deleteFolderUseCase: DeleteFolderUseCase,
-    private val getFolderDetailUseCase: GetFolderDetailUseCase,
 ) : BaseViewModel() {
+    private var _uiModel = MutableStateFlow(FolderTabUiModel())
+    val uiModel = _uiModel.asStateFlow()
+
+    private val _folderDetailUiModel = MutableStateFlow(FolderDetailUiModel())
+    val folderDetailUiModel = _folderDetailUiModel.asStateFlow()
+    private val folderId = MutableStateFlow<Long?>(null)
+
     val folders = getFoldersUseCase() // TODO fetchState
         .cachedIn(viewModelScope)
         .catch { exception ->
@@ -39,11 +49,18 @@ class FolderViewModel @Inject constructor(
         }
         .stateIn(viewModelScope, SharingStarted.Eagerly, PagingData.empty())
 
-    private var _uiModel = MutableStateFlow(FolderTabUiModel())
-    val uiModel = _uiModel.asStateFlow()
-
-    private var _detailUiModel = MutableStateFlow(emptyList<WishItem>())
-    val detailUiModel = _detailUiModel.asStateFlow()
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val folderDetails = folderId
+        .filterNotNull()
+        .flatMapLatest { id ->
+            getFolderDetailUseCase(id)
+                .catch { exception ->
+                    updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
+                    emit(PagingData.empty())
+                }
+        }
+        .cachedIn(viewModelScope)
+        .stateIn(viewModelScope, SharingStarted.Eagerly, PagingData.empty())
 
     fun createFolder(folderName: String, afterSuccess: () -> Unit) {
         if (uiModel.value.addState is WishBoardState.Loading) return
@@ -115,22 +132,6 @@ class FolderViewModel @Inject constructor(
         }
     }
 
-    fun getFolderDetail(folderId: Long) {
-        viewModelScope.launch {
-            getFolderDetailUseCase(folderId).onSuccess { items ->
-                _detailUiModel.update { items }
-            }.onFailure { exception, errorCode, _ ->
-                when (errorCode) {
-                    404 -> {
-                        _detailUiModel.update { emptyList() }
-                    }
-
-                    else -> updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
-                }
-            }
-        }
-    }
-
     fun clearModalData() {
         _uiModel.update {
             it.copy(
@@ -138,6 +139,18 @@ class FolderViewModel @Inject constructor(
                 updateState = WishBoardState.Idle,
                 deleteState = WishBoardState.Idle,
                 existingFolderName = null,
+            )
+        }
+    }
+
+    fun setFolderIdForDetail(id: Long) {
+        folderId.update { id }
+    }
+
+    fun markAsLaunched() {
+        _folderDetailUiModel.update {
+            it.copy(
+                hasLaunched = true,
             )
         }
     }
