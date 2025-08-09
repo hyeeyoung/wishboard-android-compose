@@ -19,7 +19,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -52,6 +51,7 @@ import com.hyeeyoung.wishboard.presentation.util.extension.getDomainName
 import com.hyeeyoung.wishboard.presentation.util.extension.moveToWebView
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.util.extension.safePopBackStack
+import com.hyeeyoung.wishboard.presentation.util.rememberAutoRefresh
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,14 +60,16 @@ fun NotiScreen(
     viewModel: NotiViewModel = hiltViewModel(),
 ) {
     val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
-    var isFetched by rememberSaveable { mutableStateOf(false) }
+    var hasLaunched by rememberSaveable { mutableStateOf(false) }
 
-    LaunchedEffect(isFetched) {
-        if (!isFetched) {
+    rememberAutoRefresh(
+        hasLaunched = hasLaunched,
+        refresh = { viewModel.fetchPreviousNoti(true) },
+        onFirstLaunch = {
             viewModel.fetchPreviousNoti(false)
-            isFetched = true
-        }
-    }
+            hasLaunched = true
+        },
+    )
 
     WishBoardGlobalSnackbarMessage(snackbarChannel = viewModel.snackBarChannel)
 
