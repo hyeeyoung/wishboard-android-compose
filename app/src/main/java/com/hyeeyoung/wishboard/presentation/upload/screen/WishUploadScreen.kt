@@ -217,6 +217,7 @@ fun WishUploadScreen(
                 modalData = null
             }
         },
+        updateSnackbarMessage = viewModel::updateSnackbarMessage,
     )
 }
 
@@ -237,6 +238,7 @@ fun WishUploadScreen(
     onUriChange: (List<Uri>) -> Unit,
     deleteImage: (id: String) -> Unit,
     isValidNotiDate: (NotiInfo) -> Boolean,
+    updateSnackbarMessage: (String) -> Unit,
 ) {
     val context = LocalContext.current
     val systemUiController = rememberSystemUiController()
@@ -357,6 +359,8 @@ fun WishUploadScreen(
                     addImage = {
                         if (uiModel.images.size < MAX_IMAGE_COUNT) {
                             ModalData.OptionModal.ImageSelection.openModal(context, modalLauncher)
+                        } else {
+                            updateSnackbarMessage("앗, 이미지는 최대 10장까지만 등록할 수 있어요!")
                         }
                     },
                 )
@@ -890,5 +894,6 @@ fun PreviewWishUploadScreen() {
         isValidNotiDate = { true },
         deleteImage = {},
         createFolder = {},
+        updateSnackbarMessage = {},
     )
 }
