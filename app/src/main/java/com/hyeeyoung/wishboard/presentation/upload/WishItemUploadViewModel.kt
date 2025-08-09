@@ -28,7 +28,7 @@ import com.hyeeyoung.wishboard.presentation.upload.model.UploadImage
 import com.hyeeyoung.wishboard.presentation.util.WishBoardEventBus
 import com.hyeeyoung.wishboard.presentation.util.extension.BitmapUtil.toBitmap
 import com.hyeeyoung.wishboard.presentation.util.extension.BitmapUtil.toFile
-import com.hyeeyoung.wishboard.presentation.util.extension.convertResizeImage
+import com.hyeeyoung.wishboard.presentation.util.extension.compressImageToMaxSize
 import com.hyeeyoung.wishboard.presentation.util.extension.getBase64Json
 import com.hyeeyoung.wishboard.presentation.util.extension.getValidUrl
 import com.hyeeyoung.wishboard.presentation.util.extension.makeValidPriceStr
@@ -468,7 +468,7 @@ class WishItemUploadViewModel @Inject constructor(
             when (it) {
                 is UploadImage.Local -> {
                     val file = it.uri.let { uri ->
-                        context.convertResizeImage(uri)
+                        context.compressImageToMaxSize(uri)
                     }
                     val requestBody = file?.asRequestBody("image/jpeg".toMediaTypeOrNull())
 

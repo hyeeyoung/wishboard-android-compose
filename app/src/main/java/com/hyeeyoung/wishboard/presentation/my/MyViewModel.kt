@@ -20,7 +20,7 @@ import com.hyeeyoung.wishboard.presentation.my.model.MyUiModel
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
 import com.hyeeyoung.wishboard.presentation.sign.model.snackbar.SnackbarMessage
 import com.hyeeyoung.wishboard.presentation.util.WishBoardFormat
-import com.hyeeyoung.wishboard.presentation.util.extension.convertResizeImage
+import com.hyeeyoung.wishboard.presentation.util.extension.compressImageToMaxSize
 import com.hyeeyoung.wishboard.presentation.util.safeLet
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -90,7 +90,7 @@ class MyViewModel @Inject constructor(
     fun updateUserProfile(context: Context, afterSuccess: () -> Unit) {
         val trimmedName = uiModel.value.nicknameInput.text.trim()
         val file = uiModel.value.imageUriInput?.let { uri ->
-            context.convertResizeImage(uri)
+            context.compressImageToMaxSize(uri)
         }
         val requestBody = file?.asRequestBody("image/jpeg".toMediaTypeOrNull())
 
