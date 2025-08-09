@@ -20,7 +20,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheetProperties
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetValue
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -50,6 +49,7 @@ import com.hyeeyoung.wishboard.designsystem.component.dialog.temp.WishBoardModal
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.domain.model.wish.WishItem
 import com.hyeeyoung.wishboard.presentation.onboarding.OnboardingModalContent
+import com.hyeeyoung.wishboard.presentation.util.WishBoardPullToRefreshBox
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.util.getFakePagingData
 import com.hyeeyoung.wishboard.presentation.util.rememberAutoRefresh
@@ -92,8 +92,8 @@ fun WishListScreen(
         refresh = wishItems::refresh,
     )
 
-    PullToRefreshBox(
-        isRefreshing = wishItems.loadState.refresh is LoadState.Loading,
+    WishBoardPullToRefreshBox(
+        loadState = wishItems.loadState.refresh,
         onRefresh = {
             wishItems.refresh()
         },
