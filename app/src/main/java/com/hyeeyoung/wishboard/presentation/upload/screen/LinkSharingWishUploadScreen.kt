@@ -47,7 +47,7 @@ import com.hyeeyoung.wishboard.designsystem.component.image.Image
 import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardMiniSingleTextField
 import com.hyeeyoung.wishboard.designsystem.style.MontserratFamily
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
-import com.hyeeyoung.wishboard.designsystem.util.PriceTransformation
+import com.hyeeyoung.wishboard.designsystem.util.LegacyPriceTransformation
 import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
 import com.hyeeyoung.wishboard.domain.model.noti.NotiInfo
 import com.hyeeyoung.wishboard.domain.model.noti.NotiType
@@ -129,7 +129,7 @@ fun LinkSharingWishUploadScreen(
                             onTextChange(UploadInputType.ITEM_PRICE, input)
                         },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        visualTransformation = PriceTransformation(),
+                        visualTransformation = LegacyPriceTransformation(),
                     )
 
                     Spacer(modifier = Modifier.size(5.dp))

@@ -17,6 +17,7 @@ object WishBoardDateFormat {
     const val YY_M_D_HH_MM_KR = "$YY_M_D_KR HH:mm"
     const val YYYYMMDD_T_HHMMSS_Z = "yyyyMMdd'T'HHmmss'Z'"
     const val YY_M_D_A_H_MM = "yy. M. d a h:mm"
+    const val YY_M_D = "yy. M. d"
 
     fun String.toLocalDateTime(pattern: String): LocalDateTime? =
         runCatching {

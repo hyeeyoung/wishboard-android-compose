@@ -14,12 +14,16 @@ import com.hyeeyoung.wishboard.domain.model.wish.WishItemDetail
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemUploadInfo
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemUploadType
 import com.hyeeyoung.wishboard.domain.repository.ItemRepository
-import com.hyeeyoung.wishboard.domain.util.JsonUtil
 import com.hyeeyoung.wishboard.presentation.common.model.ImageType
 import com.hyeeyoung.wishboard.presentation.util.extension.toJson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.datetime.serializers.InstantIso8601Serializer
+import kotlinx.datetime.serializers.LocalDateTimeIso8601Serializer
 import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.contextual
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -84,7 +88,7 @@ class ItemRepositoryImpl @Inject constructor(
     ): Result<Unit> = runCatching {
         itemService.updateWishItem(
             itemId = itemId,
-            item = JsonUtil.json.encodeToString(WishItemUploadInfoDto.fromDomain(itemInfo)).toRequestBody(
+            item = json.encodeToString(WishItemUploadInfoDto.fromDomain(itemInfo)).toRequestBody(
                 "application/json".toMediaTypeOrNull(), // TODO 상수화 필요
             ),
             itemImg = itemInfo.itemImage?.mapNotNull {
@@ -119,5 +123,19 @@ class ItemRepositoryImpl @Inject constructor(
 
     companion object {
         private const val FORM_DATA_IMAGE_KEY = "itemImages"
+
+        // TODO 제거 예정
+        val json = Json {
+            isLenient = true
+            prettyPrint = true
+            explicitNulls = true
+            ignoreUnknownKeys = true
+            coerceInputValues = true
+            encodeDefaults = true
+            serializersModule = SerializersModule {
+                contextual(InstantIso8601Serializer)
+                contextual(LocalDateTimeIso8601Serializer)
+            }
+        }
     }
 }

@@ -403,15 +403,9 @@ class WishItemUploadViewModel @Inject constructor(
             }
 
             WishItemUploadType.MANUAL -> {
+                if (folderItem?.id == _manualUploadUiModel.value.selectedFolder?.id) return
                 _manualUploadUiModel.update {
-                    it.copy(
-                        selectedFolder =
-                        if (folderItem?.id != _manualUploadUiModel.value.selectedFolder?.id) {
-                            folderItem
-                        } else {
-                            null
-                        },
-                    )
+                    it.copy(selectedFolder = folderItem)
                 }
             }
         }

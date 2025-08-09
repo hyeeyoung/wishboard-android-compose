@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -79,6 +80,7 @@ import com.hyeeyoung.wishboard.designsystem.component.image.Image
 import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardLabelTextField
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
+import com.hyeeyoung.wishboard.designsystem.util.PriceVisualTransformation
 import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
 import com.hyeeyoung.wishboard.domain.model.noti.NotiInfo
 import com.hyeeyoung.wishboard.domain.model.noti.NotiType
@@ -99,7 +101,7 @@ import com.hyeeyoung.wishboard.presentation.upload.model.UploadImage
 import com.hyeeyoung.wishboard.presentation.upload.model.UploadInputType
 import com.hyeeyoung.wishboard.presentation.util.extension.createImageUri
 import com.hyeeyoung.wishboard.presentation.util.extension.fromJson
-import com.hyeeyoung.wishboard.presentation.util.extension.getCurrentTime
+import com.hyeeyoung.wishboard.presentation.util.extension.getScheduleTimeFormat
 import com.hyeeyoung.wishboard.presentation.util.extension.makeValidPriceStr
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.util.extension.rememberModalLauncher
@@ -189,10 +191,12 @@ fun WishUploadScreen(
                     name = input,
                     uploadType = WishItemUploadType.MANUAL,
                 )
+
                 UploadInputType.ITEM_PRICE -> viewModel.onItemPriceChanged(
                     price = input,
                     uploadType = WishItemUploadType.MANUAL,
                 )
+
                 UploadInputType.ITEM_MEMO -> viewModel.onItemMemoChanged(memo = input)
                 UploadInputType.ITEM_URL -> viewModel.setItemUrl(url = input)
             }
@@ -377,7 +381,7 @@ fun WishUploadScreen(
                             )
                         },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-//                    visualTransformation = PriceTransformation(prefix = "₩ "), // TODO
+                        visualTransformation = PriceVisualTransformation(),
                     )
 
                     WishBoardDivider()
@@ -388,6 +392,14 @@ fun WishUploadScreen(
                         selectedFolder = uiModel.selectedFolder,
                         onClickNewFolder = {
                             updateModalData(ModalData.Modal.NewFolder(folderName = ""))
+                        },
+                        showFolderDetail = {
+                            updateModalData(
+                                ModalData.Modal.FolderList(
+                                    selectedFolder = uiModel.selectedFolder?.id?.let { FolderItem(id = it) },
+                                    folders = uiModel.folders,
+                                ),
+                            )
                         },
                         onClickFolder = { folder ->
                             onSelectFolder(folder)
@@ -623,12 +635,8 @@ fun getNotiInfo(notiType: NotiType?, notiDate: LocalDateTime?): String? =
     if (notiType == null || notiDate == null) {
         null
     } else {
-        "[${
-            stringResource(
-                id = R.string.noti_item_type,
-                formatArgs = arrayOf(notiType.label),
-            )
-        }] ${notiDate.getFormattedDateStr(WishBoardDateFormat.YY_M_D_A_H_MM)}"
+        "${notiDate.getFormattedDateStr(WishBoardDateFormat.YY_M_D)} " +
+            "${notiDate.getScheduleTimeFormat()} ${notiType.label}"
     }
 
 @Composable
@@ -636,6 +644,7 @@ private fun FolderList(
     modifier: Modifier = Modifier,
     folders: List<FolderItem>,
     selectedFolder: FolderItem?,
+    showFolderDetail: () -> Unit,
     onClickFolder: (FolderItem) -> Unit,
     onClickNewFolder: () -> Unit,
 ) {
@@ -703,10 +712,10 @@ private fun FolderList(
                                         WishBoardTheme.colors.gray600
                                     },
                                 )
-                                .padding(itemPadding)
                                 .rippleClickable {
                                     onClickFolder(folder)
-                                },
+                                }
+                                .padding(itemPadding),
                         ) {
                             Text(
                                 text = folder.name,
@@ -743,7 +752,11 @@ private fun FolderList(
             if (folders.isNotEmpty()) {
                 Row(
                     modifier = Modifier
-                        .padding(end = dimensionResource(id = R.dimen.spacing_base)),
+                        .fillMaxHeight()
+                        .padding(end = dimensionResource(id = R.dimen.spacing_base))
+                        .rippleClickable {
+                            showFolderDetail()
+                        },
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_detail),
@@ -794,8 +807,6 @@ private fun ItemFieldWithDetailIcon(
     placeholder: String,
     onClick: () -> Unit,
 ) {
-    // 리플, 터치 영역
-    val isEmptyValue = value.isNullOrEmpty()
     Column(
         modifier = Modifier.noRippleClickable {
             onClick()
@@ -847,7 +858,7 @@ fun PreviewWishUploadScreen() {
                 FolderItem(id = 3L, name = "잡화 xptmxm gkrpTtmqslek."),
             ),
             itemPrice = TextFieldValue("108000"),
-            itemNotiDate = getCurrentTime(),
+            itemNotiDate = LocalDateTime(2025, 8, 9, 12, 30),
             itemNotiType = NotiType.RESTOCK,
             itemUrl = TextFieldValue("https://www.naver.com/"),
             itemMemo = TextFieldValue(""),

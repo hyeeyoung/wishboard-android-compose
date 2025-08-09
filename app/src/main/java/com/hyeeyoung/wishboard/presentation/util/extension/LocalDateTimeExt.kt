@@ -20,9 +20,9 @@ fun LocalDateTime.getScheduleTimeFormat(): String {
     val formatter = DateTimeFormatter.ofPattern("h시")
     val hour = this.toJavaLocalDateTime().format(formatter) // 12시간 형식
 
-    val minute = if (this.minute == 0) "" else "${this.minute}분"
+    val minute = if (this.minute == 0) "" else " ${this.minute}분"
 
-    return "$isAM $hour $minute"
+    return "$isAM $hour$minute"
 }
 
 fun LocalDateTime.toNotiDateStr(): String {

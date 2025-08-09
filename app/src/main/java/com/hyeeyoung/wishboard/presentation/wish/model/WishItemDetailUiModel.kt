@@ -9,7 +9,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class WishItemDetailUiModel(
     val id: Long = 0L,
-    var folderId: Long? = 0L,
+    var folderId: Long? = null,
     var folderName: String? = "",
     var images: List<String> = emptyList(),
     val memo: String? = null,
