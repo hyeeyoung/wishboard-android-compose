@@ -245,10 +245,21 @@ fun WishUploadScreen(
 
     var cameraUri: Uri? = null
     val albumLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia(MAX_IMAGE_COUNT)) { uris ->
-            Timber.e("uri : $uris")
-            onUriChange(uris)
+        if (MAX_IMAGE_COUNT - uiModel.images.size <= 1) {
+            rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+                uri?.let {
+                    onUriChange(listOf(uri))
+                }
+            }
+        } else {
+            rememberLauncherForActivityResult(
+                ActivityResultContracts.PickMultipleVisualMedia(MAX_IMAGE_COUNT - uiModel.images.size),
+            ) { uris ->
+                Timber.e("uri : $uris")
+                onUriChange(uris)
+            }
         }
+
     val cameraLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { isSuccess ->
             if (isSuccess) {
@@ -344,7 +355,9 @@ fun WishUploadScreen(
                     selectedImageCount = uiModel.images.size,
                     onClickDelete = deleteImage,
                     addImage = {
-                        ModalData.OptionModal.ImageSelection.openModal(context, modalLauncher)
+                        if (uiModel.images.size < MAX_IMAGE_COUNT) {
+                            ModalData.OptionModal.ImageSelection.openModal(context, modalLauncher)
+                        }
                     },
                 )
 
