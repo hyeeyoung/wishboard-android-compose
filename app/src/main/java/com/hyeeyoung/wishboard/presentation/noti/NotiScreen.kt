@@ -19,10 +19,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -51,7 +49,8 @@ import com.hyeeyoung.wishboard.presentation.util.extension.getDomainName
 import com.hyeeyoung.wishboard.presentation.util.extension.moveToWebView
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.util.extension.safePopBackStack
-import com.hyeeyoung.wishboard.presentation.util.rememberAutoRefresh
+import kotlinx.coroutines.flow.collectLatest
+import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,18 +59,15 @@ fun NotiScreen(
     viewModel: NotiViewModel = hiltViewModel(),
 ) {
     val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
-    var hasLaunched by rememberSaveable { mutableStateOf(false) }
-
-    rememberAutoRefresh(
-        hasLaunched = hasLaunched,
-        refresh = { viewModel.fetchPreviousNoti(true) },
-        onFirstLaunch = {
-            viewModel.fetchPreviousNoti(false)
-            hasLaunched = true
-        },
-    )
 
     WishBoardGlobalSnackbarMessage(snackbarChannel = viewModel.snackBarChannel)
+
+    LaunchedEffect(Unit) {
+        viewModel.refreshNotiListTrigger.collectLatest {
+            Timber.e("알림 리스트 리프레시")
+            viewModel.fetchPreviousNoti(true)
+        }
+    }
 
     PullToRefreshBox(
         isRefreshing = uiModel.isRefreshing,

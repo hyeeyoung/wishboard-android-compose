@@ -31,8 +31,10 @@ import com.hyeeyoung.wishboard.presentation.calendar.component.CalendarTable
 import com.hyeeyoung.wishboard.presentation.noti.model.CalendarUiModel
 import com.hyeeyoung.wishboard.presentation.sign.model.NotiItem
 import com.hyeeyoung.wishboard.presentation.util.extension.safePopBackStack
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.toJavaLocalDate
+import timber.log.Timber
 import java.time.LocalDate
 
 @Composable
@@ -50,7 +52,10 @@ fun CalendarScreen(
     }
 
     LaunchedEffect(Unit) {
-        viewModel.fetchSchedule()
+        viewModel.refreshScheduleTrigger.collectLatest {
+            Timber.e("캘린더 리프레시")
+            viewModel.fetchSchedule()
+        }
     }
 
     CalendarScreen(

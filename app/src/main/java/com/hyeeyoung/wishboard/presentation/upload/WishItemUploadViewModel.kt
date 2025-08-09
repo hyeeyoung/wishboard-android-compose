@@ -25,6 +25,7 @@ import com.hyeeyoung.wishboard.presentation.sign.model.snackbar.WishBoardSnackba
 import com.hyeeyoung.wishboard.presentation.upload.model.ManualUploadItemUiModel
 import com.hyeeyoung.wishboard.presentation.upload.model.ParsingUploadItemUiModel
 import com.hyeeyoung.wishboard.presentation.upload.model.UploadImage
+import com.hyeeyoung.wishboard.presentation.util.WishBoardEventBus
 import com.hyeeyoung.wishboard.presentation.util.extension.BitmapUtil.toBitmap
 import com.hyeeyoung.wishboard.presentation.util.extension.BitmapUtil.toFile
 import com.hyeeyoung.wishboard.presentation.util.extension.convertResizeImage
@@ -126,6 +127,7 @@ class WishItemUploadViewModel @Inject constructor(
                 _parsingUiModel.update { it.copy(wishItemUploadState = WishBoardState.Success(Unit)) }
                 updateSnackbarMessage(ITEM_UPLOAD_SUCCESS_MESSAGE)
                 delay(SnackbarDuration.Short.toMillis())
+                WishBoardEventBus.notifyWishItemChanged()
                 afterSuccess(id)
             }.onFailure { exception, _, _ ->
                 _parsingUiModel.update { it.copy(wishItemUploadState = WishBoardState.Failure) }
@@ -157,7 +159,7 @@ class WishItemUploadViewModel @Inject constructor(
             ).onSuccess { id ->
                 _manualUploadUiModel.update { it.copy(wishItemUploadState = WishBoardState.Success(Unit)) }
                 updateSnackbarMessage(ITEM_UPLOAD_SUCCESS_MESSAGE)
-
+                WishBoardEventBus.notifyWishItemChanged()
                 afterSuccess(id)
             }.onFailure { exception, _, _ ->
                 _manualUploadUiModel.update { it.copy(wishItemUploadState = WishBoardState.Failure) }
@@ -189,6 +191,7 @@ class WishItemUploadViewModel @Inject constructor(
                 ),
             ).onSuccess {
                 _manualUploadUiModel.update { it.copy(wishItemUploadState = WishBoardState.Success(Unit)) }
+                WishBoardEventBus.notifyWishItemChanged()
                 updateSnackbarMessage("아이템을 수정했어요!✍️")
                 afterSuccess()
             }.onFailure { exception, _, _ ->

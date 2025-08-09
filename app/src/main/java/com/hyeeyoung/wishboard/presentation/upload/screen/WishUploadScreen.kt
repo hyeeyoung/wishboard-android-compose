@@ -172,8 +172,12 @@ fun WishUploadScreen(
 
                 false -> {
                     viewModel.updateWishItem(context = context, itemId = itemDetail?.id) {
+                        val detailRoute = "${MainScreen.WishItemDetail.route}/${itemDetail?.id}"
                         keyboardController?.hide()
-                        navController.safePopBackStack()
+                        navController.navigate(detailRoute) {
+                            popUpTo(detailRoute) { inclusive = true }
+                            launchSingleTop = true
+                        }
                     }
                 }
             }

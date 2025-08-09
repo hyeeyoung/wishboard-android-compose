@@ -21,7 +21,6 @@ import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -66,6 +65,7 @@ import com.hyeeyoung.wishboard.presentation.folder.FolderListModalContent
 import com.hyeeyoung.wishboard.presentation.onboarding.WishBoardIndicator
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardString
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
+import com.hyeeyoung.wishboard.presentation.util.WishBoardEventBus
 import com.hyeeyoung.wishboard.presentation.util.buildStringWithSpans
 import com.hyeeyoung.wishboard.presentation.util.extension.formatAsTimeAgo
 import com.hyeeyoung.wishboard.presentation.util.extension.formatDday
@@ -102,10 +102,6 @@ fun WishItemDetailScreen(
         }
     }
 
-    LaunchedEffect(Unit) {
-        viewModel.getWishItemDetail(itemId)
-    }
-
     WishItemDetailScreen(
         uiModel = uiModel,
         navController = navController,
@@ -128,8 +124,9 @@ fun WishItemDetailScreen(
                 )
             }
         },
-        onClickDelete = { itemId ->
-            viewModel.deleteWishItem(itemId = itemId) {
+        onClickDelete = { id ->
+            viewModel.deleteWishItem(itemId = id) {
+                WishBoardEventBus.notifyWishItemChanged()
                 navController.safePopBackStack()
             }
         },

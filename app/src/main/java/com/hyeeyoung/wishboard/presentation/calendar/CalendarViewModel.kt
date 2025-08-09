@@ -6,9 +6,12 @@ import com.hyeeyoung.wishboard.domain.usecase.noti.GetAllNotiListUseCase
 import com.hyeeyoung.wishboard.presentation.common.BaseViewModel
 import com.hyeeyoung.wishboard.presentation.noti.model.CalendarUiModel
 import com.hyeeyoung.wishboard.presentation.sign.model.snackbar.SnackbarMessage
+import com.hyeeyoung.wishboard.presentation.util.WishBoardEventBus
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -21,6 +24,22 @@ class CalendarViewModel @Inject constructor(
     private val _uiModel = MutableStateFlow(CalendarUiModel())
     val uiModel = _uiModel.asStateFlow()
     private val latestCalendarPage = MutableStateFlow(INITIAL_PAGE)
+
+    private val _refreshScheduleTrigger = Channel<Unit>()
+    val refreshScheduleTrigger = _refreshScheduleTrigger.receiveAsFlow()
+
+    init {
+        fetchSchedule()
+        refreshSchedule()
+    }
+
+    private fun refreshSchedule() {
+        viewModelScope.launch {
+            WishBoardEventBus.onWishItemChanged.collect {
+                _refreshScheduleTrigger.send(Unit)
+            }
+        }
+    }
 
     fun fetchSchedule() {
         viewModelScope.launch {

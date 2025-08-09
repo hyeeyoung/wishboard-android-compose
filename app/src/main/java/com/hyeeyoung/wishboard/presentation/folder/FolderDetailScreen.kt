@@ -10,11 +10,9 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
@@ -30,8 +28,9 @@ import com.hyeeyoung.wishboard.domain.model.wish.WishItem
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.util.extension.safePopBackStack
 import com.hyeeyoung.wishboard.presentation.util.getFakePagingData
-import com.hyeeyoung.wishboard.presentation.util.rememberAutoRefresh
 import com.hyeeyoung.wishboard.presentation.wish.component.WishItem
+import kotlinx.coroutines.flow.collectLatest
+import timber.log.Timber
 
 @Composable
 fun FolderDetailScreen(
@@ -39,10 +38,9 @@ fun FolderDetailScreen(
     wishNavController: NavHostController,
     folderName: String,
     folderId: Long,
-    viewModel: FolderViewModel = hiltViewModel(),
+    viewModel: FolderDetailViewModel = hiltViewModel(),
 ) {
-    val uiModel by viewModel.folderDetailUiModel.collectAsStateWithLifecycle()
-    val wishItems = viewModel.folderDetails.collectAsLazyPagingItems()
+    val wishList = viewModel.wishList.collectAsLazyPagingItems()
     val lazyGridState = rememberLazyGridState()
 
     WishBoardGlobalSnackbarMessage(snackbarChannel = viewModel.snackBarChannel)
@@ -50,17 +48,14 @@ fun FolderDetailScreen(
     MainScreen.FolderDetail.ScrollToTopEffect(lazyGridState)
 
     LaunchedEffect(Unit) {
-        viewModel.setFolderIdForDetail(folderId)
+        viewModel.refreshFolderDetailTrigger.collectLatest {
+            Timber.e("폴더 상세 리프레시")
+            wishList.refresh()
+        }
     }
 
-    rememberAutoRefresh(
-        hasLaunched = uiModel.hasLaunched,
-        onFirstLaunch = viewModel::markAsLaunchedForDetail,
-        refresh = wishItems::refresh,
-    )
-
     FolderDetailScreen(
-        wishItems = wishItems,
+        wishItems = wishList,
         folderName = folderName,
         lazyGridState = lazyGridState,
         onClickItem = { id ->

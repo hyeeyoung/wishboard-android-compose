@@ -8,5 +8,4 @@ data class FolderTabUiModel(
     val addState: WishBoardState<Unit> = WishBoardState.Idle,
     val updateState: WishBoardState<Unit> = WishBoardState.Idle,
     val deleteState: WishBoardState<Unit> = WishBoardState.Idle,
-    val hasLaunched: Boolean = false,
 )

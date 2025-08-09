@@ -52,11 +52,12 @@ import com.hyeeyoung.wishboard.presentation.onboarding.OnboardingModalContent
 import com.hyeeyoung.wishboard.presentation.util.WishBoardPullToRefreshBox
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.util.getFakePagingData
-import com.hyeeyoung.wishboard.presentation.util.rememberAutoRefresh
 import com.hyeeyoung.wishboard.presentation.wish.WishListViewModel
 import com.hyeeyoung.wishboard.presentation.wish.component.WishItem
 import com.hyeeyoung.wishboard.presentation.wish.model.WishListUiModel
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -66,7 +67,7 @@ fun WishListScreen(
     viewModel: WishListViewModel = hiltViewModel(),
 ) {
     val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
-    val wishItems = viewModel.wishItems.collectAsLazyPagingItems()
+    val wishList = viewModel.wishList.collectAsLazyPagingItems()
     val coroutineScope = rememberCoroutineScope()
     var isOpenOnboardingModal by remember { mutableStateOf(false) }
     val onboardingSheetState =
@@ -79,6 +80,13 @@ fun WishListScreen(
 
     MainScreen.Wishlist.ScrollToTopEffect(lazyGridState)
 
+    LaunchedEffect(Unit) {
+        viewModel.refreshWishListTrigger.collectLatest {
+            Timber.e("위시 리스트 리프레시")
+            wishList.refresh()
+        }
+    }
+
     LaunchedEffect(uiModel.shouldShowOnboardingModal) {
         if (uiModel.shouldShowOnboardingModal) {
             isOpenOnboardingModal = true
@@ -86,21 +94,15 @@ fun WishListScreen(
         }
     }
 
-    rememberAutoRefresh(
-        hasLaunched = uiModel.hasLaunched,
-        onFirstLaunch = viewModel::markAsLaunched,
-        refresh = wishItems::refresh,
-    )
-
     WishBoardPullToRefreshBox(
-        loadState = wishItems.loadState.refresh,
+        loadState = wishList.loadState.refresh,
         onRefresh = {
-            wishItems.refresh()
+            wishList.refresh()
         },
     ) {
         WishlistScreen(
             uiModel = uiModel,
-            wishItems = wishItems,
+            wishList = wishList,
             lazyGridState = lazyGridState,
             onClickCalendar = {
                 navController.navigate(MainScreen.Noti.route)
@@ -136,7 +138,7 @@ fun WishListScreen(
 @Composable
 fun WishlistScreen(
     uiModel: WishListUiModel,
-    wishItems: LazyPagingItems<WishItem>,
+    wishList: LazyPagingItems<WishItem>,
     lazyGridState: LazyGridState,
     onClickCalendar: () -> Unit,
     onClickWishItem: (id: Long) -> Unit,
@@ -150,9 +152,9 @@ fun WishlistScreen(
             .padding(top = paddingValues.calculateTopPadding())
 
         if (
-            wishItems.itemCount == 0 &&
-            wishItems.loadState.refresh is LoadState.NotLoading &&
-            wishItems.loadState.append.endOfPaginationReached
+            wishList.itemCount == 0 &&
+            wishList.loadState.refresh is LoadState.NotLoading &&
+            wishList.loadState.append.endOfPaginationReached
         ) {
             LazyColumn(
                 modifier = contentModifier,
@@ -171,8 +173,8 @@ fun WishlistScreen(
                 columns = GridCells.Fixed(2),
                 state = lazyGridState,
             ) {
-                items(count = wishItems.itemCount, key = wishItems.itemKey { it.id }) { idx ->
-                    val item = wishItems[idx]
+                items(count = wishList.itemCount, key = wishList.itemKey { it.id }) { idx ->
+                    val item = wishList[idx]
                     item?.let {
                         WishItem(
                             wishItem = it,
@@ -225,7 +227,7 @@ fun PreviewWishlistScreen() {
     WishlistScreen(
         uiModel = WishListUiModel(),
         lazyGridState = rememberLazyGridState(),
-        wishItems = getFakePagingData(
+        wishList = getFakePagingData(
             listOf(
                 WishItem(
                     id = 1L,

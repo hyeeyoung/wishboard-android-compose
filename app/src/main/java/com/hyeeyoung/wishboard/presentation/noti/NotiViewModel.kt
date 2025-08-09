@@ -7,9 +7,12 @@ import com.hyeeyoung.wishboard.domain.usecase.noti.PutNotiReadStateUseCase
 import com.hyeeyoung.wishboard.presentation.common.BaseViewModel
 import com.hyeeyoung.wishboard.presentation.noti.model.NotiListUiModel
 import com.hyeeyoung.wishboard.presentation.sign.model.snackbar.SnackbarMessage
+import com.hyeeyoung.wishboard.presentation.util.WishBoardEventBus
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -21,6 +24,22 @@ class NotiViewModel @Inject constructor(
 ) : BaseViewModel() {
     private var _uiModel = MutableStateFlow(NotiListUiModel())
     val uiModel = _uiModel.asStateFlow()
+
+    private val _refreshNotiListTrigger = Channel<Unit>()
+    val refreshNotiListTrigger = _refreshNotiListTrigger.receiveAsFlow()
+
+    init {
+        fetchPreviousNoti(false)
+        refreshNotiList()
+    }
+
+    private fun refreshNotiList() {
+        viewModelScope.launch {
+            WishBoardEventBus.onWishItemChanged.collect {
+                _refreshNotiListTrigger.send(Unit)
+            }
+        }
+    }
 
     fun fetchPreviousNoti(didRefresh: Boolean) {
         _uiModel.update { it.copy(isRefreshing = didRefresh) }

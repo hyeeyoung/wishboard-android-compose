@@ -14,11 +14,11 @@ import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,9 +57,9 @@ import com.hyeeyoung.wishboard.presentation.util.WishBoardPullToRefreshBox
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.util.extension.rememberModalLauncher
 import com.hyeeyoung.wishboard.presentation.util.getFakePagingData
-import com.hyeeyoung.wishboard.presentation.util.rememberAutoRefresh
+import kotlinx.coroutines.flow.collectLatest
+import timber.log.Timber
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FolderScreen(
     navController: NavHostController,
@@ -74,11 +74,12 @@ fun FolderScreen(
 
     MainScreen.Folder.ScrollToTopEffect(lazyGridState)
 
-    rememberAutoRefresh(
-        hasLaunched = uiModel.hasLaunched,
-        onFirstLaunch = viewModel::markAsLaunchedForMain,
-        refresh = folders::refresh,
-    )
+    LaunchedEffect(Unit) {
+        viewModel.refreshFolderListTrigger.collectLatest {
+            Timber.e("폴더 리스트 리프레시")
+            folders.refresh()
+        }
+    }
 
     WishBoardPullToRefreshBox(
         loadState = folders.loadState.refresh,

@@ -1,6 +1,8 @@
 package com.hyeeyoung.wishboard.presentation.wish.screen
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.core.extension.onFailure
 import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
 import com.hyeeyoung.wishboard.domain.usecase.folder.GetFolderSummariesUseCase
@@ -21,6 +23,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class WishItemViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     private val getWishItemUseCase: GetWishItemDetailUseCase,
     private val getFolderSummariesUseCase: GetFolderSummariesUseCase,
     private val putFolderOfWishItemUseCase: PutFolderOfWishItemUseCase,
@@ -31,7 +34,14 @@ class WishItemViewModel @Inject constructor(
 
     private val folderUiModel = MutableStateFlow(FolderListUiModel())
 
-    fun getWishItemDetail(id: Long) {
+    init {
+        val id = savedStateHandle.get<Long>(MainScreen.WishItemDetail.ARG_WISH_ITEM_ID)
+        id?.let {
+            getWishItemDetail(id)
+        }
+    }
+
+    private fun getWishItemDetail(id: Long) {
         viewModelScope.launch {
             getWishItemUseCase(id).onSuccess { detail ->
                 _uiModel.update {
