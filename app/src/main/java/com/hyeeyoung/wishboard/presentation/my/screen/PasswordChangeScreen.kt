@@ -4,9 +4,13 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -39,7 +43,10 @@ import com.hyeeyoung.wishboard.presentation.util.extension.safePopBackStack
 import kotlinx.coroutines.delay
 
 @Composable
-fun PasswordChangeScreen(navController: NavController, viewModel: MyViewModel = hiltViewModel()) {
+fun PasswordChangeScreen(
+    navController: NavController,
+    viewModel: MyViewModel = hiltViewModel(),
+) {
     val uiModel by viewModel.uiModel.collectAsStateWithLifecycle() // TODO 리팩토링 필요
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -99,8 +106,11 @@ fun PasswordChangeScreen(
     }) { paddingValues ->
         Column(
             modifier = Modifier
+                .fillMaxSize()
                 .background(WishBoardTheme.colors.white)
-                .padding(top = paddingValues.calculateTopPadding(), bottom = 16.dp, start = 16.dp, end = 16.dp),
+                .verticalScroll(rememberScrollState())
+                .padding(top = paddingValues.calculateTopPadding(), bottom = 16.dp, start = 16.dp, end = 16.dp)
+                .imePadding(),
         ) {
             Spacer(modifier = Modifier.size(32.dp))
 
@@ -133,6 +143,7 @@ fun PasswordChangeScreen(
 
             WishBoardWideButton(
                 enabled = uiModel.isValidPassword == true && isCorrectPassword,
+                state = uiModel.updatePasswordState,
                 onClick = onClickComplete,
                 text = stringResource(id = R.string.complete),
             )

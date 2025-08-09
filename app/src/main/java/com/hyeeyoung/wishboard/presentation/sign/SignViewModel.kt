@@ -109,12 +109,23 @@ class SignViewModel @Inject constructor(
     }
 
     fun requestVerificationMail(afterSuccess: () -> Unit) {
+        if (uiModel.value.requestEmailStatus is WishBoardState.Loading) return
+        _uiModel.update {
+            it.copy(requestEmailStatus = WishBoardState.Loading)
+        }
+
         viewModelScope.launch {
             postVerificationMailUseCase(
                 email = uiModel.value.email,
             ).onSuccess {
+                _uiModel.update {
+                    it.copy(requestEmailStatus = WishBoardState.Success(Unit))
+                }
                 afterSuccess()
             }.onFailure { _, errorCode, _ ->
+                _uiModel.update {
+                    it.copy(requestEmailStatus = WishBoardState.Failure)
+                }
                 when {
                     errorCode == 404 -> _uiModel.update {
                         it.copy(nonRegisteredEmail = uiModel.value.email)
@@ -125,6 +136,11 @@ class SignViewModel @Inject constructor(
     }
 
     fun signInEmail(afterSuccess: () -> Unit) {
+        if (uiModel.value.checkVerificationCodeStatus is WishBoardState.Loading) return
+        _uiModel.update {
+            it.copy(checkVerificationCodeStatus = WishBoardState.Loading)
+        }
+
         initFCMToken { fcmToken ->
             viewModelScope.launch {
                 postSignInEmailUseCase(
@@ -133,8 +149,14 @@ class SignViewModel @Inject constructor(
                         fcmToken = fcmToken,
                     ),
                 ).onSuccess {
+                    _uiModel.update {
+                        it.copy(checkVerificationCodeStatus = WishBoardState.Success(Unit))
+                    }
                     afterSuccess()
                 }.onFailure { _, errorCode, errorBody ->
+                    _uiModel.update {
+                        it.copy(checkVerificationCodeStatus = WishBoardState.Failure)
+                    }
                     when {
                         errorCode == 404 && errorBody?.contains("유효하지 않은 인증번호") == true ->
                             _uiModel.update { it.copy(isCorrectAuthCode = false) }
@@ -189,7 +211,7 @@ class SignViewModel @Inject constructor(
     fun onAuthCodeChange(authCode: String) {
         val trimmedAuthCode = authCode.trim()
         _uiModel.update {
-            it.copy(authCode = trimmedAuthCode, isCorrectAuthCode = false)
+            it.copy(authCode = trimmedAuthCode, isCorrectAuthCode = null)
         }
     }
 

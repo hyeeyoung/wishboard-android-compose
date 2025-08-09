@@ -88,6 +88,10 @@ class MyViewModel @Inject constructor(
     }
 
     fun updateUserProfile(context: Context, afterSuccess: () -> Unit) {
+        if (uiModel.value.updateProfileState is WishBoardState.Loading) return
+        _uiModel.update {
+            it.copy(updateProfileState = WishBoardState.Loading)
+        }
         val trimmedName = uiModel.value.nicknameInput.text.trim()
         val file = uiModel.value.imageUriInput?.let { uri ->
             context.compressImageToMaxSize(uri)
@@ -103,9 +107,15 @@ class MyViewModel @Inject constructor(
                     },
                 ),
             ).onSuccess {
+                _uiModel.update {
+                    it.copy(updateProfileState = WishBoardState.Success(Unit))
+                }
                 afterSuccess()
                 updateSnackbarMessage("프로필이 수정되었어요!👩‍🎤")
             }.onFailure { exception, errorCode, _ ->
+                _uiModel.update {
+                    it.copy(updateProfileState = WishBoardState.Failure)
+                }
                 when (errorCode) {
                     409 -> _uiModel.update { it.copy(existingNickname = trimmedName) }
                     else -> updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
@@ -115,11 +125,21 @@ class MyViewModel @Inject constructor(
     }
 
     fun updatePassword(afterSuccess: () -> Unit) {
+        if (uiModel.value.updatePasswordState is WishBoardState.Loading) return
+        _uiModel.update {
+            it.copy(updatePasswordState = WishBoardState.Loading)
+        }
         viewModelScope.launch {
             putPasswordUseCase(uiModel.value.rePasswordInput).onSuccess {
+                _uiModel.update {
+                    it.copy(updatePasswordState = WishBoardState.Loading)
+                }
                 updateSnackbarMessage("비밀번호가 변경되었어요!👩‍🎤")
                 afterSuccess()
             }.onFailure { exception, _, _ ->
+                _uiModel.update {
+                    it.copy(updatePasswordState = WishBoardState.Failure)
+                }
                 updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
             }
         }
