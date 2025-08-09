@@ -52,7 +52,7 @@ import com.hyeeyoung.wishboard.domain.model.wish.WishItem
 import com.hyeeyoung.wishboard.presentation.onboarding.OnboardingModalContent
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.util.getFakePagingData
-import com.hyeeyoung.wishboard.presentation.util.rememberPagingAutoRefresh
+import com.hyeeyoung.wishboard.presentation.util.rememberAutoRefresh
 import com.hyeeyoung.wishboard.presentation.wish.WishListViewModel
 import com.hyeeyoung.wishboard.presentation.wish.component.WishItem
 import com.hyeeyoung.wishboard.presentation.wish.model.WishListUiModel
@@ -86,7 +86,7 @@ fun WishListScreen(
         }
     }
 
-    rememberPagingAutoRefresh(
+    rememberAutoRefresh(
         hasLaunched = uiModel.hasLaunched,
         onFirstLaunch = viewModel::markAsLaunched,
         refresh = wishItems::refresh,

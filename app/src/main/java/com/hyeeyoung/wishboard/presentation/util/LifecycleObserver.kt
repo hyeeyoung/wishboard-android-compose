@@ -7,7 +7,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 
 @Composable
-fun rememberPagingAutoRefresh(
+fun rememberAutoRefresh(
     hasLaunched: Boolean,
     onFirstLaunch: () -> Unit,
     refresh: () -> Unit,

@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.Dp
 inline fun Modifier.noRippleClickable(
     enabled: Boolean = true,
     debounceIntervalMillis: Long = 400L,
-    crossinline onClick: () -> Unit
+    crossinline onClick: () -> Unit,
 ): Modifier = composed {
     var lastClickTime by remember { mutableLongStateOf(0L) }
 

@@ -30,7 +30,7 @@ import com.hyeeyoung.wishboard.domain.model.wish.WishItem
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.util.extension.safePopBackStack
 import com.hyeeyoung.wishboard.presentation.util.getFakePagingData
-import com.hyeeyoung.wishboard.presentation.util.rememberPagingAutoRefresh
+import com.hyeeyoung.wishboard.presentation.util.rememberAutoRefresh
 import com.hyeeyoung.wishboard.presentation.wish.component.WishItem
 
 @Composable
@@ -53,7 +53,7 @@ fun FolderDetailScreen(
         viewModel.setFolderIdForDetail(folderId)
     }
 
-    rememberPagingAutoRefresh(
+    rememberAutoRefresh(
         hasLaunched = uiModel.hasLaunched,
         onFirstLaunch = viewModel::markAsLaunchedForDetail,
         refresh = wishItems::refresh,
