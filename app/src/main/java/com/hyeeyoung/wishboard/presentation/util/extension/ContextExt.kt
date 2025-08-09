@@ -71,7 +71,7 @@ fun Context.compressImageToMaxSize(
         quality -= 5
     } while (compressedBytes.size > maxSizeBytes && quality > 5)
 
-    val file = File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), "compressed_image.jpg")
+    val file = File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), "img${System.currentTimeMillis()}.jpg")
     try {
         FileOutputStream(file).use { it.write(compressedBytes) }
         return file
