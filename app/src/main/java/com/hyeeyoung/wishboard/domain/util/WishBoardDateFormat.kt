@@ -31,12 +31,12 @@ object WishBoardDateFormat {
         return this.toJavaLocalDateTime().format(formatter)
     }
 
-    fun LocalDateTime.toUtcFormattedString(pattern: String): String {
-        val utcZoneId = ZoneId.of("UTC")
+    fun LocalDateTime.toUtcFormattedString(pattern: String): String { // TODO
+//        val utcZoneId = ZoneId.of("UTC")
         val formatter = DateTimeFormatter.ofPattern(pattern, Locale.KOREA)
 
         return this.toJavaLocalDateTime().atZone(ZoneId.systemDefault())
-            .withZoneSameInstant(utcZoneId)
+//            .withZoneSameInstant(utcZoneId)
             .format(formatter)
     }
 
