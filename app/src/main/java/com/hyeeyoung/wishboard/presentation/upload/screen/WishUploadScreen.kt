@@ -5,23 +5,27 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -45,10 +49,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -109,6 +116,7 @@ import com.hyeeyoung.wishboard.presentation.util.extension.rippleClickable
 import com.hyeeyoung.wishboard.presentation.util.extension.safePopBackStack
 import com.hyeeyoung.wishboard.presentation.util.extension.toJson
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDateTime
 import timber.log.Timber
@@ -225,7 +233,7 @@ fun WishUploadScreen(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
 @Composable
 fun WishUploadScreen(
     uiModel: ManualUploadItemUiModel,
@@ -245,9 +253,13 @@ fun WishUploadScreen(
     updateSnackbarMessage: (String) -> Unit,
 ) {
     val context = LocalContext.current
+    val focusManager = LocalFocusManager.current
+    val keyboardController = LocalSoftwareKeyboardController.current
     val systemUiController = rememberSystemUiController()
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.loading_spin))
-    val keyboardController = LocalSoftwareKeyboardController.current
+    val focusRequester = remember { FocusRequester() }
+    val bringIntoViewRequester = remember { BringIntoViewRequester() }
+    val scrollState = rememberScrollState()
 
     var cameraUri: Uri? = null
     val albumLauncher =
@@ -353,14 +365,17 @@ fun WishUploadScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(WishBoardTheme.colors.white)
-                    .padding(top = 6.dp + paddingValues.calculateTopPadding(), bottom = 16.dp)
-                    .verticalScroll(rememberScrollState()),
+                    .imePadding()
+                    .verticalScroll(scrollState)
+                    .bringIntoViewRequester(bringIntoViewRequester)
+                    .padding(top = 6.dp + paddingValues.calculateTopPadding(), bottom = 16.dp),
             ) {
                 ItemImageRow(
                     images = uiModel.images,
                     selectedImageCount = uiModel.images.size,
                     onClickDelete = deleteImage,
                     addImage = {
+                        focusManager.clearFocus()
                         if (uiModel.images.size < MAX_IMAGE_COUNT) {
                             ModalData.OptionModal.ImageSelection.openModal(context, modalLauncher)
                         } else {
@@ -412,6 +427,7 @@ fun WishUploadScreen(
                         folders = uiModel.folders,
                         selectedFolder = uiModel.selectedFolder,
                         onClickNewFolder = {
+                            focusManager.clearFocus()
                             updateModalData(ModalData.Modal.NewFolder(folderName = ""))
                         },
                         showFolderDetail = {
@@ -433,6 +449,7 @@ fun WishUploadScreen(
                         modifier = inputFieldModifier,
                         notiInfo = getNotiInfo(notiType = uiModel.itemNotiType, notiDate = uiModel.itemNotiDate),
                         onClick = {
+                            focusManager.clearFocus()
                             updateModalData(
                                 ModalData.Modal.Noti(
                                     NotiInfo(notiType = uiModel.itemNotiType, notiDate = uiModel.itemNotiDate).toJson(),
@@ -448,6 +465,7 @@ fun WishUploadScreen(
                         modifier = inputFieldModifier,
                         shopLink = uiModel.itemUrl.text,
                         onClick = {
+                            focusManager.clearFocus()
                             updateModalData(ModalData.Modal.ShopLink(uiModel.itemUrl.text))
                             coroutineScope.launch { sheetState.show() }
                         },
@@ -457,6 +475,8 @@ fun WishUploadScreen(
 
                     WishBoardLabelTextField(
                         modifier = inputFieldModifier,
+                        textFieldModifier = Modifier
+                            .focusRequester(focusRequester),
                         label = listOf(
                             WishBoardString.NormalString("메모"),
                         ),
@@ -467,9 +487,17 @@ fun WishUploadScreen(
                         onTextChange = { input ->
                             onTextChange(UploadInputType.ITEM_MEMO, input)
                         },
+                        onFocusChange = { isFocused ->
+                            if (isFocused) {
+                                coroutineScope.launch {
+                                    delay(1000L)
+                                    bringIntoViewRequester.bringIntoView()
+                                }
+                            }
+                        },
                     )
 
-                    Spacer(modifier = Modifier.size(64.dp))
+                    Spacer(modifier = Modifier.height(64.dp))
                 }
             }
         }
@@ -773,9 +801,8 @@ private fun FolderList(
             if (folders.isNotEmpty()) {
                 Row(
                     modifier = Modifier
-                        .fillMaxHeight()
                         .padding(end = dimensionResource(id = R.dimen.spacing_base))
-                        .rippleClickable {
+                        .noRippleClickable {
                             showFolderDetail()
                         },
                 ) {

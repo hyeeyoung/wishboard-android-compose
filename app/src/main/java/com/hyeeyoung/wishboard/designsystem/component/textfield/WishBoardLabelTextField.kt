@@ -29,11 +29,13 @@ import com.hyeeyoung.wishboard.presentation.util.buildStringWithSpans
 @Composable
 fun WishBoardLabelTextField(
     modifier: Modifier = Modifier,
+    textFieldModifier: Modifier = Modifier,
     textFieldValue: TextFieldValue,
     label: List<WishBoardString>,
     spanStyle: SpanStyle,
     placeholder: String,
     onTextChange: (TextFieldValue) -> Unit = {},
+    onFocusChange: (Boolean) -> Unit = {},
     singleLine: Boolean = true,
     maxLength: Int = Int.MAX_VALUE,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
@@ -47,8 +49,12 @@ fun WishBoardLabelTextField(
 
         BasicTextField(
             modifier = modifier
+                .then(textFieldModifier)
                 .padding(top = 14.dp)
-                .onFocusChanged { isFocused = it.isFocused },
+                .onFocusChanged {
+                    onFocusChange(it.isFocused)
+                    isFocused = it.isFocused
+                },
             value = textFieldValue,
             onValueChange = { s ->
                 if (s.text.length <= maxLength) {
