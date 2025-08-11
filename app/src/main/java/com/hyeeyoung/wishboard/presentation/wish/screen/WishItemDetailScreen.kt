@@ -272,10 +272,11 @@ private fun WishItemDetailContents(
             HorizontalPager(
                 modifier = Modifier.clip(RoundedCornerShape(32.dp)),
                 state = pagerState,
+                beyondViewportPageCount = 3,
             ) {
                 Image(
                     modifier = imageModifier,
-                    model = uiModel.images[pagerState.currentPage],
+                    model = uiModel.images[it],
                     placeHolder = {
                         WishBoardPlaceHolder(modifier = imageModifier)
                     },
