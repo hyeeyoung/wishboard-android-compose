@@ -5,13 +5,11 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -35,7 +33,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetState
-import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -136,13 +133,7 @@ fun WishUploadScreen(
     val uiModel by viewModel.manualUploadUiModel.collectAsStateWithLifecycle()
     val enteredAddFlow = itemDetail == null
     var modalData by remember { mutableStateOf<ModalData?>(null) }
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true, confirmValueChange = { newState ->
-        if (modalData !is ModalData.Modal.ShopLink) {
-            newState != SheetValue.Hidden
-        } else {
-            true
-        }
-    })
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true, confirmValueChange = { true })
     val coroutineScope = rememberCoroutineScope()
 
     BackHandler {
@@ -234,7 +225,7 @@ fun WishUploadScreen(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WishUploadScreen(
     uiModel: ManualUploadItemUiModel,
@@ -430,6 +421,7 @@ fun WishUploadScreen(
                         onClickNewFolder = {
                             focusManager.clearFocus()
                             updateModalData(ModalData.Modal.NewFolder(folderName = ""))
+                            coroutineScope.launch { sheetState.show() }
                         },
                         showFolderDetail = {
                             updateModalData(
@@ -438,6 +430,7 @@ fun WishUploadScreen(
                                     folders = uiModel.folders,
                                 ),
                             )
+                            coroutineScope.launch { sheetState.show() }
                         },
                         onClickFolder = { folder ->
                             onSelectFolder(folder)
