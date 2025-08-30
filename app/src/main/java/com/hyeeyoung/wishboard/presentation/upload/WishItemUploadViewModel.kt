@@ -15,6 +15,7 @@ import com.hyeeyoung.wishboard.domain.model.wish.WishItemUploadType
 import com.hyeeyoung.wishboard.domain.usecase.folder.GetFolderSummariesUseCase
 import com.hyeeyoung.wishboard.domain.usecase.folder.PostNewFolderUseCase
 import com.hyeeyoung.wishboard.domain.usecase.item.GetParsedItemInfoUseCase
+import com.hyeeyoung.wishboard.domain.usecase.item.GetWishItemDetailUseCase
 import com.hyeeyoung.wishboard.domain.usecase.item.PostWishItemUseCase
 import com.hyeeyoung.wishboard.domain.usecase.item.PutWishItemUseCase
 import com.hyeeyoung.wishboard.presentation.common.BaseViewModel
@@ -53,6 +54,7 @@ import javax.inject.Inject
 class WishItemUploadViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val localStorage: WishBoardPreference,
+    private val getWishItemUseCase: GetWishItemDetailUseCase,
     private val postWishItemUseCase: PostWishItemUseCase,
     private val putWishItemUseCase: PutWishItemUseCase,
     private val getFolderSummariesUseCase: GetFolderSummariesUseCase,
@@ -202,20 +204,28 @@ class WishItemUploadViewModel @Inject constructor(
     }
 
     private fun setWishItemUploadModel(itemDetail: WishItemDetailUiModel) {
-        _manualUploadUiModel.update {
-            it.copy(
-                itemName = TextFieldValue(itemDetail.name),
-                itemPrice = TextFieldValue(itemDetail.price.toString()),
-                itemMemo = TextFieldValue(itemDetail.memo ?: ""),
-                itemUrl = TextFieldValue(itemDetail.site ?: ""),
-                itemNotiType = itemDetail.notiType,
-                itemNotiDate = itemDetail.notiDate,
-                images = itemDetail.images.map { UploadImage.Remote(it) },
-                selectedFolder = safeLet(
-                    itemDetail.folderId,
-                    itemDetail.folderName,
-                ) { id, name -> FolderItem(id = id, name = name) },
-            )
+        viewModelScope.launch {
+            getWishItemUseCase(itemDetail.id).onSuccess { detail ->
+                val item = WishItemDetailUiModel.fromDomain(detail)
+
+                _manualUploadUiModel.update {
+                    it.copy(
+                        itemName = TextFieldValue(item.name),
+                        itemPrice = TextFieldValue(item.price.toString()),
+                        itemMemo = TextFieldValue(item.memo ?: ""),
+                        itemUrl = TextFieldValue(item.site ?: ""),
+                        itemNotiType = item.notiType,
+                        itemNotiDate = item.notiDate,
+                        images = item.images.map { UploadImage.Remote(it) },
+                        selectedFolder = safeLet(
+                            item.folderId,
+                            item.folderName,
+                        ) { id, name -> FolderItem(id = id, name = name) },
+                    )
+                }
+            }.onFailure { exception, _, _ ->
+                updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
+            }
         }
     }
 
