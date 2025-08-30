@@ -50,16 +50,16 @@ fun SignInScreen(navController: NavHostController, viewModel: SignViewModel = hi
     val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    WishBoardGlobalSnackbarMessage(viewModel.snackBarChannel)
+    WishBoardGlobalSnackbarMessage(snackbarChannel = viewModel.snackBarChannel)
 
     SignInScreen(
         uiModel = uiModel,
         onEmailChange = viewModel::onEmailChange,
         onPasswordChange = viewModel::onPasswordChange,
         onClickLogin = {
+            keyboardController?.hide()
             viewModel.signIn(
                 afterSuccess = {
-                    keyboardController?.hide()
                     navController.navigate("${MainScreen.Root.route}/${false}") {
                         popUpTo(route = SignScreen.Root.route) {
                             inclusive = true
