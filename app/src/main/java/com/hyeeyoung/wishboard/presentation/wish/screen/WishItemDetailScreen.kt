@@ -266,21 +266,26 @@ private fun WishItemDetailContents(
         .fillMaxWidth()
         .aspectRatio(1f / 1.15f)
     val pagerState = rememberPagerState(pageCount = { uiModel.images.size })
+    val imageShape = RoundedCornerShape(32.dp)
 
     Column(modifier = modifier.verticalScroll(rememberScrollState())) {
         Box(modifier = Modifier.padding(start = 16.dp, end = 16.dp)) {
-            HorizontalPager(
-                modifier = Modifier.clip(RoundedCornerShape(32.dp)),
-                state = pagerState,
-                beyondViewportPageCount = 3,
-            ) {
-                Image(
-                    modifier = imageModifier,
-                    model = uiModel.images[it],
-                    placeHolder = {
-                        WishBoardPlaceHolder(modifier = imageModifier)
-                    },
-                )
+            if (uiModel.images.isNotEmpty()) {
+                HorizontalPager(
+                    modifier = Modifier.clip(imageShape),
+                    state = pagerState,
+                    beyondViewportPageCount = 3,
+                ) {
+                    Image(
+                        modifier = imageModifier,
+                        model = uiModel.images[it],
+                        placeHolder = {
+                            WishBoardPlaceHolder(modifier = imageModifier)
+                        },
+                    )
+                }
+            } else {
+                WishBoardPlaceHolder(modifier = imageModifier.background(color = WishBoardTheme.colors.black.copy(alpha = 0.05f), shape = imageShape))
             }
 
             safeLet(uiModel.notiType, uiModel.notiDate) { type, date ->
