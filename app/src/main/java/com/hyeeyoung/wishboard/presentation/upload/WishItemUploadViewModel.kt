@@ -85,9 +85,9 @@ class WishItemUploadViewModel @Inject constructor(
             getParsedItemInfoUseCase(itemSite).onSuccess { parsedItem ->
                 _parsingUiModel.update {
                     it.copy(
-                        itemName = TextFieldValue(parsedItem.name ?: ""),
-                        itemPrice = TextFieldValue(parsedItem.price ?: ""),
-                        downloadImageUrl = parsedItem.image,
+                        itemName = TextFieldValue(parsedItem?.name ?: ""),
+                        itemPrice = TextFieldValue(parsedItem?.price ?: ""),
+                        downloadImageUrl = parsedItem?.image,
                         itemUrl = itemSite,
                     )
                 }

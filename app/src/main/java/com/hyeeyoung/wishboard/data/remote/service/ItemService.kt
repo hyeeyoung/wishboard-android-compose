@@ -58,5 +58,5 @@ interface ItemService {
     @GET("item/parse")
     suspend fun getParsedItemInfo(
         @Query("site") site: String,
-    ): BaseResponse<ParsedWishItem>
+    ): BaseResponse<ParsedWishItem?>
 }

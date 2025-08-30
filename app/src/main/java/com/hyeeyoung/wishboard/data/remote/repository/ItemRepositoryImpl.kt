@@ -116,7 +116,7 @@ class ItemRepositoryImpl @Inject constructor(
         itemService.deleteWishItem(itemId)
     }
 
-    override suspend fun getParsedItemInfo(site: String): Result<ParsedWishItem> =
+    override suspend fun getParsedItemInfo(site: String): Result<ParsedWishItem?> =
         runCatching {
             itemService.getParsedItemInfo(site).data
         }

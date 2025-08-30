@@ -21,5 +21,5 @@ interface ItemRepository {
 
     suspend fun deleteWishItem(itemId: Long): Result<Unit>
 
-    suspend fun getParsedItemInfo(site: String): Result<ParsedWishItem>
+    suspend fun getParsedItemInfo(site: String): Result<ParsedWishItem?>
 }
