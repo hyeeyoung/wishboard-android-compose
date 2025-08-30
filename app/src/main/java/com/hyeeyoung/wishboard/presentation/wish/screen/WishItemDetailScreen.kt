@@ -285,7 +285,12 @@ private fun WishItemDetailContents(
                     )
                 }
             } else {
-                WishBoardPlaceHolder(modifier = imageModifier.background(color = WishBoardTheme.colors.black.copy(alpha = 0.05f), shape = imageShape))
+                WishBoardPlaceHolder(
+                    modifier = imageModifier.background(
+                        color = WishBoardTheme.colors.black.copy(alpha = 0.05f),
+                        shape = imageShape,
+                    ),
+                )
             }
 
             safeLet(uiModel.notiType, uiModel.notiDate) { type, date ->

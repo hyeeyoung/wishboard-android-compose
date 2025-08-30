@@ -64,6 +64,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -844,6 +845,8 @@ private fun ShopField(
         placeholder = "쇼핑몰 링크를 추가해 보세요.",
         value = shopLink,
         onClick = onClick,
+        overflow = TextOverflow.Ellipsis,
+        maxLine = 1,
     )
 }
 
@@ -853,6 +856,8 @@ private fun ItemFieldWithDetailIcon(
     label: String,
     value: String?,
     placeholder: String,
+    overflow: TextOverflow = TextOverflow.Clip,
+    maxLine: Int = Int.MAX_VALUE,
     onClick: () -> Unit,
 ) {
     Column(
@@ -877,6 +882,8 @@ private fun ItemFieldWithDetailIcon(
                 text = if (value.isNullOrEmpty()) placeholder else value,
                 style = WishBoardTheme.typography.suitD1,
                 color = if (value.isNullOrEmpty()) WishBoardTheme.colors.gray200 else WishBoardTheme.colors.gray700,
+                overflow = overflow,
+                maxLines = maxLine,
             )
 
             Icon(
