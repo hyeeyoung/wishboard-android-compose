@@ -20,47 +20,6 @@ import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 @Composable
 fun WishBoardMiniSingleTextField(
     modifier: Modifier = Modifier,
-    input: String,
-    style: TextStyle = WishBoardTheme.typography.suitD2,
-    placeholder: String,
-    onTextChange: (String) -> Unit = {},
-    maxLength: Int = Int.MAX_VALUE,
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    keyboardActions: KeyboardActions = KeyboardActions.Default,
-    visualTransformation: VisualTransformation = VisualTransformation.None,
-) {
-    val textFieldTextAlign = if (input.isEmpty()) TextAlign.Start else TextAlign.Center
-    Column(modifier = modifier) {
-        BasicTextField(
-            value = input,
-            onValueChange = { s ->
-                if (s.length <= maxLength) {
-                    onTextChange(s)
-                }
-            },
-            textStyle = style.copy(color = WishBoardTheme.colors.gray700, textAlign = textFieldTextAlign),
-            singleLine = true,
-            keyboardOptions = keyboardOptions,
-            keyboardActions = keyboardActions,
-            visualTransformation = visualTransformation,
-        ) { innerTextField ->
-            Box {
-                if (input.isEmpty()) {
-                    Text(
-                        text = placeholder,
-                        color = WishBoardTheme.colors.gray300,
-                        style = style,
-                    )
-                }
-                innerTextField()
-            }
-        }
-    }
-}
-
-@Composable
-fun WishBoardMiniSingleTextField(
-    modifier: Modifier = Modifier,
     textFieldValue: TextFieldValue,
     style: TextStyle = WishBoardTheme.typography.suitD2,
     placeholder: String,
