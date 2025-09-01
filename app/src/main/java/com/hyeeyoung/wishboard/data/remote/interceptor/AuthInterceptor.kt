@@ -51,7 +51,6 @@ class AuthInterceptor @Inject constructor(
         val newToken = runBlocking {
             try {
                 val tokens = authService.refreshToken(
-                    deviceInfoHeader = UUID.randomUUID().toString(),
                     token = Token(accessToken = localStorage.accessToken, refreshToken = localStorage.refreshToken),
                 ).data
                 localStorage.updateToken(
@@ -60,7 +59,7 @@ class AuthInterceptor @Inject constructor(
                 )
                 return@runBlocking tokens
             } catch (e: Exception) {
-                Timber.e("토큰 리프레시 실패(${e.message})")
+                Timber.e("토큰 리프레시 실패($e)")
                 handleAutoLoginExpiration()
                 return@runBlocking null
             }
@@ -78,6 +77,7 @@ class AuthInterceptor @Inject constructor(
     private fun Request.newAuthBuilder() =
         this.newBuilder()
             .addHeader(AUTHORIZATION, "$TOKEN_PREF${localStorage.accessToken}")
+            .addHeader(DEVICE_INFO_HEADER_NAME, UUID.randomUUID().toString())
 
     private fun handleAutoLoginExpiration() {
         Timber.d("Token refresh failed, clearing token info")

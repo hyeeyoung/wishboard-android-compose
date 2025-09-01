@@ -9,7 +9,6 @@ import com.hyeeyoung.wishboard.data.remote.service.AuthService
 import com.hyeeyoung.wishboard.domain.model.auth.AuthInfo
 import com.hyeeyoung.wishboard.domain.repository.AuthRepository
 import timber.log.Timber
-import java.util.UUID
 import javax.inject.Inject
 
 class AuthRepositoryImpl @Inject constructor(
@@ -18,7 +17,6 @@ class AuthRepositoryImpl @Inject constructor(
 ) : AuthRepository {
     override suspend fun signUp(authInfo: AuthInfo): Result<Unit> = runCatching {
         authService.signUp(
-            deviceInfoHeader = UUID.randomUUID().toString(),
             authInfo = AuthRequestDto.fromDomain(authInfo),
         ).data
     }.onSuccess {
@@ -34,7 +32,6 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun signIn(authInfo: AuthInfo): Result<Unit> = runCatching {
         authService.signIn(
-            deviceInfoHeader = UUID.randomUUID().toString(),
             authInfo = AuthRequestDto.fromDomain(authInfo),
         ).data
     }.onSuccess {
@@ -53,7 +50,6 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun signInEmail(authInfo: AuthInfo): Result<Unit> = runCatching {
         authService.signInEmail(
-            deviceInfoHeader = UUID.randomUUID().toString(),
             authInfo = EmailAuthRequestDto.fromDomain(authInfo),
         ).data
     }.onSuccess {
@@ -71,7 +67,7 @@ class AuthRepositoryImpl @Inject constructor(
     }
 
     override suspend fun logout(): Result<Unit> = runCatching {
-        authService.logout(deviceInfoHeader = UUID.randomUUID().toString())
+        authService.logout()
     }.onSuccess {
         localStorage.clear()
     }.map { }
