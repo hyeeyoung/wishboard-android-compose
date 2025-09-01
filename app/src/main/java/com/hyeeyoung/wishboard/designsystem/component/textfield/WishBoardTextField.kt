@@ -156,12 +156,14 @@ fun WishBoardTextField(
         }
 
         if (isFocused) {
-            TextFieldErrorMessage(
-                errorHidingStrategy = errorHidingStrategy,
-                isFocused = isFocused,
-                isError = isError,
-                errorMsg = errorMsg,
-            )
+            Row(modifier = Modifier.padding(top = 6.dp)) {
+                TextFieldErrorMessage(
+                    errorHidingStrategy = errorHidingStrategy,
+                    isFocused = isFocused,
+                    isError = isError,
+                    errorMsg = errorMsg,
+                )
+            }
         }
     }
 }
