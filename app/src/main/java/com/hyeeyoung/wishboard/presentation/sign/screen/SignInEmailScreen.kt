@@ -102,14 +102,8 @@ fun SignInEmailScreen(
                 modifier = Modifier.focusRequester(focusRequester),
                 input = uiModel.email,
                 placeholder = stringResource(id = R.string.sign_email_placeholder),
-                errorMsg = if (uiModel.isValidEmail == false) {
-                    stringResource(id = R.string.sign_in_email_error)
-                } else {
-                    stringResource(
-                        id = R.string.sign_in_unregister_error,
-                    )
-                },
-                isError = uiModel.isValidEmail == false || isNonRegisteredEmail,
+                errorMsg = stringResource(id = R.string.sign_in_unregister_error),
+                isError = isNonRegisteredEmail,
                 onTextChange = onEmailChange,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             )

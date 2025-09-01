@@ -214,6 +214,7 @@ fun WishBoardTextField(
                 innerTextField = innerTextField,
                 onClickClear = {
                     input.value = ""
+                    onTextChange("")
                 },
             )
         }

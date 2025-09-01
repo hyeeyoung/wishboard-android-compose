@@ -133,12 +133,7 @@ fun MyScreen(
     val context = LocalContext.current
     var dialogData by remember { mutableStateOf<DialogData?>(null) }
     val withdrawalEmailInput = remember { mutableStateOf("") }
-    val isEnableWithdrawal by remember(withdrawalEmailInput.value, uiModel.userInfo.email) {
-        mutableStateOf(
-            withdrawalEmailInput.value.isNotBlank() &&
-                withdrawalEmailInput.value.trimEnd() == uiModel.userInfo.email,
-        )
-    }
+    var isEmailMatched by remember { mutableStateOf<Boolean?>(null) }
 
     val myMenuComponents =
         listOf(
@@ -209,6 +204,7 @@ fun MyScreen(
             MyMenuComponent.Menu(
                 nameRes = R.string.my_menu_withdraw,
                 onClickMenu = {
+                    isEmailMatched = null
                     withdrawalEmailInput.value = ""
                     dialogData = DialogData.Withdraw
                 },
@@ -253,8 +249,13 @@ fun MyScreen(
                     DialogData.Logout -> logout()
 
                     DialogData.Withdraw -> {
-                        if (isEnableWithdrawal) {
+                        val isMatched = withdrawalEmailInput.value.isNotBlank() &&
+                            withdrawalEmailInput.value.trimEnd() == uiModel.userInfo.email
+
+                        if (isMatched) {
                             deleteAccount()
+                        } else {
+                            isEmailMatched = false
                         }
                     }
 
@@ -264,9 +265,18 @@ fun MyScreen(
             onDismissRequest = {
                 dialogData = null
             },
-            dismissOnConfirm = !(dialogData is DialogData.Withdraw && !isEnableWithdrawal),
+            dismissOnConfirm = dialogData is DialogData.Logout ||
+                (dialogData is DialogData.Withdraw && isEmailMatched == true),
             content = if (dialogData is DialogData.Withdraw) {
-                { WithdrawDialogContent(emailInput = withdrawalEmailInput, isEnableWithdrawal = isEnableWithdrawal) }
+                {
+                    WithdrawDialogContent(
+                        emailInput = withdrawalEmailInput,
+                        isIncorrectEmail = isEmailMatched,
+                        updateIsIncorrectEmail = {
+                            isEmailMatched = null
+                        },
+                    )
+                }
             } else {
                 null
             },
@@ -316,14 +326,22 @@ fun Profile(userInfo: UserInfo, onClickProfileEdit: () -> Unit) {
 }
 
 @Composable
-fun WithdrawDialogContent(emailInput: MutableState<String>, isEnableWithdrawal: Boolean) {
+fun WithdrawDialogContent(
+    emailInput: MutableState<String>,
+    isIncorrectEmail: Boolean?,
+    updateIsIncorrectEmail: (Boolean) -> Unit,
+) {
     Column(
         modifier = Modifier
             .padding(start = 16.dp, end = 16.dp, top = 20.dp, bottom = 14.dp),
     ) {
         WishBoardTextField(
             input = emailInput,
-            isError = emailInput.value.isNotBlank() && !isEnableWithdrawal,
+            onTextChange = {
+                updateIsIncorrectEmail(false)
+            },
+
+            isError = isIncorrectEmail == false,
             errorHidingStrategy = View.INVISIBLE,
             placeholder = stringResource(id = R.string.sign_email_placeholder),
             errorMsg = stringResource(id = R.string.dialog_withdraw_email_error),

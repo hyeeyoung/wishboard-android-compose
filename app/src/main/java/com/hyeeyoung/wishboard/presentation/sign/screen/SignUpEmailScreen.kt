@@ -107,14 +107,8 @@ fun SignUpEmailScreen(
                     .focusRequester(focusRequester),
                 input = uiModel.email,
                 placeholder = stringResource(id = R.string.sign_email_placeholder),
-                errorMsg = if (uiModel.isValidEmail == false) {
-                    stringResource(id = R.string.sign_in_email_error)
-                } else {
-                    stringResource(
-                        id = R.string.sign_up_already_member_error,
-                    )
-                },
-                isError = uiModel.isValidEmail == false || isRegisteredEmail,
+                errorMsg = stringResource(id = R.string.sign_up_already_member_error),
+                isError = isRegisteredEmail,
                 onTextChange = onEmailChange,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             )
