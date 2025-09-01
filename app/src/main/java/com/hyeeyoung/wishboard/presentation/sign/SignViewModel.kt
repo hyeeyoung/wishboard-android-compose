@@ -96,8 +96,8 @@ class SignViewModel @Inject constructor(
                 ).onSuccess {
                     afterSuccess()
                 }.onFailure { exception, errorCode, _ ->
-                    when {
-                        errorCode == 404 -> updateSnackbarMessage("아이디 또는 비밀번호를 다시 확인해 주세요.")
+                    when (errorCode) {
+                        400, 401 -> updateSnackbarMessage("아이디 또는 비밀번호를 다시 확인해 주세요.")
                         else -> updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
                     }
                 }
