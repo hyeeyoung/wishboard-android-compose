@@ -86,7 +86,11 @@ fun WishBoardTextField(
         }
 
         if (isFocused || bottomEndComponent != null) {
-            Row(modifier = Modifier.fillMaxWidth().padding(top = 6.dp)) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 6.dp),
+            ) {
                 if (isFocused) {
                     TextFieldErrorMessage(
                         errorHidingStrategy = errorHidingStrategy,
@@ -155,7 +159,7 @@ fun WishBoardTextField(
             )
         }
 
-        if (isFocused) {
+        if (isFocused && isError) {
             Row(modifier = Modifier.padding(top = 6.dp)) {
                 TextFieldErrorMessage(
                     errorHidingStrategy = errorHidingStrategy,
@@ -219,7 +223,11 @@ fun WishBoardTextField(
             )
         }
 
-        Row(modifier = Modifier.fillMaxWidth().padding(top = 6.dp)) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 6.dp),
+        ) {
             TextFieldErrorMessage(
                 errorHidingStrategy = errorHidingStrategy,
                 isFocused = isFocused,
