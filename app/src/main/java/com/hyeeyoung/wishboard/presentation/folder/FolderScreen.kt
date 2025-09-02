@@ -32,6 +32,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.paging.LoadState
@@ -54,6 +55,7 @@ import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
 import com.hyeeyoung.wishboard.presentation.folder.model.FolderTabUiModel
 import com.hyeeyoung.wishboard.presentation.util.WishBoardPullToRefreshBox
+import com.hyeeyoung.wishboard.presentation.util.extension.navigateIfResumed
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.util.extension.rememberModalLauncher
 import com.hyeeyoung.wishboard.presentation.util.getFakePagingData
@@ -69,6 +71,7 @@ fun FolderScreen(
     val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
     var modalData by remember { mutableStateOf<ModalData.Modal?>(null) }
     val lazyGridState = rememberLazyGridState()
+    val lifecycleOwner = LocalLifecycleOwner.current
 
     WishBoardGlobalSnackbarMessage(snackbarChannel = viewModel.snackBarChannel)
 
@@ -86,7 +89,10 @@ fun FolderScreen(
         folders = folders,
         lazyGridState = lazyGridState,
         onClickFolder = { folder ->
-            navController.navigate("${MainScreen.FolderDetail.route}/${folder.id}/${folder.name}")
+            navController.navigateIfResumed(
+                lifecycleOwner = lifecycleOwner,
+                route = "${MainScreen.FolderDetail.route}/${folder.id}/${folder.name}",
+            )
         },
         deleteFolder = { id ->
             viewModel.deleteFolder(
