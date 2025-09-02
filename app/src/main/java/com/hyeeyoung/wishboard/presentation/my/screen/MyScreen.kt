@@ -81,45 +81,42 @@ fun MyScreen(
         viewModel.fetchUserInfo(isRefreshing = false)
     }
 
-    PullToRefreshBox(
-        isRefreshing = uiModel.isRefreshing,
+    MyScreen(
+        uiModel = uiModel,
+        lazyListState = lazyListState,
+        navigate = { route ->
+            navController.navigate(route)
+        },
+        updatePushState = viewModel::updatePushState,
+        logout = {
+            viewModel.logout {
+                navController.navigate(SignScreen.Main.route) {
+                    popUpTo(navController.graph.id) {
+                        inclusive = true
+                    }
+                }
+            }
+        },
+        deleteAccount = {
+            viewModel.deleteAccount {
+                keyboardController?.hide()
+                navController.navigate(SignScreen.Main.route) {
+                    popUpTo(navController.graph.id) {
+                        inclusive = true
+                    }
+                }
+            }
+        },
+        moveToWebView = { title, url ->
+            navController.moveToWebView(title = title, url = url)
+        },
         onRefresh = {
             viewModel.fetchUserInfo(isRefreshing = true)
         },
-    ) {
-        MyScreen(
-            uiModel = uiModel,
-            lazyListState = lazyListState,
-            navigate = { route ->
-                navController.navigate(route)
-            },
-            updatePushState = viewModel::updatePushState,
-            logout = {
-                viewModel.logout {
-                    navController.navigate(SignScreen.Main.route) {
-                        popUpTo(navController.graph.id) {
-                            inclusive = true
-                        }
-                    }
-                }
-            },
-            deleteAccount = {
-                viewModel.deleteAccount {
-                    keyboardController?.hide()
-                    navController.navigate(SignScreen.Main.route) {
-                        popUpTo(navController.graph.id) {
-                            inclusive = true
-                        }
-                    }
-                }
-            },
-            moveToWebView = { title, url ->
-                navController.moveToWebView(title = title, url = url)
-            },
-        )
-    }
+    )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyScreen(
     uiModel: MyUiModel,
@@ -129,6 +126,7 @@ fun MyScreen(
     logout: () -> Unit,
     deleteAccount: () -> Unit,
     moveToWebView: (title: String?, url: String) -> Unit,
+    onRefresh: () -> Unit,
 ) {
     val context = LocalContext.current
     var dialogData by remember { mutableStateOf<DialogData?>(null) }
@@ -216,30 +214,37 @@ fun MyScreen(
             WishBoardMainTopBar(titleRes = R.string.my)
         },
     ) { paddingValues ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(WishBoardTheme.colors.white)
-                .padding(top = paddingValues.calculateTopPadding()),
-            state = lazyListState,
+        PullToRefreshBox(
+            isRefreshing = uiModel.isRefreshing,
+            onRefresh = {
+                onRefresh()
+            },
         ) {
-            item {
-                Profile(
-                    userInfo = uiModel.userInfo,
-                    onClickProfileEdit = {
-                        navigate("${MainScreen.MyProfile.route}/${uiModel.userInfo.toBase64Json()}")
-                    },
-                )
-            }
-
-            items(myMenuComponents) { menuComponent ->
-                when (menuComponent) {
-                    is MyMenuComponent.Menu -> MenuItem(menu = menuComponent)
-                    is MyMenuComponent.Divider -> WishBoardThickDivider()
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(WishBoardTheme.colors.white)
+                    .padding(top = paddingValues.calculateTopPadding()),
+                state = lazyListState,
+            ) {
+                item {
+                    Profile(
+                        userInfo = uiModel.userInfo,
+                        onClickProfileEdit = {
+                            navigate("${MainScreen.MyProfile.route}/${uiModel.userInfo.toBase64Json()}")
+                        },
+                    )
                 }
-            }
 
-            item { Spacer(modifier = Modifier.size(64.dp)) }
+                items(myMenuComponents) { menuComponent ->
+                    when (menuComponent) {
+                        is MyMenuComponent.Menu -> MenuItem(menu = menuComponent)
+                        is MyMenuComponent.Divider -> WishBoardThickDivider()
+                    }
+                }
+
+                item { Spacer(modifier = Modifier.size(64.dp)) }
+            }
         }
 
         WishBoardTwoButtonDialog(
@@ -303,7 +308,11 @@ fun Profile(userInfo: UserInfo, onClickProfileEdit: () -> Unit) {
             },
         )
 
-        Column(modifier = Modifier.weight(1f).padding(start = 16.dp, end = 18.dp)) {
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(start = 16.dp, end = 18.dp),
+        ) {
             Text(
                 modifier = Modifier.fillMaxWidth(),
                 text = userInfo.nickname,
@@ -311,7 +320,9 @@ fun Profile(userInfo: UserInfo, onClickProfileEdit: () -> Unit) {
                 color = WishBoardTheme.colors.gray700,
             )
             Text(
-                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
                 text = userInfo.email,
                 style = WishBoardTheme.typography.suitB3,
                 color = WishBoardTheme.colors.gray200,
@@ -400,6 +411,7 @@ fun PreviewMyScreen() {
         logout = {},
         deleteAccount = {},
         moveToWebView = { _, _ -> },
+        onRefresh = {},
     )
 }
 

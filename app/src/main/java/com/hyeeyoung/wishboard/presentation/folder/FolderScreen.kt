@@ -81,35 +81,28 @@ fun FolderScreen(
         }
     }
 
-    WishBoardPullToRefreshBox(
-        loadState = folders.loadState.refresh,
-        onRefresh = {
-            folders.refresh()
+    FolderScreen(
+        uiModel = uiModel,
+        folders = folders,
+        lazyGridState = lazyGridState,
+        onClickFolder = { folder ->
+            navController.navigate("${MainScreen.FolderDetail.route}/${folder.id}/${folder.name}")
         },
-    ) {
-        FolderScreen(
-            uiModel = uiModel,
-            folders = folders,
-            lazyGridState = lazyGridState,
-            onClickFolder = { folder ->
-                navController.navigate("${MainScreen.FolderDetail.route}/${folder.id}/${folder.name}")
-            },
-            deleteFolder = { id ->
-                viewModel.deleteFolder(
-                    folderId = id,
-                    afterSuccess = {
-                        folders.refresh()
-                    },
-                )
-            },
-            showModal = { modal: ModalData.Modal ->
-                modalData = modal
-            },
-            clearModalData = {
-                viewModel.clearModalData()
-            },
-        )
-    }
+        deleteFolder = { id ->
+            viewModel.deleteFolder(
+                folderId = id,
+                afterSuccess = {
+                    folders.refresh()
+                },
+            )
+        },
+        showModal = { modal: ModalData.Modal ->
+            modalData = modal
+        },
+        clearModalData = {
+            viewModel.clearModalData()
+        },
+    )
 
     WishBoardModal(
         isOpen = modalData != null,
@@ -217,39 +210,46 @@ fun FolderScreen(
             .background(WishBoardTheme.colors.white)
             .padding(top = paddingValues.calculateTopPadding(), start = 8.dp, end = 8.dp)
 
-        if (
-            folders.itemCount == 0 &&
-            folders.loadState.refresh is LoadState.NotLoading &&
-            folders.loadState.append.endOfPaginationReached
+        WishBoardPullToRefreshBox(
+            loadState = folders.loadState.refresh,
+            onRefresh = {
+                folders.refresh()
+            },
         ) {
-            LazyColumn(
-                modifier = contentModifier,
-                verticalArrangement = Arrangement.Center,
+            if (
+                folders.itemCount == 0 &&
+                folders.loadState.refresh is LoadState.NotLoading &&
+                folders.loadState.append.endOfPaginationReached
             ) {
-                item {
-                    WishBoardEmptyView(modifier = contentModifier, guideTextRes = R.string.empty_folder_guide_text)
+                LazyColumn(
+                    modifier = contentModifier,
+                    verticalArrangement = Arrangement.Center,
+                ) {
+                    item {
+                        WishBoardEmptyView(modifier = contentModifier, guideTextRes = R.string.empty_folder_guide_text)
+                    }
                 }
-            }
-        } else {
-            LazyVerticalGrid(
-                modifier = contentModifier,
-                state = lazyGridState,
-                columns = GridCells.Fixed(2),
-            ) {
-                items(count = folders.itemCount, key = folders.itemKey { it.id }) { idx ->
-                    val folder = folders[idx]
+            } else {
+                LazyVerticalGrid(
+                    modifier = contentModifier,
+                    state = lazyGridState,
+                    columns = GridCells.Fixed(2),
+                ) {
+                    items(count = folders.itemCount, key = folders.itemKey { it.id }) { idx ->
+                        val folder = folders[idx]
 
-                    folder?.let {
-                        FolderItem(
-                            folder = folder,
-                            onClickFolder = {
-                                onClickFolder(folder)
-                            },
-                            onClickMore = { selectedFolder ->
-                                ModalData.OptionModal.FolderMore(selectedFolder.id, selectedFolder.name)
-                                    .openModal(context = context, resultLauncher = modalLauncher)
-                            },
-                        )
+                        folder?.let {
+                            FolderItem(
+                                folder = folder,
+                                onClickFolder = {
+                                    onClickFolder(folder)
+                                },
+                                onClickMore = { selectedFolder ->
+                                    ModalData.OptionModal.FolderMore(selectedFolder.id, selectedFolder.name)
+                                        .openModal(context = context, resultLauncher = modalLauncher)
+                                },
+                            )
+                        }
                     }
                 }
             }

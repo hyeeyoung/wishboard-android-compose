@@ -94,24 +94,17 @@ fun WishListScreen(
         }
     }
 
-    WishBoardPullToRefreshBox(
-        loadState = wishList.loadState.refresh,
-        onRefresh = {
-            wishList.refresh()
+    WishlistScreen(
+        uiModel = uiModel,
+        wishList = wishList,
+        lazyGridState = lazyGridState,
+        onClickCalendar = {
+            navController.navigate(MainScreen.Noti.route)
         },
-    ) {
-        WishlistScreen(
-            uiModel = uiModel,
-            wishList = wishList,
-            lazyGridState = lazyGridState,
-            onClickCalendar = {
-                navController.navigate(MainScreen.Noti.route)
-            },
-            onClickWishItem = { id ->
-                navController.navigate("${MainScreen.WishItemDetail.route}/$id")
-            },
-        )
-    }
+        onClickWishItem = { id ->
+            navController.navigate("${MainScreen.WishItemDetail.route}/$id")
+        },
+    )
 
     WishBoardModal(
         isOpen = isOpenOnboardingModal,
@@ -143,45 +136,55 @@ fun WishlistScreen(
     onClickCalendar: () -> Unit,
     onClickWishItem: (id: Long) -> Unit,
 ) {
-    Scaffold(topBar = {
-        WishlistTopBar(onClickCalendar = onClickCalendar)
-    }) { paddingValues ->
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        topBar = {
+            WishlistTopBar(onClickCalendar = onClickCalendar)
+        },
+    ) { paddingValues ->
         val contentModifier = Modifier
             .fillMaxSize()
             .background(WishBoardTheme.colors.white)
             .padding(top = paddingValues.calculateTopPadding())
 
-        if (
-            wishList.itemCount == 0 &&
-            wishList.loadState.refresh is LoadState.NotLoading &&
-            wishList.loadState.append.endOfPaginationReached
+        WishBoardPullToRefreshBox(
+            loadState = wishList.loadState.refresh,
+            onRefresh = {
+                wishList.refresh()
+            },
         ) {
-            LazyColumn(
-                modifier = contentModifier,
-                verticalArrangement = Arrangement.Center,
+            if (
+                wishList.itemCount == 0 &&
+                wishList.loadState.refresh is LoadState.NotLoading &&
+                wishList.loadState.append.endOfPaginationReached
             ) {
-                item {
-                    WishBoardEmptyView(
-                        modifier = contentModifier,
-                        guideTextRes = R.string.empty_wishlist_guide_text,
-                    )
-                }
-            }
-        } else {
-            LazyVerticalGrid(
-                modifier = contentModifier,
-                columns = GridCells.Fixed(2),
-                state = lazyGridState,
-            ) {
-                items(count = wishList.itemCount, key = wishList.itemKey { it.id }) { idx ->
-                    val item = wishList[idx]
-                    item?.let {
-                        WishItem(
-                            wishItem = it,
-                            onClickItem = {
-                                onClickWishItem(it.id)
-                            },
+                LazyColumn(
+                    modifier = contentModifier,
+                    verticalArrangement = Arrangement.Center,
+                ) {
+                    item {
+                        WishBoardEmptyView(
+                            modifier = contentModifier,
+                            guideTextRes = R.string.empty_wishlist_guide_text,
                         )
+                    }
+                }
+            } else {
+                LazyVerticalGrid(
+                    modifier = contentModifier,
+                    columns = GridCells.Fixed(2),
+                    state = lazyGridState,
+                ) {
+                    items(count = wishList.itemCount, key = wishList.itemKey { it.id }) { idx ->
+                        val item = wishList[idx]
+                        item?.let {
+                            WishItem(
+                                wishItem = it,
+                                onClickItem = {
+                                    onClickWishItem(it.id)
+                                },
+                            )
+                        }
                     }
                 }
             }
