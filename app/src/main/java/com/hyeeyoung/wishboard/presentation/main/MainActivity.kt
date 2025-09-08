@@ -28,6 +28,8 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
             val systemUiController = rememberSystemUiController()
 
+            WishBoardSnackbarMessage(snackbarChannel = viewModel.globalSnackbarChannel)
+
             WishboardTheme {
                 CompositionLocalProvider(LocalSnackbarHostState provides wishBoardSnackbarHostState) {
                     SideEffect {
@@ -37,7 +39,6 @@ class MainActivity : ComponentActivity() {
                         )
                     }
 
-                    WishBoardSnackbarMessage(snackbarChannel = viewModel.globalSnackbarChannel)
                     WishBoardNavHost(navController = navController)
                 }
             }
