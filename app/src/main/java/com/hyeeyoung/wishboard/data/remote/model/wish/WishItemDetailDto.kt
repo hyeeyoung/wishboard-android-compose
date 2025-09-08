@@ -29,6 +29,7 @@ data class WishItemDetailDto(
     val notiType: String?,
     @SerialName("createdAt")
     val createAt: String,
+    val version: Int,
 ) {
     fun toDomain() = WishItemDetail(
         id = id,
@@ -42,5 +43,6 @@ data class WishItemDetailDto(
         price = price,
         site = if (site.isNullOrBlank()) null else site,
         createAt = createAt,
+        version = version,
     )
 }

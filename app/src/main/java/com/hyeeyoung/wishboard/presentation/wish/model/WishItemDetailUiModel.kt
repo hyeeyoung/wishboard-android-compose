@@ -19,6 +19,7 @@ data class WishItemDetailUiModel(
     val price: Long = 0L,
     val site: String? = null,
     val createAt: LocalDateTime? = null,
+    val version: Int = 0,
 ) {
     companion object {
         fun fromDomain(domain: WishItemDetail): WishItemDetailUiModel =
@@ -34,6 +35,7 @@ data class WishItemDetailUiModel(
                 price = domain.price.toLongOrNull() ?: 0,
                 site = domain.site,
                 createAt = domain.createAt.toInstantToLocalDateTime(),
+                version = domain.version,
             )
     }
 }

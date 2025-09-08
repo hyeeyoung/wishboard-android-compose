@@ -16,4 +16,5 @@ data class WishItemDetail(
     val price: String,
     val site: String?,
     val createAt: String,
+    val version: Int,
 )

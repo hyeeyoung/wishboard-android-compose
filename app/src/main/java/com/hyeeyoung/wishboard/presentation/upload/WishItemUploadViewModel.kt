@@ -221,6 +221,7 @@ class WishItemUploadViewModel @Inject constructor(
                             item.folderId,
                             item.folderName,
                         ) { id, name -> FolderItem(id = id, name = name) },
+                        version = detail.version,
                     )
                 }
             }.onFailure { exception, _, _ ->

@@ -25,6 +25,7 @@ data class ManualUploadItemUiModel(
     val existingFolderName: String? = null,
     val folderFetchState: WishBoardState<Unit> = WishBoardState.Idle,
     val folderAddState: WishBoardState<Unit> = WishBoardState.Idle,
+    val version: Int = 0,
 ) {
     fun toDomain(itemImage: List<ImageType>): WishItemUploadInfo {
         val dateStr = itemNotiDate?.toUtcFormattedString(WishBoardDateFormat.YYYY_MM_DD_HH_MM_SS)
@@ -38,6 +39,10 @@ data class ManualUploadItemUiModel(
             itemNotiType = itemNotiType,
             itemNotiDate = dateStr,
             itemImage = itemImage,
+            updateInfo = WishItemUploadInfo.UpdateInfo(
+                version = version,
+                imageChanged = itemImage.any { it is ImageType.Picture },
+            ),
         )
     }
 }
