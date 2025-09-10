@@ -163,9 +163,12 @@ class WishItemUploadViewModel @Inject constructor(
                 updateSnackbarMessage(ITEM_UPLOAD_SUCCESS_MESSAGE)
                 WishBoardEventBus.notifyWishItemChanged()
                 afterSuccess(id)
-            }.onFailure { exception, _, _ ->
+            }.onFailure { exception, errorCode, _ ->
                 _manualUploadUiModel.update { it.copy(wishItemUploadState = WishBoardState.Failure) }
-                updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
+                when (errorCode) {
+                    409 -> updateSnackbarMessage(message = "변경사항을 저장하지 못했어요!\n잠시 후 다시 시도해주세요.", exception = exception)
+                    else -> updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
+                }
             }
         }
     }
