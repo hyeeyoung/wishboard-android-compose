@@ -14,7 +14,7 @@ class PriceVisualTransformation : VisualTransformation {
             ?: ""
 
         val transformedText = if (formattedNumber.isNotEmpty()) {
-            "$formattedNumber$KRW"
+            "$KRW$formattedNumber"
         } else {
             ""
         }
@@ -25,24 +25,24 @@ class PriceVisualTransformation : VisualTransformation {
 
                 val commaCount = (0 until offset.coerceAtMost(digits.length))
                     .count { i -> i > 0 && (digits.length - i) % 3 == 0 }
-                val transformedOffset = offset + commaCount
+                val transformedOffset = offset + commaCount + KRW.length // ₩ 만큼 앞으로 보정
 
-                // "원" 앞까지만 허용
-                val maxOffset = (transformedText.length - KRW.length)
-                    .coerceAtLeast(0)
+                // 끝까지 허용
+                val maxOffset = transformedText.length
 
-                return transformedOffset.coerceIn(0, maxOffset)
+                return transformedOffset.coerceIn(KRW.length, maxOffset)
             }
 
             override fun transformedToOriginal(offset: Int): Int {
                 if (formattedNumber.isEmpty()) return 0
 
-                val numberPart = formattedNumber
-                val maxOffset = numberPart.length
-                val safeOffset = offset.coerceIn(0, maxOffset)
+                // ₩ 다음부터만 실제 숫자 영역
+                val safeOffset = (offset - KRW.length).coerceAtLeast(0)
+                    .coerceAtMost(formattedNumber.length)
 
                 val commasBefore = (0 until safeOffset)
-                    .count { i -> numberPart[i] == ',' }
+                    .count { i -> formattedNumber[i] == ',' }
+
                 return (safeOffset - commasBefore).coerceAtLeast(0)
             }
         }
@@ -51,6 +51,6 @@ class PriceVisualTransformation : VisualTransformation {
     }
 
     companion object {
-        private const val KRW = "원"
+        private const val KRW = "₩ "
     }
 }
