@@ -771,6 +771,10 @@ private fun FolderList(
                             )
                         }
                     }
+
+                    item {
+                        Spacer(modifier = Modifier.width(6.dp))
+                    }
                 }
 
                 Box(
