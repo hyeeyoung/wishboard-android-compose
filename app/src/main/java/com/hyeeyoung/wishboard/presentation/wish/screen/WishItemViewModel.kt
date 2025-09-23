@@ -13,6 +13,7 @@ import com.hyeeyoung.wishboard.presentation.common.BaseViewModel
 import com.hyeeyoung.wishboard.presentation.folder.model.FolderListUiModel
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
 import com.hyeeyoung.wishboard.presentation.sign.model.snackbar.SnackbarMessage
+import com.hyeeyoung.wishboard.presentation.util.WishBoardEventBus
 import com.hyeeyoung.wishboard.presentation.wish.model.WishItemDetailUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -85,6 +86,7 @@ class WishItemViewModel @Inject constructor(
     fun updateFolder(folder: FolderItem) {
         viewModelScope.launch {
             putFolderOfWishItemUseCase(itemId = uiModel.value.id, folderId = folder.id).onSuccess {
+                WishBoardEventBus.notifyWishItemChanged()
                 _uiModel.update {
                     it.copy(folderId = folder.id, folderName = folder.name)
                 }
