@@ -33,7 +33,7 @@ class AuthInterceptor @Inject constructor(
                 val snackbarMessage = responseBody.toSnackbarMessage()
                 return if (snackbarMessage == null) {
                     updateRefreshToken(chain) ?: run {
-                        handleAutoLoginExpiration()
+//                        handleAutoLoginExpiration()
                         getUnauthorizedExceptionResponse(originRequest = originRequest)
                     }
                 } else {
@@ -90,7 +90,7 @@ class AuthInterceptor @Inject constructor(
     private fun handleAutoLoginExpiration(message: String? = null) {
         Timber.d("Token refresh failed, clearing token info")
         localStorage.clear()
-        Timber.e("${message ?: SnackbarMessage.AUTO_LOGIN}")
+        Timber.e(message ?: SnackbarMessage.AUTO_LOGIN)
         GlobalState.autoLoginExpiryInfo.value = true to (message ?: SnackbarMessage.AUTO_LOGIN)
     }
 
