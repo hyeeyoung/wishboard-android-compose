@@ -21,6 +21,7 @@ class FolderRepositoryImpl @Inject constructor(
     override fun fetchFolders(): Flow<PagingData<FolderItem>> =
         Pager(
             config = PagingConfig(
+                initialLoadSize = PageSize.DEFAULT_SIZE,
                 pageSize = PageSize.DEFAULT_SIZE,
                 enablePlaceholders = true,
                 prefetchDistance = PageSize.DEFAULT_PREFETCH_SIZE,
@@ -42,6 +43,7 @@ class FolderRepositoryImpl @Inject constructor(
 
     override fun fetchFolderDetail(folderId: Long): Flow<PagingData<WishItem>> = Pager(
         config = PagingConfig(
+            initialLoadSize = PageSize.DEFAULT_SIZE,
             pageSize = PageSize.DEFAULT_SIZE,
             enablePlaceholders = true,
             prefetchDistance = PageSize.DEFAULT_PREFETCH_SIZE,

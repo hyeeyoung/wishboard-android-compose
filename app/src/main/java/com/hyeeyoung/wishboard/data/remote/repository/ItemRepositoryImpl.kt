@@ -36,6 +36,7 @@ class ItemRepositoryImpl @Inject constructor(
     override fun fetchWishList(): Flow<PagingData<WishItem>> =
         Pager(
             config = PagingConfig(
+                initialLoadSize = PageSize.DEFAULT_SIZE,
                 pageSize = PageSize.DEFAULT_SIZE,
                 enablePlaceholders = true,
                 prefetchDistance = PageSize.DEFAULT_PREFETCH_SIZE,
