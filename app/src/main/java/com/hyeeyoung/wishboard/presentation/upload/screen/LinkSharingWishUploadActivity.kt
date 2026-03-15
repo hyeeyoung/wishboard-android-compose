@@ -9,7 +9,6 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SheetValue
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
@@ -33,6 +32,7 @@ import com.hyeeyoung.wishboard.designsystem.component.dialog.temp.WishBoardModal
 import com.hyeeyoung.wishboard.domain.model.noti.NotiInfo
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemUploadType
 import com.hyeeyoung.wishboard.presentation.folder.FolderUploadModalContent
+import com.hyeeyoung.wishboard.presentation.main.MainActivity.Companion.wishBoardSnackbarHostState
 import com.hyeeyoung.wishboard.presentation.noti.NotiModalContent
 import com.hyeeyoung.wishboard.presentation.sign.model.snackbar.WishBoardSnackbarVisuals
 import com.hyeeyoung.wishboard.presentation.upload.WishItemUploadViewModel
@@ -54,13 +54,13 @@ class LinkSharingWishUploadActivity : ComponentActivity() {
             if (intent.type == "text/plain") {
                 url = intent.getStringExtra(Intent.EXTRA_TEXT) ?: throw NullPointerException("Url is null")
                 viewModel.getParsedWishItem(url)
-                viewModel.getFolders {}
+                viewModel.getFolders(uploadType = WishItemUploadType.PARSING)
             }
         }
 
         setContent {
             val context = LocalContext.current
-            val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
+            val uiModel by viewModel.parsingUiModel.collectAsStateWithLifecycle()
             val systemUiController = rememberSystemUiController()
             val coroutineScope = rememberCoroutineScope()
             var modalData by remember { mutableStateOf<ModalData.Modal?>(null) }
@@ -103,19 +103,24 @@ class LinkSharingWishUploadActivity : ComponentActivity() {
                     },
                     onTextChange = { type, input ->
                         when (type) {
-                            UploadInputType.ITEM_NAME -> viewModel.onItemNameChanged(input)
-                            UploadInputType.ITEM_PRICE -> viewModel.onItemPriceChanged(input)
+                            UploadInputType.ITEM_NAME -> viewModel.onItemNameChanged(
+                                name = input,
+                                uploadType = WishItemUploadType.PARSING,
+                            )
+                            UploadInputType.ITEM_PRICE -> viewModel.onItemPriceChanged(
+                                price = input,
+                                uploadType = WishItemUploadType.PARSING,
+                            )
                             else -> {}
                         }
                     },
-                    setNotiInfo = viewModel::setNotiInfo,
+                    setNotiInfo = { viewModel.setNotiInfo(notiInfo = it, uploadType = WishItemUploadType.PARSING) },
                     onSelectFolder = {
-                        viewModel.updateSelectedFolder(it)
+                        viewModel.updateSelectedFolder(folderItem = it, uploadType = WishItemUploadType.PARSING)
                     },
                     onClickSave = {
-                        viewModel.uploadWishItem(
+                        viewModel.uploadWishItemForParsing(
                             context = context,
-                            uploadType = WishItemUploadType.PARSING,
                             afterSuccess = {
                                 finish()
                             },
@@ -148,7 +153,10 @@ class LinkSharingWishUploadActivity : ComponentActivity() {
                                     uploadState = uiModel.folderAddState,
                                     existingFolderName = uiModel.existingFolderName,
                                     onClickComplete = { name ->
-                                        viewModel.createFolder(name) {
+                                        viewModel.createFolder(
+                                            folderName = name,
+                                            uploadType = WishItemUploadType.PARSING,
+                                        ) {
                                             coroutineScope.launch { sheetState.hide() }
                                             modalData = null
                                         }
@@ -164,10 +172,11 @@ class LinkSharingWishUploadActivity : ComponentActivity() {
                                 notiInfo = notiData.notiInfo.fromJson<NotiInfo>(),
                                 onClickComplete = { type, date ->
                                     viewModel.isValidNotiDate(
-                                        NotiInfo(
+                                        notiInfo = NotiInfo(
                                             notiType = type,
                                             notiDate = date,
                                         ),
+                                        uploadType = WishItemUploadType.PARSING,
                                     )
                                     coroutineScope.launch { sheetState.hide() }
                                     modalData = null
@@ -188,9 +197,5 @@ class LinkSharingWishUploadActivity : ComponentActivity() {
 
     private fun sendSnackbarVisualChannel(snackbarVisuals: WishBoardSnackbarVisuals) {
         viewModel.sendSnackbarChannel(snackbarVisuals)
-    }
-
-    companion object {
-        var wishBoardSnackbarHostState: SnackbarHostState = SnackbarHostState()
     }
 }

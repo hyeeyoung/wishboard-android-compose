@@ -9,7 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.hyeeyoung.wishboard.R
-import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
+import com.hyeeyoung.wishboard.designsystem.component.button.LegacyWishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 
 @Composable
@@ -29,7 +29,7 @@ fun ModalTitle(title: String, onDismissRequest: () -> Unit) {
                 .align(Alignment.TopEnd)
                 .padding(top = 5.dp, end = 8.dp),
         ) {
-            WishBoardIconButton(
+            LegacyWishBoardIconButton(
                 iconRes = R.drawable.ic_close,
                 onClick = onDismissRequest,
             )

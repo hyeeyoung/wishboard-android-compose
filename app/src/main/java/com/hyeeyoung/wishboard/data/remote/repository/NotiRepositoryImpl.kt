@@ -9,11 +9,11 @@ class NotiRepositoryImpl @Inject constructor(
     private val notiService: NotiService,
 ) : NotiRepository {
     override suspend fun fetchPreviousNotiList(): Result<List<NotiItem>> = runCatching {
-        notiService.fetchPreviousNotiList().map { it.toDomain() }
+        notiService.fetchPreviousNotiList().data.map { it.toDomain() }
     }
 
     override suspend fun fetchAllNotiList(): Result<List<NotiItem>> = runCatching {
-        notiService.fetchAllNotiList().map { it.toDomain() }
+        notiService.fetchAllNotiList().data.map { it.toDomain() }
     }
 
     override suspend fun updateNotiReadState(itemId: Long): Result<Unit> = runCatching {

@@ -7,9 +7,12 @@ import com.hyeeyoung.wishboard.domain.usecase.noti.PutNotiReadStateUseCase
 import com.hyeeyoung.wishboard.presentation.common.BaseViewModel
 import com.hyeeyoung.wishboard.presentation.noti.model.NotiListUiModel
 import com.hyeeyoung.wishboard.presentation.sign.model.snackbar.SnackbarMessage
+import com.hyeeyoung.wishboard.presentation.util.WishBoardEventBus
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -22,22 +25,31 @@ class NotiViewModel @Inject constructor(
     private var _uiModel = MutableStateFlow(NotiListUiModel())
     val uiModel = _uiModel.asStateFlow()
 
+    private val _refreshNotiListTrigger = Channel<Unit>()
+    val refreshNotiListTrigger = _refreshNotiListTrigger.receiveAsFlow()
+
+    init {
+        fetchPreviousNoti(false)
+        refreshNotiList()
+    }
+
+    private fun refreshNotiList() {
+        viewModelScope.launch {
+            WishBoardEventBus.onWishItemChanged.collect {
+                _refreshNotiListTrigger.send(Unit)
+            }
+        }
+    }
+
     fun fetchPreviousNoti(didRefresh: Boolean) {
         _uiModel.update { it.copy(isRefreshing = didRefresh) }
 
         viewModelScope.launch {
             getPreviousNotiListUseCase().onSuccess { notiList ->
                 _uiModel.update { it.copy(notiList = notiList, isRefreshing = false) }
-            }.onFailure { exception, errorCode, _ ->
-                when (errorCode) {
-                    404 -> {
-                        _uiModel.update { it.copy(notiList = emptyList(), isRefreshing = false) }
-                    }
-                    else -> {
-                        _uiModel.update { it.copy(isRefreshing = false) }
-                        updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
-                    }
-                }
+            }.onFailure { exception, _, _ ->
+                _uiModel.update { it.copy(isRefreshing = false) }
+                updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
             }
         }
     }
@@ -49,7 +61,11 @@ class NotiViewModel @Inject constructor(
         _uiModel.update {
             it.copy(
                 notiList = it.notiList.map { noti ->
-                    if (noti.itemId == itemId) { noti.copy(isRead = true) } else noti
+                    if (noti.itemId == itemId) {
+                        noti.copy(isRead = true)
+                    } else {
+                        noti
+                    }
                 },
             )
         }

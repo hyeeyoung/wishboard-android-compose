@@ -18,14 +18,14 @@ plugins {
 
 android {
     namespace = "com.hyeeyoung.wishboard"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.hyeeyoung.wishboard"
         minSdk = 24
-        targetSdk = 34
-        versionCode = 41
-        versionName = "1.3.0"
+        targetSdk = 35
+        versionCode = 43
+        versionName = "1.4.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -48,12 +48,12 @@ android {
 
     buildTypes {
         getByName("debug") {
-            buildConfigField("String", "BASE_URL", properties.getProperty("DEV_BASE_URL"))
+            buildConfigField("String", "BASE_URL", "\"${properties.getProperty("DEV_BASE_URL")}\"")
         }
         getByName("release") {
             isMinifyEnabled = true
             isShrinkResources = true
-            buildConfigField("String", "BASE_URL", properties.getProperty("PROD_BASE_URL"))
+            buildConfigField("String", "BASE_URL", "\"${properties.getProperty("PROD_BASE_URL")}\"")
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             signingConfig = signingConfigs.getByName("release")
         }
@@ -100,6 +100,7 @@ dependencies {
     implementation(libs.bundles.app.update)
     implementation(libs.junit)
     implementation(libs.timber)
+    implementation(libs.bundles.paging)
 
     coreLibraryDesugaring(libs.desugar)
     debugImplementation(libs.bundles.debug)

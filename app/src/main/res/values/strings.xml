@@ -87,8 +87,8 @@
 
     <string name="wish_item_upload_add_title">아이템 추가</string>
     <string name="wish_item_upload_edit_title">아이템 수정</string>
-    <string name="wish_item_upload_item_name">상품명(필수)</string>
-    <string name="wish_item_upload_item_price">₩ 가격(필수)</string>
+    <string name="wish_item_upload_item_name">상품명을 입력해 주세요.</string>
+    <string name="wish_item_upload_item_price">₩ 가격을 입력해 주세요.</string>
     <string name="wish_item_upload_noti">상품 일정 알림</string>
     <string name="wish_item_upload_shop_link">쇼핑몰 링크</string>
     <string name="wish_item_upload_shop_link_guide">복사한 링크로 아이템을 불러올 수 있어요!</string>
@@ -170,11 +170,11 @@
     <!-- Modal -->
     <string name="modal_folder_selection_title">폴더 선택</string>
 
-    <string name="modal_noti_setting_title">상품 알림 설정</string>
+    <string name="modal_noti_setting_title">상품 일정</string>
     <string name="modal_noti_setting_guide">30분 전에 일정을 알려드려요. 시간은 30분 단위로 설정 가능해요!</string>
     <string name="modal_noti_setting_time_delimiter">:</string>
 
-    <string name="modal_shop_link_title">쇼핑몰 링크 추가</string>
+    <string name="modal_shop_link_title">쇼핑몰 링크</string>
     <string name="modal_shop_link_item_load_btn_text">아이템 불러오기</string>
     <string name="modal_shop_link_placeholder">쇼핑몰 링크를 입력해 주세요.</string>
     <string name="modal_shop_link_error">쇼핑몰 링크를 다시 확인해 주세요.</string>

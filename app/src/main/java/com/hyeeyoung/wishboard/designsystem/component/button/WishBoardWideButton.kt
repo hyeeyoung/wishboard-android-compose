@@ -17,6 +17,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.lifecycle.compose.dropUnlessResumed
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
@@ -53,6 +54,9 @@ fun WishBoardWideButton(
         )
     }
 
+    // 화면 전환하면서 화면 사라지는 중인데 클릭 이벤트를 받는 케이스가 있어 resumed 상태일 때만 클릭 이벤트를 받도록 함
+    val safeClickIfResumed = dropUnlessResumed { onClick() }
+
     Box {
         if (state is WishBoardState.Loading) {
             LottieAnimation(
@@ -68,7 +72,7 @@ fun WishBoardWideButton(
         Button(
             modifier = modifier
                 .fillMaxWidth(),
-            onClick = { onClick() },
+            onClick = { safeClickIfResumed() },
             shape = shape,
             enabled = enabled,
             colors = color,

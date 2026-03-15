@@ -28,7 +28,6 @@ import com.hyeeyoung.wishboard.designsystem.style.Gray100
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.domain.model.noti.NotiInfo
 import com.hyeeyoung.wishboard.domain.model.noti.NotiType
-import com.hyeeyoung.wishboard.domain.model.noti.NotiType.Companion.toNotiType
 import com.hyeeyoung.wishboard.presentation.util.NumberPickerUtil
 import com.hyeeyoung.wishboard.presentation.util.NumberPickerUtil.getFormattedNumberPickerDate
 import com.hyeeyoung.wishboard.presentation.util.NumberPickerUtil.getFormattedNumberPickerTime
@@ -132,7 +131,7 @@ fun NotiModalContent(
                 enabled = true,
                 onClick = {
                     onClickComplete(
-                        selectedType.value.toNotiType(),
+                        NotiType.fromLabel(selectedType.value),
                         NumberPickerUtil.toLocalDateTime(
                             date = selectedDate.value,
                             hour = selectedHour.value,
@@ -140,7 +139,7 @@ fun NotiModalContent(
                         ),
                     )
                 },
-                text = stringResource(id = R.string.complete),
+                text = "등록",
             )
         }
     }

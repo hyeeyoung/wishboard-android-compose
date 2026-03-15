@@ -16,4 +16,6 @@ data class MyUiModel(
     val accessToken: String = "",
     val isRefreshing: Boolean = false,
     val fetchProfileState: WishBoardState<Unit> = WishBoardState.Idle,
+    val updateProfileState: WishBoardState<Unit> = WishBoardState.Idle,
+    val updatePasswordState: WishBoardState<Unit> = WishBoardState.Idle,
 )

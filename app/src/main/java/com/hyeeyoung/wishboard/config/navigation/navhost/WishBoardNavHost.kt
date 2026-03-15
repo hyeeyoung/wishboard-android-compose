@@ -7,6 +7,7 @@ import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -41,7 +42,7 @@ import com.hyeeyoung.wishboard.presentation.util.extension.getBase64Json
 fun WishBoardNavHost(modifier: Modifier = Modifier, navController: NavHostController) {
     val snackbarHostState = LocalSnackbarHostState.current
 
-    NavHost(modifier = modifier, navController = navController, startDestination = Intro.route) {
+    NavHost(modifier = modifier.systemBarsPadding(), navController = navController, startDestination = Intro.route) {
         snackbarComposable(snackbarHostState = snackbarHostState, route = Intro.route) {
             IntroScreen(navController = navController)
         }

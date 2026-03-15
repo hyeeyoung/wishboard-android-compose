@@ -20,7 +20,7 @@ import com.hyeeyoung.wishboard.presentation.my.model.MyUiModel
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
 import com.hyeeyoung.wishboard.presentation.sign.model.snackbar.SnackbarMessage
 import com.hyeeyoung.wishboard.presentation.util.WishBoardFormat
-import com.hyeeyoung.wishboard.presentation.util.extension.convertResizeImage
+import com.hyeeyoung.wishboard.presentation.util.extension.compressImageToMaxSize
 import com.hyeeyoung.wishboard.presentation.util.safeLet
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -88,28 +88,34 @@ class MyViewModel @Inject constructor(
     }
 
     fun updateUserProfile(context: Context, afterSuccess: () -> Unit) {
+        if (uiModel.value.updateProfileState is WishBoardState.Loading) return
+        _uiModel.update {
+            it.copy(updateProfileState = WishBoardState.Loading)
+        }
         val trimmedName = uiModel.value.nicknameInput.text.trim()
         val file = uiModel.value.imageUriInput?.let { uri ->
-            context.convertResizeImage(uri)
+            context.compressImageToMaxSize(uri)
         }
         val requestBody = file?.asRequestBody("image/jpeg".toMediaTypeOrNull())
 
         viewModelScope.launch {
             putUserProfileUseCase(
                 userProfile = UserProfile(
-                    nickName = if (uiModel.value.userInfo.nickname == trimmedName) {
-                        null
-                    } else {
-                        trimmedName.ifBlank { null }
-                    },
+                    nickName = trimmedName,
                     profileImage = safeLet(file, requestBody) { file, requestBody ->
-                        MultipartBody.Part.createFormData("profile_img", file.name, requestBody)
+                        MultipartBody.Part.createFormData("profileImage", file.name, requestBody)
                     },
                 ),
             ).onSuccess {
+                _uiModel.update {
+                    it.copy(updateProfileState = WishBoardState.Success(Unit))
+                }
                 afterSuccess()
                 updateSnackbarMessage("프로필이 수정되었어요!👩‍🎤")
             }.onFailure { exception, errorCode, _ ->
+                _uiModel.update {
+                    it.copy(updateProfileState = WishBoardState.Failure)
+                }
                 when (errorCode) {
                     409 -> _uiModel.update { it.copy(existingNickname = trimmedName) }
                     else -> updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
@@ -119,11 +125,21 @@ class MyViewModel @Inject constructor(
     }
 
     fun updatePassword(afterSuccess: () -> Unit) {
+        if (uiModel.value.updatePasswordState is WishBoardState.Loading) return
+        _uiModel.update {
+            it.copy(updatePasswordState = WishBoardState.Loading)
+        }
         viewModelScope.launch {
             putPasswordUseCase(uiModel.value.rePasswordInput).onSuccess {
+                _uiModel.update {
+                    it.copy(updatePasswordState = WishBoardState.Loading)
+                }
                 updateSnackbarMessage("비밀번호가 변경되었어요!👩‍🎤")
                 afterSuccess()
             }.onFailure { exception, _, _ ->
+                _uiModel.update {
+                    it.copy(updatePasswordState = WishBoardState.Failure)
+                }
                 updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
             }
         }

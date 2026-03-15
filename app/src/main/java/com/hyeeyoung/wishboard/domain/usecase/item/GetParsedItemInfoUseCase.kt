@@ -7,6 +7,6 @@ import javax.inject.Inject
 class GetParsedItemInfoUseCase @Inject constructor(
     private val repository: ItemRepository,
 ) {
-    suspend operator fun invoke(site: String): Result<ParsedWishItem> =
+    suspend operator fun invoke(site: String): Result<ParsedWishItem?> =
         repository.getParsedItemInfo(site)
 }

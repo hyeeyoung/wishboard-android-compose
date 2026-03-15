@@ -21,9 +21,6 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,7 +35,7 @@ import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.config.navigation.screen.Calendar
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardEmptyView
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardGlobalSnackbarMessage
-import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
+import com.hyeeyoung.wishboard.designsystem.component.button.LegacyWishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
 import com.hyeeyoung.wishboard.designsystem.component.image.Image
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
@@ -52,6 +49,8 @@ import com.hyeeyoung.wishboard.presentation.util.extension.getDomainName
 import com.hyeeyoung.wishboard.presentation.util.extension.moveToWebView
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.util.extension.safePopBackStack
+import kotlinx.coroutines.flow.collectLatest
+import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,16 +59,15 @@ fun NotiScreen(
     viewModel: NotiViewModel = hiltViewModel(),
 ) {
     val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
-    var isFetched by rememberSaveable { mutableStateOf(false) }
-
-    LaunchedEffect(isFetched) {
-        if (!isFetched) {
-            viewModel.fetchPreviousNoti(false)
-            isFetched = true
-        }
-    }
 
     WishBoardGlobalSnackbarMessage(snackbarChannel = viewModel.snackBarChannel)
+
+    LaunchedEffect(Unit) {
+        viewModel.refreshNotiListTrigger.collectLatest {
+            Timber.e("알림 리스트 리프레시")
+            viewModel.fetchPreviousNoti(true)
+        }
+    }
 
     PullToRefreshBox(
         isRefreshing = uiModel.isRefreshing,
@@ -115,7 +113,7 @@ fun NotiScreen(
                 ),
                 endComponent = {
                     Row(modifier = it) {
-                        WishBoardIconButton(iconRes = R.drawable.ic_calendar, onClick = { onClickCalendar() })
+                        LegacyWishBoardIconButton(iconRes = R.drawable.ic_calendar, onClick = { onClickCalendar() })
                         Spacer(modifier = Modifier.width(6.dp))
                     }
                 },

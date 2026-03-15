@@ -9,9 +9,10 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import androidx.core.content.FileProvider
+import androidx.core.graphics.scale
 import com.hyeeyoung.wishboard.BuildConfig
 import com.hyeeyoung.wishboard.R
-import timber.log.Timber
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -47,22 +48,49 @@ private fun getTimestamp(): String {
     return currentTime.format(DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss'Z'"))
 }
 
-fun Context.convertResizeImage(imageUri: Uri): File? {
-    val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+fun Context.compressImageToMaxSize(
+    imageUri: Uri,
+    maxSizeBytes: Int = 1 * 1024 * 1024,
+    maxDimension: Int = 1080,
+): File? {
+    val originalBitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
         ImageDecoder.decodeBitmap(ImageDecoder.createSource(contentResolver, imageUri))
     } else {
         BitmapFactory.decodeStream(contentResolver.openInputStream(imageUri))
-    } ?: throw IllegalArgumentException("Bitmap decoding failed")
+    } ?: return null
 
-    val file =
-        File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), "compressed_image.jpg")
-    return try {
-        val fos = FileOutputStream(file)
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 50, fos)
-        fos.close()
-        file
+    val resizedBitmap = resizeBitmapMaintainingAspectRatio(originalBitmap, maxDimension)
+
+    var quality = 100
+    var compressedBytes: ByteArray
+
+    do {
+        val baos = ByteArrayOutputStream()
+        resizedBitmap.compress(Bitmap.CompressFormat.JPEG, quality, baos)
+        compressedBytes = baos.toByteArray()
+        quality -= 5
+    } while (compressedBytes.size > maxSizeBytes && quality > 5)
+
+    val file = File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), "img${System.currentTimeMillis()}.jpg")
+    try {
+        FileOutputStream(file).use { it.write(compressedBytes) }
+        return file
     } catch (e: IOException) {
-        Timber.e(e.message)
-        null
+        e.printStackTrace()
+        return null
+    }
+}
+
+private fun resizeBitmapMaintainingAspectRatio(bitmap: Bitmap, maxSize: Int): Bitmap {
+    val width = bitmap.width
+    val height = bitmap.height
+    val ratio = width.toFloat() / height.toFloat()
+
+    return if (width > height) {
+        if (width <= maxSize) return bitmap
+        bitmap.scale(maxSize, (maxSize / ratio).toInt())
+    } else {
+        if (height <= maxSize) return bitmap
+        bitmap.scale((maxSize * ratio).toInt(), maxSize)
     }
 }

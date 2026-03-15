@@ -9,16 +9,23 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -53,6 +60,8 @@ import com.hyeeyoung.wishboard.presentation.util.extension.rememberModalLauncher
 import com.hyeeyoung.wishboard.presentation.util.extension.safePopBackStack
 import kotlinx.coroutines.delay
 
+private const val MAX_LENGTH_NICKNAME_NAME = 10
+
 @Composable
 fun ProfileEditScreen(
     navController: NavController,
@@ -76,6 +85,7 @@ fun ProfileEditScreen(
         onNicknameChange = viewModel::onNicknameChange,
         setImageUri = viewModel::setProfileImageUri,
         updateProfile = {
+            keyboardController?.hide()
             viewModel.updateUserProfile(
                 context,
                 afterSuccess = {
@@ -100,7 +110,7 @@ fun ProfileEditScreen(
     onClickBack: () -> Unit,
 ) {
     val imageSize = 106
-    var cameraUri: Uri? = null
+    var cameraUri by remember { mutableStateOf<Uri?>(null) }
     val albumLauncher = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         uri?.let { setImageUri(it) }
     }
@@ -140,8 +150,11 @@ fun ProfileEditScreen(
     }) { paddingValues ->
         Column(
             modifier = Modifier
+                .fillMaxSize()
                 .background(WishBoardTheme.colors.white)
-                .padding(top = paddingValues.calculateTopPadding(), bottom = 16.dp, start = 16.dp, end = 16.dp),
+                .verticalScroll(rememberScrollState())
+                .padding(top = paddingValues.calculateTopPadding(), bottom = 16.dp, start = 16.dp, end = 16.dp)
+                .imePadding(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Spacer(modifier = Modifier.size(32.dp))
@@ -186,9 +199,20 @@ fun ProfileEditScreen(
                 label = stringResource(id = R.string.my_profile_nickname),
                 placeholder = stringResource(id = R.string.my_profile_nickname_placeholder),
                 errorMsg = stringResource(id = R.string.my_profile_nickname_already_exist_error),
-                maxLength = 12,
+                maxLength = MAX_LENGTH_NICKNAME_NAME,
                 onTextChange = {
                     onNicknameChange(it)
+                },
+                bottomEndComponent = {
+                    Text(
+                        text = stringResource(
+                            id = R.string.text_length,
+                            uiModel.nicknameInput.text.length,
+                            MAX_LENGTH_NICKNAME_NAME,
+                        ),
+                        color = WishBoardTheme.colors.gray200,
+                        style = WishBoardTheme.typography.suitD3,
+                    )
                 },
             )
 
@@ -200,6 +224,7 @@ fun ProfileEditScreen(
                         uiModel.userInfo.nickname != uiModel.nicknameInput.text
                     ) ||
                     uiModel.imageUriInput != null,
+                state = uiModel.updateProfileState,
                 onClick = updateProfile,
                 text = stringResource(id = R.string.complete),
             )

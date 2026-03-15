@@ -18,13 +18,23 @@ import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.unit.Dp
 
-inline fun Modifier.noRippleClickable(enabled: Boolean = true, crossinline onClick: () -> Unit): Modifier = composed {
+inline fun Modifier.noRippleClickable(
+    enabled: Boolean = true,
+    debounceIntervalMillis: Long = 400L,
+    crossinline onClick: () -> Unit,
+): Modifier = composed {
+    var lastClickTime by remember { mutableLongStateOf(0L) }
+
     clickable(
         indication = null,
         enabled = enabled,
         interactionSource = remember { MutableInteractionSource() },
     ) {
-        onClick()
+        val currentTime = System.currentTimeMillis()
+        if (currentTime - lastClickTime > debounceIntervalMillis) {
+            lastClickTime = currentTime
+            onClick()
+        }
     }
 }
 

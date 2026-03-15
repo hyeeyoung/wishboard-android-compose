@@ -6,7 +6,7 @@ import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import com.hyeeyoung.wishboard.presentation.util.extension.applyPriceFormat
 
-class PriceTransformation(val prefix: String? = null) : VisualTransformation {
+class LegacyPriceTransformation(val prefix: String? = null) : VisualTransformation {
     override fun filter(text: AnnotatedString): TransformedText {
         val formattedString = text.text.applyPriceFormat().run {
             if (isNotEmpty() && prefix != null) {

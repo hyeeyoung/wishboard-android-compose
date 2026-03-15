@@ -1,6 +1,7 @@
 package com.hyeeyoung.wishboard.presentation.util.extension
 
 import com.hyeeyoung.wishboard.presentation.util.TimeUtil
+import com.hyeeyoung.wishboard.presentation.util.TimeUtil.KOREA_ZONE_ID
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
@@ -19,9 +20,9 @@ fun LocalDateTime.getScheduleTimeFormat(): String {
     val formatter = DateTimeFormatter.ofPattern("h시")
     val hour = this.toJavaLocalDateTime().format(formatter) // 12시간 형식
 
-    val minute = if (this.minute == 0) "" else "${this.minute}분"
+    val minute = if (this.minute == 0) "" else " ${this.minute}분"
 
-    return "$isAM $hour $minute"
+    return "$isAM $hour$minute"
 }
 
 fun LocalDateTime.toNotiDateStr(): String {
@@ -39,11 +40,10 @@ fun LocalDateTime.toNotiDateStr(): String {
 }
 
 // TODO 추후 삭제 또는 다른 파일로 이동
-private const val ZONE_ID = "Asia/Seoul"
-fun getCurrentTime() = Clock.System.now().toLocalDateTime(TimeZone.of(ZONE_ID))
+fun getCurrentTime() = Clock.System.now().toLocalDateTime(TimeZone.of(KOREA_ZONE_ID))
 
 fun LocalDateTime.formatAsTimeAgo(): String {
-    val regTime = this.toJavaLocalDateTime().atZone(ZoneId.of(ZONE_ID)).toInstant().toEpochMilli()
+    val regTime = this.toJavaLocalDateTime().atZone(ZoneId.of(KOREA_ZONE_ID)).toInstant().toEpochMilli()
     val curTime = System.currentTimeMillis()
     var diffTime = (curTime - regTime) / 1000
 

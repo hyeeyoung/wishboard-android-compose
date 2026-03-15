@@ -3,6 +3,7 @@ package com.hyeeyoung.wishboard.presentation.main
 import android.content.Context
 import androidx.compose.material3.SnackbarDuration
 import androidx.lifecycle.viewModelScope
+import com.hyeeyoung.wishboard.config.GlobalState
 import com.hyeeyoung.wishboard.presentation.common.BaseViewModel
 import com.hyeeyoung.wishboard.presentation.sign.model.snackbar.SnackbarMessage
 import com.hyeeyoung.wishboard.presentation.sign.model.snackbar.WishBoardSnackbarVisuals
@@ -49,6 +50,22 @@ class MainViewModel @Inject constructor(
                             duration = SnackbarDuration.Indefinite,
                         ),
                     )
+                }
+            }
+        }
+    }
+
+    fun checkAuthLoginState(moveToStartRoute: () -> Unit) {
+        viewModelScope.launch {
+            GlobalState.autoLoginExpiryInfo.collectLatest { autoLoginInfo ->
+                if (autoLoginInfo.first) {
+                    moveToStartRoute()
+                    sendSnackbarChannel(
+                        WishBoardSnackbarVisuals(
+                            message = autoLoginInfo.second,
+                        ),
+                    )
+                    GlobalState.autoLoginExpiryInfo.value = false to ""
                 }
             }
         }

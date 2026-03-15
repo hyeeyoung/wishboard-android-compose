@@ -52,7 +52,7 @@ sealed class MainScreen(override val route: String) : Screen {
         else -> throw IllegalStateException("StartDestination이 정의되어있지 않음.")
     }
 
-    fun getRealRoute(): String? =
+    private fun getRealRoute(): String? =
         when (this) {
             Wishlist -> Wishlist.route
             Folder -> Folder.getStartRouteForMainTab()

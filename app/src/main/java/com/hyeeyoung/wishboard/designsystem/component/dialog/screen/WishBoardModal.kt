@@ -18,7 +18,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hyeeyoung.wishboard.R
-import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
+import com.hyeeyoung.wishboard.designsystem.component.button.LegacyWishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.presentation.folder.FolderUploadModalContent
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
@@ -51,7 +51,7 @@ fun WishBoardModal(@StringRes titleRes: Int, onDismissRequest: () -> Unit = {}, 
                     .align(Alignment.TopEnd)
                     .padding(top = 5.dp, end = 8.dp),
             ) {
-                WishBoardIconButton(
+                LegacyWishBoardIconButton(
                     iconRes = R.drawable.ic_close,
                     onClick = { onDismissRequest() },
                 )

@@ -50,6 +50,13 @@ class WishBoardPreference @Inject constructor(@ApplicationContext context: Conte
             null,
         ) ?: ""
 
+    var deviceId: String
+        set(value) = dataStore.edit { putString(DEVICE_TOKEN, value) }
+        get() = dataStore.getString(
+            DEVICE_TOKEN,
+            null,
+        ) ?: ""
+
     var isLogin: Boolean
         set(value) = dataStore.edit { putBoolean(IS_LOGIN, value) }
         get() = dataStore.getBoolean(IS_LOGIN, false)
@@ -95,6 +102,7 @@ class WishBoardPreference @Inject constructor(@ApplicationContext context: Conte
         const val FILE_NAME = "wishboardPreferences"
         const val ACCESS_TOKEN = "accessToken"
         const val REFRESH_TOKEN = "refreshToken"
+        const val DEVICE_TOKEN = "deviceToken"
         const val IS_LOGIN = "isLogin"
         const val USER_INFO = "userInfo"
         const val HAS_SHOWN_NOTIFICATION_ALERT = "hasShownNotificationAlert"

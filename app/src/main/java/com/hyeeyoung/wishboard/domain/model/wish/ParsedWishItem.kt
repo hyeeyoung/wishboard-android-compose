@@ -5,10 +5,10 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ParsedWishItem(
-    @SerialName("item_img")
+    @SerialName("itemImageUrl")
     val image: String? = null,
-    @SerialName("item_name")
+    @SerialName("itemName")
     val name: String? = null,
-    @SerialName("item_price")
+    @SerialName("itemPrice")
     val price: String? = null,
 )

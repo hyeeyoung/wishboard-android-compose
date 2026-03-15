@@ -25,7 +25,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavHostController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.hyeeyoung.wishboard.R
-import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
+import com.hyeeyoung.wishboard.designsystem.component.button.LegacyWishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
@@ -73,7 +73,7 @@ fun WebViewTopBar(title: String?, onClickClose: () -> Unit, onClickRefresh: () -
         ),
         endComponent = { endComponentModifier ->
             Row(modifier = endComponentModifier) {
-                WishBoardIconButton(iconRes = R.drawable.ic_refresh, onClick = { onClickRefresh() })
+                LegacyWishBoardIconButton(iconRes = R.drawable.ic_refresh, onClick = { onClickRefresh() })
 //                WishBoardIconButton(iconRes = R.drawable.ic_more, onClick = { /*TODO*/ })
                 Spacer(modifier = Modifier.size(4.dp))
             }

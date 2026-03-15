@@ -3,9 +3,13 @@ package com.hyeeyoung.wishboard.presentation.sign.screen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -46,16 +50,16 @@ fun SignInScreen(navController: NavHostController, viewModel: SignViewModel = hi
     val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    WishBoardGlobalSnackbarMessage(viewModel.snackBarChannel)
+    WishBoardGlobalSnackbarMessage(snackbarChannel = viewModel.snackBarChannel)
 
     SignInScreen(
         uiModel = uiModel,
         onEmailChange = viewModel::onEmailChange,
         onPasswordChange = viewModel::onPasswordChange,
         onClickLogin = {
+            keyboardController?.hide()
             viewModel.signIn(
                 afterSuccess = {
-                    keyboardController?.hide()
                     navController.navigate("${MainScreen.Root.route}/${false}") {
                         popUpTo(route = SignScreen.Root.route) {
                             inclusive = true
@@ -100,8 +104,11 @@ fun SignInScreen(
     }) { paddingValues ->
         Column(
             modifier = Modifier
+                .fillMaxSize()
                 .background(WishBoardTheme.colors.white)
-                .padding(top = paddingValues.calculateTopPadding(), bottom = 8.dp, start = 16.dp, end = 16.dp),
+                .verticalScroll(rememberScrollState())
+                .padding(top = paddingValues.calculateTopPadding(), bottom = 8.dp, start = 16.dp, end = 16.dp)
+                .imePadding(),
         ) {
             Spacer(modifier = Modifier.size(32.dp))
 

@@ -4,6 +4,8 @@ import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
 
 data class SignUiModel(
     val signProcessStatus: WishBoardState<Unit> = WishBoardState.Idle,
+    val requestEmailStatus: WishBoardState<Unit> = WishBoardState.Idle,
+    val checkVerificationCodeStatus: WishBoardState<Unit> = WishBoardState.Idle,
     val email: String = "",
     val password: String = "",
     val authCode: String = "",

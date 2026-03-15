@@ -6,17 +6,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardEmptyView
@@ -26,7 +27,10 @@ import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.domain.model.wish.WishItem
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.util.extension.safePopBackStack
+import com.hyeeyoung.wishboard.presentation.util.getFakePagingData
 import com.hyeeyoung.wishboard.presentation.wish.component.WishItem
+import kotlinx.coroutines.flow.collectLatest
+import timber.log.Timber
 
 @Composable
 fun FolderDetailScreen(
@@ -34,9 +38,9 @@ fun FolderDetailScreen(
     wishNavController: NavHostController,
     folderName: String,
     folderId: Long,
-    viewModel: FolderViewModel = hiltViewModel(),
+    viewModel: FolderDetailViewModel = hiltViewModel(),
 ) {
-    val uiModel by viewModel.detailUiModel.collectAsStateWithLifecycle()
+    val wishList = viewModel.wishList.collectAsLazyPagingItems()
     val lazyGridState = rememberLazyGridState()
 
     WishBoardGlobalSnackbarMessage(snackbarChannel = viewModel.snackBarChannel)
@@ -44,11 +48,14 @@ fun FolderDetailScreen(
     MainScreen.FolderDetail.ScrollToTopEffect(lazyGridState)
 
     LaunchedEffect(Unit) {
-        viewModel.getFolderDetail(folderId)
+        viewModel.refreshFolderDetailTrigger.collectLatest {
+            Timber.e("폴더 상세 리프레시")
+            wishList.refresh()
+        }
     }
 
     FolderDetailScreen(
-        wishItems = uiModel,
+        wishItems = wishList,
         folderName = folderName,
         lazyGridState = lazyGridState,
         onClickItem = { id ->
@@ -60,7 +67,7 @@ fun FolderDetailScreen(
 
 @Composable
 fun FolderDetailScreen(
-    wishItems: List<WishItem>,
+    wishItems: LazyPagingItems<WishItem>,
     folderName: String,
     lazyGridState: LazyGridState,
     onClickItem: (id: Long) -> Unit,
@@ -81,7 +88,11 @@ fun FolderDetailScreen(
                 top = paddingValues.calculateTopPadding(),
             )
 
-        if (wishItems.isEmpty()) {
+        if (
+            wishItems.itemCount == 0 &&
+            wishItems.loadState.refresh is LoadState.NotLoading &&
+            wishItems.loadState.append.endOfPaginationReached
+        ) {
             WishBoardEmptyView(modifier = contentModifier, guideTextRes = R.string.empty_wishlist_guide_text)
         } else {
             LazyVerticalGrid(
@@ -89,11 +100,14 @@ fun FolderDetailScreen(
                 columns = GridCells.Fixed(2),
                 state = lazyGridState,
             ) {
-                items(wishItems) { item ->
-                    WishItem(
-                        wishItem = item,
-                        onClickItem = { onClickItem(item.id) },
-                    )
+                items(count = wishItems.itemCount, key = wishItems.itemKey { it.id }) { idx ->
+                    val item = wishItems[idx]
+                    item?.let {
+                        WishItem(
+                            wishItem = item,
+                            onClickItem = { onClickItem(item.id) },
+                        )
+                    }
                 }
             }
         }
@@ -110,10 +124,9 @@ fun PreviewFolderDetailScreen() {
             "https://url.kr/8vwf1e",
             108000,
         )
-    val wishList = List(8) { index: Int -> wishItem.copy(id = index.toLong()) }
 
     FolderDetailScreen(
-        wishItems = wishList,
+        wishItems = getFakePagingData(List(8) { index: Int -> wishItem.copy(id = index.toLong()) }),
         folderName = "상의",
         lazyGridState = rememberLazyGridState(),
         onClickItem = {},

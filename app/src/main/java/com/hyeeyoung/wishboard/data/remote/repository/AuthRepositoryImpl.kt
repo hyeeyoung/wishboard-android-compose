@@ -16,12 +16,14 @@ class AuthRepositoryImpl @Inject constructor(
     private val localStorage: WishBoardPreference,
 ) : AuthRepository {
     override suspend fun signUp(authInfo: AuthInfo): Result<Unit> = runCatching {
-        authService.signUp(AuthRequestDto.fromDomain(authInfo)).data
+        authService.signUp(
+            authInfo = AuthRequestDto.fromDomain(authInfo),
+        ).data
     }.onSuccess {
         Timber.d("회원가입 성공")
         localStorage.setUserInfo(
             authInfo.email,
-            it.tempNickname,
+            it.temporaryNickname,
             it.token.accessToken,
             it.token.refreshToken,
         )
@@ -29,12 +31,14 @@ class AuthRepositoryImpl @Inject constructor(
     }.map { }
 
     override suspend fun signIn(authInfo: AuthInfo): Result<Unit> = runCatching {
-        authService.signIn(AuthRequestDto.fromDomain(authInfo)).data
+        authService.signIn(
+            authInfo = AuthRequestDto.fromDomain(authInfo),
+        ).data
     }.onSuccess {
         Timber.d("회원가입 성공")
         localStorage.setUserInfo(
             authInfo.email,
-            it.tempNickname,
+            it.temporaryNickname,
             it.token.accessToken,
             it.token.refreshToken,
         )
@@ -45,12 +49,14 @@ class AuthRepositoryImpl @Inject constructor(
     }
 
     override suspend fun signInEmail(authInfo: AuthInfo): Result<Unit> = runCatching {
-        authService.signInEmail(EmailAuthRequestDto.fromDomain(authInfo)).data
+        authService.signInEmail(
+            authInfo = EmailAuthRequestDto.fromDomain(authInfo),
+        ).data
     }.onSuccess {
         Timber.d("이메일 로그인 성공")
         localStorage.setUserInfo(
             authInfo.email,
-            it.tempNickname,
+            it.temporaryNickname,
             it.token.accessToken,
             it.token.refreshToken,
         )

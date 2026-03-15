@@ -6,13 +6,13 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class FolderItemDto(
-    @SerialName("folder_id")
+    @SerialName("id")
     val id: Long,
-    @SerialName("folder_name")
+    @SerialName("folderName")
     var name: String = "",
-    @SerialName("folder_thumbnail")
+    @SerialName("folderThumbnail")
     val thumbnail: String = "",
-    @SerialName("item_count")
+    @SerialName("itemCount")
     val numOfWishItem: Int = 0,
 ) {
     fun toDomain(): FolderItem = FolderItem(

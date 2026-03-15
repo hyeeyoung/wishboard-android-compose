@@ -44,7 +44,7 @@ fun FolderListModalContent(
     var selectedId by remember { mutableStateOf(selectedFolder?.id) }
     Column(modifier = Modifier.heightIn(max = 317.dp)) {
         ModalTitle(
-            title = stringResource(id = R.string.modal_folder_selection_title),
+            title = stringResource(id = R.string.folder),
             onDismissRequest = onDismissRequest,
         )
 

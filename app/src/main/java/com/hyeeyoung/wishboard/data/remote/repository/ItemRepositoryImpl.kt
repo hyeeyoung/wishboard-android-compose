@@ -1,8 +1,13 @@
 package com.hyeeyoung.wishboard.data.remote.repository
 
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.map
+import com.hyeeyoung.wishboard.data.remote.model.common.PageSize
+import com.hyeeyoung.wishboard.data.remote.model.wish.WishItemUploadInfoDto
+import com.hyeeyoung.wishboard.data.remote.paging.GeneralPagingSource
 import com.hyeeyoung.wishboard.data.remote.service.ItemService
-import com.hyeeyoung.wishboard.data.util.extension.toPlainNullableRequestBody
-import com.hyeeyoung.wishboard.data.util.extension.toPlainRequestBody
 import com.hyeeyoung.wishboard.domain.model.wish.ParsedWishItem
 import com.hyeeyoung.wishboard.domain.model.wish.WishItem
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemDetail
@@ -10,47 +15,70 @@ import com.hyeeyoung.wishboard.domain.model.wish.WishItemUploadInfo
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemUploadType
 import com.hyeeyoung.wishboard.domain.repository.ItemRepository
 import com.hyeeyoung.wishboard.presentation.common.model.ImageType
+import com.hyeeyoung.wishboard.presentation.util.extension.toJson
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import kotlinx.datetime.serializers.InstantIso8601Serializer
+import kotlinx.datetime.serializers.LocalDateTimeIso8601Serializer
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.contextual
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import javax.inject.Inject
 
 class ItemRepositoryImpl @Inject constructor(
     private val itemService: ItemService,
 ) : ItemRepository {
-    override suspend fun fetchWishList(): Result<List<WishItem>> = runCatching {
-        itemService.fetchWishList().map { it.toDomain() }
-    }
+    override fun fetchWishList(): Flow<PagingData<WishItem>> =
+        Pager(
+            config = PagingConfig(
+                initialLoadSize = PageSize.DEFAULT_SIZE,
+                pageSize = PageSize.DEFAULT_SIZE,
+                enablePlaceholders = true,
+                prefetchDistance = PageSize.DEFAULT_PREFETCH_SIZE,
+            ),
+            pagingSourceFactory = {
+                GeneralPagingSource(loadPage = { page, size ->
+                    itemService.fetchWishList(
+                        page = page,
+                        size = size,
+                    )
+                })
+            },
+        ).flow.map {
+            it.map { it.toDomain() }
+        }
 
-    override suspend fun fetchWishItemDetail(itemId: Long): Result<List<WishItemDetail>> =
+    override suspend fun fetchWishItemDetail(itemId: Long): Result<WishItemDetail> =
         runCatching {
-            itemService.fetchWishItemDetail(itemId).map { it.toDomain() }
+            itemService.fetchWishItemDetail(itemId).data.toDomain()
         }
 
     override suspend fun uploadWishItem(uploadType: WishItemUploadType, itemInfo: WishItemUploadInfo): Result<Long> =
         runCatching {
-            val formDataName = "item_img"
+            val formDataName = FORM_DATA_IMAGE_KEY
 
             itemService.uploadWishItem(
                 type = uploadType.toString(),
-                folderId = itemInfo.folderId?.toString()?.toPlainNullableRequestBody(),
-                itemName = itemInfo.itemName.toPlainRequestBody(),
-                itemPrice = itemInfo.itemPrice?.toString()?.toPlainNullableRequestBody(),
-                itemMemo = itemInfo.itemMemo.toPlainNullableRequestBody(),
-                itemNotificationDate = itemInfo.itemNotiDate?.toPlainNullableRequestBody(),
-                itemNotificationType = itemInfo.itemNotiType?.label?.toPlainNullableRequestBody(),
-                itemUrl = itemInfo.itemUrl.toPlainNullableRequestBody(),
-                itemImg = when (itemInfo.itemImage) {
-                    is ImageType.DownloadImage -> {
-                        MultipartBody.Part.createFormData(
-                            formDataName,
-                            itemInfo.itemImage.file.name,
-                            itemInfo.itemImage.file.asRequestBody(),
-                        )
+                item = WishItemUploadInfoDto.fromDomain(itemInfo).toJson().toRequestBody(
+                    "application/json".toMediaTypeOrNull(),
+                ),
+                itemImg = itemInfo.itemImage?.mapNotNull {
+                    when (it) {
+                        is ImageType.DownloadImage -> {
+                            MultipartBody.Part.createFormData(
+                                formDataName,
+                                it.file.name,
+                                it.file.asRequestBody("image/jpeg".toMediaTypeOrNull()),
+                            )
+                        }
+
+                        is ImageType.Picture -> it.image
                     }
-
-                    is ImageType.Picture -> itemInfo.itemImage.image
-
-                    else -> null
                 },
             ).data.id
         }
@@ -59,29 +87,23 @@ class ItemRepositoryImpl @Inject constructor(
         itemId: Long,
         itemInfo: WishItemUploadInfo,
     ): Result<Unit> = runCatching {
-        val formDataName = "item_img"
-
         itemService.updateWishItem(
             itemId = itemId,
-            folderId = itemInfo.folderId?.toString()?.toPlainNullableRequestBody(),
-            itemName = itemInfo.itemName.toPlainRequestBody(),
-            itemPrice = itemInfo.itemPrice?.toString()?.toPlainNullableRequestBody(),
-            itemMemo = itemInfo.itemMemo.toPlainNullableRequestBody(),
-            itemNotificationDate = itemInfo.itemNotiDate?.toPlainNullableRequestBody(),
-            itemNotificationType = itemInfo.itemNotiType?.label?.toPlainNullableRequestBody(),
-            itemUrl = itemInfo.itemUrl.toPlainNullableRequestBody(),
-            itemImg = when (itemInfo.itemImage) {
-                is ImageType.DownloadImage -> {
-                    MultipartBody.Part.createFormData(
-                        formDataName,
-                        itemInfo.itemImage.file.name,
-                        itemInfo.itemImage.file.asRequestBody(),
-                    )
+            item = json.encodeToString(WishItemUploadInfoDto.fromDomain(itemInfo)).toRequestBody(
+                "application/json".toMediaTypeOrNull(), // TODO 상수화 필요
+            ),
+            itemImg = itemInfo.itemImage?.mapNotNull {
+                when (it) {
+                    is ImageType.DownloadImage -> {
+                        MultipartBody.Part.createFormData(
+                            FORM_DATA_IMAGE_KEY,
+                            it.file.name,
+                            it.file.asRequestBody("image/jpeg".toMediaTypeOrNull()),
+                        )
+                    }
+
+                    is ImageType.Picture -> it.image
                 }
-
-                is ImageType.Picture -> itemInfo.itemImage.image
-
-                else -> null
             },
         )
     }
@@ -95,8 +117,26 @@ class ItemRepositoryImpl @Inject constructor(
         itemService.deleteWishItem(itemId)
     }
 
-    override suspend fun getParsedItemInfo(site: String): Result<ParsedWishItem> =
+    override suspend fun getParsedItemInfo(site: String): Result<ParsedWishItem?> =
         runCatching {
             itemService.getParsedItemInfo(site).data
         }
+
+    companion object {
+        private const val FORM_DATA_IMAGE_KEY = "itemImages"
+
+        // TODO 제거 예정
+        val json = Json {
+            isLenient = true
+            prettyPrint = true
+            explicitNulls = true
+            ignoreUnknownKeys = true
+            coerceInputValues = true
+            encodeDefaults = true
+            serializersModule = SerializersModule {
+                contextual(InstantIso8601Serializer)
+                contextual(LocalDateTimeIso8601Serializer)
+            }
+        }
+    }
 }

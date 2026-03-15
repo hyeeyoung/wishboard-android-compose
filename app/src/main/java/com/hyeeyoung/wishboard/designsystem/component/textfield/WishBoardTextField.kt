@@ -31,7 +31,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hyeeyoung.wishboard.R
-import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
+import com.hyeeyoung.wishboard.designsystem.component.button.LegacyWishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTextFieldComponent
 
@@ -51,6 +51,7 @@ fun WishBoardTextField(
     visualTransformation: VisualTransformation = VisualTransformation.None,
     errorHidingStrategy: Int = View.GONE,
     endComponent: WishBoardTextFieldComponent = WishBoardTextFieldComponent.DeleteButton,
+    bottomEndComponent: (@Composable () -> Unit)? = null,
 ) {
     var isFocused by remember { mutableStateOf(false) }
 
@@ -84,13 +85,27 @@ fun WishBoardTextField(
             )
         }
 
-        if (isFocused) {
-            TextFieldErrorMessage(
-                errorHidingStrategy = errorHidingStrategy,
-                isFocused = isFocused,
-                isError = isError,
-                errorMsg = errorMsg,
-            )
+        if (isFocused || bottomEndComponent != null) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 6.dp),
+            ) {
+                if (isFocused) {
+                    TextFieldErrorMessage(
+                        errorHidingStrategy = errorHidingStrategy,
+                        isFocused = isFocused,
+                        isError = isError,
+                        errorMsg = errorMsg,
+                    )
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                bottomEndComponent?.let {
+                    bottomEndComponent()
+                }
+            }
         }
     }
 }
@@ -144,13 +159,15 @@ fun WishBoardTextField(
             )
         }
 
-        if (isFocused) {
-            TextFieldErrorMessage(
-                errorHidingStrategy = errorHidingStrategy,
-                isFocused = isFocused,
-                isError = isError,
-                errorMsg = errorMsg,
-            )
+        if (isFocused && isError) {
+            Row(modifier = Modifier.padding(top = 6.dp)) {
+                TextFieldErrorMessage(
+                    errorHidingStrategy = errorHidingStrategy,
+                    isFocused = isFocused,
+                    isError = isError,
+                    errorMsg = errorMsg,
+                )
+            }
         }
     }
 }
@@ -201,11 +218,16 @@ fun WishBoardTextField(
                 innerTextField = innerTextField,
                 onClickClear = {
                     input.value = ""
+                    onTextChange("")
                 },
             )
         }
 
-        Row(modifier = Modifier.fillMaxWidth().padding(top = 6.dp)) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 6.dp),
+        ) {
             TextFieldErrorMessage(
                 errorHidingStrategy = errorHidingStrategy,
                 isFocused = isFocused,
@@ -304,7 +326,7 @@ private fun DecorationBox(
                 if (isFocused) {
                     if (input.isNotEmpty()) {
                         Spacer(modifier = Modifier.size(2.dp))
-                        WishBoardIconButton(iconRes = R.drawable.ic_delete_circle, onClick = onClickClear)
+                        LegacyWishBoardIconButton(iconRes = R.drawable.ic_delete_circle, onClick = onClickClear)
                     } else {
                         Spacer(modifier = Modifier.size(width = 10.dp, height = 32.dp))
                     }

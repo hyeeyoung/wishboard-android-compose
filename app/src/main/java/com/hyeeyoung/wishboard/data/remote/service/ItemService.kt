@@ -1,7 +1,8 @@
 package com.hyeeyoung.wishboard.data.remote.service
 
 import com.hyeeyoung.wishboard.data.remote.model.base.BaseResponse
-import com.hyeeyoung.wishboard.data.remote.model.base.BaseResponseWithoutData
+import com.hyeeyoung.wishboard.data.remote.model.base.BaseResponseNoData
+import com.hyeeyoung.wishboard.data.remote.model.base.PagedResponse
 import com.hyeeyoung.wishboard.data.remote.model.wish.WishItemDetailDto
 import com.hyeeyoung.wishboard.data.remote.model.wish.WishItemIdDto
 import com.hyeeyoung.wishboard.domain.model.wish.ParsedWishItem
@@ -19,52 +20,43 @@ import retrofit2.http.Query
 
 interface ItemService {
     @GET("item")
-    suspend fun fetchWishList(): List<WishItemDto>
+    suspend fun fetchWishList(
+        @Query("page") page: Int,
+        @Query("size") size: Int,
+    ): BaseResponse<PagedResponse<WishItemDto>>
 
-    @GET("item/{item_id}")
+    @GET("item/{itemId}")
     suspend fun fetchWishItemDetail(
-        @Path("item_id") itemId: Long,
-    ): List<WishItemDetailDto>
+        @Path("itemId") itemId: Long,
+    ): BaseResponse<WishItemDetailDto>
 
     @Multipart
     @POST("item")
     suspend fun uploadWishItem(
         @Query("type") type: String,
-        @Part("folder_id") folderId: RequestBody?,
-        @Part("item_name") itemName: RequestBody,
-        @Part("item_price") itemPrice: RequestBody?,
-        @Part("item_memo") itemMemo: RequestBody?,
-        @Part("item_url") itemUrl: RequestBody?,
-        @Part("item_notification_type") itemNotificationType: RequestBody?,
-        @Part("item_notification_date") itemNotificationDate: RequestBody?,
-        @Part itemImg: MultipartBody.Part?,
+        @Part("request") item: RequestBody,
+        @Part itemImg: List<MultipartBody.Part>?,
     ): BaseResponse<WishItemIdDto>
 
     @Multipart
     @PUT("item/{item_id}")
     suspend fun updateWishItem(
         @Path("item_id") itemId: Long,
-        @Part("folder_id") folderId: RequestBody?,
-        @Part("item_name") itemName: RequestBody,
-        @Part("item_price") itemPrice: RequestBody?,
-        @Part("item_memo") itemMemo: RequestBody?,
-        @Part("item_url") itemUrl: RequestBody?,
-        @Part("item_notification_type") itemNotificationType: RequestBody?,
-        @Part("item_notification_date") itemNotificationDate: RequestBody?,
-        @Part itemImg: MultipartBody.Part?,
-    ): BaseResponseWithoutData
+        @Part("request") item: RequestBody,
+        @Part itemImg: List<MultipartBody.Part>?,
+    ): BaseResponseNoData
 
-    @PUT("item/{item_id}/folder/{folder_id}")
+    @PUT("item/{itemId}/folder/{folderId}")
     suspend fun updateFolderOfItem(
-        @Path("item_id") itemId: Long,
-        @Path("folder_id") folderId: Long,
-    ): BaseResponseWithoutData
+        @Path("itemId") itemId: Long,
+        @Path("folderId") folderId: Long,
+    ): BaseResponseNoData
 
-    @DELETE("item/{item_id}")
-    suspend fun deleteWishItem(@Path("item_id") itemId: Long): BaseResponseWithoutData
+    @DELETE("item/{itemId}")
+    suspend fun deleteWishItem(@Path("itemId") itemId: Long): BaseResponseNoData
 
     @GET("item/parse")
     suspend fun getParsedItemInfo(
         @Query("site") site: String,
-    ): BaseResponse<ParsedWishItem>
+    ): BaseResponse<ParsedWishItem?>
 }

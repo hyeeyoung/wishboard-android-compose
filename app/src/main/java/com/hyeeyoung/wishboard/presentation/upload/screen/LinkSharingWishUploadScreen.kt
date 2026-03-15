@@ -10,9 +10,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -32,6 +34,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -39,20 +42,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardSnackbarHost
-import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
+import com.hyeeyoung.wishboard.designsystem.component.button.LegacyWishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.ModalData
 import com.hyeeyoung.wishboard.designsystem.component.image.Image
 import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardMiniSingleTextField
 import com.hyeeyoung.wishboard.designsystem.style.MontserratFamily
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
-import com.hyeeyoung.wishboard.designsystem.util.PriceTransformation
+import com.hyeeyoung.wishboard.designsystem.util.LegacyPriceTransformation
 import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
 import com.hyeeyoung.wishboard.domain.model.noti.NotiInfo
 import com.hyeeyoung.wishboard.domain.model.noti.NotiType
 import com.hyeeyoung.wishboard.presentation.upload.model.UploadInputType
-import com.hyeeyoung.wishboard.presentation.upload.model.WishItemUploadUiModel
-import com.hyeeyoung.wishboard.presentation.util.extension.makeValidPriceStr
+import com.hyeeyoung.wishboard.presentation.upload.model.ParsingUploadItemUiModel
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.util.extension.toJson
 import com.hyeeyoung.wishboard.presentation.util.extension.toNotiDateStr
@@ -63,16 +65,16 @@ private const val IMAGE_SIZE = 80
 
 @Composable
 fun LinkSharingWishUploadScreen(
-    uiModel: WishItemUploadUiModel,
+    uiModel: ParsingUploadItemUiModel,
     snackbarHostState: SnackbarHostState,
     updateModalData: (ModalData.Modal) -> Unit,
-    onTextChange: (UploadInputType, String) -> Unit,
+    onTextChange: (UploadInputType, TextFieldValue) -> Unit,
     setNotiInfo: (NotiInfo) -> Unit,
     onSelectFolder: (FolderItem) -> Unit,
     onClickSave: () -> Unit,
     onClickClose: () -> Unit = {},
 ) {
-    Box {
+    Box(modifier = Modifier.systemBarsPadding().imePadding()) {
         Column(modifier = Modifier.fillMaxSize()) {
             Spacer(
                 modifier = Modifier
@@ -97,7 +99,7 @@ fun LinkSharingWishUploadScreen(
                             .align(Alignment.End)
                             .padding(top = 5.dp, end = 8.dp),
                     ) {
-                        WishBoardIconButton(
+                        LegacyWishBoardIconButton(
                             modifier = Modifier.background(WishBoardTheme.colors.white),
                             iconRes = R.drawable.ic_close,
                             onClick = { onClickClose() },
@@ -109,7 +111,7 @@ fun LinkSharingWishUploadScreen(
                     val textFieldModifier = Modifier.padding(horizontal = 16.dp, vertical = 3.dp)
                     WishBoardMiniSingleTextField(
                         modifier = textFieldModifier,
-                        input = uiModel.itemName,
+                        textFieldValue = uiModel.itemName,
                         placeholder = stringResource(id = R.string.wish_item_link_sharing_upload_name),
                         onTextChange = { input ->
                             onTextChange(UploadInputType.ITEM_NAME, input)
@@ -118,7 +120,7 @@ fun LinkSharingWishUploadScreen(
 
                     WishBoardMiniSingleTextField(
                         modifier = textFieldModifier,
-                        input = uiModel.itemPrice,
+                        textFieldValue = uiModel.itemPrice,
                         style = TextStyle(
                             fontFamily = MontserratFamily,
                             fontWeight = FontWeight.Bold,
@@ -126,10 +128,10 @@ fun LinkSharingWishUploadScreen(
                         ),
                         placeholder = stringResource(id = R.string.wish_item_link_sharing_upload_price),
                         onTextChange = { input ->
-                            onTextChange(UploadInputType.ITEM_PRICE, input.makeValidPriceStr() ?: "")
+                            onTextChange(UploadInputType.ITEM_PRICE, input)
                         },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        visualTransformation = PriceTransformation(),
+                        visualTransformation = LegacyPriceTransformation(),
                     )
 
                     Spacer(modifier = Modifier.size(5.dp))
@@ -214,7 +216,8 @@ fun LinkSharingWishUploadScreen(
 
                     WishBoardWideButton(
                         modifier = Modifier.padding(horizontal = 16.dp),
-                        enabled = uiModel.isLogin && uiModel.itemName.isNotBlank() && uiModel.itemPrice.isNotBlank(),
+                        enabled = uiModel.isLogin && uiModel.itemName.text.isNotBlank() &&
+                            uiModel.itemPrice.text.isNotBlank(),
                         onClick = onClickSave,
                         text = stringResource(id = buttonTextRes),
                         state = uiModel.wishItemUploadState,
@@ -332,7 +335,7 @@ fun NewFolder(isLogin: Boolean, onClickNew: () -> Unit) {
 @Composable
 fun PreviewLinkSharingWishUploadScreen() {
     LinkSharingWishUploadScreen(
-        uiModel = WishItemUploadUiModel(
+        uiModel = ParsingUploadItemUiModel(
             isLogin = false,
             itemNotiType = NotiType.SALE_START,
             itemNotiDate = LocalDateTime(2024, 3, 22, 13, 0),

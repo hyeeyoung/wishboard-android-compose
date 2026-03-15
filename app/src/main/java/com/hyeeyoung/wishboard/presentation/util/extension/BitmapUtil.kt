@@ -19,7 +19,7 @@ import java.time.format.DateTimeFormatter
 object BitmapUtil {
     private const val DEFAULT_IMAGE_QUALITY = 100
     private const val IMAGE_COMPRESSION_DECREASE_FACTOR = 5
-    private const val MAXIMUM_IMAGE_SIZE = 4 * 1024 * 1024
+    private const val MAXIMUM_IMAGE_SIZE = 1 * 1024 * 1024
     private const val DEFAULT_MIME_TYPE = "image/jpeg"
 
     /** 다운로드 이미지 url -> bitmap -> file 변환 */
@@ -78,7 +78,7 @@ object BitmapUtil {
         return formatter.format(Instant.now())
     }
 
-    fun Bitmap.compressImage(format: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG): ByteArray {
+    private fun Bitmap.compressImage(format: Bitmap.CompressFormat = Bitmap.CompressFormat.JPEG): ByteArray {
         var quality = DEFAULT_IMAGE_QUALITY
         var outputStream: ByteArrayOutputStream
         var attempt = 0

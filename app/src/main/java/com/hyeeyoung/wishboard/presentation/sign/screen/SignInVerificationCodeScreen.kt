@@ -3,7 +3,11 @@ package com.hyeeyoung.wishboard.presentation.sign.screen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -12,6 +16,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -32,6 +38,7 @@ import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTextFieldCompone
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.sign.model.auth.SignUiModel
 import com.hyeeyoung.wishboard.presentation.util.extension.safePopBackStack
+import kotlinx.coroutines.delay
 
 private const val VERIFICATION_CODE_MAX_LENGTH = 6
 
@@ -76,6 +83,13 @@ fun SignInVerificationCodeScreen(
     onClickLogin: () -> Unit,
     onClickBack: () -> Unit,
 ) {
+    val focusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(true) {
+        delay(300L)
+        focusRequester.requestFocus()
+    }
+
     Scaffold(topBar = {
         WishBoardTopBarWithStep(
             topBarModel = WishBoardTopBarModel(
@@ -88,8 +102,11 @@ fun SignInVerificationCodeScreen(
         val verificationCodeInput = remember { mutableStateOf("") }
         Column(
             modifier = Modifier
+                .fillMaxSize()
                 .background(WishBoardTheme.colors.white)
-                .padding(top = paddingValues.calculateTopPadding(), bottom = 16.dp, start = 16.dp, end = 16.dp),
+                .verticalScroll(rememberScrollState())
+                .padding(top = paddingValues.calculateTopPadding(), bottom = 16.dp, start = 16.dp, end = 16.dp)
+                .imePadding(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             SignDescription(
@@ -98,6 +115,7 @@ fun SignInVerificationCodeScreen(
             )
 
             WishBoardTextField(
+                modifier = Modifier.focusRequester(focusRequester),
                 input = verificationCodeInput,
                 placeholder = stringResource(id = R.string.sign_in_verification_code_placeholder),
                 errorMsg = if (uiModel.isCorrectAuthCode == false) {
@@ -115,6 +133,7 @@ fun SignInVerificationCodeScreen(
 
             WishBoardWideButton(
                 enabled = uiModel.authCode.length == VERIFICATION_CODE_MAX_LENGTH,
+                state = uiModel.checkVerificationCodeStatus,
                 onClick = onClickLogin,
                 text = stringResource(id = R.string.sign_in_title),
             )

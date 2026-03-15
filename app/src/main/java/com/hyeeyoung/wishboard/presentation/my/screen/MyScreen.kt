@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -80,45 +81,42 @@ fun MyScreen(
         viewModel.fetchUserInfo(isRefreshing = false)
     }
 
-    PullToRefreshBox(
-        isRefreshing = uiModel.isRefreshing,
+    MyScreen(
+        uiModel = uiModel,
+        lazyListState = lazyListState,
+        navigate = { route ->
+            navController.navigate(route)
+        },
+        updatePushState = viewModel::updatePushState,
+        logout = {
+            viewModel.logout {
+                navController.navigate(SignScreen.Main.route) {
+                    popUpTo(navController.graph.id) {
+                        inclusive = true
+                    }
+                }
+            }
+        },
+        deleteAccount = {
+            viewModel.deleteAccount {
+                keyboardController?.hide()
+                navController.navigate(SignScreen.Main.route) {
+                    popUpTo(navController.graph.id) {
+                        inclusive = true
+                    }
+                }
+            }
+        },
+        moveToWebView = { title, url ->
+            navController.moveToWebView(title = title, url = url)
+        },
         onRefresh = {
             viewModel.fetchUserInfo(isRefreshing = true)
         },
-    ) {
-        MyScreen(
-            uiModel = uiModel,
-            lazyListState = lazyListState,
-            navigate = { route ->
-                navController.navigate(route)
-            },
-            updatePushState = viewModel::updatePushState,
-            logout = {
-                viewModel.logout {
-                    navController.navigate(SignScreen.Main.route) {
-                        popUpTo(navController.graph.id) {
-                            inclusive = true
-                        }
-                    }
-                }
-            },
-            deleteAccount = {
-                viewModel.deleteAccount {
-                    keyboardController?.hide()
-                    navController.navigate(SignScreen.Main.route) {
-                        popUpTo(navController.graph.id) {
-                            inclusive = true
-                        }
-                    }
-                }
-            },
-            moveToWebView = { title, url ->
-                navController.moveToWebView(title = title, url = url)
-            },
-        )
-    }
+    )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyScreen(
     uiModel: MyUiModel,
@@ -128,16 +126,12 @@ fun MyScreen(
     logout: () -> Unit,
     deleteAccount: () -> Unit,
     moveToWebView: (title: String?, url: String) -> Unit,
+    onRefresh: () -> Unit,
 ) {
     val context = LocalContext.current
     var dialogData by remember { mutableStateOf<DialogData?>(null) }
     val withdrawalEmailInput = remember { mutableStateOf("") }
-    val isEnableWithdrawal by remember(withdrawalEmailInput.value, uiModel.userInfo.email) {
-        mutableStateOf(
-            withdrawalEmailInput.value.isNotBlank() &&
-                withdrawalEmailInput.value.trimEnd() == uiModel.userInfo.email,
-        )
-    }
+    var isEmailMatched by remember { mutableStateOf<Boolean?>(null) }
 
     val myMenuComponents =
         listOf(
@@ -208,6 +202,7 @@ fun MyScreen(
             MyMenuComponent.Menu(
                 nameRes = R.string.my_menu_withdraw,
                 onClickMenu = {
+                    isEmailMatched = null
                     withdrawalEmailInput.value = ""
                     dialogData = DialogData.Withdraw
                 },
@@ -219,29 +214,37 @@ fun MyScreen(
             WishBoardMainTopBar(titleRes = R.string.my)
         },
     ) { paddingValues ->
-        LazyColumn(
-            modifier = Modifier
-                .background(WishBoardTheme.colors.white)
-                .padding(top = paddingValues.calculateTopPadding()),
-            state = lazyListState,
+        PullToRefreshBox(
+            isRefreshing = uiModel.isRefreshing,
+            onRefresh = {
+                onRefresh()
+            },
         ) {
-            item {
-                Profile(
-                    userInfo = uiModel.userInfo,
-                    onClickProfileEdit = {
-                        navigate("${MainScreen.MyProfile.route}/${uiModel.userInfo.toBase64Json()}")
-                    },
-                )
-            }
-
-            items(myMenuComponents) { menuComponent ->
-                when (menuComponent) {
-                    is MyMenuComponent.Menu -> MenuItem(menu = menuComponent)
-                    is MyMenuComponent.Divider -> WishBoardThickDivider()
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(WishBoardTheme.colors.white)
+                    .padding(top = paddingValues.calculateTopPadding()),
+                state = lazyListState,
+            ) {
+                item {
+                    Profile(
+                        userInfo = uiModel.userInfo,
+                        onClickProfileEdit = {
+                            navigate("${MainScreen.MyProfile.route}/${uiModel.userInfo.toBase64Json()}")
+                        },
+                    )
                 }
-            }
 
-            item { Spacer(modifier = Modifier.size(64.dp)) }
+                items(myMenuComponents) { menuComponent ->
+                    when (menuComponent) {
+                        is MyMenuComponent.Menu -> MenuItem(menu = menuComponent)
+                        is MyMenuComponent.Divider -> WishBoardThickDivider()
+                    }
+                }
+
+                item { Spacer(modifier = Modifier.size(64.dp)) }
+            }
         }
 
         WishBoardTwoButtonDialog(
@@ -251,8 +254,13 @@ fun MyScreen(
                     DialogData.Logout -> logout()
 
                     DialogData.Withdraw -> {
-                        if (isEnableWithdrawal) {
+                        val isMatched = withdrawalEmailInput.value.isNotBlank() &&
+                            withdrawalEmailInput.value.trimEnd() == uiModel.userInfo.email
+
+                        if (isMatched) {
                             deleteAccount()
+                        } else {
+                            isEmailMatched = false
                         }
                     }
 
@@ -262,9 +270,18 @@ fun MyScreen(
             onDismissRequest = {
                 dialogData = null
             },
-            dismissOnConfirm = !(dialogData is DialogData.Withdraw && !isEnableWithdrawal),
+            dismissOnConfirm = dialogData is DialogData.Logout ||
+                (dialogData is DialogData.Withdraw && isEmailMatched == true),
             content = if (dialogData is DialogData.Withdraw) {
-                { WithdrawDialogContent(emailInput = withdrawalEmailInput, isEnableWithdrawal = isEnableWithdrawal) }
+                {
+                    WithdrawDialogContent(
+                        emailInput = withdrawalEmailInput,
+                        isIncorrectEmail = isEmailMatched,
+                        updateIsIncorrectEmail = {
+                            isEmailMatched = null
+                        },
+                    )
+                }
             } else {
                 null
             },
@@ -291,21 +308,26 @@ fun Profile(userInfo: UserInfo, onClickProfileEdit: () -> Unit) {
             },
         )
 
-        Column(modifier = Modifier.padding(start = 16.dp)) {
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(start = 16.dp, end = 18.dp),
+        ) {
             Text(
+                modifier = Modifier.fillMaxWidth(),
                 text = userInfo.nickname,
                 style = WishBoardTheme.typography.suitH2,
                 color = WishBoardTheme.colors.gray700,
             )
             Text(
-                modifier = Modifier.padding(top = 8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
                 text = userInfo.email,
                 style = WishBoardTheme.typography.suitB3,
                 color = WishBoardTheme.colors.gray200,
             )
         }
-
-        Spacer(modifier = Modifier.weight(1f))
 
         WishBoardMiniButton(
             onClick = { onClickProfileEdit() },
@@ -315,14 +337,22 @@ fun Profile(userInfo: UserInfo, onClickProfileEdit: () -> Unit) {
 }
 
 @Composable
-fun WithdrawDialogContent(emailInput: MutableState<String>, isEnableWithdrawal: Boolean) {
+fun WithdrawDialogContent(
+    emailInput: MutableState<String>,
+    isIncorrectEmail: Boolean?,
+    updateIsIncorrectEmail: (Boolean) -> Unit,
+) {
     Column(
         modifier = Modifier
             .padding(start = 16.dp, end = 16.dp, top = 20.dp, bottom = 14.dp),
     ) {
         WishBoardTextField(
             input = emailInput,
-            isError = emailInput.value.isNotBlank() && !isEnableWithdrawal,
+            onTextChange = {
+                updateIsIncorrectEmail(false)
+            },
+
+            isError = isIncorrectEmail == false,
             errorHidingStrategy = View.INVISIBLE,
             placeholder = stringResource(id = R.string.sign_email_placeholder),
             errorMsg = stringResource(id = R.string.dialog_withdraw_email_error),
@@ -381,6 +411,7 @@ fun PreviewMyScreen() {
         logout = {},
         deleteAccount = {},
         moveToWebView = { _, _ -> },
+        onRefresh = {},
     )
 }
 

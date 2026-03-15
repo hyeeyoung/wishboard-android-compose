@@ -15,7 +15,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hyeeyoung.wishboard.R
-import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
+import com.hyeeyoung.wishboard.designsystem.component.button.LegacyWishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 
 @Composable
@@ -48,7 +48,7 @@ fun PreviewWishBoardMainTopBar() {
     WishBoardMainTopBar(
         titleRes = R.string.folder,
         endComponent = {
-            WishBoardIconButton(modifier = Modifier.padding(end = 8.dp), iconRes = R.drawable.ic_plus, onClick = {
+            LegacyWishBoardIconButton(modifier = Modifier.padding(end = 8.dp), iconRes = R.drawable.ic_plus, onClick = {
                 /*TODO*/
             })
         },

@@ -1,9 +1,11 @@
 package com.hyeeyoung.wishboard.presentation.wish.screen
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.core.extension.onFailure
 import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
-import com.hyeeyoung.wishboard.domain.usecase.folder.GetFoldersUseCase
+import com.hyeeyoung.wishboard.domain.usecase.folder.GetFolderSummariesUseCase
 import com.hyeeyoung.wishboard.domain.usecase.item.DeleteWishItemUseCase
 import com.hyeeyoung.wishboard.domain.usecase.item.GetWishItemDetailUseCase
 import com.hyeeyoung.wishboard.domain.usecase.item.PutFolderOfWishItemUseCase
@@ -11,6 +13,7 @@ import com.hyeeyoung.wishboard.presentation.common.BaseViewModel
 import com.hyeeyoung.wishboard.presentation.folder.model.FolderListUiModel
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
 import com.hyeeyoung.wishboard.presentation.sign.model.snackbar.SnackbarMessage
+import com.hyeeyoung.wishboard.presentation.util.WishBoardEventBus
 import com.hyeeyoung.wishboard.presentation.wish.model.WishItemDetailUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,8 +24,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class WishItemViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     private val getWishItemUseCase: GetWishItemDetailUseCase,
-    private val getFoldersUseCase: GetFoldersUseCase,
+    private val getFolderSummariesUseCase: GetFolderSummariesUseCase,
     private val putFolderOfWishItemUseCase: PutFolderOfWishItemUseCase,
     private val deleteWishItemUseCase: DeleteWishItemUseCase,
 ) : BaseViewModel() {
@@ -31,10 +35,16 @@ class WishItemViewModel @Inject constructor(
 
     private val folderUiModel = MutableStateFlow(FolderListUiModel())
 
-    fun getWishItemDetail(id: Long) {
+    init {
+        val id = savedStateHandle.get<Long>(MainScreen.WishItemDetail.ARG_WISH_ITEM_ID)
+        id?.let {
+            getWishItemDetail(id)
+        }
+    }
+
+    private fun getWishItemDetail(id: Long) {
         viewModelScope.launch {
-            getWishItemUseCase(id).onSuccess {
-                val detail = it.firstOrNull() ?: return@launch
+            getWishItemUseCase(id).onSuccess { detail ->
                 _uiModel.update {
                     WishItemDetailUiModel.fromDomain(detail)
                 }
@@ -49,7 +59,7 @@ class WishItemViewModel @Inject constructor(
         folderUiModel.update { it.copy(fetchState = WishBoardState.Loading) }
 
         viewModelScope.launch {
-            getFoldersUseCase().onSuccess { folders ->
+            getFolderSummariesUseCase().onSuccess { folders ->
                 folderUiModel.update {
                     it.copy(folders = folders, fetchState = WishBoardState.Success(Unit))
                 }
@@ -76,6 +86,7 @@ class WishItemViewModel @Inject constructor(
     fun updateFolder(folder: FolderItem) {
         viewModelScope.launch {
             putFolderOfWishItemUseCase(itemId = uiModel.value.id, folderId = folder.id).onSuccess {
+                WishBoardEventBus.notifyWishItemChanged()
                 _uiModel.update {
                     it.copy(folderId = folder.id, folderName = folder.name)
                 }

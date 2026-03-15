@@ -14,14 +14,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheetProperties
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetValue
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -39,6 +37,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardEmptyView
@@ -47,11 +49,15 @@ import com.hyeeyoung.wishboard.designsystem.component.dialog.temp.WishBoardModal
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.domain.model.wish.WishItem
 import com.hyeeyoung.wishboard.presentation.onboarding.OnboardingModalContent
+import com.hyeeyoung.wishboard.presentation.util.WishBoardPullToRefreshBox
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
+import com.hyeeyoung.wishboard.presentation.util.getFakePagingData
 import com.hyeeyoung.wishboard.presentation.wish.WishListViewModel
 import com.hyeeyoung.wishboard.presentation.wish.component.WishItem
 import com.hyeeyoung.wishboard.presentation.wish.model.WishListUiModel
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,6 +67,7 @@ fun WishListScreen(
     viewModel: WishListViewModel = hiltViewModel(),
 ) {
     val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
+    val wishList = viewModel.wishList.collectAsLazyPagingItems()
     val coroutineScope = rememberCoroutineScope()
     var isOpenOnboardingModal by remember { mutableStateOf(false) }
     val onboardingSheetState =
@@ -74,7 +81,10 @@ fun WishListScreen(
     MainScreen.Wishlist.ScrollToTopEffect(lazyGridState)
 
     LaunchedEffect(Unit) {
-        viewModel.getWishItem()
+        viewModel.refreshWishListTrigger.collectLatest {
+            Timber.e("위시 리스트 리프레시")
+            wishList.refresh()
+        }
     }
 
     LaunchedEffect(uiModel.shouldShowOnboardingModal) {
@@ -84,23 +94,17 @@ fun WishListScreen(
         }
     }
 
-    PullToRefreshBox(
-        isRefreshing = uiModel.isRefreshing,
-        onRefresh = {
-            viewModel.getWishItem(true)
+    WishlistScreen(
+        uiModel = uiModel,
+        wishList = wishList,
+        lazyGridState = lazyGridState,
+        onClickCalendar = {
+            navController.navigate(MainScreen.Noti.route)
         },
-    ) {
-        WishlistScreen(
-            uiModel = uiModel,
-            lazyGridState = lazyGridState,
-            onClickCalendar = {
-                navController.navigate(MainScreen.Noti.route)
-            },
-            onClickWishItem = { id ->
-                navController.navigate("${MainScreen.WishItemDetail.route}/$id")
-            },
-        )
-    }
+        onClickWishItem = { id ->
+            navController.navigate("${MainScreen.WishItemDetail.route}/$id")
+        },
+    )
 
     WishBoardModal(
         isOpen = isOpenOnboardingModal,
@@ -127,43 +131,61 @@ fun WishListScreen(
 @Composable
 fun WishlistScreen(
     uiModel: WishListUiModel,
+    wishList: LazyPagingItems<WishItem>,
     lazyGridState: LazyGridState,
     onClickCalendar: () -> Unit,
     onClickWishItem: (id: Long) -> Unit,
 ) {
-    Scaffold(topBar = {
-        WishlistTopBar(onClickCalendar = onClickCalendar)
-    }) { paddingValues ->
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        topBar = {
+            WishlistTopBar(onClickCalendar = onClickCalendar)
+        },
+    ) { paddingValues ->
         val contentModifier = Modifier
             .fillMaxSize()
             .background(WishBoardTheme.colors.white)
             .padding(top = paddingValues.calculateTopPadding())
 
-        if (uiModel.withItems.isEmpty()) {
-            LazyColumn(
-                modifier = contentModifier,
-                verticalArrangement = Arrangement.Center,
+        WishBoardPullToRefreshBox(
+            loadState = wishList.loadState.refresh,
+            onRefresh = {
+                wishList.refresh()
+            },
+        ) {
+            if (
+                wishList.itemCount == 0 &&
+                wishList.loadState.refresh is LoadState.NotLoading &&
+                wishList.loadState.append.endOfPaginationReached
             ) {
-                item {
-                    WishBoardEmptyView(
-                        modifier = contentModifier,
-                        guideTextRes = R.string.empty_wishlist_guide_text,
-                    )
+                LazyColumn(
+                    modifier = contentModifier,
+                    verticalArrangement = Arrangement.Center,
+                ) {
+                    item {
+                        WishBoardEmptyView(
+                            modifier = contentModifier,
+                            guideTextRes = R.string.empty_wishlist_guide_text,
+                        )
+                    }
                 }
-            }
-        } else {
-            LazyVerticalGrid(
-                modifier = contentModifier,
-                columns = GridCells.Fixed(2),
-                state = lazyGridState,
-            ) {
-                items(uiModel.withItems) { wishItem ->
-                    WishItem(
-                        wishItem = wishItem,
-                        onClickItem = {
-                            onClickWishItem(wishItem.id)
-                        },
-                    )
+            } else {
+                LazyVerticalGrid(
+                    modifier = contentModifier,
+                    columns = GridCells.Fixed(2),
+                    state = lazyGridState,
+                ) {
+                    items(count = wishList.itemCount, key = wishList.itemKey { it.id }) { idx ->
+                        val item = wishList[idx]
+                        item?.let {
+                            WishItem(
+                                wishItem = it,
+                                onClickItem = {
+                                    onClickWishItem(it.id)
+                                },
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -206,8 +228,10 @@ fun WishlistTopBar(onClickCalendar: () -> Unit) {
 @Preview
 fun PreviewWishlistScreen() {
     WishlistScreen(
-        uiModel = WishListUiModel(
-            withItems = listOf(
+        uiModel = WishListUiModel(),
+        lazyGridState = rememberLazyGridState(),
+        wishList = getFakePagingData(
+            listOf(
                 WishItem(
                     id = 1L,
                     name = "21SS SAGE SHIRT [4COLOR]",
@@ -246,7 +270,6 @@ fun PreviewWishlistScreen() {
                 ),
             ),
         ),
-        lazyGridState = rememberLazyGridState(),
         onClickCalendar = {},
         onClickWishItem = {},
     )

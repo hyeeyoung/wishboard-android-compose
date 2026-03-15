@@ -53,7 +53,7 @@ fun ShopLinkModalContent(link: String? = null, onClickComplete: (String) -> Unit
             WishBoardWideButton(
                 enabled = isValidUrl == true,
                 onClick = { onClickComplete(linkInput.value) },
-                text = stringResource(id = R.string.complete),
+                text = stringResource(id = R.string.add),
             )
         }
     }

@@ -1,22 +1,23 @@
 package com.hyeeyoung.wishboard.presentation.upload.model
 
 import android.net.Uri
+import androidx.compose.ui.text.input.TextFieldValue
 import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
 import com.hyeeyoung.wishboard.domain.model.noti.NotiType
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemUploadInfo
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemUploadType
+import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat
+import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat.toUtcFormattedString
 import com.hyeeyoung.wishboard.presentation.common.model.ImageType
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
-import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat
-import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat.getFormattedDateStr
 import com.hyeeyoung.wishboard.presentation.util.extension.getValidUrl
 import kotlinx.datetime.LocalDateTime
 
-data class WishItemUploadUiModel(
+data class ParsingUploadItemUiModel(
     val accessToken: String = "",
     val selectedFolder: FolderItem? = null,
-    val itemName: String = "",
-    val itemPrice: String = "",
+    val itemName: TextFieldValue = TextFieldValue(),
+    val itemPrice: TextFieldValue = TextFieldValue(),
     val itemUrl: String = "",
     val itemNotiType: NotiType? = null,
     val itemNotiDate: LocalDateTime? = null,
@@ -33,21 +34,25 @@ data class WishItemUploadUiModel(
     val wishItemUploadState: WishBoardState<Unit> = WishBoardState.Idle,
 ) {
     fun toDomain(itemImage: ImageType?, uploadType: WishItemUploadType): WishItemUploadInfo {
-        val dateStr = itemNotiDate?.getFormattedDateStr(WishBoardDateFormat.YYYY_MM_DD_HH_MM_SS)
+        val dateStr = itemNotiDate?.toUtcFormattedString(WishBoardDateFormat.YYYY_MM_DD_HH_MM_SS)
         val site =
             if (itemUrl.isEmpty()) {
                 null
-            } else if (uploadType == WishItemUploadType.PARSING) { itemUrl.getValidUrl() } else { itemUrl }
+            } else if (uploadType == WishItemUploadType.PARSING) {
+                itemUrl.getValidUrl()
+            } else {
+                itemUrl
+            }
 
         return WishItemUploadInfo(
             folderId = selectedFolder?.id,
-            itemName = itemName.trim(),
-            itemPrice = itemPrice.replace(",", "").toIntOrNull(),
+            itemName = itemName.text.trim(),
+            itemPrice = itemPrice.text.replace(",", "").toIntOrNull(),
             itemUrl = site?.trim(),
             itemMemo = itemMemo.trim(),
             itemNotiType = itemNotiType,
             itemNotiDate = dateStr,
-            itemImage = itemImage,
+            itemImage = itemImage?.let { listOf(it) },
         )
     }
 }

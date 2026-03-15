@@ -7,6 +7,6 @@ import javax.inject.Inject
 class GetWishItemDetailUseCase @Inject constructor(
     private val repository: ItemRepository,
 ) {
-    suspend operator fun invoke(id: Long): Result<List<WishItemDetail>> =
+    suspend operator fun invoke(id: Long): Result<WishItemDetail> =
         repository.fetchWishItemDetail(id)
 }

@@ -3,8 +3,12 @@ package com.hyeeyoung.wishboard.presentation.sign.screen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -50,7 +54,6 @@ fun SignUpEmailScreen(
         onClickNext = {
             viewModel.checkRegisteredUser(
                 afterSuccess = {
-                    keyboardController?.hide()
                     navController.navigate(SignScreen.Password.route)
                 },
             )
@@ -90,8 +93,11 @@ fun SignUpEmailScreen(
     }) { paddingValues ->
         Column(
             modifier = Modifier
+                .fillMaxSize()
                 .background(WishBoardTheme.colors.white)
-                .padding(top = paddingValues.calculateTopPadding(), bottom = 16.dp, start = 16.dp, end = 16.dp),
+                .verticalScroll(rememberScrollState())
+                .padding(top = paddingValues.calculateTopPadding(), bottom = 16.dp, start = 16.dp, end = 16.dp)
+                .imePadding(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             SignDescription(descriptionRes = R.string.sign_up_email_description, iconRes = R.drawable.ic_email)
@@ -101,14 +107,8 @@ fun SignUpEmailScreen(
                     .focusRequester(focusRequester),
                 input = uiModel.email,
                 placeholder = stringResource(id = R.string.sign_email_placeholder),
-                errorMsg = if (uiModel.isValidEmail == false) {
-                    stringResource(id = R.string.sign_in_email_error)
-                } else {
-                    stringResource(
-                        id = R.string.sign_up_already_member_error,
-                    )
-                },
-                isError = uiModel.isValidEmail == false || isRegisteredEmail,
+                errorMsg = stringResource(id = R.string.sign_up_already_member_error),
+                isError = isRegisteredEmail,
                 onTextChange = onEmailChange,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             )

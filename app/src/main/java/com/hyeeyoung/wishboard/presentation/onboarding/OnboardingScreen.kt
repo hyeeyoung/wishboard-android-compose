@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
@@ -47,17 +48,11 @@ fun OnboardingModalContent(onClickConfirm: () -> Unit) {
                     .padding(start = 16.dp, end = 16.dp, top = 36.dp, bottom = 16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                // Indicator
-                Row(modifier = Modifier.padding(bottom = 24.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    repeat(onboardingRes.size) { pos ->
-                        val color = if (pos == pagerState.currentPage) {
-                            WishBoardTheme.colors.gray700
-                        } else {
-                            WishBoardTheme.colors.gray100
-                        }
-                        Canvas(modifier = Modifier.size(6.dp), onDraw = { drawCircle(color = color) })
-                    }
-                }
+                WishBoardIndicator(
+                    modifier = Modifier.padding(bottom = 24.dp),
+                    size = onboardingRes.size,
+                    pagerState = pagerState,
+                )
 
                 WishBoardWideButton(
                     enabled = pagerState.currentPage == onboardingRes.lastIndex,
@@ -66,6 +61,21 @@ fun OnboardingModalContent(onClickConfirm: () -> Unit) {
                     isGreen = false,
                 )
             }
+        }
+    }
+}
+
+@Composable
+fun WishBoardIndicator(modifier: Modifier = Modifier, size: Int, pagerState: PagerState) {
+    Row(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        repeat(size) { pos ->
+            val color = if (pos == pagerState.currentPage) {
+                WishBoardTheme.colors.gray700
+            } else {
+                WishBoardTheme.colors.gray100
+            }
+
+            Canvas(modifier = Modifier.size(6.dp), onDraw = { drawCircle(color = color) })
         }
     }
 }
