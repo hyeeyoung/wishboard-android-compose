@@ -6,6 +6,8 @@ import com.hyeeyoung.wishboard.data.remote.model.base.PagedResponse
 import com.hyeeyoung.wishboard.data.remote.model.folder.FolderItemDto
 import com.hyeeyoung.wishboard.data.remote.model.folder.FolderNameDto
 import com.hyeeyoung.wishboard.data.remote.model.folder.FolderSummaryDto
+import com.hyeeyoung.wishboard.data.remote.model.folder.ReorderFolderListDto
+import com.hyeeyoung.wishboard.domain.model.folder.FolderOrderOption
 import com.hyeeyoung.wishboard.presentation.upload.model.WishItemDto
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -20,10 +22,18 @@ interface FolderService {
     suspend fun fetchFolders(
         @Query("page") page: Int,
         @Query("size") size: Int,
+        @Query("order") order: String = FolderOrderOption.CUSTOM.name,
     ): BaseResponse<PagedResponse<FolderItemDto>>
 
+    @PUT("folder/order")
+    suspend fun reorderFolders(
+        @Body folderIds: ReorderFolderListDto,
+    ): BaseResponseNoData
+
     @GET("folder/list")
-    suspend fun fetchFolderSummaries(): BaseResponse<List<FolderSummaryDto>>
+    suspend fun fetchFolderSummaries(
+        @Query("order") order: String,
+    ): BaseResponse<List<FolderSummaryDto>>
 
     @GET("folder/item/{folderId}")
     suspend fun fetchFolderDetail(

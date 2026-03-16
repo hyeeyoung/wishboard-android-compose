@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.core.extension.onFailure
 import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
+import com.hyeeyoung.wishboard.domain.model.folder.FolderOrderOption
 import com.hyeeyoung.wishboard.domain.usecase.folder.GetFolderSummariesUseCase
 import com.hyeeyoung.wishboard.domain.usecase.item.DeleteWishItemUseCase
 import com.hyeeyoung.wishboard.domain.usecase.item.GetWishItemDetailUseCase
@@ -59,7 +60,7 @@ class WishItemViewModel @Inject constructor(
         folderUiModel.update { it.copy(fetchState = WishBoardState.Loading) }
 
         viewModelScope.launch {
-            getFolderSummariesUseCase().onSuccess { folders ->
+            getFolderSummariesUseCase(orderOption = FolderOrderOption.CUSTOM).onSuccess { folders ->
                 folderUiModel.update {
                     it.copy(folders = folders, fetchState = WishBoardState.Success(Unit))
                 }

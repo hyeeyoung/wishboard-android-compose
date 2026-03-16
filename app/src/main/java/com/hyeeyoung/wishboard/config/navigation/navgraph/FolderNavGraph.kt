@@ -13,7 +13,7 @@ import com.hyeeyoung.wishboard.presentation.folder.FolderScreen
 fun NavGraphBuilder.folderNavGraph(bottomNavController: NavHostController, wishNavController: NavHostController) =
     navigation(startDestination = MainScreen.Folder.getStartRouteForMainTab(), route = MainScreen.Folder.route) {
         composable(route = MainScreen.Folder.getStartRouteForMainTab()) {
-            FolderScreen(navController = bottomNavController)
+            FolderScreen(bottomNavController = bottomNavController, wishNavController = wishNavController)
         }
 
         composable(

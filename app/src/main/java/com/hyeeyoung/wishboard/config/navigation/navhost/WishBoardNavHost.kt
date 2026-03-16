@@ -31,6 +31,7 @@ import com.hyeeyoung.wishboard.designsystem.component.LocalSnackbarHostState
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardSnackbarHost
 import com.hyeeyoung.wishboard.domain.model.user.UserInfo
 import com.hyeeyoung.wishboard.presentation.calendar.screen.CalendarScreen
+import com.hyeeyoung.wishboard.presentation.folder.FolderOrderScreen
 import com.hyeeyoung.wishboard.presentation.intro.IntroScreen
 import com.hyeeyoung.wishboard.presentation.main.MainScreen
 import com.hyeeyoung.wishboard.presentation.my.screen.PasswordChangeScreen
@@ -90,6 +91,17 @@ fun WishBoardNavHost(modifier: Modifier = Modifier, navController: NavHostContro
                     it.getBase64Json<UserInfo>(MainScreen.MyProfile.ARG_USER_INFO) ?: return@snackbarComposable
                 ProfileEditScreen(navController = navController, userInfo = profileInfo)
             }
+        }
+
+        snackbarComposable(
+            snackbarHostState = snackbarHostState,
+            route = MainScreen.FolderOrder.route,
+            enterTransition = { slideInVertically(initialOffsetY = { it }) },
+            exitTransition = { slideOutVertically(targetOffsetY = { -it }) },
+            popEnterTransition = { slideInVertically(initialOffsetY = { -it }) },
+            popExitTransition = { slideOutVertically(targetOffsetY = { it }) },
+        ) {
+            FolderOrderScreen(navController = navController)
         }
 
         snackbarComposable(snackbarHostState = snackbarHostState, route = MainScreen.MyPasswordChange.route) {

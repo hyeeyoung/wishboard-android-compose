@@ -43,7 +43,7 @@ import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardEmptyView
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardGlobalSnackbarMessage
-import com.hyeeyoung.wishboard.designsystem.component.button.LegacyWishBoardIconButton
+import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.DialogData
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.ModalData
 import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.WishBoardTwoButtonDialog
@@ -64,7 +64,8 @@ import timber.log.Timber
 
 @Composable
 fun FolderScreen(
-    navController: NavHostController,
+    bottomNavController: NavHostController,
+    wishNavController: NavHostController,
     viewModel: FolderViewModel = hiltViewModel(),
 ) {
     val folders = viewModel.folders.collectAsLazyPagingItems()
@@ -89,7 +90,7 @@ fun FolderScreen(
         folders = folders,
         lazyGridState = lazyGridState,
         onClickFolder = { folder ->
-            navController.navigateIfResumed(
+            bottomNavController.navigateIfResumed(
                 lifecycleOwner = lifecycleOwner,
                 route = "${MainScreen.FolderDetail.route}/${folder.id}/${folder.name}",
             )
@@ -107,6 +108,9 @@ fun FolderScreen(
         },
         clearModalData = {
             viewModel.clearModalData()
+        },
+        onClickReorder = {
+            wishNavController.navigate(route = MainScreen.FolderOrder.route)
         },
     )
 
@@ -161,6 +165,7 @@ fun FolderScreen(
     onClickFolder: (FolderItem) -> Unit,
     deleteFolder: (id: Long?) -> Unit,
     showModal: (ModalData.Modal) -> Unit,
+    onClickReorder: () -> Unit,
     clearModalData: () -> Unit,
 ) {
     var dialogData by remember { mutableStateOf<DialogData?>(null) }
@@ -200,14 +205,26 @@ fun FolderScreen(
         WishBoardMainTopBar(
             titleRes = R.string.folder,
             endComponent = {
-                LegacyWishBoardIconButton(
-                    modifier = Modifier.padding(end = 8.dp),
-                    iconRes = R.drawable.ic_plus,
-                    onClick = {
-                        clearModalData()
-                        showModal(ModalData.Modal.NewFolder(folderName = ""))
-                    },
-                )
+                Row(modifier = Modifier.padding(end = 13.dp), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                    WishBoardIconButton(
+                        iconRes = R.drawable.ic_sort,
+                        size = 30.dp,
+                        contentDescription = "폴더 정렬",
+                        onClick = {
+                            onClickReorder()
+                        },
+                    )
+
+                    WishBoardIconButton(
+                        iconRes = R.drawable.ic_plus,
+                        size = 30.dp,
+                        contentDescription = "폴더 추가",
+                        onClick = {
+                            clearModalData()
+                            showModal(ModalData.Modal.NewFolder(folderName = ""))
+                        },
+                    )
+                }
             },
         )
     }) { paddingValues ->
@@ -337,6 +354,7 @@ fun PreviewFolderScreen() {
         deleteFolder = {},
         showModal = {},
         clearModalData = {},
+        onClickReorder = {},
     )
 }
 

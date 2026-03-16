@@ -48,7 +48,7 @@ android {
 
     buildTypes {
         getByName("debug") {
-            buildConfigField("String", "BASE_URL", "\"${properties.getProperty("DEV_BASE_URL")}\"")
+            buildConfigField("String", "BASE_URL", "${properties.getProperty("DEV_BASE_URL")}")
         }
         getByName("release") {
             isMinifyEnabled = true

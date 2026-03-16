@@ -10,6 +10,7 @@ import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.core.extension.onFailure
 import com.hyeeyoung.wishboard.data.local.WishBoardPreference
 import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
+import com.hyeeyoung.wishboard.domain.model.folder.FolderOrderOption
 import com.hyeeyoung.wishboard.domain.model.noti.NotiInfo
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemUploadType
 import com.hyeeyoung.wishboard.domain.usecase.folder.GetFolderSummariesUseCase
@@ -234,6 +235,8 @@ class WishItemUploadViewModel @Inject constructor(
     }
 
     fun getFolders(uploadType: WishItemUploadType) {
+        val folderOption: FolderOrderOption
+
         when (uploadType) {
             WishItemUploadType.PARSING -> {
                 if (!localStorage.isLogin) {
@@ -241,16 +244,18 @@ class WishItemUploadViewModel @Inject constructor(
                 }
                 if (parsingUiModel.value.folderFetchState is WishBoardState.Loading) return
                 _parsingUiModel.update { it.copy(folderFetchState = WishBoardState.Loading) }
+                folderOption = FolderOrderOption.CUSTOM
             }
 
             WishItemUploadType.MANUAL -> {
                 if (_manualUploadUiModel.value.folderFetchState is WishBoardState.Loading) return
                 _manualUploadUiModel.update { it.copy(folderFetchState = WishBoardState.Loading) }
+                folderOption = FolderOrderOption.RECENT_ITEM
             }
         }
 
         viewModelScope.launch {
-            getFolderSummariesUseCase().onSuccess { folders ->
+            getFolderSummariesUseCase(orderOption = folderOption).onSuccess { folders ->
                 when (uploadType) {
                     WishItemUploadType.PARSING -> {
                         _parsingUiModel.update {

@@ -10,6 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 
@@ -33,13 +34,14 @@ fun LegacyWishBoardIconButton(
 @Composable
 fun WishBoardIconButton(
     modifier: Modifier = Modifier,
+    size: Dp = 48.dp, // TODO dimen 리소스 추가
     @DrawableRes iconRes: Int,
     onClick: () -> Unit,
     contentDescription: String? = null,
 ) {
     Box(
         modifier = modifier
-            .size(48.dp) // TODO dimen 리소스 추가
+            .size(size)
             .noRippleClickable { onClick() },
         contentAlignment = Alignment.Center,
     ) {

@@ -23,6 +23,8 @@ sealed class MainScreen(override val route: String) : Screen {
 
     data object Folder : MainScreen(route = "folder")
 
+    data object FolderOrder : MainScreen(route = "folderOrder")
+
     data object FolderDetail : MainScreen(route = "folderDetail") {
         const val ARG_FOLDER_ID: String = "folderId"
         const val ARG_FOLDER_NAME: String = "folderName"
