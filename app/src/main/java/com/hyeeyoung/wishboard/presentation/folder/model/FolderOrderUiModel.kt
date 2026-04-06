@@ -8,4 +8,5 @@ data class FolderOrderUiModel(
     val customFolders: List<FolderItem> = emptyList(),
     val fetchState: WishBoardState<Unit> = WishBoardState.Idle,
     val saveState: WishBoardState<Unit> = WishBoardState.Idle,
+    val enabledSaveButton: Boolean = false,
 )

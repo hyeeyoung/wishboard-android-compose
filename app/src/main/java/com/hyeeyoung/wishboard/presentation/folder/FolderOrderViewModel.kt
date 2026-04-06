@@ -9,6 +9,7 @@ import com.hyeeyoung.wishboard.presentation.common.BaseViewModel
 import com.hyeeyoung.wishboard.presentation.folder.model.FolderOrderUiModel
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
 import com.hyeeyoung.wishboard.presentation.sign.model.snackbar.SnackbarMessage
+import com.hyeeyoung.wishboard.presentation.util.WishBoardEventBus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -62,6 +63,14 @@ class FolderOrderViewModel @Inject constructor(
         }
     }
 
+    fun moveFolder(fromIndex: Int, toIndex: Int) {
+        _uiModel.update { current ->
+            val list = current.customFolders.toMutableList()
+            list.add(toIndex, list.removeAt(fromIndex))
+            current.copy(customFolders = list, enabledSaveButton = true)
+        }
+    }
+
     fun saveReorderedFolder(afterSuccess: () -> Unit) {
         if (uiModel.value.saveState is WishBoardState.Loading) return
         _uiModel.update { it.copy(saveState = WishBoardState.Loading) }
@@ -72,6 +81,7 @@ class FolderOrderViewModel @Inject constructor(
                     it.copy(saveState = WishBoardState.Success(Unit))
                 }
                 updateSnackbarMessage(message = "폴더 정렬 방식을 변경했어요 📁")
+                WishBoardEventBus.notifyFolderChanged()
                 afterSuccess()
             }.onFailure { exception, _, _ ->
                 updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
@@ -79,6 +89,15 @@ class FolderOrderViewModel @Inject constructor(
                     it.copy(saveState = WishBoardState.Failure)
                 }
             }
+        }
+    }
+
+    fun resetOrder() {
+        _uiModel.update {
+            it.copy(
+                customFolders = it.originFolders,
+                enabledSaveButton = false,
+            )
         }
     }
 }

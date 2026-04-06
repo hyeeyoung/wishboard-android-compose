@@ -186,6 +186,9 @@ fun FolderScreen(
         }
     }
 
+    val canReorder = folders.itemCount >= 2 &&
+        folders.loadState.refresh is LoadState.NotLoading
+
     WishBoardTwoButtonDialog(
         dialogData = dialogData,
         onClickConfirm = {
@@ -206,14 +209,16 @@ fun FolderScreen(
             titleRes = R.string.folder,
             endComponent = {
                 Row(modifier = Modifier.padding(end = 13.dp), horizontalArrangement = Arrangement.spacedBy(2.dp)) {
-                    WishBoardIconButton(
-                        iconRes = R.drawable.ic_sort,
-                        size = 30.dp,
-                        contentDescription = "폴더 정렬",
-                        onClick = {
-                            onClickReorder()
-                        },
-                    )
+                    if (canReorder) {
+                        WishBoardIconButton(
+                            iconRes = R.drawable.ic_sort,
+                            size = 30.dp,
+                            contentDescription = "폴더 정렬",
+                            onClick = {
+                                onClickReorder()
+                            },
+                        )
+                    }
 
                     WishBoardIconButton(
                         iconRes = R.drawable.ic_plus,
