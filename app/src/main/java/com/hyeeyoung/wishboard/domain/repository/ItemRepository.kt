@@ -7,8 +7,10 @@ import com.hyeeyoung.wishboard.domain.model.wish.WishItemDetail
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemUploadInfo
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemUploadType
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 
 interface ItemRepository {
+    val totalElements: StateFlow<Int?>
     fun fetchWishList(): Flow<PagingData<WishItem>>
 
     suspend fun fetchWishItemDetail(itemId: Long): Result<WishItemDetail>

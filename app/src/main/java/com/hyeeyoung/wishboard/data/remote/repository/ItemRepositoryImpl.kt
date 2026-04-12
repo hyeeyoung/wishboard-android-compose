@@ -19,6 +19,9 @@ import com.hyeeyoung.wishboard.domain.repository.ItemRepository
 import com.hyeeyoung.wishboard.presentation.common.model.ImageType
 import com.hyeeyoung.wishboard.presentation.util.extension.toJson
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.serializers.InstantIso8601Serializer
 import kotlinx.datetime.serializers.LocalDateTimeIso8601Serializer
@@ -35,6 +38,9 @@ import javax.inject.Inject
 class ItemRepositoryImpl @Inject constructor(
     private val itemService: ItemService,
 ) : ItemRepository {
+    private val _totalElements = MutableStateFlow<Int?>(null)
+    override val totalElements: StateFlow<Int?> = _totalElements.asStateFlow()
+
     override fun fetchWishList(): Flow<PagingData<WishItem>> =
         Pager(
             config = PagingConfig(
@@ -44,12 +50,12 @@ class ItemRepositoryImpl @Inject constructor(
                 prefetchDistance = PageSize.DEFAULT_PREFETCH_SIZE,
             ),
             pagingSourceFactory = {
-                GeneralPagingSource(loadPage = { page, size ->
-                    itemService.fetchWishList(
-                        page = page,
-                        size = size,
-                    )
-                })
+                GeneralPagingSource(
+                    loadPage = { page, size ->
+                        itemService.fetchWishList(page = page, size = size)
+                    },
+                    onMetaLoaded = { totalElements -> _totalElements.value = totalElements },
+                )
             },
         ).flow.map {
             it.map { it.toDomain() }

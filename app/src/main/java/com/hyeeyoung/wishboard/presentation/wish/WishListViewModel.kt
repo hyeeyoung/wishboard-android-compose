@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.hyeeyoung.wishboard.data.local.WishBoardPreference
+import com.hyeeyoung.wishboard.domain.usecase.item.GetTotalWishItemsUseCase
 import com.hyeeyoung.wishboard.domain.usecase.item.GetWishListUseCase
 import com.hyeeyoung.wishboard.domain.util.safeValueOf
 import com.hyeeyoung.wishboard.presentation.common.BaseViewModel
@@ -26,6 +27,7 @@ import javax.inject.Inject
 @HiltViewModel
 class WishListViewModel @Inject constructor(
     getWishListUseCase: GetWishListUseCase,
+    getTotalWishItemsUseCase: GetTotalWishItemsUseCase,
     private val localStorage: WishBoardPreference,
 ) : BaseViewModel() {
     private var _uiModel = MutableStateFlow(WishListUiModel())
@@ -37,6 +39,9 @@ class WishListViewModel @Inject constructor(
             updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
         }
         .stateIn(viewModelScope, SharingStarted.Eagerly, PagingData.empty())
+
+    val totalWishItems = getTotalWishItemsUseCase()
+
     private val _refreshWishListTrigger = Channel<Unit>()
     val refreshWishListTrigger = _refreshWishListTrigger.receiveAsFlow()
 

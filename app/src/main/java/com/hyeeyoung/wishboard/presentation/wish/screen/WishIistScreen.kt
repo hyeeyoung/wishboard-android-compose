@@ -34,6 +34,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -77,6 +78,8 @@ fun WishListScreen(
 ) {
     val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
     val wishList = viewModel.wishList.collectAsLazyPagingItems()
+    val totalWishItems by viewModel.totalWishItems.collectAsStateWithLifecycle()
+
     val coroutineScope = rememberCoroutineScope()
     var isOpenOnboardingModal by remember { mutableStateOf(false) }
     val onboardingSheetState =
@@ -108,6 +111,7 @@ fun WishListScreen(
     WishlistScreen(
         uiModel = uiModel,
         wishList = wishList,
+        totalWishItems = totalWishItems,
         lazyGridState = lazyGridState,
         lazyListState = lazyListState,
         onClickCalendar = {
@@ -145,6 +149,7 @@ fun WishListScreen(
 fun WishlistScreen(
     uiModel: WishListUiModel,
     wishList: LazyPagingItems<WishItem>,
+    totalWishItems: Int?,
     lazyGridState: LazyGridState,
     lazyListState: LazyListState,
     onClickCalendar: () -> Unit,
@@ -170,8 +175,8 @@ fun WishlistScreen(
         ) {
             when {
                 wishList.itemCount == 0 &&
-                    wishList.loadState.refresh is LoadState.NotLoading &&
-                    wishList.loadState.append.endOfPaginationReached -> {
+                        wishList.loadState.refresh is LoadState.NotLoading &&
+                        wishList.loadState.append.endOfPaginationReached -> {
                     LazyColumn(
                         modifier = contentModifier,
                         verticalArrangement = Arrangement.Center,
@@ -195,7 +200,8 @@ fun WishlistScreen(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Text(
-                                text = "전체 ${wishList.itemCount}개",
+                                modifier = Modifier.alpha(if (totalWishItems != null) 1f else 0f),
+                                text = "전체 ${totalWishItems}개",
                                 style = WishBoardTheme.typography.suitD3,
                                 color = WishBoardTheme.colors.gray200,
                             )
@@ -289,56 +295,57 @@ fun WishlistTopBar(onClickCalendar: () -> Unit) {
 @Composable
 @Preview
 fun PreviewWishlistScreen() {
+    val wishItems = listOf(
+        WishItem(
+            id = 1L,
+            name = "21SS SAGE SHIRT [4COLOR]",
+            imageUrl = "https://url.kr/8vwf1e",
+            price = 108000,
+            itemOwnershipStatus = WishItemOwnershipStatus.WISH,
+        ),
+        WishItem(
+            id = 1L,
+            name = "SOFT BALL CHAIN MINI BAG [SILVER]",
+            imageUrl = "https://url.kr/8vwf1e",
+            price = 108000,
+            itemOwnershipStatus = WishItemOwnershipStatus.OWNED,
+        ),
+        WishItem(
+            id = 1L,
+            name = "썸머호텔 여름차렵이불세트",
+            imageUrl = "https://url.kr/8vwf1e",
+            price = 108000,
+            itemOwnershipStatus = WishItemOwnershipStatus.WISH,
+        ),
+        WishItem(
+            id = 1L,
+            name = "Bean Ring Gold",
+            imageUrl = "https://url.kr/8vwf1e",
+            price = 108000,
+            itemOwnershipStatus = WishItemOwnershipStatus.OWNED,
+        ),
+        WishItem(
+            id = 1L,
+            name = "Bean Ring Gold",
+            imageUrl = "https://url.kr/8vwf1e",
+            price = 108000,
+            itemOwnershipStatus = WishItemOwnershipStatus.WISH,
+        ),
+        WishItem(
+            id = 1L,
+            name = "Bean Ring Gold",
+            imageUrl = "https://url.kr/8vwf1e",
+            price = 108000,
+            itemOwnershipStatus = WishItemOwnershipStatus.WISH,
+        ),
+    )
+
     WishlistScreen(
         uiModel = WishListUiModel(),
         lazyGridState = rememberLazyGridState(),
         lazyListState = rememberLazyListState(),
-        wishList = getFakePagingData(
-            listOf(
-                WishItem(
-                    id = 1L,
-                    name = "21SS SAGE SHIRT [4COLOR]",
-                    imageUrl = "https://url.kr/8vwf1e",
-                    price = 108000,
-                    itemOwnershipStatus = WishItemOwnershipStatus.WISH,
-                ),
-                WishItem(
-                    id = 1L,
-                    name = "SOFT BALL CHAIN MINI BAG [SILVER]",
-                    imageUrl = "https://url.kr/8vwf1e",
-                    price = 108000,
-                    itemOwnershipStatus = WishItemOwnershipStatus.OWNED,
-                ),
-                WishItem(
-                    id = 1L,
-                    name = "썸머호텔 여름차렵이불세트",
-                    imageUrl = "https://url.kr/8vwf1e",
-                    price = 108000,
-                    itemOwnershipStatus = WishItemOwnershipStatus.WISH,
-                ),
-                WishItem(
-                    id = 1L,
-                    name = "Bean Ring Gold",
-                    imageUrl = "https://url.kr/8vwf1e",
-                    price = 108000,
-                    itemOwnershipStatus = WishItemOwnershipStatus.OWNED,
-                ),
-                WishItem(
-                    id = 1L,
-                    name = "Bean Ring Gold",
-                    imageUrl = "https://url.kr/8vwf1e",
-                    price = 108000,
-                    itemOwnershipStatus = WishItemOwnershipStatus.WISH,
-                ),
-                WishItem(
-                    id = 1L,
-                    name = "Bean Ring Gold",
-                    imageUrl = "https://url.kr/8vwf1e",
-                    price = 108000,
-                    itemOwnershipStatus = WishItemOwnershipStatus.WISH,
-                ),
-            ),
-        ),
+        wishList = getFakePagingData(wishItems),
+        totalWishItems = wishItems.size,
         onClickCalendar = {},
         onClickWishItem = {},
         updateViewType = {},

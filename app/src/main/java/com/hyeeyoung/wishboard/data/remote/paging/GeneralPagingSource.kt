@@ -7,12 +7,15 @@ import com.hyeeyoung.wishboard.data.remote.model.base.PagedResponse
 
 class GeneralPagingSource<T : Any>(
     private val loadPage: suspend (page: Int, size: Int) -> BaseResponse<PagedResponse<T>>,
+    private val onMetaLoaded: ((totalElements: Int) -> Unit)? = null,
 ) : PagingSource<Int, T>() {
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, T> {
         val currentPage = params.key ?: 0
 
         return try {
             val res = loadPage(currentPage, params.loadSize)
+
+            onMetaLoaded?.invoke(res.data.totalElements)
 
             val items = res.data.content
             LoadResult.Page(
