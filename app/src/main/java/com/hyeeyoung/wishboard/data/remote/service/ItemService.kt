@@ -5,10 +5,12 @@ import com.hyeeyoung.wishboard.data.remote.model.base.BaseResponseNoData
 import com.hyeeyoung.wishboard.data.remote.model.base.PagedResponse
 import com.hyeeyoung.wishboard.data.remote.model.wish.WishItemDetailDto
 import com.hyeeyoung.wishboard.data.remote.model.wish.WishItemIdDto
+import com.hyeeyoung.wishboard.data.remote.model.wish.WishItemOwnershipRequestDto
 import com.hyeeyoung.wishboard.domain.model.wish.ParsedWishItem
 import com.hyeeyoung.wishboard.presentation.upload.model.WishItemDto
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Multipart
@@ -59,4 +61,10 @@ interface ItemService {
     suspend fun getParsedItemInfo(
         @Query("site") site: String,
     ): BaseResponse<ParsedWishItem?>
+
+    @PUT("item/{itemId}/status")
+    suspend fun updateItemOwnership(
+        @Path("itemId") itemId: Long,
+        @Body ownership: WishItemOwnershipRequestDto,
+    ): BaseResponse<WishItemDetailDto>
 }

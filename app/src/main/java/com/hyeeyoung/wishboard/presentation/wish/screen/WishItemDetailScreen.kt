@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -28,7 +29,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.style.TextDecoration
@@ -42,8 +42,8 @@ import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen.Upload.ARG_ITEM_DETAIL
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardGlobalSnackbarMessage
+import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardButton
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
-import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.DialogData
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.ModalData
 import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.WishBoardTwoButtonDialog
@@ -53,6 +53,7 @@ import com.hyeeyoung.wishboard.designsystem.component.image.Image
 import com.hyeeyoung.wishboard.designsystem.component.image.WishBoardPlaceHolder
 import com.hyeeyoung.wishboard.designsystem.component.text.HyperlinkText
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
+import com.hyeeyoung.wishboard.designsystem.model.WishBoardButtonColors
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
 import com.hyeeyoung.wishboard.domain.model.noti.NotiType
@@ -120,6 +121,7 @@ fun WishItemDetailScreen(
         onClickFolder = { afterSuccess ->
             viewModel.getFolders(afterSuccess)
         },
+        updateItemOwnership = viewModel::updateItemOwnership,
     )
 }
 
@@ -134,6 +136,7 @@ fun WishItemDetailScreen(
     onClickEdit: () -> Unit,
     onClickShop: () -> Unit,
     onClickBack: () -> Unit,
+    updateItemOwnership: () -> Unit,
     onClickDelete: (itemId: Long?) -> Unit,
 ) {
     var dialogData by remember { mutableStateOf<DialogData?>(null) }
@@ -157,6 +160,7 @@ fun WishItemDetailScreen(
     }) { paddingValues ->
         Column(
             modifier = Modifier
+                .fillMaxSize()
                 .background(WishBoardTheme.colors.white)
                 .padding(top = paddingValues.calculateTopPadding()),
         ) {
@@ -177,17 +181,35 @@ fun WishItemDetailScreen(
                 },
             )
 
-            WishBoardWideButton(
+            Row(
                 modifier = Modifier
-                    .padding(horizontal = dimensionResource(id = R.dimen.spacing_base))
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
                     .padding(bottom = 30.dp),
-                enabled = enabledShopButton,
-                onClick = {
-                    onClickShop()
-                },
-                text = stringResource(id = R.string.wish_item_detail_go_to_shop),
-                isGreen = false,
-            )
+                horizontalArrangement = Arrangement.spacedBy(15.dp),
+            ) {
+                WishBoardButton(
+                    modifier = Modifier.weight(1f),
+                    enabled = true,
+                    onClick = {
+                        updateItemOwnership()
+                    },
+                    text = if (!uiModel.isOwnedItem) "소장템으로 바꾸기" else "소장템에서 제거",
+                    color = if (!uiModel.isOwnedItem) WishBoardButtonColors.LIGHT_GRAY else WishBoardButtonColors.GRAY,
+                )
+
+                if (enabledShopButton) {
+                    WishBoardButton(
+                        modifier = Modifier.weight(1f),
+                        enabled = true,
+                        onClick = {
+                            onClickShop()
+                        },
+                        text = stringResource(id = R.string.wish_item_detail_go_to_shop),
+                        color = WishBoardButtonColors.BLACK,
+                    )
+                }
+            }
         }
 
         WishBoardTwoButtonDialog(
@@ -439,6 +461,7 @@ fun PreviewWishItemDetailScreen() {
         memo = "S사이즈 https://www.naver.com",
         folderId = 1L,
         folderName = "상의",
+        isOwnedItem = false,
         createAt = LocalDateTime(2025, 3, 20, 2, 0),
     )
 
@@ -452,5 +475,6 @@ fun PreviewWishItemDetailScreen() {
         onClickDelete = {},
         onClickBack = {},
         onClickFolder = {},
+        updateItemOwnership = {},
     )
 }

@@ -17,4 +17,5 @@ data class WishItemDetail(
     val site: String?,
     val createAt: String,
     val version: Int,
+    val isOwnedItem: Boolean,
 )

@@ -2,6 +2,7 @@ package com.hyeeyoung.wishboard.data.remote.model.wish
 
 import com.hyeeyoung.wishboard.domain.model.noti.NotiType
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemDetail
+import com.hyeeyoung.wishboard.domain.util.safeValueOf
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -30,6 +31,8 @@ data class WishItemDetailDto(
     @SerialName("createdAt")
     val createAt: String,
     val version: Int,
+    @SerialName("itemStatus")
+    val itemStatus: String,
 ) {
     fun toDomain() = WishItemDetail(
         id = id,
@@ -44,5 +47,9 @@ data class WishItemDetailDto(
         site = if (site.isNullOrBlank()) null else site,
         createAt = createAt,
         version = version,
+        isOwnedItem = when (safeValueOf<WishItemOwnership>(itemStatus)) {
+            WishItemOwnership.OWNED -> true
+            else -> false
+        },
     )
 }

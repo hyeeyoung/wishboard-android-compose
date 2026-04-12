@@ -6,8 +6,10 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -17,6 +19,9 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -46,7 +51,6 @@ import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.config.navigation.screen.SignScreen
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardGlobalSnackbarMessage
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardToggleButton
-import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardMiniButton
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.DialogData
 import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.WishBoardTwoButtonDialog
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardThickDivider
@@ -329,7 +333,7 @@ fun Profile(userInfo: UserInfo, onClickProfileEdit: () -> Unit) {
             )
         }
 
-        WishBoardMiniButton(
+        BadgeButton(
             onClick = { onClickProfileEdit() },
             text = stringResource(id = R.string.edit),
         )
@@ -391,6 +395,31 @@ fun MenuItem(menu: MyMenuComponent.Menu) {
             color = WishBoardTheme.colors.gray600,
         )
         menu.endComponent?.let { endComponent -> endComponent() }
+    }
+}
+
+@Composable
+private fun BadgeButton(
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    onClick: () -> Unit,
+    text: String,
+) {
+    Button(
+        modifier = modifier.defaultMinSize(minWidth = 1.dp, minHeight = 1.dp),
+        onClick = { onClick() },
+        shape = RoundedCornerShape(12.dp),
+        enabled = enabled,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = WishBoardTheme.colors.gray100,
+            contentColor = WishBoardTheme.colors.gray600,
+        ),
+        contentPadding = PaddingValues(vertical = 4.dp, horizontal = 10.dp),
+    ) {
+        Text(
+            text = text,
+            style = WishBoardTheme.typography.suitB3,
+        )
     }
 }
 

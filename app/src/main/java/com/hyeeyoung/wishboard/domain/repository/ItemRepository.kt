@@ -22,4 +22,6 @@ interface ItemRepository {
     suspend fun deleteWishItem(itemId: Long): Result<Unit>
 
     suspend fun getParsedItemInfo(site: String): Result<ParsedWishItem?>
+
+    suspend fun updateItemOwnership(itemId: Long, isOwnedItem: Boolean): Result<Boolean>
 }
