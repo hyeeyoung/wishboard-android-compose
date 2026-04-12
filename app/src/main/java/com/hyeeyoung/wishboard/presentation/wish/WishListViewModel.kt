@@ -5,10 +5,12 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.hyeeyoung.wishboard.data.local.WishBoardPreference
 import com.hyeeyoung.wishboard.domain.usecase.item.GetWishListUseCase
+import com.hyeeyoung.wishboard.domain.util.safeValueOf
 import com.hyeeyoung.wishboard.presentation.common.BaseViewModel
 import com.hyeeyoung.wishboard.presentation.sign.model.snackbar.SnackbarMessage
 import com.hyeeyoung.wishboard.presentation.util.WishBoardEventBus
 import com.hyeeyoung.wishboard.presentation.wish.model.WishListUiModel
+import com.hyeeyoung.wishboard.presentation.wish.model.WishListViewType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -39,7 +41,7 @@ class WishListViewModel @Inject constructor(
     val refreshWishListTrigger = _refreshWishListTrigger.receiveAsFlow()
 
     init {
-        initOnboardingModalState()
+        initUiModel()
         refreshWishList()
     }
 
@@ -51,9 +53,13 @@ class WishListViewModel @Inject constructor(
         }
     }
 
-    private fun initOnboardingModalState() {
+    private fun initUiModel() {
         _uiModel.update {
-            it.copy(shouldShowOnboardingModal = localStorage.shouldShowOnboardingModal)
+            it.copy(
+                shouldShowOnboardingModal = localStorage.shouldShowOnboardingModal,
+                viewType = safeValueOf<WishListViewType>(localStorage.wishListViewType)
+                    ?: WishListViewType.GRID_2_COLUMN,
+            )
         }
     }
 
@@ -65,5 +71,13 @@ class WishListViewModel @Inject constructor(
         _uiModel.update {
             it.copy(shouldShowOnboardingModal = false)
         }
+    }
+
+    fun updateViewType() {
+        val newViewType = uiModel.value.viewType.next()
+        _uiModel.update {
+            it.copy(viewType = newViewType)
+        }
+        localStorage.wishListViewType = newViewType.name
     }
 }

@@ -5,7 +5,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
 import com.hyeeyoung.wishboard.data.remote.model.common.PageSize
-import com.hyeeyoung.wishboard.data.remote.model.wish.WishItemOwnership
+import com.hyeeyoung.wishboard.domain.model.wish.WishItemOwnershipStatus
 import com.hyeeyoung.wishboard.data.remote.model.wish.WishItemOwnershipRequestDto
 import com.hyeeyoung.wishboard.data.remote.model.wish.WishItemUploadInfoDto
 import com.hyeeyoung.wishboard.data.remote.paging.GeneralPagingSource
@@ -129,9 +129,9 @@ class ItemRepositoryImpl @Inject constructor(
             itemService.updateItemOwnership(
                 itemId = itemId,
                 ownership = WishItemOwnershipRequestDto(
-                    status = (if (isOwnedItem) WishItemOwnership.OWNED else WishItemOwnership.WISH).name,
+                    status = (if (isOwnedItem) WishItemOwnershipStatus.OWNED else WishItemOwnershipStatus.WISH).name,
                 ),
-            ).data.itemStatus == WishItemOwnership.OWNED.name
+            ).data.itemStatus == WishItemOwnershipStatus.OWNED.name
         }
 
     companion object {

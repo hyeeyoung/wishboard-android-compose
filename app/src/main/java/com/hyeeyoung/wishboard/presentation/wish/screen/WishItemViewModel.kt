@@ -125,6 +125,7 @@ class WishItemViewModel @Inject constructor(
                 val message = if (isOwnedItem) "소장템으로 바꿨어요! 👜" else "소장템에서 제거했어요!"
                 updateSnackbarMessage(message)
                 _uiModel.update { it.copy(isOwnedItem = isOwnedItem) }
+                WishBoardEventBus.notifyWishItemChanged()
             }.onFailure { exception, _, _ ->
                 updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
             }
