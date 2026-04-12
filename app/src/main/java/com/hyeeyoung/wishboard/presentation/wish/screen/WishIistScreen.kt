@@ -91,8 +91,11 @@ fun WishListScreen(
 
     WishBoardGlobalSnackbarMessage(snackbarChannel = viewModel.snackBarChannel)
 
-    MainScreen.Wishlist.ScrollToTopEffect(lazyGridState)
-//    MainScreen.Wishlist.ScrollToTopEffect(lazyListState)
+    if (uiModel.viewType != WishListViewType.LIST) {
+        MainScreen.Wishlist.ScrollToTopEffect(lazyGridState)
+    } else {
+        MainScreen.Wishlist.ScrollToTopEffect(lazyListState)
+    }
 
     LaunchedEffect(Unit) {
         viewModel.refreshWishListTrigger.collectLatest {
@@ -175,8 +178,8 @@ fun WishlistScreen(
         ) {
             when {
                 wishList.itemCount == 0 &&
-                        wishList.loadState.refresh is LoadState.NotLoading &&
-                        wishList.loadState.append.endOfPaginationReached -> {
+                    wishList.loadState.refresh is LoadState.NotLoading &&
+                    wishList.loadState.append.endOfPaginationReached -> {
                     LazyColumn(
                         modifier = contentModifier,
                         verticalArrangement = Arrangement.Center,
