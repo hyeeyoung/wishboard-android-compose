@@ -101,7 +101,7 @@ dependencies {
     implementation(libs.junit)
     implementation(libs.timber)
     implementation(libs.bundles.paging)
-
+    implementation("sh.calvin.reorderable:reorderable:3.0.0")
     coreLibraryDesugaring(libs.desugar)
     debugImplementation(libs.bundles.debug)
     testImplementation(libs.bundles.test)
