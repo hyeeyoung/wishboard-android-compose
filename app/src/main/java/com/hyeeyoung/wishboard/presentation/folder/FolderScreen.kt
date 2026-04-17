@@ -60,7 +60,6 @@ import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.util.extension.rememberModalLauncher
 import com.hyeeyoung.wishboard.presentation.util.getFakePagingData
 import kotlinx.coroutines.flow.collectLatest
-import timber.log.Timber
 
 @Composable
 fun FolderScreen(
@@ -80,8 +79,10 @@ fun FolderScreen(
 
     LaunchedEffect(Unit) {
         viewModel.refreshFolderListTrigger.collectLatest {
-            Timber.e("폴더 리스트 리프레시")
             folders.refresh()
+            if (folders.itemCount > 0 && folders.loadState.refresh !is LoadState.Loading) {
+                lazyGridState.scrollToItem(0)
+            }
         }
     }
 
