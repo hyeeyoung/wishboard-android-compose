@@ -12,6 +12,7 @@ import com.hyeeyoung.wishboard.data.remote.paging.GeneralPagingSource
 import com.hyeeyoung.wishboard.data.remote.service.ItemService
 import com.hyeeyoung.wishboard.domain.model.wish.ParsedWishItem
 import com.hyeeyoung.wishboard.domain.model.wish.WishItem
+import com.hyeeyoung.wishboard.domain.model.wish.WishItemCount
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemDetail
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemUploadInfo
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemUploadType
@@ -139,6 +140,10 @@ class ItemRepositoryImpl @Inject constructor(
                 ),
             ).data.itemStatus == WishItemOwnershipStatus.OWNED.name
         }
+
+    override suspend fun getItemCount(): Result<WishItemCount> = runCatching {
+        itemService.getItemCount().data
+    }
 
     companion object {
         private const val FORM_DATA_IMAGE_KEY = "itemImages"

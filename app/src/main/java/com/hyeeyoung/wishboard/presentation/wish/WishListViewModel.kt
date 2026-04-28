@@ -4,7 +4,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.hyeeyoung.wishboard.data.local.WishBoardPreference
-import com.hyeeyoung.wishboard.domain.usecase.item.GetTotalWishItemsUseCase
+import com.hyeeyoung.wishboard.domain.usecase.item.GetWishItemCountUseCase
 import com.hyeeyoung.wishboard.domain.usecase.item.GetWishListUseCase
 import com.hyeeyoung.wishboard.domain.util.safeValueOf
 import com.hyeeyoung.wishboard.presentation.common.BaseViewModel
@@ -26,9 +26,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class WishListViewModel @Inject constructor(
-    getWishListUseCase: GetWishListUseCase,
-    getTotalWishItemsUseCase: GetTotalWishItemsUseCase,
     private val localStorage: WishBoardPreference,
+    getWishListUseCase: GetWishListUseCase,
+    private val getWishItemCountUseCase: GetWishItemCountUseCase,
 ) : BaseViewModel() {
     private var _uiModel = MutableStateFlow(WishListUiModel())
     val uiModel = _uiModel.asStateFlow()
@@ -40,14 +40,13 @@ class WishListViewModel @Inject constructor(
         }
         .stateIn(viewModelScope, SharingStarted.Eagerly, PagingData.empty())
 
-    val totalWishItems = getTotalWishItemsUseCase()
-
     private val _refreshWishListTrigger = Channel<Unit>()
     val refreshWishListTrigger = _refreshWishListTrigger.receiveAsFlow()
 
     init {
         initUiModel()
         refreshWishList()
+        fetchWishItemCount()
     }
 
     private fun refreshWishList() {
@@ -84,5 +83,21 @@ class WishListViewModel @Inject constructor(
             it.copy(viewType = newViewType)
         }
         localStorage.wishListViewType = newViewType.name
+    }
+
+    fun fetchWishItemCount() {
+        viewModelScope.launch {
+            getWishItemCountUseCase().onSuccess { count ->
+                _uiModel.update {
+                    it.copy(wishItemCount = count)
+                }
+            }
+        }
+    }
+
+    fun updateExcludeOwnedItems(isExclude: Boolean) {
+        _uiModel.update {
+            it.copy(isExcludeOwnedItems = isExclude)
+        }
     }
 }

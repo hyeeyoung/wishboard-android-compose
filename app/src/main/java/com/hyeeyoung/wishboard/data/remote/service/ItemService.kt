@@ -7,6 +7,7 @@ import com.hyeeyoung.wishboard.data.remote.model.wish.WishItemDetailDto
 import com.hyeeyoung.wishboard.data.remote.model.wish.WishItemIdDto
 import com.hyeeyoung.wishboard.data.remote.model.wish.WishItemOwnershipRequestDto
 import com.hyeeyoung.wishboard.domain.model.wish.ParsedWishItem
+import com.hyeeyoung.wishboard.domain.model.wish.WishItemCount
 import com.hyeeyoung.wishboard.presentation.upload.model.WishItemDto
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -67,4 +68,7 @@ interface ItemService {
         @Path("itemId") itemId: Long,
         @Body ownership: WishItemOwnershipRequestDto,
     ): BaseResponse<WishItemDetailDto>
+
+    @GET("/v2/item/counts")
+    suspend fun getItemCount(): BaseResponse<WishItemCount>
 }

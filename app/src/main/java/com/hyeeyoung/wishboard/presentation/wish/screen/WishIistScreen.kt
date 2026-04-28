@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheetProperties
@@ -35,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -78,7 +80,6 @@ fun WishListScreen(
 ) {
     val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
     val wishList = viewModel.wishList.collectAsLazyPagingItems()
-    val totalWishItems by viewModel.totalWishItems.collectAsStateWithLifecycle()
 
     val coroutineScope = rememberCoroutineScope()
     var isOpenOnboardingModal by remember { mutableStateOf(false) }
@@ -101,6 +102,7 @@ fun WishListScreen(
         viewModel.refreshWishListTrigger.collectLatest {
             Timber.e("위시 리스트 리프레시")
             wishList.refresh()
+            viewModel.fetchWishItemCount()
         }
     }
 
@@ -114,7 +116,6 @@ fun WishListScreen(
     WishlistScreen(
         uiModel = uiModel,
         wishList = wishList,
-        totalWishItems = totalWishItems,
         lazyGridState = lazyGridState,
         lazyListState = lazyListState,
         onClickCalendar = {
@@ -124,6 +125,7 @@ fun WishListScreen(
             navController.navigate("${MainScreen.WishItemDetail.route}/$id")
         },
         updateViewType = viewModel::updateViewType,
+        updateExcludeOwnedItems = viewModel::updateExcludeOwnedItems,
     )
 
     WishBoardModal(
@@ -152,12 +154,12 @@ fun WishListScreen(
 fun WishlistScreen(
     uiModel: WishListUiModel,
     wishList: LazyPagingItems<WishItem>,
-    totalWishItems: Int?,
     lazyGridState: LazyGridState,
     lazyListState: LazyListState,
     onClickCalendar: () -> Unit,
     onClickWishItem: (id: Long) -> Unit,
     updateViewType: () -> Unit,
+    updateExcludeOwnedItems: (Boolean) -> Unit,
 ) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -202,21 +204,46 @@ fun WishlistScreen(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
+                            val total = uiModel.wishItemCount?.totalCount ?: 0
+                            val filteredTotal = if (!uiModel.isExcludeOwnedItems) {
+                                total
+                            } else {
+                                total - (uiModel.wishItemCount?.ownedCount ?: 0)
+                            }
+
                             Text(
-                                modifier = Modifier.alpha(if (totalWishItems != null) 1f else 0f),
-                                text = "전체 ${totalWishItems}개",
+                                modifier = Modifier.alpha(if (uiModel.wishItemCount?.totalCount != null) 1f else 0f),
+                                text = "전체 ${filteredTotal}개",
                                 style = WishBoardTheme.typography.suitD3,
                                 color = WishBoardTheme.colors.gray200,
                             )
 
-                            Icon(
-                                modifier = Modifier
-                                    .size(24.dp)
-                                    .rippleClickable { updateViewType() },
-                                painter = painterResource(id = uiModel.viewType.iconRes),
-                                contentDescription = uiModel.viewType.description,
-                                tint = Color.Unspecified,
-                            )
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                uiModel.wishItemCount?.ownedCount?.let {
+                                    SelectableCircleButton(
+                                        modifier = Modifier.padding(end = 5.dp),
+                                        isSelected = uiModel.isExcludeOwnedItems,
+                                        onClick = { updateExcludeOwnedItems(!uiModel.isExcludeOwnedItems) },
+                                    )
+
+                                    Text(
+                                        modifier = Modifier
+                                            .padding(end = 10.dp),
+                                        text = "소장템 제외",
+                                        style = WishBoardTheme.typography.suitD3,
+                                        color = WishBoardTheme.colors.gray200,
+                                    )
+                                }
+
+                                Icon(
+                                    modifier = Modifier
+                                        .size(24.dp)
+                                        .rippleClickable { updateViewType() },
+                                    painter = painterResource(id = uiModel.viewType.iconRes),
+                                    contentDescription = uiModel.viewType.description,
+                                    tint = Color.Unspecified,
+                                )
+                            }
                         }
 
                         if (uiModel.viewType != WishListViewType.LIST) {
@@ -261,6 +288,29 @@ fun WishlistScreen(
             }
         }
     }
+}
+
+@Composable
+fun SelectableCircleButton(
+    modifier: Modifier = Modifier,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+) {
+    val iconRes = if (isSelected) {
+        R.drawable.ic_circle_selected
+    } else {
+        R.drawable.ic_circle_unselected
+    }
+
+    Icon(
+        modifier = modifier
+            .size(14.dp)
+            .clip(CircleShape)
+            .rippleClickable { onClick() },
+        painter = painterResource(id = iconRes),
+        contentDescription = if (isSelected) "선택" else "선택 해제",
+        tint = Color.Unspecified,
+    )
 }
 
 @Composable
@@ -348,9 +398,9 @@ fun PreviewWishlistScreen() {
         lazyGridState = rememberLazyGridState(),
         lazyListState = rememberLazyListState(),
         wishList = getFakePagingData(wishItems),
-        totalWishItems = wishItems.size,
         onClickCalendar = {},
         onClickWishItem = {},
         updateViewType = {},
+        updateExcludeOwnedItems = {},
     )
 }
