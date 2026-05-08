@@ -24,8 +24,8 @@ android {
         applicationId = "com.hyeeyoung.wishboard"
         minSdk = 24
         targetSdk = 35
-        versionCode = 43
-        versionName = "1.4.0"
+        versionCode = 44
+        versionName = "2.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -120,5 +120,5 @@ spotless {
 }
 
 fun getProperty(key: String): String {
-    return gradleLocalProperties(rootDir).getProperty(key)
+    return gradleLocalProperties(rootDir, providers).getProperty(key)
 }
