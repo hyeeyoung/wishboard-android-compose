@@ -41,22 +41,20 @@ class WishListViewModel @Inject constructor(
     private var _uiModel = MutableStateFlow(WishListUiModel())
     val uiModel = _uiModel.asStateFlow()
 
-    private val baseWishList: Flow<PagingData<WishItem>> = getWishListUseCase()
-        .cachedIn(viewModelScope)
-
     @OptIn(ExperimentalCoroutinesApi::class)
     val wishList: Flow<PagingData<WishItem>> = _uiModel
         .map { it.isExcludeOwnedItems }
         .distinctUntilChanged()
         .flatMapLatest { isExclude ->
-            if (isExclude) {
-                baseWishList.map { pagingData ->
+            getWishListUseCase().map { pagingData ->
+                if (isExclude) {
                     pagingData.filter { it.itemOwnershipStatus != WishItemOwnershipStatus.OWNED }
+                } else {
+                    pagingData
                 }
-            } else {
-                baseWishList
             }
         }
+        .cachedIn(viewModelScope)
         .catch { exception ->
             updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
         }

@@ -69,7 +69,6 @@ import com.hyeeyoung.wishboard.presentation.wish.model.WishListUiModel
 import com.hyeeyoung.wishboard.presentation.wish.model.WishListViewType
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -100,7 +99,6 @@ fun WishListScreen(
 
     LaunchedEffect(Unit) {
         viewModel.refreshWishListTrigger.collectLatest {
-            Timber.e("위시 리스트 리프레시")
             wishList.refresh()
             viewModel.fetchWishItemCount()
         }
@@ -126,6 +124,10 @@ fun WishListScreen(
         },
         updateViewType = viewModel::updateViewType,
         updateExcludeOwnedItems = viewModel::updateExcludeOwnedItems,
+        onRefresh = {
+            wishList.refresh()
+            viewModel.fetchWishItemCount()
+        },
     )
 
     WishBoardModal(
@@ -160,6 +162,7 @@ fun WishlistScreen(
     onClickWishItem: (id: Long) -> Unit,
     updateViewType: () -> Unit,
     updateExcludeOwnedItems: (Boolean) -> Unit,
+    onRefresh: () -> Unit,
 ) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -174,9 +177,7 @@ fun WishlistScreen(
 
         WishBoardPullToRefreshBox(
             loadState = wishList.loadState.refresh,
-            onRefresh = {
-                wishList.refresh()
-            },
+            onRefresh = onRefresh,
         ) {
             when {
                 wishList.itemCount == 0 &&
@@ -402,5 +403,6 @@ fun PreviewWishlistScreen() {
         onClickWishItem = {},
         updateViewType = {},
         updateExcludeOwnedItems = {},
+        onRefresh = {},
     )
 }

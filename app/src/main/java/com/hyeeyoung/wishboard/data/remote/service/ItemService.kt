@@ -69,6 +69,6 @@ interface ItemService {
         @Body ownership: WishItemOwnershipRequestDto,
     ): BaseResponse<WishItemDetailDto>
 
-    @GET("/v2/item/counts")
+    @GET("item/counts")
     suspend fun getItemCount(): BaseResponse<WishItemCount>
 }
