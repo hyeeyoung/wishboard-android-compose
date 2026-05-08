@@ -3,7 +3,10 @@ package com.hyeeyoung.wishboard.presentation.wish
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import androidx.paging.filter
 import com.hyeeyoung.wishboard.data.local.WishBoardPreference
+import com.hyeeyoung.wishboard.domain.model.wish.WishItem
+import com.hyeeyoung.wishboard.domain.model.wish.WishItemOwnershipStatus
 import com.hyeeyoung.wishboard.domain.usecase.item.GetWishItemCountUseCase
 import com.hyeeyoung.wishboard.domain.usecase.item.GetWishListUseCase
 import com.hyeeyoung.wishboard.domain.util.safeValueOf
@@ -13,11 +16,16 @@ import com.hyeeyoung.wishboard.presentation.util.WishBoardEventBus
 import com.hyeeyoung.wishboard.presentation.wish.model.WishListUiModel
 import com.hyeeyoung.wishboard.presentation.wish.model.WishListViewType
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -33,8 +41,22 @@ class WishListViewModel @Inject constructor(
     private var _uiModel = MutableStateFlow(WishListUiModel())
     val uiModel = _uiModel.asStateFlow()
 
-    val wishList = getWishListUseCase()
+    private val baseWishList: Flow<PagingData<WishItem>> = getWishListUseCase()
         .cachedIn(viewModelScope)
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val wishList: Flow<PagingData<WishItem>> = _uiModel
+        .map { it.isExcludeOwnedItems }
+        .distinctUntilChanged()
+        .flatMapLatest { isExclude ->
+            if (isExclude) {
+                baseWishList.map { pagingData ->
+                    pagingData.filter { it.itemOwnershipStatus != WishItemOwnershipStatus.OWNED }
+                }
+            } else {
+                baseWishList
+            }
+        }
         .catch { exception ->
             updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
         }
