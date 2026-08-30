@@ -40,6 +40,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
+import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen.ImageDetail
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen.Upload.ARG_ITEM_DETAIL
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardGlobalSnackbarMessage
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardButton
@@ -117,6 +118,13 @@ fun WishItemDetailScreen(
                 navController.safePopBackStack()
             }
         },
+        onClickImage = { index ->
+            navController.navigate(
+                "${ImageDetail.route}?${ImageDetail.ARG_IMAGES}=${
+                    uiModel.images.toBase64Json()
+                }&${ImageDetail.ARG_INITIAL_INDEX}=$index",
+            )
+        },
         onClickBack = navController::safePopBackStack,
         onClickFolder = { afterSuccess ->
             viewModel.getFolders(afterSuccess)
@@ -136,6 +144,7 @@ fun WishItemDetailScreen(
     onClickEdit: () -> Unit,
     onClickShop: () -> Unit,
     onClickBack: () -> Unit,
+    onClickImage: (index: Int) -> Unit,
     updateItemOwnership: () -> Unit,
     onClickDelete: (itemId: Long?) -> Unit,
 ) {
@@ -168,6 +177,7 @@ fun WishItemDetailScreen(
                 modifier = Modifier.weight(1f),
                 uiModel = uiModel,
                 navController = navController,
+                onClickImage = onClickImage,
                 onClickFolder = {
                     onClickFolder { folders ->
                         modalData = ModalData.Modal.FolderList(
@@ -265,6 +275,7 @@ private fun WishItemDetailContents(
     navController: NavController,
     uiModel: WishItemDetailUiModel,
     onClickFolder: () -> Unit,
+    onClickImage: (index: Int) -> Unit,
 ) {
     val imageModifier = Modifier
         .fillMaxWidth()
@@ -279,10 +290,10 @@ private fun WishItemDetailContents(
                     modifier = Modifier.clip(imageShape),
                     state = pagerState,
                     beyondViewportPageCount = 3,
-                ) {
+                ) { index ->
                     Image(
-                        modifier = imageModifier,
-                        model = uiModel.images[it],
+                        modifier = imageModifier.noRippleClickable { onClickImage(index) },
+                        model = uiModel.images[index],
                         placeHolder = {
                             WishBoardFullPlaceHolder(modifier = imageModifier)
                         },
@@ -474,6 +485,7 @@ fun PreviewWishItemDetailScreen() {
         onClickEdit = {},
         onClickDelete = {},
         onClickBack = {},
+        onClickImage = {},
         onClickFolder = {},
         updateItemOwnership = {},
     )

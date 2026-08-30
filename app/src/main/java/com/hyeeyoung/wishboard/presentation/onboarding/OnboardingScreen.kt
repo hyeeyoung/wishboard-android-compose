@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -66,15 +67,16 @@ fun OnboardingModalContent(onClickConfirm: () -> Unit) {
 }
 
 @Composable
-fun WishBoardIndicator(modifier: Modifier = Modifier, size: Int, pagerState: PagerState) {
+fun WishBoardIndicator(
+    modifier: Modifier = Modifier,
+    size: Int,
+    pagerState: PagerState,
+    activeColor: Color = WishBoardTheme.colors.gray700,
+    inactiveColor: Color = WishBoardTheme.colors.gray100,
+) {
     Row(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
         repeat(size) { pos ->
-            val color = if (pos == pagerState.currentPage) {
-                WishBoardTheme.colors.gray700
-            } else {
-                WishBoardTheme.colors.gray100
-            }
-
+            val color = if (pos == pagerState.currentPage) activeColor else inactiveColor
             Canvas(modifier = Modifier.size(6.dp), onDraw = { drawCircle(color = color) })
         }
     }

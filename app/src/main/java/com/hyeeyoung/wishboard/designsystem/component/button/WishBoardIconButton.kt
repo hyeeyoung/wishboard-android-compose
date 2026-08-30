@@ -35,6 +35,7 @@ fun LegacyWishBoardIconButton(
 fun WishBoardIconButton(
     modifier: Modifier = Modifier,
     size: Dp = 48.dp, // TODO dimen 리소스 추가
+    tint: Color = Color.Unspecified,
     @DrawableRes iconRes: Int,
     onClick: () -> Unit,
     contentDescription: String? = null,
@@ -49,7 +50,7 @@ fun WishBoardIconButton(
             modifier = Modifier.size(24.dp),
             painter = painterResource(id = iconRes),
             contentDescription = contentDescription,
-            tint = Color.Unspecified,
+            tint = tint,
         )
     }
 }

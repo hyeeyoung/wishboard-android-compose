@@ -47,6 +47,12 @@ sealed class MainScreen(override val route: String) : Screen {
 
     data object MyPasswordChange : MainScreen(route = "myPasswordChange")
 
+    data object ImageDetail : MainScreen(route = "imageDetail") {
+        const val ARG_IMAGES: String = "images"
+        const val ARG_INITIAL_INDEX: String = "initialIndex"
+        val routeWithArg = "$route?$ARG_IMAGES={$ARG_IMAGES}&$ARG_INITIAL_INDEX={$ARG_INITIAL_INDEX}"
+    }
+
     /** 메인 바텀바 메뉴에서 해당 메뉴의 시작 루트를 반환. 단, NavGraphBuilder.navigation() 사용 시 startDestination 경로는 파라미터 route + "start" 합성 */
     fun getStartRouteForMainTab(): String = when (this) {
         Wishlist, Upload, Noti, My -> this.route
