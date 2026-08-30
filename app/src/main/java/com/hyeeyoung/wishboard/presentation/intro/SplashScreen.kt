@@ -47,7 +47,7 @@ import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import kotlinx.coroutines.delay
 
 @Composable
-fun IntroScreen(
+fun SplashScreen(
     navController: NavController,
     viewModel: IntroViewModel = hiltViewModel(),
 ) {
@@ -195,6 +195,6 @@ private fun checkNotificationPermission(
 
 @Preview
 @Composable
-fun PreviewIntroScreen() {
-    IntroScreen(rememberNavController())
+fun PreviewSplashScreen() {
+    SplashScreen(rememberNavController())
 }

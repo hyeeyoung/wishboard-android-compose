@@ -32,7 +32,7 @@ import com.hyeeyoung.wishboard.designsystem.component.WishBoardSnackbarHost
 import com.hyeeyoung.wishboard.domain.model.user.UserInfo
 import com.hyeeyoung.wishboard.presentation.calendar.screen.CalendarScreen
 import com.hyeeyoung.wishboard.presentation.folder.FolderOrderScreen
-import com.hyeeyoung.wishboard.presentation.intro.IntroScreen
+import com.hyeeyoung.wishboard.presentation.intro.SplashScreen
 import com.hyeeyoung.wishboard.presentation.main.MainScreen
 import com.hyeeyoung.wishboard.presentation.my.screen.PasswordChangeScreen
 import com.hyeeyoung.wishboard.presentation.my.screen.ProfileEditScreen
@@ -45,7 +45,7 @@ fun WishBoardNavHost(modifier: Modifier = Modifier, navController: NavHostContro
 
     NavHost(modifier = modifier.systemBarsPadding(), navController = navController, startDestination = Intro.route) {
         snackbarComposable(snackbarHostState = snackbarHostState, route = Intro.route) {
-            IntroScreen(navController = navController)
+            SplashScreen(navController = navController)
         }
 
         snackbarComposable(
