@@ -29,6 +29,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -37,7 +38,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -164,128 +172,158 @@ fun WishlistScreen(
     updateExcludeOwnedItems: (Boolean) -> Unit,
     onRefresh: () -> Unit,
 ) {
-    Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        topBar = {
-            WishlistTopBar(onClickCalendar = onClickCalendar)
-        },
-    ) { paddingValues ->
-        val contentModifier = Modifier
-            .fillMaxSize()
-            .background(WishBoardTheme.colors.white)
-            .padding(top = paddingValues.calculateTopPadding())
+    val density = LocalDensity.current
+    var topBarHeightPx by remember { mutableFloatStateOf(with(density) { 52.dp.toPx() }) }
+    var topBarOffsetPx by remember { mutableFloatStateOf(0f) }
 
-        WishBoardPullToRefreshBox(
-            loadState = wishList.loadState.refresh,
-            onRefresh = onRefresh,
+    val nestedScrollConnection = remember {
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                topBarOffsetPx = (topBarOffsetPx + available.y).coerceIn(-topBarHeightPx, 0f)
+                return Offset.Zero
+            }
+        }
+    }
+
+    Scaffold(modifier = Modifier.fillMaxSize()) { paddingValues ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(WishBoardTheme.colors.white)
+                .padding(top = paddingValues.calculateTopPadding())
+                .nestedScroll(nestedScrollConnection),
         ) {
-            when {
-                wishList.itemCount == 0 &&
-                    wishList.loadState.refresh is LoadState.NotLoading &&
-                    wishList.loadState.append.endOfPaginationReached -> {
-                    LazyColumn(
-                        modifier = contentModifier,
-                        verticalArrangement = Arrangement.Center,
-                    ) {
-                        item {
-                            WishBoardEmptyView(
-                                modifier = contentModifier,
-                                guideTextRes = R.string.empty_wishlist_guide_text,
-                            )
-                        }
-                    }
-                }
+            val topBarHeightDp = with(density) { topBarHeightPx.toDp() }
+            val topBarOffsetDp = with(density) { topBarOffsetPx.toDp() }
+            val contentModifier = Modifier
+                .fillMaxSize()
+                .padding(top = topBarHeightDp + topBarOffsetDp)
 
-                else -> {
-                    Column(modifier = contentModifier) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 6.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically,
+            WishBoardPullToRefreshBox(
+                loadState = wishList.loadState.refresh,
+                onRefresh = onRefresh,
+            ) {
+                when {
+                    wishList.itemCount == 0 &&
+                        wishList.loadState.refresh is LoadState.NotLoading &&
+                        wishList.loadState.append.endOfPaginationReached -> {
+                        LazyColumn(
+                            modifier = contentModifier,
+                            verticalArrangement = Arrangement.Center,
                         ) {
-                            val total = uiModel.wishItemCount?.totalCount ?: 0
-                            val filteredTotal = if (!uiModel.isExcludeOwnedItems) {
-                                total
-                            } else {
-                                total - (uiModel.wishItemCount?.ownedCount ?: 0)
-                            }
-
-                            Text(
-                                modifier = Modifier.alpha(if (uiModel.wishItemCount?.totalCount != null) 1f else 0f),
-                                text = "전체 ${filteredTotal}개",
-                                style = WishBoardTheme.typography.suitD3,
-                                color = WishBoardTheme.colors.gray200,
-                            )
-
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                uiModel.wishItemCount?.ownedCount?.let {
-                                    SelectableCircleButton(
-                                        modifier = Modifier.padding(end = 5.dp),
-                                        isSelected = uiModel.isExcludeOwnedItems,
-                                        onClick = { updateExcludeOwnedItems(!uiModel.isExcludeOwnedItems) },
-                                    )
-
-                                    Text(
-                                        modifier = Modifier
-                                            .padding(end = 10.dp),
-                                        text = "소장템 제외",
-                                        style = WishBoardTheme.typography.suitD3,
-                                        color = WishBoardTheme.colors.gray200,
-                                    )
-                                }
-
-                                Icon(
-                                    modifier = Modifier
-                                        .size(24.dp)
-                                        .rippleClickable { updateViewType() },
-                                    painter = painterResource(id = uiModel.viewType.iconRes),
-                                    contentDescription = uiModel.viewType.description,
-                                    tint = Color.Unspecified,
+                            item {
+                                WishBoardEmptyView(
+                                    modifier = contentModifier,
+                                    guideTextRes = R.string.empty_wishlist_guide_text,
                                 )
                             }
                         }
+                    }
 
-                        if (uiModel.viewType != WishListViewType.LIST) {
-                            LazyVerticalGrid(
-                                columns = GridCells.Fixed(
-                                    if (uiModel.viewType == WishListViewType.GRID_2_COLUMN) 2 else 3,
-                                ),
-                                state = lazyGridState,
+                    else -> {
+                        Column(modifier = contentModifier) {
+                            // 스티키 헤더 — 리스트 밖에 위치하므로 항상 최상단에 고정
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 6.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically,
                             ) {
-                                items(count = wishList.itemCount, key = wishList.itemKey { it.id }) { idx ->
-                                    val item = wishList[idx]
-                                    item?.let {
-                                        WishItemForGridView(
-                                            wishItem = it,
-                                            onClickItem = {
-                                                onClickWishItem(it.id)
-                                            },
+                                val total = uiModel.wishItemCount?.totalCount ?: 0
+                                val filteredTotal = if (!uiModel.isExcludeOwnedItems) {
+                                    total
+                                } else {
+                                    total - (uiModel.wishItemCount?.ownedCount ?: 0)
+                                }
+
+                                Text(
+                                    modifier = Modifier.alpha(
+                                        if (
+                                            uiModel.wishItemCount?.totalCount != null
+                                        ) {
+                                            1f
+                                        } else {
+                                            0f
+                                        },
+                                    ),
+                                    text = "전체 ${filteredTotal}개",
+                                    style = WishBoardTheme.typography.suitD3,
+                                    color = WishBoardTheme.colors.gray200,
+                                )
+
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    uiModel.wishItemCount?.ownedCount?.let {
+                                        SelectableCircleButton(
+                                            modifier = Modifier.padding(end = 5.dp),
+                                            isSelected = uiModel.isExcludeOwnedItems,
+                                            onClick = { updateExcludeOwnedItems(!uiModel.isExcludeOwnedItems) },
+                                        )
+
+                                        Text(
+                                            modifier = Modifier.padding(end = 10.dp),
+                                            text = "소장템 제외",
+                                            style = WishBoardTheme.typography.suitD3,
+                                            color = WishBoardTheme.colors.gray200,
                                         )
                                     }
+
+                                    Icon(
+                                        modifier = Modifier
+                                            .size(24.dp)
+                                            .rippleClickable { updateViewType() },
+                                        painter = painterResource(id = uiModel.viewType.iconRes),
+                                        contentDescription = uiModel.viewType.description,
+                                        tint = Color.Unspecified,
+                                    )
                                 }
                             }
-                        } else {
-                            LazyColumn(
-                                state = lazyListState,
-                            ) {
-                                items(count = wishList.itemCount, key = wishList.itemKey { it.id }) { idx ->
-                                    val item = wishList[idx]
-                                    item?.let {
-                                        WishBoardDivider()
-                                        WishItemForListView(
-                                            wishItem = item,
-                                            onClickItem = {
-                                                onClickWishItem(item.id)
-                                            },
-                                        )
+
+                            if (uiModel.viewType != WishListViewType.LIST) {
+                                LazyVerticalGrid(
+                                    columns = GridCells.Fixed(
+                                        if (uiModel.viewType == WishListViewType.GRID_2_COLUMN) 2 else 3,
+                                    ),
+                                    state = lazyGridState,
+                                ) {
+                                    items(count = wishList.itemCount, key = wishList.itemKey { it.id }) { idx ->
+                                        val item = wishList[idx]
+                                        item?.let {
+                                            WishItemForGridView(
+                                                wishItem = it,
+                                                onClickItem = { onClickWishItem(it.id) },
+                                            )
+                                        }
+                                    }
+                                }
+                            } else {
+                                LazyColumn(state = lazyListState) {
+                                    items(count = wishList.itemCount, key = wishList.itemKey { it.id }) { idx ->
+                                        val item = wishList[idx]
+                                        item?.let {
+                                            WishBoardDivider()
+                                            WishItemForListView(
+                                                wishItem = item,
+                                                onClickItem = { onClickWishItem(item.id) },
+                                            )
+                                        }
                                     }
                                 }
                             }
                         }
                     }
                 }
+            }
+
+            // 스크롤 시 접히는 TopBar — graphicsLayer로 offset 처리 (drawing phase, 리컴포지션 없음)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .graphicsLayer { translationY = topBarOffsetPx }
+                    .background(WishBoardTheme.colors.white)
+                    .onSizeChanged { topBarHeightPx = it.height.toFloat() },
+            ) {
+                WishlistTopBar(onClickCalendar = onClickCalendar)
             }
         }
     }
