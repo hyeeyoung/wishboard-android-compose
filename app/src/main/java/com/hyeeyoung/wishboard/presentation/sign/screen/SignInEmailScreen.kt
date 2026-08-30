@@ -15,7 +15,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -81,7 +80,6 @@ fun SignInEmailScreen(
     Scaffold(topBar = {
         WishBoardTopBarWithStep(
             topBarModel = WishBoardTopBarModel(
-                title = stringResource(id = R.string.sign_in_email_title),
                 onClickStartIcon = onClickBack,
             ),
             step = Pair(1, 2),
@@ -94,9 +92,11 @@ fun SignInEmailScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(top = paddingValues.calculateTopPadding(), bottom = 16.dp, start = 16.dp, end = 16.dp)
                 .imePadding(),
-            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            SignDescription(descriptionRes = R.string.sign_in_email_description, iconRes = R.drawable.ic_email)
+            SignDescription(
+                titleRes = R.string.sign_in_email_title,
+                descriptionRes = R.string.sign_up_email_description,
+            )
 
             WishBoardTextField(
                 modifier = Modifier.focusRequester(focusRequester),

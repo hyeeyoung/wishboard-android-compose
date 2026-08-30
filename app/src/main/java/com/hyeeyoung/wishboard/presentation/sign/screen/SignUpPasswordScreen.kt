@@ -2,6 +2,7 @@ package com.hyeeyoung.wishboard.presentation.sign.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
@@ -100,7 +101,6 @@ fun SignUpPasswordScreen(
     Scaffold(topBar = {
         WishBoardTopBarWithStep(
             topBarModel = WishBoardTopBarModel(
-                title = stringResource(id = R.string.sign_up_title),
                 onClickStartIcon = onClickBack,
             ),
             step = Pair(2, 2),
@@ -113,9 +113,11 @@ fun SignUpPasswordScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(top = paddingValues.calculateTopPadding(), bottom = 16.dp, start = 16.dp, end = 16.dp)
                 .imePadding(),
-            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            SignDescription(descriptionRes = R.string.sign_up_password_description, iconRes = R.drawable.ic_lock)
+            SignDescription(
+                titleRes = R.string.sign_up_password_title,
+                descriptionRes = R.string.sign_up_password_description,
+            )
 
             WishBoardTextField(
                 modifier = Modifier
@@ -149,7 +151,7 @@ fun SignUpPasswordScreen(
 }
 
 @Composable
-fun TermsAndPolicyText(onClickTermsOrPolicy: (String, String) -> Unit) {
+fun ColumnScope.TermsAndPolicyText(onClickTermsOrPolicy: (String, String) -> Unit) {
     val linkedSpanStyle = WishBoardTheme.typography.suitB4.run {
         SpanStyle(
             color = WishBoardTheme.colors.green700,
@@ -177,7 +179,7 @@ fun TermsAndPolicyText(onClickTermsOrPolicy: (String, String) -> Unit) {
     )
 
     WishBoardClickableText(
-        modifier = Modifier.padding(vertical = 6.dp),
+        modifier = Modifier.padding(vertical = 6.dp).align(Alignment.CenterHorizontally),
         style = WishBoardTheme.typography.suitD3.copy(color = WishBoardTheme.colors.gray300),
         strings = linkedStrings,
         spanStyle = linkedSpanStyle,

@@ -126,6 +126,12 @@ data class WishBoardTypography(
         fontWeight = FontWeight.Normal,
         fontSize = 9.sp,
     ),
+    val suitH0: TextStyle = TextStyle(
+        fontFamily = SuitFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 24.sp,
+        lineHeight = 30.sp,
+    ),
     val suitB1M: TextStyle = suitB1.copy(lineHeight = 22.sp),
     val suitB3M: TextStyle = suitB3.copy(lineHeight = 20.sp),
     val suitD2M: TextStyle = suitD2.copy(lineHeight = 20.sp),
