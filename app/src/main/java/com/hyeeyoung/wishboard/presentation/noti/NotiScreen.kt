@@ -38,6 +38,7 @@ import com.hyeeyoung.wishboard.designsystem.component.WishBoardGlobalSnackbarMes
 import com.hyeeyoung.wishboard.designsystem.component.button.LegacyWishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
 import com.hyeeyoung.wishboard.designsystem.component.image.Image
+import com.hyeeyoung.wishboard.designsystem.component.image.WishBoardInitialPlaceHolder
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.designsystem.style.Green500
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
@@ -168,6 +169,9 @@ fun NotiItem(noti: NotiItem, onClickNotiWithLink: (String) -> Unit = {}, onClick
             modifier = Modifier
                 .size(imageSize.dp)
                 .clip(CircleShape),
+            placeHolder = { imageModifier ->
+                WishBoardInitialPlaceHolder(modifier = imageModifier)
+            },
         )
         Column(
             modifier = Modifier

@@ -15,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -24,6 +25,7 @@ import androidx.constraintlayout.compose.Dimension
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardEmptyView
 import com.hyeeyoung.wishboard.designsystem.component.image.Image
+import com.hyeeyoung.wishboard.designsystem.component.image.WishBoardInitialPlaceHolder
 import com.hyeeyoung.wishboard.designsystem.style.Gray700
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.domain.model.noti.NotiType
@@ -96,6 +98,10 @@ fun ScheduleItem(
                 .size(72.dp)
                 .clip(CircleShape),
             model = noti.itemImage,
+            alphaColor = Color.Transparent,
+            placeHolder = { imageModifier ->
+                WishBoardInitialPlaceHolder(modifier = imageModifier.background(WishBoardTheme.colors.white))
+            },
         )
 
         Text(

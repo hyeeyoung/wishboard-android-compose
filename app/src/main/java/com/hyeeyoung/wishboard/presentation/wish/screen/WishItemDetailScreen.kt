@@ -50,7 +50,7 @@ import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.WishBoardTwo
 import com.hyeeyoung.wishboard.designsystem.component.dialog.temp.WishBoardModal
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
 import com.hyeeyoung.wishboard.designsystem.component.image.Image
-import com.hyeeyoung.wishboard.designsystem.component.image.WishBoardPlaceHolder
+import com.hyeeyoung.wishboard.designsystem.component.image.WishBoardFullPlaceHolder
 import com.hyeeyoung.wishboard.designsystem.component.text.HyperlinkText
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.designsystem.model.WishBoardButtonColors
@@ -284,12 +284,12 @@ private fun WishItemDetailContents(
                         modifier = imageModifier,
                         model = uiModel.images[it],
                         placeHolder = {
-                            WishBoardPlaceHolder(modifier = imageModifier)
+                            WishBoardFullPlaceHolder(modifier = imageModifier)
                         },
                     )
                 }
             } else {
-                WishBoardPlaceHolder(
+                WishBoardFullPlaceHolder(
                     modifier = imageModifier.background(
                         color = WishBoardTheme.colors.black.copy(alpha = 0.05f),
                         shape = imageShape,

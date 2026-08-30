@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -25,7 +24,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.hyeeyoung.wishboard.designsystem.component.image.Image
-import com.hyeeyoung.wishboard.designsystem.component.image.WishBoardPlaceHolder
+import com.hyeeyoung.wishboard.designsystem.component.image.WishBoardInitialPlaceHolder
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.domain.model.wish.WishItem
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemOwnershipStatus
@@ -49,7 +48,7 @@ fun WishItemForGridView(
                 model = wishItem.imageUrl,
                 modifier = imageModifier,
                 placeHolder = {
-                    WishBoardPlaceHolder(modifier = imageModifier)
+                    WishBoardInitialPlaceHolder(modifier = imageModifier)
                 },
             )
 
@@ -128,7 +127,7 @@ fun WishItemForListView(
                 .aspectRatio(1f),
             model = wishItem.imageUrl,
             placeHolder = {
-                WishBoardPlaceHolder(modifier = imageModifier.fillMaxSize())
+                WishBoardInitialPlaceHolder(modifier = imageModifier)
             },
         )
 

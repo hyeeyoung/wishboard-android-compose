@@ -46,6 +46,7 @@ import com.hyeeyoung.wishboard.designsystem.component.button.LegacyWishBoardIcon
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.ModalData
 import com.hyeeyoung.wishboard.designsystem.component.image.Image
+import com.hyeeyoung.wishboard.designsystem.component.image.WishBoardInitialPlaceHolder
 import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardMiniSingleTextField
 import com.hyeeyoung.wishboard.designsystem.style.MontserratFamily
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
@@ -234,10 +235,9 @@ fun LinkSharingWishUploadScreen(
                         contentDescription = null,
                     )
                 } else {
-                    Image(
-                        modifier = imageModifier,
-                        painter = painterResource(id = R.drawable.ic_black_logo),
-                        contentDescription = null,
+                    WishBoardInitialPlaceHolder(
+                        modifier = imageModifier.background(WishBoardTheme.colors.black),
+                        tintColor = WishBoardTheme.colors.white,
                     )
                 }
             }
