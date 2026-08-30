@@ -119,7 +119,7 @@ class SignViewModel @Inject constructor(
                     it.copy(requestEmailStatus = WishBoardState.Success(Unit))
                 }
                 afterSuccess()
-            }.onFailure { _, errorCode, _ ->
+            }.onFailure { exception, errorCode, _ ->
                 _uiModel.update {
                     it.copy(requestEmailStatus = WishBoardState.Failure)
                 }
@@ -127,6 +127,7 @@ class SignViewModel @Inject constructor(
                     errorCode == 404 -> _uiModel.update {
                         it.copy(nonRegisteredEmail = uiModel.value.email)
                     }
+                    else -> updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
                 }
             }
         }

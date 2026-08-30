@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -72,7 +73,7 @@ fun WishBoardGlobalSnackbarMessage(
 
 @Composable
 fun WishBoardSnackbarHost(modifier: Modifier = Modifier, hostState: SnackbarHostState) =
-    SnackbarHost(modifier = modifier, hostState = hostState) { data ->
+    SnackbarHost(modifier = modifier.imePadding(), hostState = hostState) { data ->
         WishBoardSnackbar(message = data.visuals.message)
     }
 
