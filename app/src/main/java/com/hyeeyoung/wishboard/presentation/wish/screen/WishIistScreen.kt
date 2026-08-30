@@ -324,7 +324,7 @@ fun WishlistTopBar(onClickCalendar: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Image(
-            modifier = Modifier.height(18.dp),
+            modifier = Modifier.height(19.dp),
             painter = painterResource(id = R.drawable.ic_app_text_logo),
             contentDescription = null,
         )
