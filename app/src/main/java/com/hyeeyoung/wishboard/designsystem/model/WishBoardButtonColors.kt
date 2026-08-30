@@ -8,7 +8,7 @@ import com.hyeeyoung.wishboard.designsystem.style.Gray700
 import com.hyeeyoung.wishboard.designsystem.style.Green500
 import com.hyeeyoung.wishboard.designsystem.style.White
 
-enum class WishBoardButtonColors(val backgroundColor: Color, val textColor: Color) {
+enum class WishBoardButtonColors(val backgroundColor: Color, val textColor: Color, val borderColor: Color? = null) {
     GREEN(
         backgroundColor = Green500,
         textColor = Gray700,
@@ -24,5 +24,10 @@ enum class WishBoardButtonColors(val backgroundColor: Color, val textColor: Colo
     BLACK(
         backgroundColor = Gray700,
         textColor = White,
+    ),
+    WHITE(
+        backgroundColor = Color.Transparent,
+        textColor = Gray700,
+        borderColor = Gray100,
     ),
 }

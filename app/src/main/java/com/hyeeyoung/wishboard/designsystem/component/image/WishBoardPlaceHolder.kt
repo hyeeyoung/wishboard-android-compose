@@ -21,7 +21,7 @@ fun WishBoardPlaceHolder(modifier: Modifier) {
             Icon(
                 modifier = Modifier.weight(0.7f),
                 painter = painterResource(id = R.drawable.ic_app_text_logo),
-                tint = WishBoardTheme.colors.gray150,
+                tint = WishBoardTheme.colors.gray200,
                 contentDescription = "이미지 없음",
             )
             Spacer(modifier = Modifier.weight(0.15f))

@@ -195,7 +195,7 @@ fun WishItemDetailScreen(
                         updateItemOwnership()
                     },
                     text = if (!uiModel.isOwnedItem) "소장템으로 바꾸기" else "소장템에서 제거",
-                    color = if (!uiModel.isOwnedItem) WishBoardButtonColors.LIGHT_GRAY else WishBoardButtonColors.GRAY,
+                    color = if (!uiModel.isOwnedItem) WishBoardButtonColors.WHITE else WishBoardButtonColors.GRAY,
                 )
 
                 if (enabledShopButton) {

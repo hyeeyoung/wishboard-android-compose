@@ -1,6 +1,7 @@
 package com.hyeeyoung.wishboard.designsystem.component.button
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.defaultMinSize
@@ -125,6 +126,17 @@ fun WishBoardButton(
                 .fillMaxWidth()
                 .clip(shape)
                 .background(if (enabled) color.backgroundColor else disabledColor.backgroundColor)
+                .run {
+                    if (color.borderColor != null) {
+                        border(
+                            width = 1.dp,
+                            shape = shape,
+                            color = color.borderColor,
+                        )
+                    } else {
+                        this
+                    }
+                }
                 .rippleClickable(enabled = enabled) {
                     safeClickIfResumed()
                 }
