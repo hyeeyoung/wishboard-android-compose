@@ -6,9 +6,11 @@ import androidx.paging.PagingData
 import androidx.paging.map
 import com.hyeeyoung.wishboard.data.remote.model.common.PageSize
 import com.hyeeyoung.wishboard.data.remote.model.folder.FolderNameDto
+import com.hyeeyoung.wishboard.data.remote.model.folder.ReorderFolderListDto
 import com.hyeeyoung.wishboard.data.remote.paging.GeneralPagingSource
 import com.hyeeyoung.wishboard.data.remote.service.FolderService
 import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
+import com.hyeeyoung.wishboard.domain.model.folder.FolderOrderOption
 import com.hyeeyoung.wishboard.domain.model.wish.WishItem
 import com.hyeeyoung.wishboard.domain.repository.FolderRepository
 import kotlinx.coroutines.flow.Flow
@@ -37,8 +39,8 @@ class FolderRepositoryImpl @Inject constructor(
             it.map { it.toDomain() }
         }
 
-    override suspend fun fetchFolderSummaries(): Result<List<FolderItem>> = runCatching {
-        folderService.fetchFolderSummaries().data.map { it.toDomain() }
+    override suspend fun fetchFolderSummaries(orderOption: FolderOrderOption): Result<List<FolderItem>> = runCatching {
+        folderService.fetchFolderSummaries(orderOption.name).data.map { it.toDomain() }
     }
 
     override fun fetchFolderDetail(folderId: Long): Flow<PagingData<WishItem>> = Pager(
@@ -69,5 +71,9 @@ class FolderRepositoryImpl @Inject constructor(
 
     override suspend fun deleteFolder(folderId: Long): Result<Unit> = runCatching {
         folderService.deleteFolder(folderId = folderId)
+    }
+
+    override suspend fun reorderFolders(folderIds: List<Long>): Result<Unit> = runCatching {
+        folderService.reorderFolders(folderIds = ReorderFolderListDto(folderIds))
     }
 }

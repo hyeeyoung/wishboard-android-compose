@@ -28,7 +28,7 @@ import com.hyeeyoung.wishboard.domain.model.wish.WishItem
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.util.extension.safePopBackStack
 import com.hyeeyoung.wishboard.presentation.util.getFakePagingData
-import com.hyeeyoung.wishboard.presentation.wish.component.WishItem
+import com.hyeeyoung.wishboard.presentation.wish.component.WishItemForGridView
 import kotlinx.coroutines.flow.collectLatest
 import timber.log.Timber
 
@@ -103,7 +103,7 @@ fun FolderDetailScreen(
                 items(count = wishItems.itemCount, key = wishItems.itemKey { it.id }) { idx ->
                     val item = wishItems[idx]
                     item?.let {
-                        WishItem(
+                        WishItemForGridView(
                             wishItem = item,
                             onClickItem = { onClickItem(item.id) },
                         )

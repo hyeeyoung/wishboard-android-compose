@@ -9,6 +9,7 @@ import com.hyeeyoung.wishboard.BuildConfig
 import com.hyeeyoung.wishboard.data.util.getBase64Json
 import com.hyeeyoung.wishboard.domain.model.user.UserInfo
 import com.hyeeyoung.wishboard.presentation.util.extension.toBase64Json
+import com.hyeeyoung.wishboard.presentation.wish.model.WishListViewType
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -69,6 +70,10 @@ class WishBoardPreference @Inject constructor(@ApplicationContext context: Conte
         set(value) = dataStore.edit { putBoolean(SHOULD_SHOW_ONBOARDING_MODAL, value) }
         get() = dataStore.getBoolean(SHOULD_SHOW_ONBOARDING_MODAL, false)
 
+    var wishListViewType: String?
+        set(value) = dataStore.edit { putString(WISH_LIST_VIEW_TYPE, value) }
+        get() = dataStore.getString(WISH_LIST_VIEW_TYPE, WishListViewType.GRID_2_COLUMN.name)
+
     fun setUserInfo(email: String, nickname: String?, accessToken: String, refreshToken: String) {
         isLogin = true
         userInfo = UserInfo(
@@ -107,5 +112,6 @@ class WishBoardPreference @Inject constructor(@ApplicationContext context: Conte
         const val USER_INFO = "userInfo"
         const val HAS_SHOWN_NOTIFICATION_ALERT = "hasShownNotificationAlert"
         const val SHOULD_SHOW_ONBOARDING_MODAL = "shouldShowOnboardingModal"
+        const val WISH_LIST_VIEW_TYPE = "wishListViewType"
     }
 }

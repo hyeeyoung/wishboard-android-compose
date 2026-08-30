@@ -3,12 +3,15 @@ package com.hyeeyoung.wishboard.domain.repository
 import androidx.paging.PagingData
 import com.hyeeyoung.wishboard.domain.model.wish.ParsedWishItem
 import com.hyeeyoung.wishboard.domain.model.wish.WishItem
+import com.hyeeyoung.wishboard.domain.model.wish.WishItemCount
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemDetail
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemUploadInfo
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemUploadType
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 
 interface ItemRepository {
+    val totalElements: StateFlow<Int?>
     fun fetchWishList(): Flow<PagingData<WishItem>>
 
     suspend fun fetchWishItemDetail(itemId: Long): Result<WishItemDetail>
@@ -22,4 +25,8 @@ interface ItemRepository {
     suspend fun deleteWishItem(itemId: Long): Result<Unit>
 
     suspend fun getParsedItemInfo(site: String): Result<ParsedWishItem?>
+
+    suspend fun updateItemOwnership(itemId: Long, isOwnedItem: Boolean): Result<Boolean>
+
+    suspend fun getItemCount(): Result<WishItemCount>
 }

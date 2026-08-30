@@ -20,6 +20,7 @@ data class WishItemDetailUiModel(
     val site: String? = null,
     val createAt: LocalDateTime? = null,
     val version: Int = 0,
+    val isOwnedItem: Boolean = false,
 ) {
     companion object {
         fun fromDomain(domain: WishItemDetail): WishItemDetailUiModel =
@@ -36,6 +37,7 @@ data class WishItemDetailUiModel(
                 site = domain.site,
                 createAt = domain.createAt.toInstantToLocalDateTime(),
                 version = domain.version,
+                isOwnedItem = domain.isOwnedItem,
             )
     }
 }

@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,15 +12,19 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheetProperties
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetValue
+import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -30,6 +35,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -46,18 +53,22 @@ import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardEmptyView
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardGlobalSnackbarMessage
 import com.hyeeyoung.wishboard.designsystem.component.dialog.temp.WishBoardModal
+import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.domain.model.wish.WishItem
+import com.hyeeyoung.wishboard.domain.model.wish.WishItemOwnershipStatus
 import com.hyeeyoung.wishboard.presentation.onboarding.OnboardingModalContent
 import com.hyeeyoung.wishboard.presentation.util.WishBoardPullToRefreshBox
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
+import com.hyeeyoung.wishboard.presentation.util.extension.rippleClickable
 import com.hyeeyoung.wishboard.presentation.util.getFakePagingData
 import com.hyeeyoung.wishboard.presentation.wish.WishListViewModel
-import com.hyeeyoung.wishboard.presentation.wish.component.WishItem
+import com.hyeeyoung.wishboard.presentation.wish.component.WishItemForGridView
+import com.hyeeyoung.wishboard.presentation.wish.component.WishItemForListView
 import com.hyeeyoung.wishboard.presentation.wish.model.WishListUiModel
+import com.hyeeyoung.wishboard.presentation.wish.model.WishListViewType
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -68,6 +79,7 @@ fun WishListScreen(
 ) {
     val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
     val wishList = viewModel.wishList.collectAsLazyPagingItems()
+
     val coroutineScope = rememberCoroutineScope()
     var isOpenOnboardingModal by remember { mutableStateOf(false) }
     val onboardingSheetState =
@@ -75,15 +87,20 @@ fun WishListScreen(
             newState != SheetValue.Hidden
         })
     val lazyGridState = rememberLazyGridState()
+    val lazyListState = rememberLazyListState()
 
     WishBoardGlobalSnackbarMessage(snackbarChannel = viewModel.snackBarChannel)
 
-    MainScreen.Wishlist.ScrollToTopEffect(lazyGridState)
+    if (uiModel.viewType != WishListViewType.LIST) {
+        MainScreen.Wishlist.ScrollToTopEffect(lazyGridState)
+    } else {
+        MainScreen.Wishlist.ScrollToTopEffect(lazyListState)
+    }
 
     LaunchedEffect(Unit) {
         viewModel.refreshWishListTrigger.collectLatest {
-            Timber.e("위시 리스트 리프레시")
             wishList.refresh()
+            viewModel.fetchWishItemCount()
         }
     }
 
@@ -98,11 +115,18 @@ fun WishListScreen(
         uiModel = uiModel,
         wishList = wishList,
         lazyGridState = lazyGridState,
+        lazyListState = lazyListState,
         onClickCalendar = {
             navController.navigate(MainScreen.Noti.route)
         },
         onClickWishItem = { id ->
             navController.navigate("${MainScreen.WishItemDetail.route}/$id")
+        },
+        updateViewType = viewModel::updateViewType,
+        updateExcludeOwnedItems = viewModel::updateExcludeOwnedItems,
+        onRefresh = {
+            wishList.refresh()
+            viewModel.fetchWishItemCount()
         },
     )
 
@@ -133,8 +157,12 @@ fun WishlistScreen(
     uiModel: WishListUiModel,
     wishList: LazyPagingItems<WishItem>,
     lazyGridState: LazyGridState,
+    lazyListState: LazyListState,
     onClickCalendar: () -> Unit,
     onClickWishItem: (id: Long) -> Unit,
+    updateViewType: () -> Unit,
+    updateExcludeOwnedItems: (Boolean) -> Unit,
+    onRefresh: () -> Unit,
 ) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -149,47 +177,141 @@ fun WishlistScreen(
 
         WishBoardPullToRefreshBox(
             loadState = wishList.loadState.refresh,
-            onRefresh = {
-                wishList.refresh()
-            },
+            onRefresh = onRefresh,
         ) {
-            if (
+            when {
                 wishList.itemCount == 0 &&
-                wishList.loadState.refresh is LoadState.NotLoading &&
-                wishList.loadState.append.endOfPaginationReached
-            ) {
-                LazyColumn(
-                    modifier = contentModifier,
-                    verticalArrangement = Arrangement.Center,
-                ) {
-                    item {
-                        WishBoardEmptyView(
-                            modifier = contentModifier,
-                            guideTextRes = R.string.empty_wishlist_guide_text,
-                        )
+                    wishList.loadState.refresh is LoadState.NotLoading &&
+                    wishList.loadState.append.endOfPaginationReached -> {
+                    LazyColumn(
+                        modifier = contentModifier,
+                        verticalArrangement = Arrangement.Center,
+                    ) {
+                        item {
+                            WishBoardEmptyView(
+                                modifier = contentModifier,
+                                guideTextRes = R.string.empty_wishlist_guide_text,
+                            )
+                        }
                     }
                 }
-            } else {
-                LazyVerticalGrid(
-                    modifier = contentModifier,
-                    columns = GridCells.Fixed(2),
-                    state = lazyGridState,
-                ) {
-                    items(count = wishList.itemCount, key = wishList.itemKey { it.id }) { idx ->
-                        val item = wishList[idx]
-                        item?.let {
-                            WishItem(
-                                wishItem = it,
-                                onClickItem = {
-                                    onClickWishItem(it.id)
-                                },
+
+                else -> {
+                    Column(modifier = contentModifier) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 6.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            val total = uiModel.wishItemCount?.totalCount ?: 0
+                            val filteredTotal = if (!uiModel.isExcludeOwnedItems) {
+                                total
+                            } else {
+                                total - (uiModel.wishItemCount?.ownedCount ?: 0)
+                            }
+
+                            Text(
+                                modifier = Modifier.alpha(if (uiModel.wishItemCount?.totalCount != null) 1f else 0f),
+                                text = "전체 ${filteredTotal}개",
+                                style = WishBoardTheme.typography.suitD3,
+                                color = WishBoardTheme.colors.gray200,
                             )
+
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                uiModel.wishItemCount?.ownedCount?.let {
+                                    SelectableCircleButton(
+                                        modifier = Modifier.padding(end = 5.dp),
+                                        isSelected = uiModel.isExcludeOwnedItems,
+                                        onClick = { updateExcludeOwnedItems(!uiModel.isExcludeOwnedItems) },
+                                    )
+
+                                    Text(
+                                        modifier = Modifier
+                                            .padding(end = 10.dp),
+                                        text = "소장템 제외",
+                                        style = WishBoardTheme.typography.suitD3,
+                                        color = WishBoardTheme.colors.gray200,
+                                    )
+                                }
+
+                                Icon(
+                                    modifier = Modifier
+                                        .size(24.dp)
+                                        .rippleClickable { updateViewType() },
+                                    painter = painterResource(id = uiModel.viewType.iconRes),
+                                    contentDescription = uiModel.viewType.description,
+                                    tint = Color.Unspecified,
+                                )
+                            }
+                        }
+
+                        if (uiModel.viewType != WishListViewType.LIST) {
+                            LazyVerticalGrid(
+                                columns = GridCells.Fixed(
+                                    if (uiModel.viewType == WishListViewType.GRID_2_COLUMN) 2 else 3,
+                                ),
+                                state = lazyGridState,
+                            ) {
+                                items(count = wishList.itemCount, key = wishList.itemKey { it.id }) { idx ->
+                                    val item = wishList[idx]
+                                    item?.let {
+                                        WishItemForGridView(
+                                            wishItem = it,
+                                            onClickItem = {
+                                                onClickWishItem(it.id)
+                                            },
+                                        )
+                                    }
+                                }
+                            }
+                        } else {
+                            LazyColumn(
+                                state = lazyListState,
+                            ) {
+                                items(count = wishList.itemCount, key = wishList.itemKey { it.id }) { idx ->
+                                    val item = wishList[idx]
+                                    item?.let {
+                                        WishBoardDivider()
+                                        WishItemForListView(
+                                            wishItem = item,
+                                            onClickItem = {
+                                                onClickWishItem(item.id)
+                                            },
+                                        )
+                                    }
+                                }
+                            }
                         }
                     }
                 }
             }
         }
     }
+}
+
+@Composable
+fun SelectableCircleButton(
+    modifier: Modifier = Modifier,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+) {
+    val iconRes = if (isSelected) {
+        R.drawable.ic_circle_selected
+    } else {
+        R.drawable.ic_circle_unselected
+    }
+
+    Icon(
+        modifier = modifier
+            .size(14.dp)
+            .clip(CircleShape)
+            .rippleClickable { onClick() },
+        painter = painterResource(id = iconRes),
+        contentDescription = if (isSelected) "선택" else "선택 해제",
+        tint = Color.Unspecified,
+    )
 }
 
 @Composable
@@ -227,50 +349,60 @@ fun WishlistTopBar(onClickCalendar: () -> Unit) {
 @Composable
 @Preview
 fun PreviewWishlistScreen() {
+    val wishItems = listOf(
+        WishItem(
+            id = 1L,
+            name = "21SS SAGE SHIRT [4COLOR]",
+            imageUrl = "https://url.kr/8vwf1e",
+            price = 108000,
+            itemOwnershipStatus = WishItemOwnershipStatus.WISH,
+        ),
+        WishItem(
+            id = 1L,
+            name = "SOFT BALL CHAIN MINI BAG [SILVER]",
+            imageUrl = "https://url.kr/8vwf1e",
+            price = 108000,
+            itemOwnershipStatus = WishItemOwnershipStatus.OWNED,
+        ),
+        WishItem(
+            id = 1L,
+            name = "썸머호텔 여름차렵이불세트",
+            imageUrl = "https://url.kr/8vwf1e",
+            price = 108000,
+            itemOwnershipStatus = WishItemOwnershipStatus.WISH,
+        ),
+        WishItem(
+            id = 1L,
+            name = "Bean Ring Gold",
+            imageUrl = "https://url.kr/8vwf1e",
+            price = 108000,
+            itemOwnershipStatus = WishItemOwnershipStatus.OWNED,
+        ),
+        WishItem(
+            id = 1L,
+            name = "Bean Ring Gold",
+            imageUrl = "https://url.kr/8vwf1e",
+            price = 108000,
+            itemOwnershipStatus = WishItemOwnershipStatus.WISH,
+        ),
+        WishItem(
+            id = 1L,
+            name = "Bean Ring Gold",
+            imageUrl = "https://url.kr/8vwf1e",
+            price = 108000,
+            itemOwnershipStatus = WishItemOwnershipStatus.WISH,
+        ),
+    )
+
     WishlistScreen(
         uiModel = WishListUiModel(),
         lazyGridState = rememberLazyGridState(),
-        wishList = getFakePagingData(
-            listOf(
-                WishItem(
-                    id = 1L,
-                    name = "21SS SAGE SHIRT [4COLOR]",
-                    imageUrl = "https://url.kr/8vwf1e",
-                    price = 108000,
-                ),
-                WishItem(
-                    id = 1L,
-                    name = "SOFT BALL CHAIN MINI BAG [SILVER]",
-                    imageUrl = "https://url.kr/8vwf1e",
-                    price = 108000,
-                ),
-                WishItem(
-                    id = 1L,
-                    name = "썸머호텔 여름차렵이불세트",
-                    imageUrl = "https://url.kr/8vwf1e",
-                    price = 108000,
-                ),
-                WishItem(
-                    id = 1L,
-                    name = "Bean Ring Gold",
-                    imageUrl = "https://url.kr/8vwf1e",
-                    price = 108000,
-                ),
-                WishItem(
-                    id = 1L,
-                    name = "Bean Ring Gold",
-                    imageUrl = "https://url.kr/8vwf1e",
-                    price = 108000,
-                ),
-                WishItem(
-                    id = 1L,
-                    name = "Bean Ring Gold",
-                    imageUrl = "https://url.kr/8vwf1e",
-                    price = 108000,
-                ),
-            ),
-        ),
+        lazyListState = rememberLazyListState(),
+        wishList = getFakePagingData(wishItems),
         onClickCalendar = {},
         onClickWishItem = {},
+        updateViewType = {},
+        updateExcludeOwnedItems = {},
+        onRefresh = {},
     )
 }

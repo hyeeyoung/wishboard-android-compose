@@ -5,11 +5,14 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.map
 import com.hyeeyoung.wishboard.data.remote.model.common.PageSize
+import com.hyeeyoung.wishboard.domain.model.wish.WishItemOwnershipStatus
+import com.hyeeyoung.wishboard.data.remote.model.wish.WishItemOwnershipRequestDto
 import com.hyeeyoung.wishboard.data.remote.model.wish.WishItemUploadInfoDto
 import com.hyeeyoung.wishboard.data.remote.paging.GeneralPagingSource
 import com.hyeeyoung.wishboard.data.remote.service.ItemService
 import com.hyeeyoung.wishboard.domain.model.wish.ParsedWishItem
 import com.hyeeyoung.wishboard.domain.model.wish.WishItem
+import com.hyeeyoung.wishboard.domain.model.wish.WishItemCount
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemDetail
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemUploadInfo
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemUploadType
@@ -17,6 +20,9 @@ import com.hyeeyoung.wishboard.domain.repository.ItemRepository
 import com.hyeeyoung.wishboard.presentation.common.model.ImageType
 import com.hyeeyoung.wishboard.presentation.util.extension.toJson
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.serializers.InstantIso8601Serializer
 import kotlinx.datetime.serializers.LocalDateTimeIso8601Serializer
@@ -33,6 +39,9 @@ import javax.inject.Inject
 class ItemRepositoryImpl @Inject constructor(
     private val itemService: ItemService,
 ) : ItemRepository {
+    private val _totalElements = MutableStateFlow<Int?>(null)
+    override val totalElements: StateFlow<Int?> = _totalElements.asStateFlow()
+
     override fun fetchWishList(): Flow<PagingData<WishItem>> =
         Pager(
             config = PagingConfig(
@@ -42,12 +51,12 @@ class ItemRepositoryImpl @Inject constructor(
                 prefetchDistance = PageSize.DEFAULT_PREFETCH_SIZE,
             ),
             pagingSourceFactory = {
-                GeneralPagingSource(loadPage = { page, size ->
-                    itemService.fetchWishList(
-                        page = page,
-                        size = size,
-                    )
-                })
+                GeneralPagingSource(
+                    loadPage = { page, size ->
+                        itemService.fetchWishList(page = page, size = size)
+                    },
+                    onMetaLoaded = { totalElements -> _totalElements.value = totalElements },
+                )
             },
         ).flow.map {
             it.map { it.toDomain() }
@@ -121,6 +130,20 @@ class ItemRepositoryImpl @Inject constructor(
         runCatching {
             itemService.getParsedItemInfo(site).data
         }
+
+    override suspend fun updateItemOwnership(itemId: Long, isOwnedItem: Boolean): Result<Boolean> =
+        runCatching {
+            itemService.updateItemOwnership(
+                itemId = itemId,
+                ownership = WishItemOwnershipRequestDto(
+                    status = (if (isOwnedItem) WishItemOwnershipStatus.OWNED else WishItemOwnershipStatus.WISH).name,
+                ),
+            ).data.itemStatus == WishItemOwnershipStatus.OWNED.name
+        }
+
+    override suspend fun getItemCount(): Result<WishItemCount> = runCatching {
+        itemService.getItemCount().data
+    }
 
     companion object {
         private const val FORM_DATA_IMAGE_KEY = "itemImages"

@@ -51,8 +51,16 @@ class FolderViewModel @Inject constructor(
 
     private fun refreshFolders() {
         viewModelScope.launch {
-            WishBoardEventBus.onWishItemChanged.collect {
-                _refreshFolderListTrigger.send(Unit)
+            launch {
+                WishBoardEventBus.onWishItemChanged.collect {
+                    _refreshFolderListTrigger.send(Unit)
+                }
+            }
+
+            launch {
+                WishBoardEventBus.onFolderChanged.collect {
+                    _refreshFolderListTrigger.send(Unit)
+                }
             }
         }
     }
