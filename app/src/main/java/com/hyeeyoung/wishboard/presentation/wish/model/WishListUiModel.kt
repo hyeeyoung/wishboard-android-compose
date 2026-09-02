@@ -7,4 +7,5 @@ data class WishListUiModel(
     val viewType: WishListViewType = WishListViewType.GRID_2_COLUMN,
     val wishItemCount: WishItemCount? = null,
     val isExcludeOwnedItems: Boolean = false,
+    val isBulkRegisterBannerVisible: Boolean = false,
 )

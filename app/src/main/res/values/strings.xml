@@ -110,6 +110,7 @@
     <string name="my_menu_push_setting">알림 설정</string>
     <string name="my_menu_change_password">비밀번호 변경</string>
     <string name="my_menu_contact_us">문의하기</string>
+    <string name="my_menu_bulk_register">위시리스트 한 번에 등록하기</string>
     <string name="my_menu_manual">위시보드 이용방법</string>
     <string name="my_menu_terms">이용약관</string>
     <string name="my_menu_privacy">개인정보 처리방침</string>

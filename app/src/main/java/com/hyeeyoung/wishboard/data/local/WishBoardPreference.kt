@@ -74,6 +74,10 @@ class WishBoardPreference @Inject constructor(@ApplicationContext context: Conte
         set(value) = dataStore.edit { putString(WISH_LIST_VIEW_TYPE, value) }
         get() = dataStore.getString(WISH_LIST_VIEW_TYPE, WishListViewType.GRID_2_COLUMN.name)
 
+    var isBulkRegisterBannerDismissed: Boolean
+        set(value) = dataStore.edit { putBoolean(IS_BULK_REGISTER_BANNER_DISMISSED, value) }
+        get() = dataStore.getBoolean(IS_BULK_REGISTER_BANNER_DISMISSED, false)
+
     fun setUserInfo(email: String, nickname: String?, accessToken: String, refreshToken: String) {
         isLogin = true
         userInfo = UserInfo(
@@ -113,5 +117,6 @@ class WishBoardPreference @Inject constructor(@ApplicationContext context: Conte
         const val HAS_SHOWN_NOTIFICATION_ALERT = "hasShownNotificationAlert"
         const val SHOULD_SHOW_ONBOARDING_MODAL = "shouldShowOnboardingModal"
         const val WISH_LIST_VIEW_TYPE = "wishListViewType"
+        const val IS_BULK_REGISTER_BANNER_DISMISSED = "isBulkRegisterBannerDismissed"
     }
 }

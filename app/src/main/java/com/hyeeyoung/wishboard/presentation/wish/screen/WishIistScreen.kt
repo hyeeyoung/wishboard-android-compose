@@ -1,5 +1,9 @@
 package com.hyeeyoung.wishboard.presentation.wish.screen
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -132,6 +136,7 @@ fun WishListScreen(
         },
         updateViewType = viewModel::updateViewType,
         updateExcludeOwnedItems = viewModel::updateExcludeOwnedItems,
+        dismissBulkRegisterBanner = viewModel::dismissBulkRegisterBanner,
         onRefresh = {
             wishList.refresh()
             viewModel.fetchWishItemCount()
@@ -170,6 +175,7 @@ fun WishlistScreen(
     onClickWishItem: (id: Long) -> Unit,
     updateViewType: () -> Unit,
     updateExcludeOwnedItems: (Boolean) -> Unit,
+    dismissBulkRegisterBanner: () -> Unit,
     onRefresh: () -> Unit,
 ) {
     val density = LocalDensity.current
@@ -205,8 +211,8 @@ fun WishlistScreen(
             ) {
                 when {
                     wishList.itemCount == 0 &&
-                        wishList.loadState.refresh is LoadState.NotLoading &&
-                        wishList.loadState.append.endOfPaginationReached -> {
+                            wishList.loadState.refresh is LoadState.NotLoading &&
+                            wishList.loadState.append.endOfPaginationReached -> {
                         LazyColumn(
                             modifier = contentModifier,
                             verticalArrangement = Arrangement.Center,
@@ -315,15 +321,47 @@ fun WishlistScreen(
                 }
             }
 
-            // 스크롤 시 접히는 TopBar — graphicsLayer로 offset 처리 (drawing phase, 리컴포지션 없음)
+            // 배너 + TopBar — 스크롤 시 함께 접힘
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .graphicsLayer { translationY = topBarOffsetPx }
-                    .background(WishBoardTheme.colors.white)
                     .onSizeChanged { topBarHeightPx = it.height.toFloat() },
             ) {
-                WishlistTopBar(onClickCalendar = onClickCalendar)
+                Column {
+                    AnimatedVisibility(
+                        visible = uiModel.isBulkRegisterBannerVisible,
+                        exit = shrinkVertically(animationSpec = tween(300)) +
+                            slideOutVertically(animationSpec = tween(300)) { -it },
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(WishBoardTheme.colors.gray700)
+                                .padding(vertical = 10.dp)
+                                .padding(start = 16.dp, end = 13.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text(
+                                modifier = Modifier.weight(1f),
+                                text = "기존 위시리스트를 위시보드로 옮겨보세요 📦",
+                                style = WishBoardTheme.typography.suitD2,
+                                color = WishBoardTheme.colors.white,
+                            )
+                            Icon(
+                                modifier = Modifier
+                                    .size(16.dp)
+                                    .noRippleClickable { dismissBulkRegisterBanner() },
+                                painter = painterResource(R.drawable.ic_close),
+                                tint = WishBoardTheme.colors.gray200,
+                                contentDescription = "",
+                            )
+                        }
+                    }
+                    Box(modifier = Modifier.background(WishBoardTheme.colors.white)) {
+                        WishlistTopBar(onClickCalendar = onClickCalendar)
+                    }
+                }
             }
         }
     }
@@ -441,6 +479,7 @@ fun PreviewWishlistScreen() {
         onClickWishItem = {},
         updateViewType = {},
         updateExcludeOwnedItems = {},
+        dismissBulkRegisterBanner = {},
         onRefresh = {},
     )
 }

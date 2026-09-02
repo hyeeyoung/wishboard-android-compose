@@ -150,6 +150,12 @@ fun MyScreen(
                 navigate(MainScreen.MyPasswordChange.route)
             }),
             MyMenuComponent.Divider,
+            MyMenuComponent.Menu(nameRes = R.string.my_menu_bulk_register, onClickMenu = {
+                moveToWebView(WishBoardUrl.BULK_REGISTER.title, WishBoardUrl.BULK_REGISTER.url)
+            }),
+            MyMenuComponent.Menu(nameRes = R.string.my_menu_manual, onClickMenu = {
+                moveToWebView(WishBoardUrl.HOW_TO_USE.title, WishBoardUrl.HOW_TO_USE.url)
+            }),
             MyMenuComponent.Menu(nameRes = R.string.my_menu_contact_us, onClickMenu = {
                 with(context) {
                     sendMail(
@@ -163,9 +169,6 @@ fun MyScreen(
                         ),
                     )
                 }
-            }),
-            MyMenuComponent.Menu(nameRes = R.string.my_menu_manual, onClickMenu = {
-                moveToWebView(WishBoardUrl.HOW_TO_USE.title, WishBoardUrl.HOW_TO_USE.url)
             }),
             MyMenuComponent.Menu(
                 nameRes = R.string.my_menu_terms,
