@@ -104,6 +104,10 @@ class AuthInterceptor @Inject constructor(
                 AuthErrorCode.LOGOUT_BY_DEVICE_OVERFLOW.snackbarMessage
             }
 
+            this.contains(AuthErrorCode.INVALID_FCM_TOKEN.name) -> {
+                AuthErrorCode.INVALID_FCM_TOKEN.snackbarMessage
+            }
+
             else -> null
         }
     }
@@ -130,6 +134,7 @@ class AuthInterceptor @Inject constructor(
         LOGOUT_BY_DEVICE_OVERFLOW("최대 3대 기기에서만 로그인할 수 있어\n현재 기기에서 로그아웃되었어요."),
         TOKEN_EXPIRED(SnackbarMessage.AUTO_LOGIN),
         INVALID_TOKEN(SnackbarMessage.AUTO_LOGIN),
+        INVALID_FCM_TOKEN(SnackbarMessage.AUTO_LOGIN),
         NOT_FOUND_USER(
             "앗, 이용할 수 없는 계정입니다!\n다시 로그인해 주세요.",
         ),

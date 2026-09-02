@@ -6,8 +6,10 @@ import androidx.core.content.edit
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.hyeeyoung.wishboard.BuildConfig
+import com.hyeeyoung.wishboard.config.GlobalState
 import com.hyeeyoung.wishboard.data.util.getBase64Json
 import com.hyeeyoung.wishboard.domain.model.user.UserInfo
+import com.hyeeyoung.wishboard.presentation.sign.model.snackbar.SnackbarMessage
 import com.hyeeyoung.wishboard.presentation.util.extension.toBase64Json
 import com.hyeeyoung.wishboard.presentation.wish.model.WishListViewType
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -24,6 +26,21 @@ class WishBoardPreference @Inject constructor(@ApplicationContext context: Conte
         if (BuildConfig.DEBUG) {
             context.getSharedPreferences(FILE_NAME, Context.MODE_PRIVATE)
         } else {
+            createEncryptedSharedPreferences(context)
+        }
+
+    private fun createEncryptedSharedPreferences(context: Context): SharedPreferences {
+        return try {
+            EncryptedSharedPreferences.create(
+                context,
+                FILE_NAME,
+                masterKey,
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM,
+            )
+        } catch (e: Exception) {
+            context.deleteSharedPreferences(FILE_NAME)
+            GlobalState.autoLoginExpiryInfo.value = true to SnackbarMessage.AUTO_LOGIN
             EncryptedSharedPreferences.create(
                 context,
                 FILE_NAME,
@@ -32,6 +49,7 @@ class WishBoardPreference @Inject constructor(@ApplicationContext context: Conte
                 EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM,
             )
         }
+    }
 
     var userInfo: UserInfo
         set(value) = dataStore.edit { putString(USER_INFO, value.toBase64Json()) }
