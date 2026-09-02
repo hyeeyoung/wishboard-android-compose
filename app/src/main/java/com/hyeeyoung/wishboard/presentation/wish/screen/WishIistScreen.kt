@@ -211,8 +211,8 @@ fun WishlistScreen(
             ) {
                 when {
                     wishList.itemCount == 0 &&
-                            wishList.loadState.refresh is LoadState.NotLoading &&
-                            wishList.loadState.append.endOfPaginationReached -> {
+                        wishList.loadState.refresh is LoadState.NotLoading &&
+                        wishList.loadState.append.endOfPaginationReached -> {
                         LazyColumn(
                             modifier = contentModifier,
                             verticalArrangement = Arrangement.Center,
