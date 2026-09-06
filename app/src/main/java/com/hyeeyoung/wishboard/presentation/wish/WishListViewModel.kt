@@ -83,8 +83,14 @@ class WishListViewModel @Inject constructor(
                 shouldShowOnboardingModal = localStorage.shouldShowOnboardingModal,
                 viewType = safeValueOf<WishListViewType>(localStorage.wishListViewType)
                     ?: WishListViewType.GRID_2_COLUMN,
+                isBulkRegisterBannerVisible = !localStorage.isBulkRegisterBannerDismissed,
             )
         }
+    }
+
+    fun dismissBulkRegisterBanner() {
+        localStorage.isBulkRegisterBannerDismissed = true
+        _uiModel.update { it.copy(isBulkRegisterBannerVisible = false) }
     }
 
     fun updateOnboardingModalStatus(isOnboardingComplete: Boolean) {
