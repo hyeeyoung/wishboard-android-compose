@@ -137,6 +137,9 @@ fun WishListScreen(
         updateViewType = viewModel::updateViewType,
         updateExcludeOwnedItems = viewModel::updateExcludeOwnedItems,
         dismissBulkRegisterBanner = viewModel::dismissBulkRegisterBanner,
+        onClickBanner = {
+            navController.navigate(MainScreen.BulkRegisterWebView.route)
+        },
         onRefresh = {
             wishList.refresh()
             viewModel.fetchWishItemCount()
@@ -176,6 +179,7 @@ fun WishlistScreen(
     updateViewType: () -> Unit,
     updateExcludeOwnedItems: (Boolean) -> Unit,
     dismissBulkRegisterBanner: () -> Unit,
+    onClickBanner: () -> Unit,
     onRefresh: () -> Unit,
 ) {
     val density = LocalDensity.current
@@ -338,6 +342,7 @@ fun WishlistScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .background(WishBoardTheme.colors.gray700)
+                                .rippleClickable { onClickBanner() }
                                 .padding(vertical = 10.dp)
                                 .padding(start = 16.dp, end = 13.dp),
                             verticalAlignment = Alignment.CenterVertically,
@@ -480,6 +485,7 @@ fun PreviewWishlistScreen() {
         updateViewType = {},
         updateExcludeOwnedItems = {},
         dismissBulkRegisterBanner = {},
+        onClickBanner = {},
         onRefresh = {},
     )
 }

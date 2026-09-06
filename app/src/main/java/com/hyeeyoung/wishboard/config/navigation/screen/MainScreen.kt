@@ -47,6 +47,8 @@ sealed class MainScreen(override val route: String) : Screen {
 
     data object MyPasswordChange : MainScreen(route = "myPasswordChange")
 
+    data object BulkRegisterWebView : MainScreen(route = "bulkRegisterWebView")
+
     data object ImageDetail : MainScreen(route = "imageDetail") {
         const val ARG_IMAGES: String = "images"
         const val ARG_INITIAL_INDEX: String = "initialIndex"

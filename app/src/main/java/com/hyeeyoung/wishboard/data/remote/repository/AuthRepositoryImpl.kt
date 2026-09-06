@@ -71,4 +71,8 @@ class AuthRepositoryImpl @Inject constructor(
     }.onSuccess {
         localStorage.clear()
     }.map { }
+
+    override suspend fun getWebViewToken(): Result<String> = runCatching {
+        authService.getWebViewToken().data.token
+    }
 }
