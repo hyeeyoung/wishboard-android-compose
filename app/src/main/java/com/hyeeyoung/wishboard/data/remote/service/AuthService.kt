@@ -6,6 +6,7 @@ import com.hyeeyoung.wishboard.data.remote.model.auth.EmailAuthRequestDto
 import com.hyeeyoung.wishboard.data.remote.model.auth.EmailCheckRequestDto
 import com.hyeeyoung.wishboard.data.remote.model.auth.VerificationMailDto
 import com.hyeeyoung.wishboard.data.remote.model.auth.VerificationMailRequestDto
+import com.hyeeyoung.wishboard.data.remote.model.auth.WebViewTokenDto
 import com.hyeeyoung.wishboard.data.remote.model.base.BaseResponse
 import com.hyeeyoung.wishboard.data.remote.model.base.BaseResponseNoData
 import retrofit2.http.Body
@@ -39,4 +40,7 @@ interface AuthService {
 
     @POST("auth/logout")
     suspend fun logout(): BaseResponseNoData
+
+    @POST("auth/webview/token")
+    suspend fun getWebViewToken(): BaseResponse<WebViewTokenDto>
 }

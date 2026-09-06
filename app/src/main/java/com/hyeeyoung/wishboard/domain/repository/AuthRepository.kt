@@ -9,4 +9,5 @@ interface AuthRepository {
     suspend fun signInEmail(authInfo: AuthInfo): Result<Unit>
     suspend fun checkRegisteredUser(email: String): Result<Unit>
     suspend fun logout(): Result<Unit>
+    suspend fun getWebViewToken(): Result<String>
 }

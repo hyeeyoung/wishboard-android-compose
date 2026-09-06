@@ -24,6 +24,7 @@ import com.hyeeyoung.wishboard.config.navigation.navgraph.itemDetailNavGraph
 import com.hyeeyoung.wishboard.config.navigation.navgraph.signNavGraph
 import com.hyeeyoung.wishboard.config.navigation.navgraph.uploadNavGraph
 import com.hyeeyoung.wishboard.config.navigation.navgraph.webViewNavGraph
+import com.hyeeyoung.wishboard.presentation.common.BulkRegisterWebViewScreen
 import com.hyeeyoung.wishboard.config.navigation.screen.Calendar
 import com.hyeeyoung.wishboard.config.navigation.screen.Intro
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
@@ -115,6 +116,13 @@ fun WishBoardNavHost(modifier: Modifier = Modifier, navController: NavHostContro
         itemDetailNavGraph(navController = navController, snackbarHostState = snackbarHostState)
 
         webViewNavGraph(navController = navController, snackbarHostState = snackbarHostState)
+
+        snackbarComposable(
+            snackbarHostState = snackbarHostState,
+            route = MainScreen.BulkRegisterWebView.route,
+        ) {
+            BulkRegisterWebViewScreen(navController = navController)
+        }
 //        composable(route = Cart.route) {
 //            CartScreen(navController = navController)
 //        }
