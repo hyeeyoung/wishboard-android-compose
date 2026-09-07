@@ -46,7 +46,7 @@ class WishListViewModel @Inject constructor(
         .distinctUntilChanged()
         .flatMapLatest { isExclude ->
             getWishListUseCase(
-                itemStatus = if (isExclude) WishItemOwnershipStatus.OWNED else null,
+                itemStatus = if (isExclude) WishItemOwnershipStatus.WISH else null,
             )
         }
         .cachedIn(viewModelScope)
