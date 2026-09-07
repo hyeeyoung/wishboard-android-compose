@@ -47,7 +47,7 @@ class ItemRepositoryImpl @Inject constructor(
             config = PagingConfig(
                 initialLoadSize = PageSize.DEFAULT_SIZE,
                 pageSize = PageSize.DEFAULT_SIZE,
-                enablePlaceholders = true,
+                enablePlaceholders = false,
                 prefetchDistance = PageSize.DEFAULT_PREFETCH_SIZE,
             ),
             pagingSourceFactory = {
