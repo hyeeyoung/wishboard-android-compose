@@ -116,6 +116,13 @@ fun WishListScreen(
         }
     }
 
+    LaunchedEffect(Unit) {
+        viewModel.scrollToTopTrigger.collect {
+            lazyGridState.scrollToItem(0)
+            lazyListState.scrollToItem(0)
+        }
+    }
+
     LaunchedEffect(uiModel.shouldShowOnboardingModal) {
         if (uiModel.shouldShowOnboardingModal) {
             isOpenOnboardingModal = true
