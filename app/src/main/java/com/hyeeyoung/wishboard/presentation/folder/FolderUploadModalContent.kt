@@ -44,7 +44,7 @@ fun FolderUploadModalContent(
                 Text(
                     text = stringResource(
                         id = R.string.text_length,
-                        nameInput.value.length,
+                        nameInput.value.codePointCount(0, nameInput.value.length),
                         MAX_LENGTH_FOLDER_NAME,
                     ),
                     color = WishBoardTheme.colors.gray200,
