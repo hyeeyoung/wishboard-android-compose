@@ -4,8 +4,12 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.ModalData
@@ -29,35 +33,41 @@ class ModalActivity : ComponentActivity() {
                 }
             }
 
-            when (modalData) {
-                is ModalData.Modal -> {
-                    WishBoardModal(
-                        titleRes = modalData.title,
-                        onDismissRequest = { finish() },
-                        content = { ModalContent(modalData = modalData) },
-                    )
-                }
-
-                is ModalData.OptionModal -> {
-                    WishBoardTwoOptionModal(
-                        topOption = modalData.topOption,
-                        bottomOption = modalData.bottomOption,
-                        isWarningBottom = modalData.isWarningBottomOption,
-                        onClickTop = { moveToPrevious(modalData) },
-                        onClickBottom = { moveToPrevious(modalData, false) },
-                        onDismissRequest = { finish() },
-                    )
-                }
-
-                is ModalData.FullModal -> {
-                    when (modalData) {
-                        is ModalData.FullModal.Onboarding -> OnboardingModalContent(
-                            onClickConfirm = { finish() },
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .navigationBarsPadding(),
+            ) {
+                when (modalData) {
+                    is ModalData.Modal -> {
+                        WishBoardModal(
+                            titleRes = modalData.title,
+                            onDismissRequest = { finish() },
+                            content = { ModalContent(modalData = modalData) },
                         )
                     }
-                }
 
-                else -> {}
+                    is ModalData.OptionModal -> {
+                        WishBoardTwoOptionModal(
+                            topOption = modalData.topOption,
+                            bottomOption = modalData.bottomOption,
+                            isWarningBottom = modalData.isWarningBottomOption,
+                            onClickTop = { moveToPrevious(modalData) },
+                            onClickBottom = { moveToPrevious(modalData, false) },
+                            onDismissRequest = { finish() },
+                        )
+                    }
+
+                    is ModalData.FullModal -> {
+                        when (modalData) {
+                            is ModalData.FullModal.Onboarding -> OnboardingModalContent(
+                                onClickConfirm = { finish() },
+                            )
+                        }
+                    }
+
+                    else -> {}
+                }
             }
         }
     }
