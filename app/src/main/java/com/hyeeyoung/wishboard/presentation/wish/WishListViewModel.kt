@@ -89,6 +89,7 @@ class WishListViewModel @Inject constructor(
     fun dismissBulkRegisterBanner() {
         localStorage.isBulkRegisterBannerDismissed = true
         _uiModel.update { it.copy(isBulkRegisterBannerVisible = false) }
+        updateSnackbarMessage(message = "마이페이지 > ‘위시리스트 한 번에 등록하기’\n에서 언제든 확인할 수 있어요!")
     }
 
     fun updateOnboardingModalStatus(isOnboardingComplete: Boolean) {
