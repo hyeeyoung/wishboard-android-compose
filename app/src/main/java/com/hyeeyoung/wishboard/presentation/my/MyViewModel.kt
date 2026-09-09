@@ -107,6 +107,7 @@ class MyViewModel @Inject constructor(
                     },
                 ),
             ).onSuccess {
+                localStorage.isTempNickname = false
                 _uiModel.update {
                     it.copy(updateProfileState = WishBoardState.Success(Unit))
                 }
@@ -204,13 +205,18 @@ class MyViewModel @Inject constructor(
     }
 
     fun setOriginalUserInfo(userInfo: UserInfo) {
+        val nicknameInput = if (localStorage.isTempNickname) {
+            TextFieldValue()
+        } else {
+            TextFieldValue(
+                text = userInfo.nickname,
+                selection = TextRange(userInfo.nickname.length),
+            )
+        }
         _uiModel.update {
             it.copy(
                 userInfo = userInfo,
-                nicknameInput = TextFieldValue(
-                    text = userInfo.nickname,
-                    selection = TextRange(userInfo.nickname.length),
-                ),
+                nicknameInput = nicknameInput,
             )
         }
     }
