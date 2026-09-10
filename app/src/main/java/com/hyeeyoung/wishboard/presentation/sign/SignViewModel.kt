@@ -98,6 +98,7 @@ class SignViewModel @Inject constructor(
                 }.onFailure { exception, errorCode, _ ->
                     when (errorCode) {
                         400, 401 -> updateSnackbarMessage("아이디 또는 비밀번호를 다시 확인해 주세요.")
+                        404 -> updateSnackbarMessage("앗, 가입되지 않은 계정이에요!\n회원가입 후 이용해주세요.")
                         else -> updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
                     }
                 }
@@ -158,6 +159,8 @@ class SignViewModel @Inject constructor(
                     when {
                         errorCode == 404 && errorBody?.contains("유효하지 않은 인증번호") == true ->
                             _uiModel.update { it.copy(isCorrectAuthCode = false) }
+                        errorCode == 404 && errorBody?.contains("탈퇴했거나 존재하지 않는 유저입니다.") == true ->
+                            _uiModel.update { it.copy(isNonRegisteredUser = true) }
                     }
                 }
             }
@@ -209,7 +212,7 @@ class SignViewModel @Inject constructor(
     fun onAuthCodeChange(authCode: String) {
         val trimmedAuthCode = authCode.trim()
         _uiModel.update {
-            it.copy(authCode = trimmedAuthCode, isCorrectAuthCode = null)
+            it.copy(authCode = trimmedAuthCode, isCorrectAuthCode = null, isNonRegisteredUser = false)
         }
     }
 

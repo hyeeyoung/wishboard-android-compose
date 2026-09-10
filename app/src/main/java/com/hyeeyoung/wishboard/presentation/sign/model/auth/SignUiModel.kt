@@ -17,5 +17,6 @@ data class SignUiModel(
     val isValidEmail: Boolean? = null,
     val isValidPassword: Boolean? = null,
     val isCorrectAuthCode: Boolean? = null,
+    val isNonRegisteredUser: Boolean = false,
     val timer: String = "",
 )
