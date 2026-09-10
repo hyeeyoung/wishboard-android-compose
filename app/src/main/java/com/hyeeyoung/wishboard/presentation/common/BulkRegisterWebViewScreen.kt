@@ -155,6 +155,10 @@ private fun BulkRegisterWebView(
                         val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
                             addCategory(Intent.CATEGORY_OPENABLE)
                             type = "*/*"
+                            putExtra(
+                                Intent.EXTRA_MIME_TYPES,
+                                arrayOf("text/csv", "text/comma-separated-values", "application/csv"),
+                            )
                         }
                         filePickerLauncher.launch(Intent.createChooser(intent, null))
                         return true
