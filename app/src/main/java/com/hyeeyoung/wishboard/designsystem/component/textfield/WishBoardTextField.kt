@@ -63,7 +63,7 @@ fun WishBoardTextField(
                 .onFocusChanged { isFocused = it.isFocused },
             value = textFieldValue,
             onValueChange = { s ->
-                if (s.text.length <= maxLength) {
+                if (s.text.codePointCount(0, s.text.length) <= maxLength) {
                     onTextChange(s)
                 }
             },
@@ -137,7 +137,7 @@ fun WishBoardTextField(
                 .onFocusChanged { isFocused = it.isFocused },
             value = input,
             onValueChange = { s ->
-                if (s.length <= maxLength) {
+                if (s.codePointCount(0, s.length) <= maxLength) {
                     onTextChange(s)
                 }
             },
@@ -199,7 +199,7 @@ fun WishBoardTextField(
                 .onFocusChanged { isFocused = it.isFocused },
             value = input.value,
             onValueChange = {
-                if (it.length <= maxLength) {
+                if (it.codePointCount(0, it.length) <= maxLength) {
                     input.value = it
                     onTextChange(it)
                 }

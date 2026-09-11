@@ -3,7 +3,6 @@ package com.hyeeyoung.wishboard.presentation.wish
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import androidx.paging.filter
 import com.hyeeyoung.wishboard.data.local.WishBoardPreference
 import com.hyeeyoung.wishboard.domain.model.wish.WishItem
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemOwnershipStatus
@@ -46,13 +45,9 @@ class WishListViewModel @Inject constructor(
         .map { it.isExcludeOwnedItems }
         .distinctUntilChanged()
         .flatMapLatest { isExclude ->
-            getWishListUseCase().map { pagingData ->
-                if (isExclude) {
-                    pagingData.filter { it.itemOwnershipStatus != WishItemOwnershipStatus.OWNED }
-                } else {
-                    pagingData
-                }
-            }
+            getWishListUseCase(
+                itemStatus = if (isExclude) WishItemOwnershipStatus.WISH else null,
+            )
         }
         .cachedIn(viewModelScope)
         .catch { exception ->
@@ -62,6 +57,9 @@ class WishListViewModel @Inject constructor(
 
     private val _refreshWishListTrigger = Channel<Unit>()
     val refreshWishListTrigger = _refreshWishListTrigger.receiveAsFlow()
+
+    private val _scrollToTopTrigger = Channel<Unit>()
+    val scrollToTopTrigger = _scrollToTopTrigger.receiveAsFlow()
 
     init {
         initUiModel()
@@ -91,6 +89,7 @@ class WishListViewModel @Inject constructor(
     fun dismissBulkRegisterBanner() {
         localStorage.isBulkRegisterBannerDismissed = true
         _uiModel.update { it.copy(isBulkRegisterBannerVisible = false) }
+        updateSnackbarMessage(message = "마이페이지 > ‘위시리스트 한 번에 등록하기’\n에서 언제든 확인할 수 있어요!")
     }
 
     fun updateOnboardingModalStatus(isOnboardingComplete: Boolean) {
@@ -122,8 +121,7 @@ class WishListViewModel @Inject constructor(
     }
 
     fun updateExcludeOwnedItems(isExclude: Boolean) {
-        _uiModel.update {
-            it.copy(isExcludeOwnedItems = isExclude)
-        }
+        _uiModel.update { it.copy(isExcludeOwnedItems = isExclude) }
+        viewModelScope.launch { _scrollToTopTrigger.send(Unit) }
     }
 }

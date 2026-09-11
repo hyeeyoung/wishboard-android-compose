@@ -96,8 +96,13 @@ class WishBoardPreference @Inject constructor(@ApplicationContext context: Conte
         set(value) = dataStore.edit { putBoolean(IS_BULK_REGISTER_BANNER_DISMISSED, value) }
         get() = dataStore.getBoolean(IS_BULK_REGISTER_BANNER_DISMISSED, false)
 
+    var isTempNickname: Boolean
+        set(value) = dataStore.edit { putBoolean(IS_TEMP_NICKNAME, value) }
+        get() = dataStore.getBoolean(IS_TEMP_NICKNAME, false)
+
     fun setUserInfo(email: String, nickname: String?, accessToken: String, refreshToken: String) {
         isLogin = true
+        isTempNickname = nickname != null
         userInfo = UserInfo(
             email = email,
             nickname = nickname ?: "",
@@ -136,5 +141,6 @@ class WishBoardPreference @Inject constructor(@ApplicationContext context: Conte
         const val SHOULD_SHOW_ONBOARDING_MODAL = "shouldShowOnboardingModal"
         const val WISH_LIST_VIEW_TYPE = "wishListViewType"
         const val IS_BULK_REGISTER_BANNER_DISMISSED = "isBulkRegisterBannerDismissed"
+        const val IS_TEMP_NICKNAME = "isTempNickname"
     }
 }

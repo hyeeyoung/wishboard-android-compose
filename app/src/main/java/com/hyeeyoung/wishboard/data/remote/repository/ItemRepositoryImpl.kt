@@ -42,18 +42,18 @@ class ItemRepositoryImpl @Inject constructor(
     private val _totalElements = MutableStateFlow<Int?>(null)
     override val totalElements: StateFlow<Int?> = _totalElements.asStateFlow()
 
-    override fun fetchWishList(): Flow<PagingData<WishItem>> =
+    override fun fetchWishList(itemStatus: WishItemOwnershipStatus?): Flow<PagingData<WishItem>> =
         Pager(
             config = PagingConfig(
                 initialLoadSize = PageSize.DEFAULT_SIZE,
                 pageSize = PageSize.DEFAULT_SIZE,
-                enablePlaceholders = true,
+                enablePlaceholders = false,
                 prefetchDistance = PageSize.DEFAULT_PREFETCH_SIZE,
             ),
             pagingSourceFactory = {
                 GeneralPagingSource(
                     loadPage = { page, size ->
-                        itemService.fetchWishList(page = page, size = size)
+                        itemService.fetchWishList(page = page, size = size, itemStatus = itemStatus?.name)
                     },
                     onMetaLoaded = { totalElements -> _totalElements.value = totalElements },
                 )

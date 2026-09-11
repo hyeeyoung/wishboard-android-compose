@@ -59,7 +59,6 @@ import androidx.navigation.NavHostController
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.itemKey
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardEmptyView
@@ -113,6 +112,13 @@ fun WishListScreen(
         viewModel.refreshWishListTrigger.collectLatest {
             wishList.refresh()
             viewModel.fetchWishItemCount()
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.scrollToTopTrigger.collect {
+            lazyGridState.scrollToItem(0)
+            lazyListState.scrollToItem(0)
         }
     }
 
@@ -296,7 +302,7 @@ fun WishlistScreen(
                                     ),
                                     state = lazyGridState,
                                 ) {
-                                    items(count = wishList.itemCount, key = wishList.itemKey { it.id }) { idx ->
+                                    items(count = wishList.itemCount, key = { idx -> idx }) { idx ->
                                         val item = wishList[idx]
                                         item?.let {
                                             WishItemForGridView(
@@ -308,7 +314,7 @@ fun WishlistScreen(
                                 }
                             } else {
                                 LazyColumn(state = lazyListState) {
-                                    items(count = wishList.itemCount, key = wishList.itemKey { it.id }) { idx ->
+                                    items(count = wishList.itemCount, key = { idx -> idx }) { idx ->
                                         val item = wishList[idx]
                                         item?.let {
                                             WishBoardDivider()

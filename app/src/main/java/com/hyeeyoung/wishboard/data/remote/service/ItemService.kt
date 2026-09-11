@@ -26,6 +26,7 @@ interface ItemService {
     suspend fun fetchWishList(
         @Query("page") page: Int,
         @Query("size") size: Int,
+        @Query("itemStatus") itemStatus: String? = null,
     ): BaseResponse<PagedResponse<WishItemDto>>
 
     @GET("item/{itemId}")

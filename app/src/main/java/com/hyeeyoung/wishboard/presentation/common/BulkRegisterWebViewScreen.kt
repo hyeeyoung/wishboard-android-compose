@@ -1,12 +1,18 @@
 package com.hyeeyoung.wishboard.presentation.common
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.graphics.Bitmap
+import android.net.Uri
 import android.view.ViewGroup
 import android.webkit.JavascriptInterface
+import android.webkit.ValueCallback
+import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -99,6 +105,16 @@ private fun BulkRegisterWebView(
     onMessage: (String) -> Unit,
     exitWebView: () -> Unit,
 ) {
+    val fileChooserCallbackRef = remember { mutableStateOf<ValueCallback<Array<Uri>>?>(null) }
+
+    val filePickerLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult(),
+    ) { result ->
+        val uris = WebChromeClient.FileChooserParams.parseResult(result.resultCode, result.data)
+        fileChooserCallbackRef.value?.onReceiveValue(uris)
+        fileChooserCallbackRef.value = null
+    }
+
     AndroidView(
         modifier = Modifier.fillMaxSize(),
         factory = { context ->
@@ -126,6 +142,26 @@ private fun BulkRegisterWebView(
                             "window.__WISHBOARD_TOKEN__='$token'; window.__WISHBOARD_DEVICE_INFO__='$deviceInfo';",
                             null,
                         )
+                    }
+                }
+                webChromeClient = object : WebChromeClient() {
+                    override fun onShowFileChooser(
+                        webView: WebView?,
+                        callback: ValueCallback<Array<Uri>>,
+                        params: FileChooserParams,
+                    ): Boolean {
+                        fileChooserCallbackRef.value?.onReceiveValue(null)
+                        fileChooserCallbackRef.value = callback
+                        val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+                            addCategory(Intent.CATEGORY_OPENABLE)
+                            type = "*/*"
+                            putExtra(
+                                Intent.EXTRA_MIME_TYPES,
+                                arrayOf("text/csv", "text/comma-separated-values", "application/csv"),
+                            )
+                        }
+                        filePickerLauncher.launch(Intent.createChooser(intent, null))
+                        return true
                     }
                 }
                 loadUrl(BULK_REGISTER_URL)

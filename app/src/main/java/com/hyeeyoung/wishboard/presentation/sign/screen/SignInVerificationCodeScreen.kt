@@ -115,14 +115,14 @@ fun SignInVerificationCodeScreen(
                 modifier = Modifier.focusRequester(focusRequester),
                 input = verificationCodeInput,
                 placeholder = stringResource(id = R.string.sign_in_verification_code_placeholder),
-                errorMsg = if (uiModel.isCorrectAuthCode == false) {
-                    stringResource(id = R.string.sign_in_verification_code_error)
-                } else {
-                    ""
+                errorMsg = when {
+                    uiModel.isCorrectAuthCode == false -> stringResource(id = R.string.sign_in_verification_code_error)
+                    uiModel.isNonRegisteredUser -> stringResource(id = R.string.sign_in_unregister_error)
+                    else -> ""
                 },
                 onTextChange = onAuthCodeChange,
                 maxLength = VERIFICATION_CODE_MAX_LENGTH,
-                isError = uiModel.isCorrectAuthCode == false,
+                isError = uiModel.isCorrectAuthCode == false || uiModel.isNonRegisteredUser,
                 endComponent = WishBoardTextFieldComponent.Timer(uiModel.timer),
             )
 
