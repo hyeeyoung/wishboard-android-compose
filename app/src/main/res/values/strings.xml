@@ -1,3 +1,196 @@
 <resources>
-    <string name="app_name">WishBoard</string>
+    <string name="app_name">위시보드</string>
+    <string name="wishboard_email">wishboard2022@gmail.com</string>
+    <string name="play_store_detail_url">https://play.google.com/store/apps/details?id=</string>
+
+    <!-- Global -->
+    <string name="won">원</string>
+    <string name="save">저장</string>
+    <string name="next">다음</string>
+    <string name="edit">편집</string>
+    <string name="later">나중에</string>
+    <string name="complete">완료</string>
+    <string name="add">추가</string>
+    <string name="cancel">취소</string>
+    <string name="delete">삭제</string>
+
+    <!-- Format -->
+    <string name="step">%d/%d 단계</string>
+    <string name="text_length">(%d/%d)자</string>
+    <string name="timer_format">%d:%d</string>
+
+    <!-- Snackbar -->
+    <string name="noti_item_url_snackbar_text">쇼핑몰 링크를 등록해 주세요!🛍️️</string>
+
+    <!-- Sign -->
+    <string name="sign_email">이메일</string>
+    <string name="sign_password">비밀번호</string>
+    <string name="sign_email_placeholder">이메일을 입력해 주세요.</string>
+    <string name="sign_password_placeholder">비밀번호 입력해 주세요.</string>
+    <string name="sign_in_verification_code_placeholder">인증코드를 입력해 주세요.</string>
+    <string name="sign_forget_password">비밀번호를 잊으셨나요?</string>
+
+    <string name="sign_main_welcome_description">흩어져 있는 위시리스트를 한 곳에,\n위시보드에 모아보세요!</string>
+    <string name="sign_main_login_guide">이미 계정이 있으신가요?</string>
+
+    <string name="sign_in">로그인</string>
+
+    <string name="sign_in_title">로그인하기</string>
+    <string name="sign_in_verification_email">인증메일 받기</string>
+    <string name="sign_in_email_title">이메일을 입력해 주세요</string>
+    <string name="sign_in_verification_code_title">인증코드를 입력해 주세요</string>
+
+    <string name="sign_in_email_description">가입하신 이메일을 입력해주세요!\n로그인을 위해 인증코드가 포함된 이메일을 보내드려요.</string>
+    <string name="sign_in_verification_code_description">인증코드가 전송되었어요! 이메일을 확인해 주세요.</string>
+    <string name="sign_in_email_error">이메일 주소를 정확하게 입력해주세요.</string>
+    <string name="sign_in_unregister_error">앗, 가입되지 않은 계정이에요! 가입하기부터 진행해 주세요.</string>
+    <string name="sign_in_verification_code_error">인증코드를 다시 확인해 주세요.</string>
+
+    <string name="sign_up_title">가입하기</string>
+    <string name="sign_up_email_description">이메일 인증으로 비밀번호를 찾을 수 있어요.\n실제 사용될 이메일로 입력해 주세요!</string>
+    <string name="sign_up_password_title">비밀번호를 입력해 주세요</string>
+    <string name="sign_up_password_description">입력된 비밀번호로 바로 가입되니 신중히 입력해 주세요.</string>
+    <string name="sign_up_already_member_error">앗, 이미 가입된 계정이에요! 로그인으로 진행해 주세요.</string>
+    <string name="sign_up_password_format_error">8자리 이상의 영문자, 숫자, 특수 문자 조합으로 입력해 주세요.</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_yes_btn_text">네! 알겠어요</string>
+    <string name="onboarding_save_item_title">아이템 저장</string>
+    <string name="onboarding_folder_setting_title">폴더 지정</string>
+    <string name="onboarding_noti_setting_title">알림 설정</string>
+    <string name="onboarding_save_item_description">웹 브라우저에서 사고 싶은 아이템이 있다면\n“공유하기”로 아이템을 위시보드에 저장해 보세요!</string>
+    <string name="onboarding_folder_setting_description">아이템에 폴더를 지정해 보세요\n원하는 폴더가 없다면 새 폴더를 추가할 수 있어요.</string>
+    <string name="onboarding_noti_setting_description">상품의 재입고, 프리오더, 세일 알림을 설정해 보세요.\n설정한 시간 30분 전에 알림 보내드려요!</string>
+
+    <!-- WishItem Global -->
+    <string name="memo">메모</string>
+
+    <!-- WishItem -->
+    <string name="cart_btn_text">Cart</string>
+
+    <!-- WishItemDetail -->
+    <string name="wish_item_detail_folder_guild">폴더를 지정해 보세요!</string>
+    <string name="wish_item_detail_go_to_shop">쇼핑몰로 이동하기</string>
+
+    <!-- Cart -->
+    <string name="cart">장바구니</string>
+    <string name="total">전체</string>
+    <string name="ea">개</string>
+
+    <!-- Folder -->
+    <string name="folder">폴더</string>
+    <string name="folder_wish_item_count">%d 아이템</string>
+
+    <!-- Upload -->
+    <string name="wish_item_link_sharing_upload">위시리스트에 추가</string>
+    <string name="wish_item_link_sharing_upload_after_login">로그인 후 이용해 주세요</string>
+    <string name="wish_item_link_sharing_upload_name">상품명을 입력해 주세요.</string>
+    <string name="wish_item_link_sharing_upload_price">가격을 입력해 주세요.</string>
+    <string name="wish_item_link_sharing_upload_noti_setting">상품 알림 설정하기</string>
+    <string name="wish_item_link_sharing_upload_new_folder">새 폴더 추가</string>
+
+    <string name="wish_item_upload_add_title">아이템 추가</string>
+    <string name="wish_item_upload_edit_title">아이템 수정</string>
+    <string name="wish_item_upload_item_name">상품명을 입력해 주세요.</string>
+    <string name="wish_item_upload_item_price">₩ 가격을 입력해 주세요.</string>
+    <string name="wish_item_upload_noti">상품 일정 알림</string>
+    <string name="wish_item_upload_shop_link">쇼핑몰 링크</string>
+    <string name="wish_item_upload_shop_link_guide">복사한 링크로 아이템을 불러올 수 있어요!</string>
+    <string name="wish_item_upload_memo">브랜드, 사이즈, 컬러 등 아이템 정보를 메모로 남겨보세요!😉</string>
+
+    <!-- Noti -->
+    <string name="noti">알림</string>
+    <string name="noti_item_type">%s 알림</string>
+
+    <!-- Calendar -->
+    <string name="calendar_schedule_title">%d월 %d일 일정</string>
+
+    <!-- My -->
+    <string name="my">마이페이지</string>
+    <string name="my_menu_push_setting">알림 설정</string>
+    <string name="my_menu_change_password">비밀번호 변경</string>
+    <string name="my_menu_contact_us">문의하기</string>
+    <string name="my_menu_bulk_register">위시리스트 한 번에 등록하기</string>
+    <string name="my_menu_manual">위시보드 이용방법</string>
+    <string name="my_menu_terms">이용약관</string>
+    <string name="my_menu_privacy">개인정보 처리방침</string>
+    <string name="my_menu_open_source">오픈소스 라이브러리</string>
+    <string name="my_menu_version">버전 정보</string>
+    <string name="my_menu_logout">로그아웃</string>
+    <string name="my_menu_withdraw">회원 탈퇴</string>
+    <string name="my_contact_us_email_title">위시보드에게 문의하기</string>
+    <string name="my_contact_us_email_content">안녕하세요. 위시보드 입니다. 🔫\n문의 내용을 하단에 작성해 주세요.\n답변은 전송주신 메일로 회신드리겠습니다. 💌\n감사합니다. 😉\n-------------\n\n\n\n\n\n-------------\nDevice: %s %s\nApp version: %s\nOS Version: %d</string>
+
+    <string name="my_profile_edit_title">프로필 수정</string>
+    <string name="my_profile_nickname">닉네임</string>
+    <string name="my_profile_nickname_placeholder">닉네임을 입력해 주세요.</string>
+    <string name="my_profile_nickname_already_exist_error">이미 사용 중인 닉네임이에요!</string>
+
+    <string name="my_password_change_title">비밀번호 변경</string>
+    <string name="my_password_new_password">새 비밀번호</string>
+    <string name="my_password_new_re_password">새 비밀번호 재입력</string>
+    <string name="my_password_new_password_placeholder">새 비밀번호를 입력해 주세요.</string>
+    <string name="my_password_new_re_password_placeholder">새 비밀번호를 다시 입력해 주세요.</string>
+    <string name="my_password_incorrect_error">비밀번호가 일치하지 않아요!</string>
+
+    <!-- Navigation Menu -->
+    <string name="nav_menu_label_wishlist">WISHLIST</string>
+    <string name="nav_menu_label_folder">FOLDER</string>
+    <string name="nav_menu_label_add">ADD</string>
+    <string name="nav_menu_label_notice">NOTICE</string>
+    <string name="nav_menu_label_my">MY</string>
+
+    <!-- Dialog -->
+    <string name="dialog_update_title">업데이트 안내</string>
+    <string name="dialog_update_description">위시보드가 유저분들에게 더 나은 경험을\n제공하기 위해 사용성을 개선했어요!\n더 새로워진 위시보드를 만나보세요 😆</string>
+    <string name="dialog_update_confirm_btn_text">업데이트</string>
+
+    <string name="dialog_noti_title">알림 허용</string>
+    <string name="dialog_noti_description">알림을 받아보시겠어요?\n직접 등록하신 아이템의 재입고 날짜 등의\n상품 일정 알림을 받으실 거에요.</string>
+    <string name="dialog_noti_dismiss_btn_text">나중에</string>
+    <string name="dialog_noti_confirm_btn_text">허용</string>
+
+    <string name="dialog_item_delete_title">아이템 삭제</string>
+    <string name="dialog_item_delete_description">정말 아이템을 삭제하시겠어요?\n삭제된 아이템은 다시 복구할 수 없어요!</string>
+
+    <string name="dialog_cart_title">장바구니에서 삭제</string>
+    <string name="dialog_cart_description">정말 장바구니에서 아이템을 삭제하시겠어요?</string>
+
+    <string name="dialog_folder_delete_title">폴더 삭제</string>
+    <string name="dialog_folder_delete_description">정말 폴더를 삭제하시겠어요?\n폴더가 삭제되어도 아이템은 사라지지 않아요</string>
+
+    <string name="dialog_logout_description">정말 로그아웃 하시겠어요?</string>
+
+    <string name="dialog_withdraw_title">회원 탈퇴</string>
+    <string name="dialog_withdraw_description">정말 탈퇴하시겠습니까?\n탈퇴 시 앱 내 모든 데이터가 사라집니다.\n서비스를 탈퇴하시려면 이메일을 입력해 주세요.</string>
+    <string name="dialog_withdraw_confirm_btn_text">탈퇴</string>
+    <string name="dialog_withdraw_email_error">이메일을 다시 확인해 주세요.</string>
+
+    <!-- Empty -->
+    <string name="empty_wishlist_guide_text">앗, 아이템이 없어요!\n갖고 싶은 아이템을 등록해 보세요!</string>
+    <string name="empty_cart_guide_text">앗, 장바구니가 비어있어요!\n구매할 아이템을 장바구니에 담아보세요!</string>
+    <string name="empty_folder_guide_text">앗, 폴더가 없어요!\n폴더를 추가해서 아이템을 정리해 보세요!</string>
+    <string name="empty_noti_guide_text">앗, 일정이 없어요!\n상품 일정을 지정하고 알림을 받아보세요!</string>
+
+    <!-- Modal -->
+    <string name="modal_folder_selection_title">폴더 선택</string>
+
+    <string name="modal_noti_setting_title">상품 일정</string>
+    <string name="modal_noti_setting_guide">30분 전에 일정을 알려드려요. 시간은 30분 단위로 설정 가능해요!</string>
+    <string name="modal_noti_setting_time_delimiter">:</string>
+
+    <string name="modal_shop_link_title">쇼핑몰 링크</string>
+    <string name="modal_shop_link_item_load_btn_text">아이템 불러오기</string>
+    <string name="modal_shop_link_placeholder">쇼핑몰 링크를 입력해 주세요.</string>
+    <string name="modal_shop_link_error">쇼핑몰 링크를 다시 확인해 주세요.</string>
+
+    <string name="modal_new_folder_title">새 폴더 추가</string>
+    <string name="modal_folder_name_edit_title">폴더명 수정</string>
+    <string name="modal_folder_name_edit_btn_text">수정</string>
+    <string name="modal_folder_upload_placeholder">폴더명을 입력해 주세요.</string>
+    <string name="modal_folder_upload_error">동일 이름의 폴더가 있어요!</string>
+
+    <string name="modal_image_upload_camera">카메라로 촬영하기</string>
+    <string name="modal_image_upload_gallery">사진 선택하기</string>
+
 </resources>

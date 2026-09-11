@@ -16,10 +16,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
           
       - name: Gradle cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/.gradle/caches
@@ -28,10 +28,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      - name: set up JDK 11
-        uses: actions/setup-java@v1
+      - name: set up JDK 17
+        uses: actions/setup-java@v3
         with:
-          java-version: 11
+          distribution: 'adopt'
+          java-version: 17
 
       - name: Change gradlew permissions
         run: chmod +x ./gradlew
@@ -40,15 +41,45 @@ jobs:
         env:
           FIREBASE_SECRET: ${{ secrets.FIREBASE_SECRET }}
         run: echo $FIREBASE_SECRET > app/google-services.json
-      
+
+      - name: Decode keystore
+        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > app/release-key.jks
+
       - name: Touch local properties
         run: touch local.properties
 
-      - name: Access DEV_BASE_URL
-        run: echo "DEV_BASE_URL=\"\"" >> local.properties
-
-      - name: Access PROD_BASE_URL
-        run: echo "PROD_BASE_URL=\"\"" >> local.properties
+      - name: Create local.properties
+        run: |
+          echo "DEV_BASE_URL=${{ secrets.DEV_BASE_URL }}" >> local.properties
+          echo "PROD_BASE_URL=${{ secrets.PROD_BASE_URL }}" >> local.properties
+          echo "KEY_ALIAS=${{ secrets.KEY_ALIAS }}" >> local.properties
+          echo "KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}" >> local.properties
+          echo "KEYSTORE_PATH=release-key.jks" >> local.properties
+          echo "STORE_PASSWORD=${{ secrets.STORE_PASSWORD }}" >> local.properties
 
       - name: Build with Gradle
         run: ./gradlew build
+
+      - name: On Success!! Congratulations
+        if: ${{ success() }}
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_COLOR: '#95FB9D'
+          SLACK_ICON: https://play-lh.googleusercontent.com/5Ckp1AdoWkbHceiG3JUhmxIzmqK3gCe6pDOQM9gklKInmJnGSJgAOBjq39FAuPKSttw=w480-h960-rw
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_TITLE: '🎉 wishboard-android-compose PR Check S.U.C.C.E.S.S 🎉'
+          MSG_MINIMAL: true
+          SLACK_USERNAME: Wishboard-Android-Compose
+          SLACK_MESSAGE: 'PR이 완료되었습니다! 🥳 🥳 🥳'
+
+      - name: On Failed, Notify in Slack
+        if: ${{ failure() }}
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_COLOR: '#FA5DBB'
+          SLACK_ICON: https://play-lh.googleusercontent.com/5Ckp1AdoWkbHceiG3JUhmxIzmqK3gCe6pDOQM9gklKInmJnGSJgAOBjq39FAuPKSttw=w480-h960-rw
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_TITLE: 'wishboard-android-compose Debug build Fail ❌'
+          MSG_MINIMAL: true
+          SLACK_USERNAME: Wishboard-Android-Compose
+          SLACK_MESSAGE: '에러를 확인해주세요 👻'
