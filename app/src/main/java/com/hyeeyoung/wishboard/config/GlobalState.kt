@@ -13,6 +13,7 @@ object GlobalState {
 
 data class BottomBarSelectionModeState(
     val selectedItemCount: Int,
+    val isAllSelected: Boolean,
     val onClickSelectAll: () -> Unit,
     val onClickDelete: () -> Unit,
 )

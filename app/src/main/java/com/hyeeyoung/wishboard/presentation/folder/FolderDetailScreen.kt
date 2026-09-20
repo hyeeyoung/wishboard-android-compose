@@ -5,10 +5,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -111,6 +113,7 @@ fun FolderDetailScreen(
 
             BottomBarSelectionModeState(
                 selectedItemCount = selectedCount,
+                isAllSelected = isAllSelected,
                 onClickSelectAll = viewModel::toggleSelectAll,
                 onClickDelete = { dialogData = DialogData.BulkWishItemDelete(selectedCount) },
             )
@@ -190,7 +193,10 @@ fun FolderDetailScreen(
                     onClickStartIcon = onClickBack,
                 ),
                 endComponent = { modifier ->
-                    SelectionModeIconButton(modifier = modifier, onClick = onClickToggleSelectionMode)
+                    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
+                        SelectionModeIconButton(onClick = onClickToggleSelectionMode)
+                        Spacer(modifier = Modifier.width(5.dp))
+                    }
                 },
             )
         }

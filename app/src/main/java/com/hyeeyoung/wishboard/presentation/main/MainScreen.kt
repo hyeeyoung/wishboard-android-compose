@@ -32,6 +32,7 @@ fun MainScreen(wishNavController: NavHostController, isFirstLaunch: Boolean, onC
         if (currentSelectionModeState != null) {
             SelectionModeBottomBar(
                 selectedItemCount = currentSelectionModeState.selectedItemCount,
+                isAllSelected = currentSelectionModeState.isAllSelected,
                 onClickSelectAll = currentSelectionModeState.onClickSelectAll,
                 onClickDelete = currentSelectionModeState.onClickDelete,
             )

@@ -22,6 +22,7 @@ import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 @Composable
 fun SelectionModeBottomBar(
     selectedItemCount: Int,
+    isAllSelected: Boolean,
     onClickSelectAll: () -> Unit,
     onClickDelete: () -> Unit,
 ) {
@@ -46,7 +47,7 @@ fun SelectionModeBottomBar(
                         .align(Alignment.CenterStart)
                         // 선택된 아이템이 없어도 "전체 선택"으로 선택을 시작할 수 있어야 하므로 항상 클릭 가능해야 한다.
                         .noRippleClickable { onClickSelectAll() },
-                    text = "전체 선택",
+                    text = if (isAllSelected) "선택 해제" else "전체 선택",
                     style = WishBoardTheme.typography.suitB2,
                     color = actionTextColor,
                 )
@@ -76,6 +77,7 @@ fun SelectionModeBottomBar(
 fun PreviewSelectionModeBottomBarDisabled() {
     SelectionModeBottomBar(
         selectedItemCount = 0,
+        isAllSelected = false,
         onClickSelectAll = {},
         onClickDelete = {},
     )
@@ -86,6 +88,18 @@ fun PreviewSelectionModeBottomBarDisabled() {
 fun PreviewSelectionModeBottomBarEnabled() {
     SelectionModeBottomBar(
         selectedItemCount = 5,
+        isAllSelected = false,
+        onClickSelectAll = {},
+        onClickDelete = {},
+    )
+}
+
+@Preview
+@Composable
+fun PreviewSelectionModeBottomBarAllSelected() {
+    SelectionModeBottomBar(
+        selectedItemCount = 117,
+        isAllSelected = true,
         onClickSelectAll = {},
         onClickDelete = {},
     )

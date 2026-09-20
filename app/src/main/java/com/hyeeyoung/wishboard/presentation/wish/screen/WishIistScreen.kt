@@ -67,6 +67,7 @@ import com.hyeeyoung.wishboard.config.GlobalState
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardEmptyView
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardGlobalSnackbarMessage
+import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.DialogData
 import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.WishBoardTwoButtonDialog
 import com.hyeeyoung.wishboard.designsystem.component.dialog.temp.WishBoardModal
@@ -149,6 +150,7 @@ fun WishListScreen(
 
             BottomBarSelectionModeState(
                 selectedItemCount = selectedCount,
+                isAllSelected = uiModel.isAllSelected,
                 onClickSelectAll = viewModel::toggleSelectAll,
                 onClickDelete = { dialogData = DialogData.BulkWishItemDelete(selectedCount) },
             )
@@ -503,35 +505,20 @@ fun WishlistTopBar(
                 contentDescription = null,
             )
 
-            // 
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier
-                        .noRippleClickable { onClickToggleSelectionMode() }
-                        .padding(9.dp)
-                        .size(24.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_main_top_bar_check),
-                        contentDescription = "아이템 선택",
-                        tint = Color.Unspecified,
-                    )
-                }
+                WishBoardIconButton(
+                    size = 42.dp,
+                    iconRes = R.drawable.ic_main_top_bar_check,
+                    contentDescription = "아이템 선택",
+                    onClick = onClickToggleSelectionMode,
+                )
 
-                Box(
-                    modifier = Modifier
-                        .noRippleClickable { onClickCalendar() }
-                        .padding(9.dp)
-                        .size(24.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_notice),
-                        contentDescription = "알림",
-                        tint = Color.Unspecified,
-                    )
-                }
+                WishBoardIconButton(
+                    size = 42.dp,
+                    iconRes = R.drawable.ic_notice,
+                    contentDescription = "알림",
+                    onClick = onClickCalendar,
+                )
             }
         }
     }
