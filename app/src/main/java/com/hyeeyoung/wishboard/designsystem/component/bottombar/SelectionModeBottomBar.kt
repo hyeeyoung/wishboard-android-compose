@@ -44,7 +44,8 @@ fun SelectionModeBottomBar(
                 Text(
                     modifier = Modifier
                         .align(Alignment.CenterStart)
-                        .noRippleClickable(enabled = isEnabled) { onClickSelectAll() },
+                        // 선택된 아이템이 없어도 "전체 선택"으로 선택을 시작할 수 있어야 하므로 항상 클릭 가능해야 한다.
+                        .noRippleClickable { onClickSelectAll() },
                     text = "전체 선택",
                     style = WishBoardTheme.typography.suitB2,
                     color = actionTextColor,

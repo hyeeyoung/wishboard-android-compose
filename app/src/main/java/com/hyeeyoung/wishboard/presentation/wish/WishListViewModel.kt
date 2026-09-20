@@ -3,11 +3,14 @@ package com.hyeeyoung.wishboard.presentation.wish
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
+import com.hyeeyoung.wishboard.core.extension.onFailure
 import com.hyeeyoung.wishboard.data.local.WishBoardPreference
 import com.hyeeyoung.wishboard.domain.model.wish.WishItem
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemOwnershipStatus
-import com.hyeeyoung.wishboard.domain.usecase.item.GetWishItemCountUseCase
+import com.hyeeyoung.wishboard.domain.usecase.item.DeleteBulkWishItemsUseCase
+import com.hyeeyoung.wishboard.domain.usecase.item.GetTotalWishItemsUseCase
 import com.hyeeyoung.wishboard.domain.usecase.item.GetWishListUseCase
+import com.hyeeyoung.wishboard.domain.util.resolveBulkDeleteTarget
 import com.hyeeyoung.wishboard.domain.util.safeValueOf
 import com.hyeeyoung.wishboard.presentation.common.BaseViewModel
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
@@ -36,7 +39,8 @@ import javax.inject.Inject
 class WishListViewModel @Inject constructor(
     private val localStorage: WishBoardPreference,
     getWishListUseCase: GetWishListUseCase,
-    private val getWishItemCountUseCase: GetWishItemCountUseCase,
+    getTotalWishItemsUseCase: GetTotalWishItemsUseCase,
+    private val deleteBulkWishItemsUseCase: DeleteBulkWishItemsUseCase,
 ) : BaseViewModel() {
     private var _uiModel = MutableStateFlow(WishListUiModel())
     val uiModel = _uiModel.asStateFlow()
@@ -65,13 +69,21 @@ class WishListViewModel @Inject constructor(
     init {
         initUiModel()
         refreshWishList()
-        fetchWishItemCount()
+        observeTotalItemCount(getTotalWishItemsUseCase)
     }
 
     private fun refreshWishList() {
         viewModelScope.launch {
             WishBoardEventBus.onWishItemChanged.collect {
                 _refreshWishListTrigger.send(Unit)
+            }
+        }
+    }
+
+    private fun observeTotalItemCount(getTotalWishItemsUseCase: GetTotalWishItemsUseCase) {
+        viewModelScope.launch {
+            getTotalWishItemsUseCase().collect { total ->
+                _uiModel.update { it.copy(totalItemCount = total) }
             }
         }
     }
@@ -111,27 +123,26 @@ class WishListViewModel @Inject constructor(
         localStorage.wishListViewType = newViewType.name
     }
 
-    fun fetchWishItemCount() {
-        viewModelScope.launch {
-            getWishItemCountUseCase().onSuccess { count ->
-                _uiModel.update {
-                    it.copy(wishItemCount = count)
-                }
-            }
-        }
-    }
-
     fun updateExcludeOwnedItems(isExclude: Boolean) {
         _uiModel.update { it.copy(isExcludeOwnedItems = isExclude) }
         viewModelScope.launch { _scrollToTopTrigger.send(Unit) }
     }
 
     fun toggleSelectionMode() {
-        _uiModel.update { it.copy(isSelectionMode = !it.isSelectionMode, selectedItemIds = emptySet()) }
+        _uiModel.update {
+            it.copy(isSelectionMode = !it.isSelectionMode, isAllSelected = false, selectedItemIds = emptySet())
+        }
+    }
+
+    // 전체 선택 상태에서는 개별 아이템을 부분적으로 해제하는 것을 지원하지 않는다 (다시 누르면 전체 해제).
+    fun toggleSelectAll() {
+        _uiModel.update { it.copy(isAllSelected = !it.isAllSelected, selectedItemIds = emptySet()) }
     }
 
     fun toggleItemSelection(itemId: Long) {
         _uiModel.update {
+            if (it.isAllSelected) return@update it
+
             val selectedItemIds = if (it.selectedItemIds.contains(itemId)) {
                 it.selectedItemIds - itemId
             } else {
@@ -143,13 +154,50 @@ class WishListViewModel @Inject constructor(
 
     fun setItemSelected(itemId: Long, isSelected: Boolean) {
         _uiModel.update {
+            if (it.isAllSelected) return@update it
+
             val selectedItemIds = if (isSelected) it.selectedItemIds + itemId else it.selectedItemIds - itemId
             it.copy(selectedItemIds = selectedItemIds)
         }
     }
 
-    fun deleteSelectedItems() {
+    fun deleteSelectedItems(allLoadedItemIds: List<Long>) {
+        val model = uiModel.value
+        val target = resolveBulkDeleteTarget(
+            isAllSelected = model.isAllSelected,
+            selectedItemIds = model.selectedItemIds,
+            allLoadedItemIds = allLoadedItemIds,
+            totalItemCount = model.totalItemCount,
+        )
+
         _uiModel.update { it.copy(deleteSelectedItemsState = WishBoardState.Loading) }
-        // TODO: 선택된 아이템 일괄 삭제 API 연동
+
+        viewModelScope.launch {
+            val result = deleteBulkWishItemsUseCase(
+                scope = target.scope,
+                itemStatus = if (model.isExcludeOwnedItems) WishItemOwnershipStatus.WISH else null,
+                itemIds = target.itemIds,
+                excludeItemIds = target.excludeItemIds,
+            )
+
+            _uiModel.update {
+                it.copy(
+                    deleteSelectedItemsState = WishBoardState.Idle,
+                    isSelectionMode = false,
+                    isAllSelected = false,
+                    selectedItemIds = emptySet(),
+                )
+            }
+
+            result.onSuccess {
+                updateSnackbarMessage("아이템을 위시리스트에서 삭제했어요!🗑")
+                _refreshWishListTrigger.send(Unit)
+            }.onFailure { exception, _, _ ->
+                updateSnackbarMessage(
+                    message = "일시적인 오류가 발생했어요!\n잠시후 다시 시도해주세요",
+                    exception = exception,
+                )
+            }
+        }
     }
 }

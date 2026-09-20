@@ -40,6 +40,7 @@ interface FolderService {
         @Path("folderId") folderId: Long,
         @Query("page") page: Int,
         @Query("size") size: Int,
+        @Query("itemStatus") itemStatus: String? = null,
     ): BaseResponse<PagedResponse<WishItemDto>>
 
     @POST("folder")

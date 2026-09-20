@@ -53,7 +53,6 @@ import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.domain.model.wish.WishItem
-import com.hyeeyoung.wishboard.domain.model.wish.WishItemOwnershipStatus
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.util.extension.dragToSelectItems
@@ -76,7 +75,9 @@ fun FolderDetailScreen(
     viewModel: FolderDetailViewModel = hiltViewModel(),
 ) {
     val wishList = viewModel.wishList.collectAsLazyPagingItems()
+    val totalItemCount by viewModel.totalItemCount.collectAsStateWithLifecycle()
     val isSelectionMode by viewModel.isSelectionMode.collectAsStateWithLifecycle()
+    val isAllSelected by viewModel.isAllSelected.collectAsStateWithLifecycle()
     val selectedItemIds by viewModel.selectedItemIds.collectAsStateWithLifecycle()
     val deleteSelectedItemsState by viewModel.deleteSelectedItemsState.collectAsStateWithLifecycle()
     val viewType by viewModel.viewType.collectAsStateWithLifecycle()
@@ -100,12 +101,18 @@ fun FolderDetailScreen(
         }
     }
 
-    DisposableEffect(isSelectionMode, selectedItemIds) {
+    DisposableEffect(isSelectionMode, isAllSelected, selectedItemIds) {
         GlobalState.bottomBarSelectionModeState.value = if (isSelectionMode) {
+            val selectedCount = if (isAllSelected) {
+                totalItemCount ?: wishList.itemCount
+            } else {
+                selectedItemIds.size
+            }
+
             BottomBarSelectionModeState(
-                selectedItemCount = selectedItemIds.size,
-                onClickSelectAll = {},
-                onClickDelete = { dialogData = DialogData.BulkWishItemDelete(selectedItemIds.size) },
+                selectedItemCount = selectedCount,
+                onClickSelectAll = viewModel::toggleSelectAll,
+                onClickDelete = { dialogData = DialogData.BulkWishItemDelete(selectedCount) },
             )
         } else {
             null
@@ -119,7 +126,9 @@ fun FolderDetailScreen(
         folderName = folderName,
         lazyGridState = lazyGridState,
         lazyListState = lazyListState,
+        totalItemCount = totalItemCount,
         isSelectionMode = isSelectionMode,
+        isAllSelected = isAllSelected,
         selectedItemIds = selectedItemIds,
         deleteSelectedItemsState = deleteSelectedItemsState,
         viewType = viewType,
@@ -137,7 +146,10 @@ fun FolderDetailScreen(
 
     WishBoardTwoButtonDialog(
         dialogData = dialogData,
-        onClickConfirm = { viewModel.deleteSelectedItems() },
+        onClickConfirm = {
+            val allLoadedItemIds = (0 until wishList.itemCount).mapNotNull { idx -> wishList[idx]?.id }
+            viewModel.deleteSelectedItems(allLoadedItemIds)
+        },
         onDismissRequest = { dialogData = null },
     )
 }
@@ -148,7 +160,9 @@ fun FolderDetailScreen(
     folderName: String,
     lazyGridState: LazyGridState,
     lazyListState: LazyListState,
+    totalItemCount: Int?,
     isSelectionMode: Boolean,
+    isAllSelected: Boolean,
     selectedItemIds: Set<Long>,
     deleteSelectedItemsState: WishBoardState<Unit>,
     viewType: WishListViewType,
@@ -200,7 +214,6 @@ fun FolderDetailScreen(
             WishBoardEmptyView(modifier = contentModifier, guideTextRes = R.string.empty_wishlist_guide_text)
         } else {
             Column(modifier = contentModifier) {
-                // TODO: 폴더 내 아이템 개수/소장템 필터는 서버 API 연동 후 실제 데이터로 교체
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -209,7 +222,7 @@ fun FolderDetailScreen(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        text = "전체 ${wishItems.itemCount}개",
+                        text = "전체 ${totalItemCount ?: wishItems.itemCount}개",
                         style = WishBoardTheme.typography.suitD3,
                         color = WishBoardTheme.colors.gray200,
                     )
@@ -245,7 +258,7 @@ fun FolderDetailScreen(
                             gridState = lazyGridState,
                             enabled = isSelectionMode,
                             idAt = { idx -> wishItems[idx]?.id },
-                            isSelected = { id -> selectedItemIds.contains(id) },
+                            isSelected = { id -> isAllSelected || selectedItemIds.contains(id) },
                             onSelectedChange = onDragSelectItem,
                         ),
                         columns = GridCells.Fixed(if (viewType == WishListViewType.GRID_2_COLUMN) 2 else 3),
@@ -253,10 +266,10 @@ fun FolderDetailScreen(
                     ) {
                         items(count = wishItems.itemCount, key = wishItems.itemKey { it.id }) { idx ->
                             val item = wishItems[idx]
-                            if (item != null && item.isVisible(isExcludeOwnedItems)) {
+                            item?.let {
                                 WishItemForGridView(
                                     wishItem = item,
-                                    isSelected = selectedItemIds.contains(item.id),
+                                    isSelected = isAllSelected || selectedItemIds.contains(item.id),
                                     onClickItem = {
                                         if (isSelectionMode) {
                                             onClickToggleItemSelection(item.id)
@@ -274,18 +287,18 @@ fun FolderDetailScreen(
                             listState = lazyListState,
                             enabled = isSelectionMode,
                             idAt = { idx -> wishItems[idx]?.id },
-                            isSelected = { id -> selectedItemIds.contains(id) },
+                            isSelected = { id -> isAllSelected || selectedItemIds.contains(id) },
                             onSelectedChange = onDragSelectItem,
                         ),
                         state = lazyListState,
                     ) {
                         items(count = wishItems.itemCount, key = wishItems.itemKey { it.id }) { idx ->
                             val item = wishItems[idx]
-                            if (item != null && item.isVisible(isExcludeOwnedItems)) {
+                            item?.let {
                                 WishBoardDivider()
                                 WishItemForListView(
                                     wishItem = item,
-                                    isSelected = selectedItemIds.contains(item.id),
+                                    isSelected = isAllSelected || selectedItemIds.contains(item.id),
                                     onClickItem = {
                                         if (isSelectionMode) {
                                             onClickToggleItemSelection(item.id)
@@ -303,9 +316,6 @@ fun FolderDetailScreen(
     }
 }
 
-private fun WishItem.isVisible(isExcludeOwnedItems: Boolean): Boolean =
-    !isExcludeOwnedItems || itemOwnershipStatus != WishItemOwnershipStatus.OWNED
-
 @Composable
 @Preview
 fun PreviewFolderDetailScreen() {
@@ -322,7 +332,9 @@ fun PreviewFolderDetailScreen() {
         folderName = "상의",
         lazyGridState = rememberLazyGridState(),
         lazyListState = rememberLazyListState(),
+        totalItemCount = 8,
         isSelectionMode = false,
+        isAllSelected = false,
         selectedItemIds = emptySet(),
         deleteSelectedItemsState = WishBoardState.Idle,
         viewType = WishListViewType.GRID_2_COLUMN,

@@ -6,13 +6,14 @@ import androidx.paging.PagingData
 import androidx.paging.map
 import com.hyeeyoung.wishboard.data.remote.model.common.PageSize
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemOwnershipStatus
+import com.hyeeyoung.wishboard.data.remote.model.wish.DeleteBulkItemsRequestDto
 import com.hyeeyoung.wishboard.data.remote.model.wish.WishItemOwnershipRequestDto
 import com.hyeeyoung.wishboard.data.remote.model.wish.WishItemUploadInfoDto
 import com.hyeeyoung.wishboard.data.remote.paging.GeneralPagingSource
 import com.hyeeyoung.wishboard.data.remote.service.ItemService
+import com.hyeeyoung.wishboard.domain.model.wish.BulkDeleteScope
 import com.hyeeyoung.wishboard.domain.model.wish.ParsedWishItem
 import com.hyeeyoung.wishboard.domain.model.wish.WishItem
-import com.hyeeyoung.wishboard.domain.model.wish.WishItemCount
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemDetail
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemUploadInfo
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemUploadType
@@ -126,6 +127,21 @@ class ItemRepositoryImpl @Inject constructor(
         itemService.deleteWishItem(itemId)
     }
 
+    override suspend fun deleteBulkItems(
+        scope: BulkDeleteScope,
+        folderId: Long?,
+        itemStatus: WishItemOwnershipStatus?,
+        itemIds: List<Long>?,
+        excludeItemIds: List<Long>?,
+    ): Result<Unit> = runCatching {
+        itemService.deleteBulkItems(
+            scope = scope.name,
+            folderId = folderId,
+            itemStatus = itemStatus?.name,
+            request = DeleteBulkItemsRequestDto(itemIds = itemIds, excludeItemIds = excludeItemIds),
+        )
+    }
+
     override suspend fun getParsedItemInfo(site: String): Result<ParsedWishItem?> =
         runCatching {
             itemService.getParsedItemInfo(site).data
@@ -140,10 +156,6 @@ class ItemRepositoryImpl @Inject constructor(
                 ),
             ).data.itemStatus == WishItemOwnershipStatus.OWNED.name
         }
-
-    override suspend fun getItemCount(): Result<WishItemCount> = runCatching {
-        itemService.getItemCount().data
-    }
 
     companion object {
         private const val FORM_DATA_IMAGE_KEY = "itemImages"

@@ -12,14 +12,21 @@ import com.hyeeyoung.wishboard.data.remote.service.FolderService
 import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
 import com.hyeeyoung.wishboard.domain.model.folder.FolderOrderOption
 import com.hyeeyoung.wishboard.domain.model.wish.WishItem
+import com.hyeeyoung.wishboard.domain.model.wish.WishItemOwnershipStatus
 import com.hyeeyoung.wishboard.domain.repository.FolderRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class FolderRepositoryImpl @Inject constructor(
     private val folderService: FolderService,
 ) : FolderRepository {
+    private val _folderDetailTotalElements = MutableStateFlow<Int?>(null)
+    override val folderDetailTotalElements: StateFlow<Int?> = _folderDetailTotalElements.asStateFlow()
+
     override fun fetchFolders(): Flow<PagingData<FolderItem>> =
         Pager(
             config = PagingConfig(
@@ -43,7 +50,10 @@ class FolderRepositoryImpl @Inject constructor(
         folderService.fetchFolderSummaries(orderOption.name).data.map { it.toDomain() }
     }
 
-    override fun fetchFolderDetail(folderId: Long): Flow<PagingData<WishItem>> = Pager(
+    override fun fetchFolderDetail(
+        folderId: Long,
+        itemStatus: WishItemOwnershipStatus?,
+    ): Flow<PagingData<WishItem>> = Pager(
         config = PagingConfig(
             initialLoadSize = PageSize.DEFAULT_SIZE,
             pageSize = PageSize.DEFAULT_SIZE,
@@ -53,8 +63,14 @@ class FolderRepositoryImpl @Inject constructor(
         pagingSourceFactory = {
             GeneralPagingSource(
                 loadPage = { page, size ->
-                    folderService.fetchFolderDetail(folderId = folderId, page = page, size = size)
+                    folderService.fetchFolderDetail(
+                        folderId = folderId,
+                        page = page,
+                        size = size,
+                        itemStatus = itemStatus?.name,
+                    )
                 },
+                onMetaLoaded = { totalElements -> _folderDetailTotalElements.value = totalElements },
             )
         },
     ).flow.map {
