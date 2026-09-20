@@ -152,13 +152,15 @@ class FolderDetailViewModel @Inject constructor(
 
             result.onSuccess {
                 updateSnackbarMessage("아이템을 위시리스트에서 삭제했어요!🗑")
-                _refreshFolderDetailTrigger.send(Unit)
             }.onFailure { exception, _, _ ->
                 updateSnackbarMessage(
                     message = "일시적인 오류가 발생했어요!\n잠시후 다시 시도해주세요",
                     exception = exception,
                 )
             }
+
+            // 500개 초과 시 여러 번에 나눠 삭제하므로, 실패해도 일부는 이미 삭제됐을 수 있어 항상 새로고침한다.
+            _refreshFolderDetailTrigger.send(Unit)
         }
     }
 
