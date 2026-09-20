@@ -10,6 +10,7 @@ import com.hyeeyoung.wishboard.domain.usecase.item.GetWishItemCountUseCase
 import com.hyeeyoung.wishboard.domain.usecase.item.GetWishListUseCase
 import com.hyeeyoung.wishboard.domain.util.safeValueOf
 import com.hyeeyoung.wishboard.presentation.common.BaseViewModel
+import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
 import com.hyeeyoung.wishboard.presentation.sign.model.snackbar.SnackbarMessage
 import com.hyeeyoung.wishboard.presentation.util.WishBoardEventBus
 import com.hyeeyoung.wishboard.presentation.wish.model.WishListUiModel
@@ -123,5 +124,32 @@ class WishListViewModel @Inject constructor(
     fun updateExcludeOwnedItems(isExclude: Boolean) {
         _uiModel.update { it.copy(isExcludeOwnedItems = isExclude) }
         viewModelScope.launch { _scrollToTopTrigger.send(Unit) }
+    }
+
+    fun toggleSelectionMode() {
+        _uiModel.update { it.copy(isSelectionMode = !it.isSelectionMode, selectedItemIds = emptySet()) }
+    }
+
+    fun toggleItemSelection(itemId: Long) {
+        _uiModel.update {
+            val selectedItemIds = if (it.selectedItemIds.contains(itemId)) {
+                it.selectedItemIds - itemId
+            } else {
+                it.selectedItemIds + itemId
+            }
+            it.copy(selectedItemIds = selectedItemIds)
+        }
+    }
+
+    fun setItemSelected(itemId: Long, isSelected: Boolean) {
+        _uiModel.update {
+            val selectedItemIds = if (isSelected) it.selectedItemIds + itemId else it.selectedItemIds - itemId
+            it.copy(selectedItemIds = selectedItemIds)
+        }
+    }
+
+    fun deleteSelectedItems() {
+        _uiModel.update { it.copy(deleteSelectedItemsState = WishBoardState.Loading) }
+        // TODO: 선택된 아이템 일괄 삭제 API 연동
     }
 }

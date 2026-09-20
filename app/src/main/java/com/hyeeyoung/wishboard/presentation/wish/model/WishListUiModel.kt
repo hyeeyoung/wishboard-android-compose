@@ -1,6 +1,7 @@
 package com.hyeeyoung.wishboard.presentation.wish.model
 
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemCount
+import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
 
 data class WishListUiModel(
     val shouldShowOnboardingModal: Boolean = false,
@@ -8,4 +9,7 @@ data class WishListUiModel(
     val wishItemCount: WishItemCount? = null,
     val isExcludeOwnedItems: Boolean = false,
     val isBulkRegisterBannerVisible: Boolean = false,
+    val isSelectionMode: Boolean = false,
+    val selectedItemIds: Set<Long> = emptySet(),
+    val deleteSelectedItemsState: WishBoardState<Unit> = WishBoardState.Idle,
 )

@@ -1,34 +1,69 @@
 package com.hyeeyoung.wishboard.presentation.folder
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import com.hyeeyoung.wishboard.R
+import com.hyeeyoung.wishboard.config.BottomBarSelectionModeState
+import com.hyeeyoung.wishboard.config.GlobalState
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardEmptyView
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardGlobalSnackbarMessage
+import com.hyeeyoung.wishboard.designsystem.component.button.SelectionModeIconButton
+import com.hyeeyoung.wishboard.designsystem.component.dialog.model.DialogData
+import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.WishBoardTwoButtonDialog
+import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.domain.model.wish.WishItem
+import com.hyeeyoung.wishboard.domain.model.wish.WishItemOwnershipStatus
+import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
+import com.hyeeyoung.wishboard.presentation.util.extension.dragToSelectItems
+import com.hyeeyoung.wishboard.presentation.util.extension.rippleClickable
 import com.hyeeyoung.wishboard.presentation.util.extension.safePopBackStack
 import com.hyeeyoung.wishboard.presentation.util.getFakePagingData
 import com.hyeeyoung.wishboard.presentation.wish.component.WishItemForGridView
+import com.hyeeyoung.wishboard.presentation.wish.component.WishItemForListView
+import com.hyeeyoung.wishboard.presentation.wish.model.WishListViewType
+import com.hyeeyoung.wishboard.presentation.wish.screen.SelectableCircleButton
 import kotlinx.coroutines.flow.collectLatest
 import timber.log.Timber
 
@@ -41,11 +76,22 @@ fun FolderDetailScreen(
     viewModel: FolderDetailViewModel = hiltViewModel(),
 ) {
     val wishList = viewModel.wishList.collectAsLazyPagingItems()
+    val isSelectionMode by viewModel.isSelectionMode.collectAsStateWithLifecycle()
+    val selectedItemIds by viewModel.selectedItemIds.collectAsStateWithLifecycle()
+    val deleteSelectedItemsState by viewModel.deleteSelectedItemsState.collectAsStateWithLifecycle()
+    val viewType by viewModel.viewType.collectAsStateWithLifecycle()
+    val isExcludeOwnedItems by viewModel.isExcludeOwnedItems.collectAsStateWithLifecycle()
     val lazyGridState = rememberLazyGridState()
+    val lazyListState = rememberLazyListState()
+    var dialogData by remember { mutableStateOf<DialogData?>(null) }
 
     WishBoardGlobalSnackbarMessage(snackbarChannel = viewModel.snackBarChannel)
 
-    MainScreen.FolderDetail.ScrollToTopEffect(lazyGridState)
+    if (viewType != WishListViewType.LIST) {
+        MainScreen.FolderDetail.ScrollToTopEffect(lazyGridState)
+    } else {
+        MainScreen.FolderDetail.ScrollToTopEffect(lazyListState)
+    }
 
     LaunchedEffect(Unit) {
         viewModel.refreshFolderDetailTrigger.collectLatest {
@@ -54,14 +100,45 @@ fun FolderDetailScreen(
         }
     }
 
+    DisposableEffect(isSelectionMode, selectedItemIds) {
+        GlobalState.bottomBarSelectionModeState.value = if (isSelectionMode) {
+            BottomBarSelectionModeState(
+                selectedItemCount = selectedItemIds.size,
+                onClickSelectAll = {},
+                onClickDelete = { dialogData = DialogData.BulkWishItemDelete(selectedItemIds.size) },
+            )
+        } else {
+            null
+        }
+
+        onDispose { GlobalState.bottomBarSelectionModeState.value = null }
+    }
+
     FolderDetailScreen(
         wishItems = wishList,
         folderName = folderName,
         lazyGridState = lazyGridState,
+        lazyListState = lazyListState,
+        isSelectionMode = isSelectionMode,
+        selectedItemIds = selectedItemIds,
+        deleteSelectedItemsState = deleteSelectedItemsState,
+        viewType = viewType,
+        isExcludeOwnedItems = isExcludeOwnedItems,
         onClickItem = { id ->
             wishNavController.navigate("${MainScreen.WishItemDetail.route}/$id")
         },
         onClickBack = bottomNavController::safePopBackStack,
+        onClickToggleSelectionMode = viewModel::toggleSelectionMode,
+        onClickToggleItemSelection = viewModel::toggleItemSelection,
+        onDragSelectItem = viewModel::setItemSelected,
+        updateViewType = viewModel::updateViewType,
+        updateExcludeOwnedItems = viewModel::updateExcludeOwnedItems,
+    )
+
+    WishBoardTwoButtonDialog(
+        dialogData = dialogData,
+        onClickConfirm = { viewModel.deleteSelectedItems() },
+        onDismissRequest = { dialogData = null },
     )
 }
 
@@ -70,16 +147,39 @@ fun FolderDetailScreen(
     wishItems: LazyPagingItems<WishItem>,
     folderName: String,
     lazyGridState: LazyGridState,
+    lazyListState: LazyListState,
+    isSelectionMode: Boolean,
+    selectedItemIds: Set<Long>,
+    deleteSelectedItemsState: WishBoardState<Unit>,
+    viewType: WishListViewType,
+    isExcludeOwnedItems: Boolean,
     onClickItem: (id: Long) -> Unit,
     onClickBack: () -> Unit,
+    onClickToggleSelectionMode: () -> Unit,
+    onClickToggleItemSelection: (id: Long) -> Unit,
+    onDragSelectItem: (id: Long, isSelected: Boolean) -> Unit,
+    updateViewType: () -> Unit,
+    updateExcludeOwnedItems: (Boolean) -> Unit,
 ) {
     Scaffold(topBar = {
-        WishBoardTopBar(
-            topBarModel = WishBoardTopBarModel(
-                title = folderName,
-                onClickStartIcon = onClickBack,
-            ),
-        )
+        if (isSelectionMode) {
+            WishBoardTopBar(
+                topBarModel = WishBoardTopBarModel(
+                    startIcon = WishBoardTopBarModel.TopBarIcon.CLOSE,
+                    onClickStartIcon = onClickToggleSelectionMode,
+                ),
+            )
+        } else {
+            WishBoardTopBar(
+                topBarModel = WishBoardTopBarModel(
+                    title = folderName,
+                    onClickStartIcon = onClickBack,
+                ),
+                endComponent = { modifier ->
+                    SelectionModeIconButton(modifier = modifier, onClick = onClickToggleSelectionMode)
+                },
+            )
+        }
     }) { paddingValues ->
         val contentModifier = Modifier
             .fillMaxSize()
@@ -88,31 +188,123 @@ fun FolderDetailScreen(
                 top = paddingValues.calculateTopPadding(),
             )
 
-        if (
+        if (deleteSelectedItemsState is WishBoardState.Loading) {
+            Box(modifier = contentModifier, contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(color = WishBoardTheme.colors.gray700)
+            }
+        } else if (
             wishItems.itemCount == 0 &&
             wishItems.loadState.refresh is LoadState.NotLoading &&
             wishItems.loadState.append.endOfPaginationReached
         ) {
             WishBoardEmptyView(modifier = contentModifier, guideTextRes = R.string.empty_wishlist_guide_text)
         } else {
-            LazyVerticalGrid(
-                modifier = contentModifier,
-                columns = GridCells.Fixed(2),
-                state = lazyGridState,
-            ) {
-                items(count = wishItems.itemCount, key = wishItems.itemKey { it.id }) { idx ->
-                    val item = wishItems[idx]
-                    item?.let {
-                        WishItemForGridView(
-                            wishItem = item,
-                            onClickItem = { onClickItem(item.id) },
+            Column(modifier = contentModifier) {
+                // TODO: 폴더 내 아이템 개수/소장템 필터는 서버 API 연동 후 실제 데이터로 교체
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 6.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = "전체 ${wishItems.itemCount}개",
+                        style = WishBoardTheme.typography.suitD3,
+                        color = WishBoardTheme.colors.gray200,
+                    )
+
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        SelectableCircleButton(
+                            modifier = Modifier.padding(end = 5.dp),
+                            isSelected = isExcludeOwnedItems,
+                            onClick = { updateExcludeOwnedItems(!isExcludeOwnedItems) },
                         )
+
+                        Text(
+                            modifier = Modifier.padding(end = 10.dp),
+                            text = "소장템 제외",
+                            style = WishBoardTheme.typography.suitD3,
+                            color = WishBoardTheme.colors.gray200,
+                        )
+
+                        Icon(
+                            modifier = Modifier
+                                .size(24.dp)
+                                .rippleClickable { updateViewType() },
+                            painter = painterResource(id = viewType.iconRes),
+                            contentDescription = viewType.description,
+                            tint = Color.Unspecified,
+                        )
+                    }
+                }
+
+                if (viewType != WishListViewType.LIST) {
+                    LazyVerticalGrid(
+                        modifier = Modifier.dragToSelectItems(
+                            gridState = lazyGridState,
+                            enabled = isSelectionMode,
+                            idAt = { idx -> wishItems[idx]?.id },
+                            isSelected = { id -> selectedItemIds.contains(id) },
+                            onSelectedChange = onDragSelectItem,
+                        ),
+                        columns = GridCells.Fixed(if (viewType == WishListViewType.GRID_2_COLUMN) 2 else 3),
+                        state = lazyGridState,
+                    ) {
+                        items(count = wishItems.itemCount, key = wishItems.itemKey { it.id }) { idx ->
+                            val item = wishItems[idx]
+                            if (item != null && item.isVisible(isExcludeOwnedItems)) {
+                                WishItemForGridView(
+                                    wishItem = item,
+                                    isSelected = selectedItemIds.contains(item.id),
+                                    onClickItem = {
+                                        if (isSelectionMode) {
+                                            onClickToggleItemSelection(item.id)
+                                        } else {
+                                            onClickItem(item.id)
+                                        }
+                                    },
+                                )
+                            }
+                        }
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.dragToSelectItems(
+                            listState = lazyListState,
+                            enabled = isSelectionMode,
+                            idAt = { idx -> wishItems[idx]?.id },
+                            isSelected = { id -> selectedItemIds.contains(id) },
+                            onSelectedChange = onDragSelectItem,
+                        ),
+                        state = lazyListState,
+                    ) {
+                        items(count = wishItems.itemCount, key = wishItems.itemKey { it.id }) { idx ->
+                            val item = wishItems[idx]
+                            if (item != null && item.isVisible(isExcludeOwnedItems)) {
+                                WishBoardDivider()
+                                WishItemForListView(
+                                    wishItem = item,
+                                    isSelected = selectedItemIds.contains(item.id),
+                                    onClickItem = {
+                                        if (isSelectionMode) {
+                                            onClickToggleItemSelection(item.id)
+                                        } else {
+                                            onClickItem(item.id)
+                                        }
+                                    },
+                                )
+                            }
+                        }
                     }
                 }
             }
         }
     }
 }
+
+private fun WishItem.isVisible(isExcludeOwnedItems: Boolean): Boolean =
+    !isExcludeOwnedItems || itemOwnershipStatus != WishItemOwnershipStatus.OWNED
 
 @Composable
 @Preview
@@ -129,7 +321,18 @@ fun PreviewFolderDetailScreen() {
         wishItems = getFakePagingData(List(8) { index: Int -> wishItem.copy(id = index.toLong()) }),
         folderName = "상의",
         lazyGridState = rememberLazyGridState(),
+        lazyListState = rememberLazyListState(),
+        isSelectionMode = false,
+        selectedItemIds = emptySet(),
+        deleteSelectedItemsState = WishBoardState.Idle,
+        viewType = WishListViewType.GRID_2_COLUMN,
+        isExcludeOwnedItems = false,
         onClickItem = {},
         onClickBack = {},
+        onClickToggleSelectionMode = {},
+        onClickToggleItemSelection = {},
+        onDragSelectItem = { _, _ -> },
+        updateViewType = {},
+        updateExcludeOwnedItems = {},
     )
 }
