@@ -1,0 +1,20 @@
+package com.hyeeyoung.wishboard.presentation.sign.model
+
+import com.hyeeyoung.wishboard.domain.model.noti.NotiType
+import kotlinx.datetime.LocalDateTime
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class WishItemDetail(
+    val id: Long,
+    val name: String,
+    var image: String? = null,
+    val price: Int,
+    val notiDate: LocalDateTime? = null,
+    val notiType: NotiType? = null,
+    val site: String? = null,
+    val memo: String? = null,
+    var folderId: Long? = null,
+    var folderName: String? = null,
+    val createAt: String,
+)

@@ -1,0 +1,519 @@
+package com.hyeeyoung.wishboard.presentation.upload
+
+import android.content.Context
+import android.net.Uri
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.viewModelScope
+import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
+import com.hyeeyoung.wishboard.core.extension.onFailure
+import com.hyeeyoung.wishboard.data.local.WishBoardPreference
+import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
+import com.hyeeyoung.wishboard.domain.model.folder.FolderOrderOption
+import com.hyeeyoung.wishboard.domain.model.noti.NotiInfo
+import com.hyeeyoung.wishboard.domain.model.wish.WishItemUploadType
+import com.hyeeyoung.wishboard.domain.usecase.folder.GetFolderSummariesUseCase
+import com.hyeeyoung.wishboard.domain.usecase.folder.PostNewFolderUseCase
+import com.hyeeyoung.wishboard.domain.usecase.item.GetParsedItemInfoUseCase
+import com.hyeeyoung.wishboard.domain.usecase.item.GetWishItemDetailUseCase
+import com.hyeeyoung.wishboard.domain.usecase.item.PostWishItemUseCase
+import com.hyeeyoung.wishboard.domain.usecase.item.PutWishItemUseCase
+import com.hyeeyoung.wishboard.presentation.common.BaseViewModel
+import com.hyeeyoung.wishboard.presentation.common.model.ImageType
+import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
+import com.hyeeyoung.wishboard.presentation.sign.model.snackbar.SnackbarMessage
+import com.hyeeyoung.wishboard.presentation.sign.model.snackbar.WishBoardSnackbarVisuals
+import com.hyeeyoung.wishboard.presentation.upload.model.ManualUploadItemUiModel
+import com.hyeeyoung.wishboard.presentation.upload.model.ParsingUploadItemUiModel
+import com.hyeeyoung.wishboard.presentation.upload.model.UploadImage
+import com.hyeeyoung.wishboard.presentation.util.WishBoardEventBus
+import com.hyeeyoung.wishboard.presentation.util.extension.BitmapUtil.toBitmap
+import com.hyeeyoung.wishboard.presentation.util.extension.BitmapUtil.toFile
+import com.hyeeyoung.wishboard.presentation.util.extension.compressImageToMaxSize
+import com.hyeeyoung.wishboard.presentation.util.extension.getBase64Json
+import com.hyeeyoung.wishboard.presentation.util.extension.getValidUrl
+import com.hyeeyoung.wishboard.presentation.util.extension.makeValidPriceStr
+import com.hyeeyoung.wishboard.presentation.util.extension.toMillis
+import com.hyeeyoung.wishboard.presentation.util.safeLet
+import com.hyeeyoung.wishboard.presentation.wish.model.WishItemDetailUiModel
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import kotlinx.datetime.toJavaLocalDateTime
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import javax.inject.Inject
+
+@HiltViewModel
+class WishItemUploadViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
+    private val localStorage: WishBoardPreference,
+    private val getWishItemUseCase: GetWishItemDetailUseCase,
+    private val postWishItemUseCase: PostWishItemUseCase,
+    private val putWishItemUseCase: PutWishItemUseCase,
+    private val getFolderSummariesUseCase: GetFolderSummariesUseCase,
+    private val getParsedItemInfoUseCase: GetParsedItemInfoUseCase,
+    private val postNewFolderUseCase: PostNewFolderUseCase,
+) : BaseViewModel() {
+    private var _parsingUiModel = MutableStateFlow(ParsingUploadItemUiModel())
+    val parsingUiModel = _parsingUiModel.asStateFlow()
+
+    private var _manualUploadUiModel = MutableStateFlow(ManualUploadItemUiModel())
+    val manualUploadUiModel = _manualUploadUiModel.asStateFlow()
+
+    init {
+        val detail = savedStateHandle.getBase64Json<WishItemDetailUiModel>(MainScreen.Upload.ARG_ITEM_DETAIL)
+        detail?.let {
+            setWishItemUploadModel(it)
+        }
+    }
+
+    fun getParsedWishItem(site: String) {
+        _parsingUiModel.update { it.copy(isLogin = localStorage.isLogin) }
+        if (!localStorage.isLogin) {
+            return
+        }
+
+        val itemSite = site.getValidUrl() ?: ""
+        viewModelScope.launch {
+            getParsedItemInfoUseCase(itemSite).onSuccess { parsedItem ->
+                _parsingUiModel.update {
+                    it.copy(
+                        itemName = TextFieldValue(parsedItem?.name ?: ""),
+                        itemPrice = TextFieldValue(parsedItem?.price ?: ""),
+                        downloadImageUrl = parsedItem?.image,
+                        itemUrl = itemSite,
+                    )
+                }
+            }.onFailure { _, _, _ ->
+                _parsingUiModel.update {
+                    it.copy(
+                        itemUrl = itemSite,
+                    )
+                }
+                updateSnackbarMessage("앗, 아이템 정보를 불러오지 못했어요🥲")
+            }
+        }
+    }
+
+    fun uploadWishItemForParsing(
+        context: Context,
+        afterSuccess: (Long) -> Unit,
+    ) {
+        if (parsingUiModel.value.wishItemUploadState is WishBoardState.Loading ||
+            parsingUiModel.value.wishItemUploadState is WishBoardState.Success
+        ) {
+            return
+        }
+
+        _parsingUiModel.update { it.copy(wishItemUploadState = WishBoardState.Loading) }
+
+        viewModelScope.launch {
+            val bitmap = parsingUiModel.value.downloadImageUrl?.toBitmap()
+            val file = bitmap?.toFile(localStorage.accessToken, context = context)
+            val image = file?.let { ImageType.DownloadImage(file = it) }
+
+            postWishItemUseCase(
+                uploadType = WishItemUploadType.PARSING,
+                itemInfo = parsingUiModel.value.toDomain(
+                    itemImage = image,
+                    uploadType = WishItemUploadType.PARSING,
+                ),
+            ).onSuccess { id ->
+                _parsingUiModel.update { it.copy(wishItemUploadState = WishBoardState.Success(Unit)) }
+                updateSnackbarMessage(ITEM_UPLOAD_SUCCESS_MESSAGE)
+                delay(SnackbarDuration.Short.toMillis())
+                WishBoardEventBus.notifyWishItemChanged()
+                afterSuccess(id)
+            }.onFailure { exception, _, _ ->
+                _parsingUiModel.update { it.copy(wishItemUploadState = WishBoardState.Failure) }
+                updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
+            }
+        }
+    }
+
+    fun uploadWishItemForManual(
+        context: Context,
+        afterSuccess: (Long) -> Unit,
+    ) {
+        if (_manualUploadUiModel.value.wishItemUploadState is WishBoardState.Loading ||
+            _manualUploadUiModel.value.wishItemUploadState is WishBoardState.Success
+        ) {
+            return
+        }
+
+        _manualUploadUiModel.update { it.copy(wishItemUploadState = WishBoardState.Loading) }
+
+        viewModelScope.launch {
+            postWishItemUseCase(
+                uploadType = WishItemUploadType.MANUAL,
+                itemInfo = _manualUploadUiModel.value.toDomain(
+                    itemImage = _manualUploadUiModel.value.images.toImageType(
+                        context = context,
+                    ),
+                ),
+            ).onSuccess { id ->
+                _manualUploadUiModel.update { it.copy(wishItemUploadState = WishBoardState.Success(Unit)) }
+                updateSnackbarMessage(ITEM_UPLOAD_SUCCESS_MESSAGE)
+                WishBoardEventBus.notifyWishItemChanged()
+                afterSuccess(id)
+            }.onFailure { exception, errorCode, _ ->
+                _manualUploadUiModel.update { it.copy(wishItemUploadState = WishBoardState.Failure) }
+                when (errorCode) {
+                    409 -> updateSnackbarMessage(message = "변경사항을 저장하지 못했어요!\n잠시 후 다시 시도해주세요.", exception = exception)
+                    else -> updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
+                }
+            }
+        }
+    }
+
+    fun updateWishItem(
+        context: Context,
+        itemId: Long?,
+        afterSuccess: () -> Unit,
+    ) {
+        if (itemId == null) {
+            updateSnackbarMessage(SnackbarMessage.DEFAULT)
+            return
+        }
+
+        if (manualUploadUiModel.value.wishItemUploadState is WishBoardState.Loading) return
+        _manualUploadUiModel.update { it.copy(wishItemUploadState = WishBoardState.Loading) }
+
+        viewModelScope.launch {
+            putWishItemUseCase(
+                itemId = itemId,
+                itemInfo = _manualUploadUiModel.value.toDomain(
+                    itemImage = _manualUploadUiModel.value.images.toImageType(
+                        context = context,
+                    ),
+                ),
+            ).onSuccess {
+                _manualUploadUiModel.update { it.copy(wishItemUploadState = WishBoardState.Success(Unit)) }
+                WishBoardEventBus.notifyWishItemChanged()
+                updateSnackbarMessage("아이템을 수정했어요!✍️")
+                afterSuccess()
+            }.onFailure { exception, _, _ ->
+                _manualUploadUiModel.update { it.copy(wishItemUploadState = WishBoardState.Failure) }
+                updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
+            }
+        }
+    }
+
+    private fun setWishItemUploadModel(itemDetail: WishItemDetailUiModel) {
+        viewModelScope.launch {
+            getWishItemUseCase(itemDetail.id).onSuccess { detail ->
+                val item = WishItemDetailUiModel.fromDomain(detail)
+
+                _manualUploadUiModel.update {
+                    it.copy(
+                        itemName = TextFieldValue(item.name),
+                        itemPrice = TextFieldValue(item.price.toString()),
+                        itemMemo = TextFieldValue(item.memo ?: ""),
+                        itemUrl = TextFieldValue(item.site ?: ""),
+                        itemNotiType = item.notiType,
+                        itemNotiDate = item.notiDate,
+                        images = item.images.map { UploadImage.Remote(it) },
+                        selectedFolder = safeLet(
+                            item.folderId,
+                            item.folderName,
+                        ) { id, name -> FolderItem(id = id, name = name) },
+                        version = detail.version,
+                    )
+                }
+            }.onFailure { exception, _, _ ->
+                updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
+            }
+        }
+    }
+
+    fun getFolders(uploadType: WishItemUploadType) {
+        val folderOption: FolderOrderOption
+
+        when (uploadType) {
+            WishItemUploadType.PARSING -> {
+                if (!localStorage.isLogin) {
+                    return
+                }
+                if (parsingUiModel.value.folderFetchState is WishBoardState.Loading) return
+                _parsingUiModel.update { it.copy(folderFetchState = WishBoardState.Loading) }
+                folderOption = FolderOrderOption.CUSTOM
+            }
+
+            WishItemUploadType.MANUAL -> {
+                if (_manualUploadUiModel.value.folderFetchState is WishBoardState.Loading) return
+                _manualUploadUiModel.update { it.copy(folderFetchState = WishBoardState.Loading) }
+                folderOption = FolderOrderOption.RECENT_ITEM
+            }
+        }
+
+        viewModelScope.launch {
+            getFolderSummariesUseCase(orderOption = folderOption).onSuccess { folders ->
+                when (uploadType) {
+                    WishItemUploadType.PARSING -> {
+                        _parsingUiModel.update {
+                            it.copy(folders = folders, folderFetchState = WishBoardState.Success(Unit))
+                        }
+                    }
+
+                    WishItemUploadType.MANUAL -> {
+                        _manualUploadUiModel.update {
+                            it.copy(folders = folders, folderFetchState = WishBoardState.Success(Unit))
+                        }
+                    }
+                }
+            }.onFailure { exception, _, _ ->
+                updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
+                when (uploadType) {
+                    WishItemUploadType.PARSING -> {
+                        _parsingUiModel.update {
+                            it.copy(folderFetchState = WishBoardState.Failure)
+                        }
+                    }
+
+                    WishItemUploadType.MANUAL -> {
+                        _manualUploadUiModel.update {
+                            it.copy(folderFetchState = WishBoardState.Failure)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    fun createFolder(folderName: String, uploadType: WishItemUploadType, afterSuccess: () -> Unit) {
+        when (uploadType) {
+            WishItemUploadType.PARSING -> {
+                if (parsingUiModel.value.folderAddState is WishBoardState.Loading) return
+                _parsingUiModel.update { it.copy(folderAddState = WishBoardState.Loading) }
+            }
+
+            WishItemUploadType.MANUAL -> {
+                if (_manualUploadUiModel.value.folderAddState is WishBoardState.Loading) return
+                _manualUploadUiModel.update { it.copy(folderAddState = WishBoardState.Loading) }
+            }
+        }
+
+        val trimmedName = folderName.trim()
+        viewModelScope.launch {
+            postNewFolderUseCase(folderName = trimmedName)
+                .onSuccess { folder ->
+                    when (uploadType) {
+                        WishItemUploadType.PARSING -> {
+                            _parsingUiModel.update {
+                                it.copy(
+                                    folderAddState = WishBoardState.Success(Unit),
+                                    existingFolderName = "",
+                                    folders = listOf(folder) + it.folders,
+                                )
+                            }
+                        }
+
+                        WishItemUploadType.MANUAL -> {
+                            _manualUploadUiModel.update {
+                                it.copy(
+                                    folderAddState = WishBoardState.Success(Unit),
+                                    existingFolderName = "",
+                                    folders = listOf(folder) + it.folders,
+                                )
+                            }
+                        }
+                    }
+                    updateSelectedFolder(folderItem = folder, uploadType = uploadType)
+                    afterSuccess()
+                }.onFailure { exception, errorCode, _ ->
+                    when (errorCode) {
+                        409 -> {
+                            when (uploadType) {
+                                WishItemUploadType.PARSING -> {
+                                    _parsingUiModel.update { it.copy(existingFolderName = trimmedName) }
+                                }
+
+                                WishItemUploadType.MANUAL -> {
+                                    _manualUploadUiModel.update { it.copy(existingFolderName = trimmedName) }
+                                }
+                            }
+                        }
+
+                        else -> updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
+                    }
+                    when (uploadType) {
+                        WishItemUploadType.PARSING -> {
+                            _parsingUiModel.update { it.copy(folderAddState = WishBoardState.Failure) }
+                        }
+
+                        WishItemUploadType.MANUAL -> {
+                            _manualUploadUiModel.update { it.copy(folderAddState = WishBoardState.Failure) }
+                        }
+                    }
+                }
+        }
+    }
+
+    fun isValidNotiDate(notiInfo: NotiInfo, uploadType: WishItemUploadType): Boolean {
+        val date = notiInfo.notiDate?.toJavaLocalDateTime() ?: return true
+        val isInvalid = !date.isAfter(java.time.LocalDateTime.now())
+        return if (isInvalid) {
+            updateSnackbarMessage("현재 시간 이후로만 선택할 수 있어요")
+            false
+        } else {
+            setNotiInfo(notiInfo = notiInfo, uploadType = uploadType)
+            true
+        }
+    }
+
+    fun onItemNameChanged(name: TextFieldValue, uploadType: WishItemUploadType) {
+        when (uploadType) {
+            WishItemUploadType.PARSING -> {
+                _parsingUiModel.update {
+                    it.copy(itemName = name)
+                }
+            }
+
+            WishItemUploadType.MANUAL -> {
+                _manualUploadUiModel.update {
+                    it.copy(itemName = name)
+                }
+            }
+        }
+    }
+
+    fun onItemPriceChanged(price: TextFieldValue, uploadType: WishItemUploadType) {
+        val refinedPrice = price.copy(text = price.text.makeValidPriceStr() ?: "")
+
+        when (uploadType) {
+            WishItemUploadType.PARSING -> {
+                _parsingUiModel.update {
+                    it.copy(itemPrice = refinedPrice)
+                }
+            }
+
+            WishItemUploadType.MANUAL -> {
+                _manualUploadUiModel.update {
+                    it.copy(itemPrice = refinedPrice)
+                }
+            }
+        }
+    }
+
+    fun onItemMemoChanged(memo: TextFieldValue) {
+        _manualUploadUiModel.update {
+            it.copy(itemMemo = memo)
+        }
+    }
+
+    fun updateSelectedFolder(folderItem: FolderItem?, uploadType: WishItemUploadType) {
+        when (uploadType) {
+            WishItemUploadType.PARSING -> {
+                _parsingUiModel.update {
+                    it.copy(
+                        selectedFolder =
+                        if (folderItem?.id != parsingUiModel.value.selectedFolder?.id) {
+                            folderItem
+                        } else {
+                            null
+                        },
+                    )
+                }
+            }
+
+            WishItemUploadType.MANUAL -> {
+                if (folderItem?.id == _manualUploadUiModel.value.selectedFolder?.id) return
+                _manualUploadUiModel.update {
+                    it.copy(selectedFolder = folderItem)
+                }
+            }
+        }
+    }
+
+    fun setItemUrl(url: TextFieldValue) {
+        _manualUploadUiModel.update {
+            it.copy(itemUrl = url)
+        }
+    }
+
+    fun addItemImageUrl(uris: List<Uri>) {
+        _manualUploadUiModel.update {
+            it.copy(images = it.images + uris.map { uri -> UploadImage.Local(uri) })
+        }
+    }
+
+    fun setNotiInfo(notiInfo: NotiInfo, uploadType: WishItemUploadType) {
+        when (uploadType) {
+            WishItemUploadType.MANUAL -> {
+                _manualUploadUiModel.update {
+                    it.copy(itemNotiType = notiInfo.notiType, itemNotiDate = notiInfo.notiDate)
+                }
+            }
+
+            WishItemUploadType.PARSING -> {
+                _parsingUiModel.update {
+                    it.copy(itemNotiType = notiInfo.notiType, itemNotiDate = notiInfo.notiDate)
+                }
+            }
+        }
+    }
+
+    fun setTokenForProfileImageUri() {
+        _parsingUiModel.update {
+            it.copy(accessToken = localStorage.accessToken)
+        }
+        _manualUploadUiModel.update {
+            it.copy(accessToken = localStorage.accessToken)
+        }
+    }
+
+    /** 스낵바 시각 정보(전역으로 사용) */
+    val globalSnackbarChannel = Channel<WishBoardSnackbarVisuals>(
+        capacity = 5,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST,
+    )
+
+    fun sendSnackbarChannel(snackbarVisuals: WishBoardSnackbarVisuals) {
+        viewModelScope.launch {
+            globalSnackbarChannel.send(snackbarVisuals)
+        }
+    }
+
+    private suspend fun List<UploadImage>.toImageType(context: Context): List<ImageType> {
+        return this.map {
+            when (it) {
+                is UploadImage.Local -> {
+                    val file = it.uri.let { uri ->
+                        context.compressImageToMaxSize(uri)
+                    }
+                    val requestBody = file?.asRequestBody("image/jpeg".toMediaTypeOrNull())
+
+                    requestBody?.let {
+                        ImageType.Picture(
+                            MultipartBody.Part.createFormData("itemImages", file.name, requestBody),
+                        )
+                    }
+                }
+
+                is UploadImage.Remote -> {
+                    val bitmap = it.url.toBitmap()
+                    val file = bitmap?.toFile(localStorage.accessToken, context = context)
+                    file?.let { ImageType.DownloadImage(file = it) }
+                }
+            }
+        }.filterNotNull()
+    }
+
+    fun deleteImage(id: String) {
+        _manualUploadUiModel.update {
+            it.copy(images = it.images.filter { it.id != id })
+        }
+    }
+
+    companion object {
+        private const val ITEM_UPLOAD_SUCCESS_MESSAGE = "아이템을 위시리스트에 추가했어요!👜"
+    }
+}

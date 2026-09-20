@@ -13,14 +13,14 @@ fun WishboardTheme(
     darkTheme: Boolean = false,
     typography: WishBoardTypography = WishBoardTheme.typography,
     colors: WishBoardColors = WishBoardTheme.colors,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     CompositionLocalProvider(
         LocalColors provides colors,
-        LocalTypography provides typography
+        LocalTypography provides typography,
     ) {
         MaterialTheme(
-            content = content
+            content = content,
         )
     }
 }

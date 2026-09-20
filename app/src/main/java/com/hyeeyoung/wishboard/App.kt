@@ -2,7 +2,7 @@ package com.hyeeyoung.wishboard
 
 import android.app.Application
 import androidx.appcompat.app.AppCompatDelegate
-import com.hyeeyoung.wishboard.util.WishBoardDebugTree
+import com.hyeeyoung.wishboard.config.WishBoardDebugTree
 import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
 
