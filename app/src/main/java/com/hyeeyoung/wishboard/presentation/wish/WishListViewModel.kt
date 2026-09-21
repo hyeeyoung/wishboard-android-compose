@@ -124,7 +124,9 @@ class WishListViewModel @Inject constructor(
     }
 
     fun updateExcludeOwnedItems(isExclude: Boolean) {
-        _uiModel.update { it.copy(isExcludeOwnedItems = isExclude) }
+        _uiModel.update {
+            it.copy(isExcludeOwnedItems = isExclude, isAllSelected = false, selectedItemIds = emptySet())
+        }
         viewModelScope.launch { _scrollToTopTrigger.send(Unit) }
     }
 

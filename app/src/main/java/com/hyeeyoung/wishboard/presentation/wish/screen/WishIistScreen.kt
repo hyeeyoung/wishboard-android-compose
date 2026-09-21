@@ -140,7 +140,12 @@ fun WishListScreen(
         }
     }
 
-    DisposableEffect(uiModel.isSelectionMode, uiModel.isAllSelected, uiModel.selectedItemIds) {
+    DisposableEffect(
+        uiModel.isSelectionMode,
+        uiModel.isAllSelected,
+        uiModel.selectedItemIds,
+        uiModel.totalItemCount,
+    ) {
         GlobalState.bottomBarSelectionModeState.value = if (uiModel.isSelectionMode) {
             val selectedCount = if (uiModel.isAllSelected) {
                 uiModel.totalItemCount ?: 0

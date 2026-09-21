@@ -172,5 +172,7 @@ class FolderDetailViewModel @Inject constructor(
 
     fun updateExcludeOwnedItems(isExclude: Boolean) {
         _isExcludeOwnedItems.update { isExclude }
+        _isAllSelected.update { false }
+        _selectedItemIds.update { emptySet() }
     }
 }
