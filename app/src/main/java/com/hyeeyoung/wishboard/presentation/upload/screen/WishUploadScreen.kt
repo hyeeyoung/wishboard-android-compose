@@ -5,6 +5,7 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -22,6 +23,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
@@ -46,6 +48,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
@@ -117,6 +120,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDateTime
+import sh.calvin.reorderable.ReorderableItem
+import sh.calvin.reorderable.rememberReorderableLazyListState
 import timber.log.Timber
 
 const val MAX_IMAGE_COUNT = 10
@@ -215,6 +220,7 @@ fun WishUploadScreen(
             )
         },
         deleteImage = viewModel::deleteImage,
+        onMoveImage = viewModel::reorderImage,
         createFolder = { name ->
             viewModel.createFolder(folderName = name, uploadType = WishItemUploadType.MANUAL) {
                 coroutineScope.launch { sheetState.hide() }
@@ -241,6 +247,7 @@ fun WishUploadScreen(
     onTextChange: (UploadInputType, TextFieldValue) -> Unit,
     onUriChange: (List<Uri>) -> Unit,
     deleteImage: (id: String) -> Unit,
+    onMoveImage: (fromIndex: Int, toIndex: Int) -> Unit,
     isValidNotiDate: (NotiInfo) -> Boolean,
     updateSnackbarMessage: (String) -> Unit,
 ) {
@@ -366,6 +373,7 @@ fun WishUploadScreen(
                     images = uiModel.images,
                     selectedImageCount = uiModel.images.size,
                     onClickDelete = deleteImage,
+                    onMoveImage = onMoveImage,
                     addImage = {
                         focusManager.clearFocus()
                         if (uiModel.images.size < MAX_IMAGE_COUNT) {
@@ -586,12 +594,23 @@ fun ItemImageRow(
     images: List<UploadImage>,
     selectedImageCount: Int,
     onClickDelete: (id: String) -> Unit,
+    onMoveImage: (fromIndex: Int, toIndex: Int) -> Unit,
     addImage: () -> Unit,
 ) {
     val containerSize = 100.dp
     val containerShape = RoundedCornerShape(10.dp)
 
+    // 카메라 아이콘이 LazyRow의 첫 item으로 존재하므로, 라이브러리가 넘기는 전역 인덱스에서 1을 빼면 images 리스트의 로컬 인덱스가 된다.
+    val cameraItemCount = 1
+    val lazyListState = rememberLazyListState()
+    val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
+        val fromIndex = (from.index - cameraItemCount).coerceIn(images.indices)
+        val toIndex = (to.index - cameraItemCount).coerceIn(images.indices)
+        onMoveImage(fromIndex, toIndex)
+    }
+
     LazyRow(
+        state = lazyListState,
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 18.dp),
@@ -628,42 +647,47 @@ fun ItemImageRow(
             }
         }
 
-        items(images) { image ->
-            Box(
-                modifier = Modifier
-                    .size(containerSize)
-                    .clip(containerShape),
-            ) {
+        items(images, key = { it.id }) { image ->
+            ReorderableItem(reorderableLazyListState, key = image.id) { isDragging ->
+                val elevation by animateDpAsState(if (isDragging) 2.dp else 0.dp)
                 Box(
                     modifier = Modifier
-                        .clip(CircleShape)
-                        .rippleClickable {
-                            onClickDelete(image.id)
-                        }
-                        .padding(5.dp)
-                        .size(16.dp)
-                        .zIndex(2f)
-                        .border(width = 0.5.dp, shape = CircleShape, color = WishBoardTheme.colors.white)
-                        .background(color = WishBoardTheme.colors.gray700, shape = CircleShape)
-                        .align(Alignment.TopEnd),
-                    contentAlignment = Alignment.Center,
+                        .size(containerSize)
+                        .shadow(elevation, containerShape)
+                        .clip(containerShape)
+                        .longPressDraggableHandle(),
                 ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_delete_small),
-                        tint = Color.Unspecified,
-                        contentDescription = "이미지 삭제 아이콘",
+                    Box(
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .rippleClickable {
+                                onClickDelete(image.id)
+                            }
+                            .padding(5.dp)
+                            .size(16.dp)
+                            .zIndex(2f)
+                            .border(width = 0.5.dp, shape = CircleShape, color = WishBoardTheme.colors.white)
+                            .background(color = WishBoardTheme.colors.gray700, shape = CircleShape)
+                            .align(Alignment.TopEnd),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_delete_small),
+                            tint = Color.Unspecified,
+                            contentDescription = "이미지 삭제 아이콘",
+                        )
+                    }
+
+                    Image(
+                        modifier = Modifier.size(containerSize),
+                        model = when (image) {
+                            is UploadImage.Remote -> image.url
+                            is UploadImage.Local -> image.uri
+                        },
+                        alphaColor = WishBoardTheme.colors.gray700.copy(alpha = 0.05f),
+                        contentDescription = null,
                     )
                 }
-
-                Image(
-                    modifier = Modifier.size(containerSize),
-                    model = when (image) {
-                        is UploadImage.Remote -> image.url
-                        is UploadImage.Local -> image.uri
-                    },
-                    alphaColor = WishBoardTheme.colors.gray700.copy(alpha = 0.05f),
-                    contentDescription = null,
-                )
             }
         }
 
@@ -928,6 +952,7 @@ fun PreviewWishUploadScreen() {
         onClickClose = {},
         isValidNotiDate = { true },
         deleteImage = {},
+        onMoveImage = { _, _ -> },
         createFolder = {},
         updateSnackbarMessage = {},
     )

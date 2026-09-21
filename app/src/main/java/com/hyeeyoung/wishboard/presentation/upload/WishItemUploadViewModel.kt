@@ -513,6 +513,14 @@ class WishItemUploadViewModel @Inject constructor(
         }
     }
 
+    fun reorderImage(fromIndex: Int, toIndex: Int) {
+        _manualUploadUiModel.update {
+            val images = it.images.toMutableList()
+            images.add(toIndex, images.removeAt(fromIndex))
+            it.copy(images = images)
+        }
+    }
+
     companion object {
         private const val ITEM_UPLOAD_SUCCESS_MESSAGE = "아이템을 위시리스트에 추가했어요!👜"
     }
