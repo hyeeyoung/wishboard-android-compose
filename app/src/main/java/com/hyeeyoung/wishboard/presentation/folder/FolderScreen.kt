@@ -63,7 +63,6 @@ import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun FolderScreen(
-    bottomNavController: NavHostController,
     wishNavController: NavHostController,
     viewModel: FolderViewModel = hiltViewModel(),
 ) {
@@ -91,7 +90,7 @@ fun FolderScreen(
         folders = folders,
         lazyGridState = lazyGridState,
         onClickFolder = { folder ->
-            bottomNavController.navigateIfResumed(
+            wishNavController.navigateIfResumed(
                 lifecycleOwner = lifecycleOwner,
                 route = "${MainScreen.FolderDetail.route}/${folder.id}/${folder.name}",
             )

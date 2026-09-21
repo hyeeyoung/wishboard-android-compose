@@ -30,7 +30,7 @@ fun BottomBarNavHost(
             WishListScreen(navController = wishNavController, isFirstLaunch = isFirstLaunch)
         }
 
-        folderNavGraph(bottomNavController = bottomNavController, wishNavController = wishNavController)
+        folderNavGraph(wishNavController = wishNavController)
 
         composable(route = MainScreen.My.route) {
             MyScreen(navController = wishNavController)

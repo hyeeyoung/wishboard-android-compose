@@ -23,7 +23,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,17 +36,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavHostController
+import androidx.navigation.NavController
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import com.hyeeyoung.wishboard.R
-import com.hyeeyoung.wishboard.config.BottomBarSelectionModeState
-import com.hyeeyoung.wishboard.config.GlobalState
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardEmptyView
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardGlobalSnackbarMessage
+import com.hyeeyoung.wishboard.designsystem.component.bottombar.SelectionModeBottomBar
 import com.hyeeyoung.wishboard.designsystem.component.button.SelectionModeIconButton
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.DialogData
 import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.WishBoardTwoButtonDialog
@@ -70,8 +68,7 @@ import timber.log.Timber
 
 @Composable
 fun FolderDetailScreen(
-    bottomNavController: NavHostController,
-    wishNavController: NavHostController,
+    navController: NavController,
     folderName: String,
     folderId: Long,
     viewModel: FolderDetailViewModel = hiltViewModel(),
@@ -103,26 +100,7 @@ fun FolderDetailScreen(
         }
     }
 
-    DisposableEffect(isSelectionMode, isAllSelected, selectedItemIds) {
-        GlobalState.bottomBarSelectionModeState.value = if (isSelectionMode) {
-            val selectedCount = if (isAllSelected) {
-                totalItemCount ?: wishList.itemCount
-            } else {
-                selectedItemIds.size
-            }
-
-            BottomBarSelectionModeState(
-                selectedItemCount = selectedCount,
-                isAllSelected = isAllSelected,
-                onClickSelectAll = viewModel::toggleSelectAll,
-                onClickDelete = { dialogData = DialogData.BulkWishItemDelete(selectedCount) },
-            )
-        } else {
-            null
-        }
-
-        onDispose { GlobalState.bottomBarSelectionModeState.value = null }
-    }
+    val selectedItemCount = if (isAllSelected) totalItemCount ?: wishList.itemCount else selectedItemIds.size
 
     FolderDetailScreen(
         wishItems = wishList,
@@ -133,16 +111,19 @@ fun FolderDetailScreen(
         isSelectionMode = isSelectionMode,
         isAllSelected = isAllSelected,
         selectedItemIds = selectedItemIds,
+        selectedItemCount = selectedItemCount,
         deleteSelectedItemsState = deleteSelectedItemsState,
         viewType = viewType,
         isExcludeOwnedItems = isExcludeOwnedItems,
         onClickItem = { id ->
-            wishNavController.navigate("${MainScreen.WishItemDetail.route}/$id")
+            navController.navigate("${MainScreen.WishItemDetail.route}/$id")
         },
-        onClickBack = bottomNavController::safePopBackStack,
+        onClickBack = navController::safePopBackStack,
         onClickToggleSelectionMode = viewModel::toggleSelectionMode,
         onClickToggleItemSelection = viewModel::toggleItemSelection,
         onDragSelectItem = viewModel::setItemSelected,
+        onClickSelectAll = viewModel::toggleSelectAll,
+        onClickDeleteSelected = { dialogData = DialogData.BulkWishItemDelete(selectedItemCount) },
         updateViewType = viewModel::updateViewType,
         updateExcludeOwnedItems = viewModel::updateExcludeOwnedItems,
     )
@@ -167,6 +148,7 @@ fun FolderDetailScreen(
     isSelectionMode: Boolean,
     isAllSelected: Boolean,
     selectedItemIds: Set<Long>,
+    selectedItemCount: Int,
     deleteSelectedItemsState: WishBoardState<Unit>,
     viewType: WishListViewType,
     isExcludeOwnedItems: Boolean,
@@ -175,37 +157,52 @@ fun FolderDetailScreen(
     onClickToggleSelectionMode: () -> Unit,
     onClickToggleItemSelection: (id: Long) -> Unit,
     onDragSelectItem: (id: Long, isSelected: Boolean) -> Unit,
+    onClickSelectAll: () -> Unit,
+    onClickDeleteSelected: () -> Unit,
     updateViewType: () -> Unit,
     updateExcludeOwnedItems: (Boolean) -> Unit,
 ) {
-    Scaffold(topBar = {
-        if (isSelectionMode) {
-            WishBoardTopBar(
-                topBarModel = WishBoardTopBarModel(
-                    startIcon = WishBoardTopBarModel.TopBarIcon.CLOSE,
-                    onClickStartIcon = onClickToggleSelectionMode,
-                ),
-            )
-        } else {
-            WishBoardTopBar(
-                topBarModel = WishBoardTopBarModel(
-                    title = folderName,
-                    onClickStartIcon = onClickBack,
-                ),
-                endComponent = { modifier ->
-                    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
-                        SelectionModeIconButton(onClick = onClickToggleSelectionMode)
-                        Spacer(modifier = Modifier.width(5.dp))
-                    }
-                },
-            )
-        }
-    }) { paddingValues ->
+    Scaffold(
+        topBar = {
+            if (isSelectionMode) {
+                WishBoardTopBar(
+                    topBarModel = WishBoardTopBarModel(
+                        startIcon = WishBoardTopBarModel.TopBarIcon.CLOSE,
+                        onClickStartIcon = onClickToggleSelectionMode,
+                    ),
+                )
+            } else {
+                WishBoardTopBar(
+                    topBarModel = WishBoardTopBarModel(
+                        title = folderName,
+                        onClickStartIcon = onClickBack,
+                    ),
+                    endComponent = { modifier ->
+                        Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
+                            SelectionModeIconButton(onClick = onClickToggleSelectionMode)
+                            Spacer(modifier = Modifier.width(5.dp))
+                        }
+                    },
+                )
+            }
+        },
+        bottomBar = {
+            if (isSelectionMode) {
+                SelectionModeBottomBar(
+                    selectedItemCount = selectedItemCount,
+                    isAllSelected = isAllSelected,
+                    onClickSelectAll = onClickSelectAll,
+                    onClickDelete = onClickDeleteSelected,
+                )
+            }
+        },
+    ) { paddingValues ->
         val contentModifier = Modifier
             .fillMaxSize()
             .background(WishBoardTheme.colors.white)
             .padding(
                 top = paddingValues.calculateTopPadding(),
+                bottom = paddingValues.calculateBottomPadding(),
             )
 
         if (deleteSelectedItemsState is WishBoardState.Loading) {
@@ -342,6 +339,7 @@ fun PreviewFolderDetailScreen() {
         isSelectionMode = false,
         isAllSelected = false,
         selectedItemIds = emptySet(),
+        selectedItemCount = 0,
         deleteSelectedItemsState = WishBoardState.Idle,
         viewType = WishListViewType.GRID_2_COLUMN,
         isExcludeOwnedItems = false,
@@ -350,6 +348,8 @@ fun PreviewFolderDetailScreen() {
         onClickToggleSelectionMode = {},
         onClickToggleItemSelection = {},
         onDragSelectItem = { _, _ -> },
+        onClickSelectAll = {},
+        onClickDeleteSelected = {},
         updateViewType = {},
         updateExcludeOwnedItems = {},
     )

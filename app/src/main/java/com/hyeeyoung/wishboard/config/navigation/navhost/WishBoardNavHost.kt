@@ -22,6 +22,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.hyeeyoung.wishboard.config.navigation.navgraph.folderDetailNavGraph
 import com.hyeeyoung.wishboard.config.navigation.navgraph.itemDetailNavGraph
 import com.hyeeyoung.wishboard.config.navigation.navgraph.signNavGraph
 import com.hyeeyoung.wishboard.config.navigation.navgraph.uploadNavGraph
@@ -124,6 +125,8 @@ fun WishBoardNavHost(modifier: Modifier = Modifier, navController: NavHostContro
         uploadNavGraph(navController = navController, snackbarHostState = snackbarHostState)
 
         itemDetailNavGraph(navController = navController, snackbarHostState = snackbarHostState)
+
+        folderDetailNavGraph(navController = navController, snackbarHostState = snackbarHostState)
 
         webViewNavGraph(navController = navController, snackbarHostState = snackbarHostState)
 
