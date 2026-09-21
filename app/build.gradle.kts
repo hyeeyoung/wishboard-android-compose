@@ -24,7 +24,7 @@ android {
         applicationId = "com.hyeeyoung.wishboard"
         minSdk = 24
         targetSdk = 36
-        versionCode = 49
+        versionCode = 50
         versionName = "3.2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
