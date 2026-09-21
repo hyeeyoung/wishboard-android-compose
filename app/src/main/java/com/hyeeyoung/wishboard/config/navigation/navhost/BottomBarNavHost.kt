@@ -18,6 +18,8 @@ fun BottomBarNavHost(
     bottomNavController: NavHostController,
     wishNavController: NavHostController,
 ) {
+    // 바텀탭(위시리스트/폴더/마이) 간 전환에는 애니메이션이 없어야 하므로 기본 트랜지션을 지정하지 않는다.
+    // 탭 내부에서 상세 화면으로 진입하는 경우(예: 폴더 상세)는 해당 destination에서 개별적으로 트랜지션을 지정한다.
     NavHost(
         modifier = modifier,
         navController = bottomNavController,

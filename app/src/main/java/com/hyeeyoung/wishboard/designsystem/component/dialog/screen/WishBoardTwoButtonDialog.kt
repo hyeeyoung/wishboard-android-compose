@@ -53,7 +53,10 @@ fun WishBoardTwoButtonDialog(
             )
             Text(
                 modifier = Modifier.padding(top = 8.dp, bottom = 0.dp, start = 16.dp, end = 16.dp),
-                text = stringResource(dialogData.dialogTextRes.descriptionRes),
+                text = stringResource(
+                    dialogData.dialogTextRes.descriptionRes,
+                    *dialogData.descriptionFormatArgs.toTypedArray(),
+                ),
                 style = WishBoardTheme.typography.suitD2M,
                 color = WishBoardTheme.colors.gray300,
                 textAlign = TextAlign.Center,

@@ -4,13 +4,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.hyeeyoung.wishboard.config.GlobalState
 import com.hyeeyoung.wishboard.config.navigation.navhost.BottomBarNavHost
+import com.hyeeyoung.wishboard.designsystem.component.bottombar.SelectionModeBottomBar
 import com.hyeeyoung.wishboard.designsystem.component.bottombar.WishBoardBottomBar
 
 @Composable
@@ -21,11 +25,23 @@ fun MainScreen(wishNavController: NavHostController, isFirstLaunch: Boolean, onC
     }
 
     val bottomBarNavController = rememberNavController()
+    val selectionModeState by GlobalState.bottomBarSelectionModeState.collectAsStateWithLifecycle()
+
     Scaffold(bottomBar = {
-        WishBoardBottomBar(
-            navController = bottomBarNavController,
-            onClickAdd = onClickAdd,
-        )
+        val currentSelectionModeState = selectionModeState
+        if (currentSelectionModeState != null) {
+            SelectionModeBottomBar(
+                selectedItemCount = currentSelectionModeState.selectedItemCount,
+                isAllSelected = currentSelectionModeState.isAllSelected,
+                onClickSelectAll = currentSelectionModeState.onClickSelectAll,
+                onClickDelete = currentSelectionModeState.onClickDelete,
+            )
+        } else {
+            WishBoardBottomBar(
+                navController = bottomBarNavController,
+                onClickAdd = onClickAdd,
+            )
+        }
     }) { paddingValues ->
         val modifier = Modifier.padding(bottom = paddingValues.calculateBottomPadding())
         BottomBarNavHost(

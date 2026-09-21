@@ -23,6 +23,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheetProperties
@@ -31,6 +32,7 @@ import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -60,16 +62,25 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.hyeeyoung.wishboard.R
+import com.hyeeyoung.wishboard.config.BottomBarSelectionModeState
+import com.hyeeyoung.wishboard.config.GlobalState
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardEmptyView
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardGlobalSnackbarMessage
+import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
+import com.hyeeyoung.wishboard.designsystem.component.dialog.model.DialogData
+import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.WishBoardTwoButtonDialog
 import com.hyeeyoung.wishboard.designsystem.component.dialog.temp.WishBoardModal
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
+import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.domain.model.wish.WishItem
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemOwnershipStatus
 import com.hyeeyoung.wishboard.presentation.onboarding.OnboardingModalContent
+import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
+import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.util.WishBoardPullToRefreshBox
+import com.hyeeyoung.wishboard.presentation.util.extension.dragToSelectItems
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.util.extension.rippleClickable
 import com.hyeeyoung.wishboard.presentation.util.getFakePagingData
@@ -93,6 +104,7 @@ fun WishListScreen(
 
     val coroutineScope = rememberCoroutineScope()
     var isOpenOnboardingModal by remember { mutableStateOf(false) }
+    var dialogData by remember { mutableStateOf<DialogData?>(null) }
     val onboardingSheetState =
         rememberModalBottomSheetState(skipPartiallyExpanded = true, confirmValueChange = { newState ->
             newState != SheetValue.Hidden
@@ -111,7 +123,6 @@ fun WishListScreen(
     LaunchedEffect(Unit) {
         viewModel.refreshWishListTrigger.collectLatest {
             wishList.refresh()
-            viewModel.fetchWishItemCount()
         }
     }
 
@@ -129,6 +140,27 @@ fun WishListScreen(
         }
     }
 
+    DisposableEffect(uiModel.isSelectionMode, uiModel.isAllSelected, uiModel.selectedItemIds) {
+        GlobalState.bottomBarSelectionModeState.value = if (uiModel.isSelectionMode) {
+            val selectedCount = if (uiModel.isAllSelected) {
+                uiModel.totalItemCount ?: 0
+            } else {
+                uiModel.selectedItemIds.size
+            }
+
+            BottomBarSelectionModeState(
+                selectedItemCount = selectedCount,
+                isAllSelected = uiModel.isAllSelected,
+                onClickSelectAll = viewModel::toggleSelectAll,
+                onClickDelete = { dialogData = DialogData.BulkWishItemDelete(selectedCount) },
+            )
+        } else {
+            null
+        }
+
+        onDispose { GlobalState.bottomBarSelectionModeState.value = null }
+    }
+
     WishlistScreen(
         uiModel = uiModel,
         wishList = wishList,
@@ -143,12 +175,14 @@ fun WishListScreen(
         updateViewType = viewModel::updateViewType,
         updateExcludeOwnedItems = viewModel::updateExcludeOwnedItems,
         dismissBulkRegisterBanner = viewModel::dismissBulkRegisterBanner,
+        onClickToggleSelectionMode = viewModel::toggleSelectionMode,
+        onClickToggleItemSelection = viewModel::toggleItemSelection,
+        onDragSelectItem = viewModel::setItemSelected,
         onClickBanner = {
             navController.navigate(MainScreen.BulkRegisterWebView.route)
         },
         onRefresh = {
             wishList.refresh()
-            viewModel.fetchWishItemCount()
         },
     )
 
@@ -172,6 +206,15 @@ fun WishListScreen(
             )
         },
     )
+
+    WishBoardTwoButtonDialog(
+        dialogData = dialogData,
+        onClickConfirm = {
+            val allLoadedItemIds = (0 until wishList.itemCount).mapNotNull { idx -> wishList[idx]?.id }
+            viewModel.deleteSelectedItems(allLoadedItemIds)
+        },
+        onDismissRequest = { dialogData = null },
+    )
 }
 
 @Composable
@@ -187,6 +230,9 @@ fun WishlistScreen(
     dismissBulkRegisterBanner: () -> Unit,
     onClickBanner: () -> Unit,
     onRefresh: () -> Unit,
+    onClickToggleSelectionMode: () -> Unit,
+    onClickToggleItemSelection: (id: Long) -> Unit,
+    onDragSelectItem: (id: Long, isSelected: Boolean) -> Unit,
 ) {
     val density = LocalDensity.current
     var topBarHeightPx by remember { mutableFloatStateOf(with(density) { 52.dp.toPx() }) }
@@ -220,6 +266,12 @@ fun WishlistScreen(
                 onRefresh = onRefresh,
             ) {
                 when {
+                    uiModel.deleteSelectedItemsState is WishBoardState.Loading -> {
+                        Box(modifier = contentModifier, contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator(color = WishBoardTheme.colors.gray300)
+                        }
+                    }
+
                     wishList.itemCount == 0 &&
                         wishList.loadState.refresh is LoadState.NotLoading &&
                         wishList.loadState.append.endOfPaginationReached -> {
@@ -246,43 +298,26 @@ fun WishlistScreen(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
-                                val total = uiModel.wishItemCount?.totalCount ?: 0
-                                val filteredTotal = if (!uiModel.isExcludeOwnedItems) {
-                                    total
-                                } else {
-                                    total - (uiModel.wishItemCount?.ownedCount ?: 0)
-                                }
-
                                 Text(
-                                    modifier = Modifier.alpha(
-                                        if (
-                                            uiModel.wishItemCount?.totalCount != null
-                                        ) {
-                                            1f
-                                        } else {
-                                            0f
-                                        },
-                                    ),
-                                    text = "전체 ${filteredTotal}개",
+                                    modifier = Modifier.alpha(if (uiModel.totalItemCount != null) 1f else 0f),
+                                    text = "전체 ${uiModel.totalItemCount ?: 0}개",
                                     style = WishBoardTheme.typography.suitD3,
                                     color = WishBoardTheme.colors.gray200,
                                 )
 
                                 Row(verticalAlignment = Alignment.CenterVertically) {
-                                    uiModel.wishItemCount?.ownedCount?.let {
-                                        SelectableCircleButton(
-                                            modifier = Modifier.padding(end = 5.dp),
-                                            isSelected = uiModel.isExcludeOwnedItems,
-                                            onClick = { updateExcludeOwnedItems(!uiModel.isExcludeOwnedItems) },
-                                        )
+                                    SelectableCircleButton(
+                                        modifier = Modifier.padding(end = 5.dp),
+                                        isSelected = uiModel.isExcludeOwnedItems,
+                                        onClick = { updateExcludeOwnedItems(!uiModel.isExcludeOwnedItems) },
+                                    )
 
-                                        Text(
-                                            modifier = Modifier.padding(end = 10.dp),
-                                            text = "소장템 제외",
-                                            style = WishBoardTheme.typography.suitD3,
-                                            color = WishBoardTheme.colors.gray200,
-                                        )
-                                    }
+                                    Text(
+                                        modifier = Modifier.padding(end = 10.dp),
+                                        text = "소장템 제외",
+                                        style = WishBoardTheme.typography.suitD3,
+                                        color = WishBoardTheme.colors.gray200,
+                                    )
 
                                     Icon(
                                         modifier = Modifier
@@ -297,6 +332,15 @@ fun WishlistScreen(
 
                             if (uiModel.viewType != WishListViewType.LIST) {
                                 LazyVerticalGrid(
+                                    modifier = Modifier.dragToSelectItems(
+                                        gridState = lazyGridState,
+                                        enabled = uiModel.isSelectionMode,
+                                        idAt = { idx -> wishList[idx]?.id },
+                                        isSelected = { id ->
+                                            uiModel.isAllSelected || uiModel.selectedItemIds.contains(id)
+                                        },
+                                        onSelectedChange = onDragSelectItem,
+                                    ),
                                     columns = GridCells.Fixed(
                                         if (uiModel.viewType == WishListViewType.GRID_2_COLUMN) 2 else 3,
                                     ),
@@ -307,20 +351,49 @@ fun WishlistScreen(
                                         item?.let {
                                             WishItemForGridView(
                                                 wishItem = it,
-                                                onClickItem = { onClickWishItem(it.id) },
+                                                isSelected = uiModel.isAllSelected || uiModel.selectedItemIds.contains(
+                                                    it.id,
+                                                ),
+                                                onClickItem = {
+                                                    if (uiModel.isSelectionMode) {
+                                                        onClickToggleItemSelection(it.id)
+                                                    } else {
+                                                        onClickWishItem(it.id)
+                                                    }
+                                                },
                                             )
                                         }
                                     }
                                 }
                             } else {
-                                LazyColumn(state = lazyListState) {
+                                LazyColumn(
+                                    modifier = Modifier.dragToSelectItems(
+                                        listState = lazyListState,
+                                        enabled = uiModel.isSelectionMode,
+                                        idAt = { idx -> wishList[idx]?.id },
+                                        isSelected = { id ->
+                                            uiModel.isAllSelected || uiModel.selectedItemIds.contains(id)
+                                        },
+                                        onSelectedChange = onDragSelectItem,
+                                    ),
+                                    state = lazyListState,
+                                ) {
                                     items(count = wishList.itemCount, key = { idx -> idx }) { idx ->
                                         val item = wishList[idx]
                                         item?.let {
                                             WishBoardDivider()
                                             WishItemForListView(
                                                 wishItem = item,
-                                                onClickItem = { onClickWishItem(item.id) },
+                                                isSelected = uiModel.isAllSelected || uiModel.selectedItemIds.contains(
+                                                    item.id,
+                                                ),
+                                                onClickItem = {
+                                                    if (uiModel.isSelectionMode) {
+                                                        onClickToggleItemSelection(item.id)
+                                                    } else {
+                                                        onClickWishItem(item.id)
+                                                    }
+                                                },
                                             )
                                         }
                                     }
@@ -340,7 +413,7 @@ fun WishlistScreen(
             ) {
                 Column {
                     AnimatedVisibility(
-                        visible = uiModel.isBulkRegisterBannerVisible,
+                        visible = uiModel.isBulkRegisterBannerVisible && !uiModel.isSelectionMode,
                         exit = shrinkVertically(animationSpec = tween(300)) +
                             slideOutVertically(animationSpec = tween(300)) { -it },
                     ) {
@@ -370,7 +443,11 @@ fun WishlistScreen(
                         }
                     }
                     Box(modifier = Modifier.background(WishBoardTheme.colors.white)) {
-                        WishlistTopBar(onClickCalendar = onClickCalendar)
+                        WishlistTopBar(
+                            isSelectionMode = uiModel.isSelectionMode,
+                            onClickCalendar = onClickCalendar,
+                            onClickToggleSelectionMode = onClickToggleSelectionMode,
+                        )
                     }
                 }
             }
@@ -402,33 +479,47 @@ fun SelectableCircleButton(
 }
 
 @Composable
-fun WishlistTopBar(onClickCalendar: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(start = 16.dp, end = 2.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Image(
-            modifier = Modifier.height(19.dp),
-            painter = painterResource(id = R.drawable.ic_app_text_logo),
-            contentDescription = null,
+fun WishlistTopBar(
+    isSelectionMode: Boolean,
+    onClickCalendar: () -> Unit,
+    onClickToggleSelectionMode: () -> Unit,
+) {
+    if (isSelectionMode) {
+        WishBoardTopBar(
+            topBarModel = WishBoardTopBarModel(
+                startIcon = WishBoardTopBarModel.TopBarIcon.CLOSE,
+                onClickStartIcon = onClickToggleSelectionMode,
+            ),
         )
-        Box(
+    } else {
+        Row(
             modifier = Modifier
-                .noRippleClickable { onClickCalendar() }
-                .padding(14.dp)
-                .size(24.dp),
-            contentAlignment = Alignment.Center,
+                .fillMaxWidth()
+                .padding(start = 16.dp, end = 7.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-//            WishBoardIconButton(iconRes = R.drawable.ic_cart, onClick = { onClickCart() })
-
-            Icon(
-                painter = painterResource(id = R.drawable.ic_notice),
-                contentDescription = "알림",
-                tint = Color.Unspecified,
+            Image(
+                modifier = Modifier.height(19.dp),
+                painter = painterResource(id = R.drawable.ic_app_text_logo),
+                contentDescription = null,
             )
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                WishBoardIconButton(
+                    size = 42.dp,
+                    iconRes = R.drawable.ic_main_top_bar_check,
+                    contentDescription = "아이템 선택",
+                    onClick = onClickToggleSelectionMode,
+                )
+
+                WishBoardIconButton(
+                    size = 42.dp,
+                    iconRes = R.drawable.ic_notice,
+                    contentDescription = "알림",
+                    onClick = onClickCalendar,
+                )
+            }
         }
     }
 }
@@ -482,7 +573,11 @@ fun PreviewWishlistScreen() {
     )
 
     WishlistScreen(
-        uiModel = WishListUiModel(),
+        uiModel = WishListUiModel(
+            isSelectionMode = false,
+            isExcludeOwnedItems = false,
+            totalItemCount = wishItems.size,
+        ),
         lazyGridState = rememberLazyGridState(),
         lazyListState = rememberLazyListState(),
         wishList = getFakePagingData(wishItems),
@@ -493,5 +588,8 @@ fun PreviewWishlistScreen() {
         dismissBulkRegisterBanner = {},
         onClickBanner = {},
         onRefresh = {},
+        onClickToggleSelectionMode = {},
+        onClickToggleItemSelection = {},
+        onDragSelectItem = { _, _ -> },
     )
 }

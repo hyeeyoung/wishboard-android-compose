@@ -8,21 +8,26 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.component.image.Image
 import com.hyeeyoung.wishboard.designsystem.component.image.WishBoardInitialPlaceHolder
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
@@ -34,6 +39,7 @@ import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 fun WishItemForGridView(
     modifier: Modifier = Modifier,
     wishItem: WishItem,
+    isSelected: Boolean = false,
     onClickItem: () -> Unit = {},
 ) {
     val imageModifier = Modifier
@@ -81,6 +87,25 @@ fun WishItemForGridView(
                     changeCartState = { isInCart -> cartState = !isInCart },
                 )
             }*/
+
+            if (isSelected) {
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .zIndex(3f)
+                        .background(color = Color.Black.copy(alpha = 0.55f)),
+                )
+                Icon(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .zIndex(3f)
+                        .padding(5.dp)
+                        .size(24.dp),
+                    painter = painterResource(id = R.drawable.ic_item_check),
+                    contentDescription = "선택됨",
+                    tint = Color.Unspecified,
+                )
+            }
         }
 
         // 상품명 및 가격
@@ -109,11 +134,10 @@ fun WishItemForGridView(
 @Composable
 fun WishItemForListView(
     wishItem: WishItem,
+    isSelected: Boolean = false,
     onClickItem: () -> Unit = {},
 ) {
-    val imageModifier = Modifier
-        .noRippleClickable { onClickItem() }
-        .clip(RoundedCornerShape(10.dp))
+    val imageModifier = Modifier.fillMaxSize()
 
     Row(
         modifier = Modifier
@@ -121,15 +145,38 @@ fun WishItemForListView(
             .fillMaxWidth()
             .height(84.dp),
     ) {
-        Image(
-            modifier = imageModifier
+        Box(
+            modifier = Modifier
+                .noRippleClickable { onClickItem() }
+                .clip(RoundedCornerShape(10.dp))
                 .fillMaxHeight()
                 .aspectRatio(1f),
-            model = wishItem.imageUrl,
-            placeHolder = {
-                WishBoardInitialPlaceHolder(modifier = imageModifier)
-            },
-        )
+        ) {
+            Image(
+                modifier = imageModifier,
+                model = wishItem.imageUrl,
+                placeHolder = {
+                    WishBoardInitialPlaceHolder(modifier = imageModifier)
+                },
+            )
+
+            if (isSelected) {
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .background(color = Color.Black.copy(alpha = 0.55f)),
+                )
+                Icon(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(5.dp)
+                        .size(24.dp),
+                    painter = painterResource(id = R.drawable.ic_item_check),
+                    contentDescription = "선택됨",
+                    tint = Color.Unspecified,
+                )
+            }
+        }
 
         Column(
             modifier = Modifier
@@ -206,5 +253,19 @@ fun PreviewWishItemForListView() {
             imageUrl = "https://url.kr/8vwf1e",
             price = 108000,
         ),
+    )
+}
+
+@Preview(showBackground = true, backgroundColor = 0xffffff, widthDp = 187, heightDp = 257)
+@Composable
+fun PreviewWishItemSelected() {
+    WishItemForGridView(
+        wishItem = WishItem(
+            id = 1L,
+            name = "21SS SAGE SHIRT [4COLOR]",
+            imageUrl = "https://url.kr/8vwf1e",
+            price = 108000,
+        ),
+        isSelected = true,
     )
 }

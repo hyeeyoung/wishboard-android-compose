@@ -12,6 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 
 @Composable
@@ -53,4 +54,15 @@ fun WishBoardIconButton(
             tint = tint,
         )
     }
+}
+
+// 위시리스트, 폴더 상세 등 아이템 목록 화면의 탑바에서 공통으로 쓰이는 '아이템 선택 모드 진입' 버튼
+@Composable
+fun SelectionModeIconButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
+    LegacyWishBoardIconButton(
+        modifier = modifier,
+        iconRes = R.drawable.ic_main_top_bar_check,
+        onClick = onClick,
+        contentDescription = "아이템 선택",
+    )
 }

@@ -1,9 +1,9 @@
 package com.hyeeyoung.wishboard.domain.repository
 
 import androidx.paging.PagingData
+import com.hyeeyoung.wishboard.domain.model.wish.BulkDeleteScope
 import com.hyeeyoung.wishboard.domain.model.wish.ParsedWishItem
 import com.hyeeyoung.wishboard.domain.model.wish.WishItem
-import com.hyeeyoung.wishboard.domain.model.wish.WishItemCount
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemDetail
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemUploadInfo
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemOwnershipStatus
@@ -25,9 +25,15 @@ interface ItemRepository {
 
     suspend fun deleteWishItem(itemId: Long): Result<Unit>
 
+    suspend fun deleteBulkItems(
+        scope: BulkDeleteScope,
+        folderId: Long? = null,
+        itemStatus: WishItemOwnershipStatus? = null,
+        itemIds: List<Long>? = null,
+        excludeItemIds: List<Long>? = null,
+    ): Result<Unit>
+
     suspend fun getParsedItemInfo(site: String): Result<ParsedWishItem?>
 
     suspend fun updateItemOwnership(itemId: Long, isOwnedItem: Boolean): Result<Boolean>
-
-    suspend fun getItemCount(): Result<WishItemCount>
 }
