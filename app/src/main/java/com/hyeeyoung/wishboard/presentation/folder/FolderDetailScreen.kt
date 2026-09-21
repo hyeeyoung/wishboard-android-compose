@@ -209,14 +209,9 @@ fun FolderDetailScreen(
             Box(modifier = contentModifier, contentAlignment = Alignment.Center) {
                 CircularProgressIndicator(color = WishBoardTheme.colors.gray700)
             }
-        } else if (
-            wishItems.itemCount == 0 &&
-            wishItems.loadState.refresh is LoadState.NotLoading &&
-            wishItems.loadState.append.endOfPaginationReached
-        ) {
-            WishBoardEmptyView(modifier = contentModifier, guideTextRes = R.string.empty_wishlist_guide_text)
         } else {
             Column(modifier = contentModifier) {
+                // 헤더 — 아이템이 없어도 항상 최상단에 노출
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -255,7 +250,16 @@ fun FolderDetailScreen(
                     }
                 }
 
-                if (viewType != WishListViewType.LIST) {
+                if (
+                    wishItems.itemCount == 0 &&
+                    wishItems.loadState.refresh is LoadState.NotLoading &&
+                    wishItems.loadState.append.endOfPaginationReached
+                ) {
+                    WishBoardEmptyView(
+                        modifier = Modifier.fillMaxSize(),
+                        guideTextRes = R.string.empty_wishlist_guide_text,
+                    )
+                } else if (viewType != WishListViewType.LIST) {
                     LazyVerticalGrid(
                         modifier = Modifier.dragToSelectItems(
                             gridState = lazyGridState,

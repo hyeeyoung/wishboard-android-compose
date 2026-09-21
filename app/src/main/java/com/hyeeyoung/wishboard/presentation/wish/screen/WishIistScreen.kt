@@ -272,25 +272,9 @@ fun WishlistScreen(
                         }
                     }
 
-                    wishList.itemCount == 0 &&
-                        wishList.loadState.refresh is LoadState.NotLoading &&
-                        wishList.loadState.append.endOfPaginationReached -> {
-                        LazyColumn(
-                            modifier = contentModifier,
-                            verticalArrangement = Arrangement.Center,
-                        ) {
-                            item {
-                                WishBoardEmptyView(
-                                    modifier = contentModifier,
-                                    guideTextRes = R.string.empty_wishlist_guide_text,
-                                )
-                            }
-                        }
-                    }
-
                     else -> {
                         Column(modifier = contentModifier) {
-                            // 스티키 헤더 — 리스트 밖에 위치하므로 항상 최상단에 고정
+                            // 스티키 헤더 — 리스트 밖에 위치하므로 아이템이 없어도 항상 최상단에 노출
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -330,7 +314,22 @@ fun WishlistScreen(
                                 }
                             }
 
-                            if (uiModel.viewType != WishListViewType.LIST) {
+                            if (wishList.itemCount == 0 &&
+                                wishList.loadState.refresh is LoadState.NotLoading &&
+                                wishList.loadState.append.endOfPaginationReached
+                            ) {
+                                LazyColumn(
+                                    modifier = Modifier.fillMaxSize(),
+                                    verticalArrangement = Arrangement.Center,
+                                ) {
+                                    item {
+                                        WishBoardEmptyView(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            guideTextRes = R.string.empty_wishlist_guide_text,
+                                        )
+                                    }
+                                }
+                            } else if (uiModel.viewType != WishListViewType.LIST) {
                                 LazyVerticalGrid(
                                     modifier = Modifier.dragToSelectItems(
                                         gridState = lazyGridState,
@@ -515,7 +514,7 @@ fun WishlistTopBar(
 
                 WishBoardIconButton(
                     size = 42.dp,
-                    iconRes = R.drawable.ic_notice,
+                    iconRes = R.drawable.ic_main_top_bar_noti,
                     contentDescription = "알림",
                     onClick = onClickCalendar,
                 )
