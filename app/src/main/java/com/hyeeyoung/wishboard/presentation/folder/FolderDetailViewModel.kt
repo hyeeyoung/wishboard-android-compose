@@ -123,9 +123,10 @@ class FolderDetailViewModel @Inject constructor(
             return
         }
 
-        _selectedItemIds.update {
+        val selectedItemIds = _selectedItemIds.value.let {
             if (it.contains(itemId)) it - itemId else it + itemId
         }
+        applySelectedItemIds(selectedItemIds)
     }
 
     fun setItemSelected(itemId: Long, isSelected: Boolean) {
@@ -134,7 +135,23 @@ class FolderDetailViewModel @Inject constructor(
             return
         }
 
-        _selectedItemIds.update { if (isSelected) it + itemId else it - itemId }
+        val selectedItemIds = if (isSelected) {
+            _selectedItemIds.value + itemId
+        } else {
+            _selectedItemIds.value - itemId
+        }
+        applySelectedItemIds(selectedItemIds)
+    }
+
+    // 개별 선택으로 전체 아이템이 다 선택되면, "전체 선택" 상태로 정규화한다.
+    private fun applySelectedItemIds(selectedItemIds: Set<Long>) {
+        val total = totalItemCount.value
+        if (total != null && total > 0 && selectedItemIds.size >= total) {
+            _isAllSelected.update { true }
+            _selectedItemIds.update { emptySet() }
+        } else {
+            _selectedItemIds.update { selectedItemIds }
+        }
     }
 
     fun deleteSelectedItems(allLoadedItemIds: List<Long>) {

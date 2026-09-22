@@ -169,7 +169,7 @@ class WishListViewModel @Inject constructor(
             } else {
                 it.selectedItemIds + itemId
             }
-            it.copy(selectedItemIds = selectedItemIds)
+            it.withSelectedItemIds(selectedItemIds)
         }
     }
 
@@ -181,7 +181,17 @@ class WishListViewModel @Inject constructor(
             }
 
             val selectedItemIds = if (isSelected) it.selectedItemIds + itemId else it.selectedItemIds - itemId
-            it.copy(selectedItemIds = selectedItemIds)
+            it.withSelectedItemIds(selectedItemIds)
+        }
+    }
+
+    // 개별 선택으로 전체 아이템이 다 선택되면, "전체 선택" 상태로 정규화한다.
+    private fun WishListUiModel.withSelectedItemIds(selectedItemIds: Set<Long>): WishListUiModel {
+        val total = totalItemCount
+        return if (total != null && total > 0 && selectedItemIds.size >= total) {
+            copy(isAllSelected = true, selectedItemIds = emptySet())
+        } else {
+            copy(selectedItemIds = selectedItemIds)
         }
     }
 
