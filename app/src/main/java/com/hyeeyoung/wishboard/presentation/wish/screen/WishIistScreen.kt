@@ -39,6 +39,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -249,9 +250,17 @@ fun WishlistScreen(
         if (uiModel.isAllSelected) !uiModel.excludedItemIds.contains(id) else uiModel.selectedItemIds.contains(id)
     }
 
+    // 선택모드의 X버튼 탑바는 스크롤에 영향받지 않고 항상 상단에 고정되어야 한다.
+    val isSelectionModeState = rememberUpdatedState(uiModel.isSelectionMode)
+    LaunchedEffect(uiModel.isSelectionMode) {
+        if (uiModel.isSelectionMode) topBarOffsetPx = 0f
+    }
+
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                if (isSelectionModeState.value) return Offset.Zero
+
                 topBarOffsetPx = (topBarOffsetPx + available.y).coerceIn(-topBarHeightPx, 0f)
                 return Offset.Zero
             }
