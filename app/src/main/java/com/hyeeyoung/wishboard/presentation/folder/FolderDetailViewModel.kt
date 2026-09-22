@@ -75,6 +75,9 @@ class FolderDetailViewModel @Inject constructor(
     private val _selectedItemIds = MutableStateFlow<Set<Long>>(emptySet())
     val selectedItemIds = _selectedItemIds.asStateFlow()
 
+    private val _excludedItemIds = MutableStateFlow<Set<Long>>(emptySet())
+    val excludedItemIds = _excludedItemIds.asStateFlow()
+
     private val _deleteSelectedItemsState = MutableStateFlow<WishBoardState<Unit>>(WishBoardState.Idle)
     val deleteSelectedItemsState = _deleteSelectedItemsState.asStateFlow()
 
@@ -102,16 +105,23 @@ class FolderDetailViewModel @Inject constructor(
         _isSelectionMode.update { !it }
         _isAllSelected.update { false }
         _selectedItemIds.update { emptySet() }
+        _excludedItemIds.update { emptySet() }
     }
 
-    // 전체 선택 상태에서는 개별 아이템을 부분적으로 해제하는 것을 지원하지 않는다 (다시 누르면 전체 해제).
     fun toggleSelectAll() {
         _isAllSelected.update { !it }
         _selectedItemIds.update { emptySet() }
+        _excludedItemIds.update { emptySet() }
     }
 
+    // 전체 선택 상태에서 아이템을 재선택하면, 그 아이템만 전체 선택에서 제외한다.
     fun toggleItemSelection(itemId: Long) {
-        if (_isAllSelected.value) return
+        if (_isAllSelected.value) {
+            _excludedItemIds.update {
+                if (it.contains(itemId)) it - itemId else it + itemId
+            }
+            return
+        }
 
         _selectedItemIds.update {
             if (it.contains(itemId)) it - itemId else it + itemId
@@ -119,7 +129,10 @@ class FolderDetailViewModel @Inject constructor(
     }
 
     fun setItemSelected(itemId: Long, isSelected: Boolean) {
-        if (_isAllSelected.value) return
+        if (_isAllSelected.value) {
+            _excludedItemIds.update { if (isSelected) it - itemId else it + itemId }
+            return
+        }
 
         _selectedItemIds.update { if (isSelected) it + itemId else it - itemId }
     }
@@ -130,6 +143,7 @@ class FolderDetailViewModel @Inject constructor(
         val target = resolveBulkDeleteTarget(
             isAllSelected = _isAllSelected.value,
             selectedItemIds = _selectedItemIds.value,
+            excludedItemIds = _excludedItemIds.value,
             allLoadedItemIds = allLoadedItemIds,
             totalItemCount = totalItemCount.value,
         )
@@ -149,6 +163,7 @@ class FolderDetailViewModel @Inject constructor(
             _isSelectionMode.update { false }
             _isAllSelected.update { false }
             _selectedItemIds.update { emptySet() }
+            _excludedItemIds.update { emptySet() }
 
             result.onSuccess {
                 updateSnackbarMessage("아이템을 위시리스트에서 삭제했어요!🗑")
@@ -174,5 +189,6 @@ class FolderDetailViewModel @Inject constructor(
         _isExcludeOwnedItems.update { isExclude }
         _isAllSelected.update { false }
         _selectedItemIds.update { emptySet() }
+        _excludedItemIds.update { emptySet() }
     }
 }

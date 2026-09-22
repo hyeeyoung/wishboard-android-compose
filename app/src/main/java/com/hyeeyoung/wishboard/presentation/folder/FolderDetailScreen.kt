@@ -78,6 +78,7 @@ fun FolderDetailScreen(
     val isSelectionMode by viewModel.isSelectionMode.collectAsStateWithLifecycle()
     val isAllSelected by viewModel.isAllSelected.collectAsStateWithLifecycle()
     val selectedItemIds by viewModel.selectedItemIds.collectAsStateWithLifecycle()
+    val excludedItemIds by viewModel.excludedItemIds.collectAsStateWithLifecycle()
     val deleteSelectedItemsState by viewModel.deleteSelectedItemsState.collectAsStateWithLifecycle()
     val viewType by viewModel.viewType.collectAsStateWithLifecycle()
     val isExcludeOwnedItems by viewModel.isExcludeOwnedItems.collectAsStateWithLifecycle()
@@ -100,7 +101,11 @@ fun FolderDetailScreen(
         }
     }
 
-    val selectedItemCount = if (isAllSelected) totalItemCount ?: wishList.itemCount else selectedItemIds.size
+    val selectedItemCount = if (isAllSelected) {
+        (totalItemCount ?: wishList.itemCount) - excludedItemIds.size
+    } else {
+        selectedItemIds.size
+    }
 
     FolderDetailScreen(
         wishItems = wishList,
@@ -111,6 +116,7 @@ fun FolderDetailScreen(
         isSelectionMode = isSelectionMode,
         isAllSelected = isAllSelected,
         selectedItemIds = selectedItemIds,
+        excludedItemIds = excludedItemIds,
         selectedItemCount = selectedItemCount,
         deleteSelectedItemsState = deleteSelectedItemsState,
         viewType = viewType,
@@ -148,6 +154,7 @@ fun FolderDetailScreen(
     isSelectionMode: Boolean,
     isAllSelected: Boolean,
     selectedItemIds: Set<Long>,
+    excludedItemIds: Set<Long>,
     selectedItemCount: Int,
     deleteSelectedItemsState: WishBoardState<Unit>,
     viewType: WishListViewType,
@@ -162,6 +169,11 @@ fun FolderDetailScreen(
     updateViewType: () -> Unit,
     updateExcludeOwnedItems: (Boolean) -> Unit,
 ) {
+    // 전체 선택 상태에서는 excludedItemIds에 없는 아이템만 선택된 것으로 취급한다.
+    val isItemSelected: (Long) -> Boolean = { id ->
+        if (isAllSelected) !excludedItemIds.contains(id) else selectedItemIds.contains(id)
+    }
+
     Scaffold(
         topBar = {
             if (isSelectionMode) {
@@ -265,7 +277,7 @@ fun FolderDetailScreen(
                             gridState = lazyGridState,
                             enabled = isSelectionMode,
                             idAt = { idx -> wishItems[idx]?.id },
-                            isSelected = { id -> isAllSelected || selectedItemIds.contains(id) },
+                            isSelected = isItemSelected,
                             onSelectedChange = onDragSelectItem,
                         ),
                         columns = GridCells.Fixed(if (viewType == WishListViewType.GRID_2_COLUMN) 2 else 3),
@@ -276,7 +288,7 @@ fun FolderDetailScreen(
                             item?.let {
                                 WishItemForGridView(
                                     wishItem = item,
-                                    isSelected = isAllSelected || selectedItemIds.contains(item.id),
+                                    isSelected = isItemSelected(item.id),
                                     onClickItem = {
                                         if (isSelectionMode) {
                                             onClickToggleItemSelection(item.id)
@@ -294,7 +306,7 @@ fun FolderDetailScreen(
                             listState = lazyListState,
                             enabled = isSelectionMode,
                             idAt = { idx -> wishItems[idx]?.id },
-                            isSelected = { id -> isAllSelected || selectedItemIds.contains(id) },
+                            isSelected = isItemSelected,
                             onSelectedChange = onDragSelectItem,
                         ),
                         state = lazyListState,
@@ -305,7 +317,7 @@ fun FolderDetailScreen(
                                 WishBoardDivider()
                                 WishItemForListView(
                                     wishItem = item,
-                                    isSelected = isAllSelected || selectedItemIds.contains(item.id),
+                                    isSelected = isItemSelected(item.id),
                                     onClickItem = {
                                         if (isSelectionMode) {
                                             onClickToggleItemSelection(item.id)
@@ -343,6 +355,7 @@ fun PreviewFolderDetailScreen() {
         isSelectionMode = false,
         isAllSelected = false,
         selectedItemIds = emptySet(),
+        excludedItemIds = emptySet(),
         selectedItemCount = 0,
         deleteSelectedItemsState = WishBoardState.Idle,
         viewType = WishListViewType.GRID_2_COLUMN,

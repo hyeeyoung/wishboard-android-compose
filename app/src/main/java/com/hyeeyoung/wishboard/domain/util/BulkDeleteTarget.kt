@@ -17,10 +17,24 @@ data class BulkDeleteTarget(
 fun resolveBulkDeleteTarget(
     isAllSelected: Boolean,
     selectedItemIds: Set<Long>,
+    excludedItemIds: Set<Long> = emptySet(),
     allLoadedItemIds: List<Long>,
     totalItemCount: Int?,
 ): BulkDeleteTarget {
-    if (isAllSelected) return BulkDeleteTarget(scope = BulkDeleteScope.ALL)
+    if (isAllSelected) {
+        if (excludedItemIds.isEmpty()) return BulkDeleteTarget(scope = BulkDeleteScope.ALL)
+
+        if (excludedItemIds.size <= MAX_BULK_DELETE_ITEM_IDS) {
+            return BulkDeleteTarget(scope = BulkDeleteScope.ALL, excludeItemIds = excludedItemIds.toList())
+        }
+
+        // exclude 목록이 500개를 넘으면 한 번의 요청으로 표현할 수 없으므로,
+        // 로드된 아이템에서 제외 대상을 뺀 itemIds 방식(청크 삭제)으로 전환한다.
+        return BulkDeleteTarget(
+            scope = BulkDeleteScope.SELECTED,
+            itemIds = allLoadedItemIds.filterNot { excludedItemIds.contains(it) },
+        )
+    }
 
     val total = totalItemCount ?: allLoadedItemIds.size
     val isFullyLoaded = allLoadedItemIds.size >= total

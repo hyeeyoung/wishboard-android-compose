@@ -144,11 +144,12 @@ fun WishListScreen(
         uiModel.isSelectionMode,
         uiModel.isAllSelected,
         uiModel.selectedItemIds,
+        uiModel.excludedItemIds,
         uiModel.totalItemCount,
     ) {
         GlobalState.bottomBarSelectionModeState.value = if (uiModel.isSelectionMode) {
             val selectedCount = if (uiModel.isAllSelected) {
-                uiModel.totalItemCount ?: 0
+                (uiModel.totalItemCount ?: 0) - uiModel.excludedItemIds.size
             } else {
                 uiModel.selectedItemIds.size
             }
@@ -242,6 +243,11 @@ fun WishlistScreen(
     val density = LocalDensity.current
     var topBarHeightPx by remember { mutableFloatStateOf(with(density) { 52.dp.toPx() }) }
     var topBarOffsetPx by remember { mutableFloatStateOf(0f) }
+
+    // 전체 선택 상태에서는 excludedItemIds에 없는 아이템만 선택된 것으로 취급한다.
+    val isItemSelected: (Long) -> Boolean = { id ->
+        if (uiModel.isAllSelected) !uiModel.excludedItemIds.contains(id) else uiModel.selectedItemIds.contains(id)
+    }
 
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
@@ -340,9 +346,7 @@ fun WishlistScreen(
                                         gridState = lazyGridState,
                                         enabled = uiModel.isSelectionMode,
                                         idAt = { idx -> wishList[idx]?.id },
-                                        isSelected = { id ->
-                                            uiModel.isAllSelected || uiModel.selectedItemIds.contains(id)
-                                        },
+                                        isSelected = isItemSelected,
                                         onSelectedChange = onDragSelectItem,
                                     ),
                                     columns = GridCells.Fixed(
@@ -355,9 +359,7 @@ fun WishlistScreen(
                                         item?.let {
                                             WishItemForGridView(
                                                 wishItem = it,
-                                                isSelected = uiModel.isAllSelected || uiModel.selectedItemIds.contains(
-                                                    it.id,
-                                                ),
+                                                isSelected = isItemSelected(it.id),
                                                 onClickItem = {
                                                     if (uiModel.isSelectionMode) {
                                                         onClickToggleItemSelection(it.id)
@@ -375,9 +377,7 @@ fun WishlistScreen(
                                         listState = lazyListState,
                                         enabled = uiModel.isSelectionMode,
                                         idAt = { idx -> wishList[idx]?.id },
-                                        isSelected = { id ->
-                                            uiModel.isAllSelected || uiModel.selectedItemIds.contains(id)
-                                        },
+                                        isSelected = isItemSelected,
                                         onSelectedChange = onDragSelectItem,
                                     ),
                                     state = lazyListState,
@@ -388,9 +388,7 @@ fun WishlistScreen(
                                             WishBoardDivider()
                                             WishItemForListView(
                                                 wishItem = item,
-                                                isSelected = uiModel.isAllSelected || uiModel.selectedItemIds.contains(
-                                                    item.id,
-                                                ),
+                                                isSelected = isItemSelected(item.id),
                                                 onClickItem = {
                                                     if (uiModel.isSelectionMode) {
                                                         onClickToggleItemSelection(item.id)

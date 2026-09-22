@@ -125,25 +125,44 @@ class WishListViewModel @Inject constructor(
 
     fun updateExcludeOwnedItems(isExclude: Boolean) {
         _uiModel.update {
-            it.copy(isExcludeOwnedItems = isExclude, isAllSelected = false, selectedItemIds = emptySet())
+            it.copy(
+                isExcludeOwnedItems = isExclude,
+                isAllSelected = false,
+                selectedItemIds = emptySet(),
+                excludedItemIds = emptySet(),
+            )
         }
         viewModelScope.launch { _scrollToTopTrigger.send(Unit) }
     }
 
     fun toggleSelectionMode() {
         _uiModel.update {
-            it.copy(isSelectionMode = !it.isSelectionMode, isAllSelected = false, selectedItemIds = emptySet())
+            it.copy(
+                isSelectionMode = !it.isSelectionMode,
+                isAllSelected = false,
+                selectedItemIds = emptySet(),
+                excludedItemIds = emptySet(),
+            )
         }
     }
 
-    // 전체 선택 상태에서는 개별 아이템을 부분적으로 해제하는 것을 지원하지 않는다 (다시 누르면 전체 해제).
     fun toggleSelectAll() {
-        _uiModel.update { it.copy(isAllSelected = !it.isAllSelected, selectedItemIds = emptySet()) }
+        _uiModel.update {
+            it.copy(isAllSelected = !it.isAllSelected, selectedItemIds = emptySet(), excludedItemIds = emptySet())
+        }
     }
 
+    // 전체 선택 상태에서 아이템을 재선택하면, 그 아이템만 전체 선택에서 제외한다.
     fun toggleItemSelection(itemId: Long) {
         _uiModel.update {
-            if (it.isAllSelected) return@update it
+            if (it.isAllSelected) {
+                val excludedItemIds = if (it.excludedItemIds.contains(itemId)) {
+                    it.excludedItemIds - itemId
+                } else {
+                    it.excludedItemIds + itemId
+                }
+                return@update it.copy(excludedItemIds = excludedItemIds)
+            }
 
             val selectedItemIds = if (it.selectedItemIds.contains(itemId)) {
                 it.selectedItemIds - itemId
@@ -156,7 +175,10 @@ class WishListViewModel @Inject constructor(
 
     fun setItemSelected(itemId: Long, isSelected: Boolean) {
         _uiModel.update {
-            if (it.isAllSelected) return@update it
+            if (it.isAllSelected) {
+                val excludedItemIds = if (isSelected) it.excludedItemIds - itemId else it.excludedItemIds + itemId
+                return@update it.copy(excludedItemIds = excludedItemIds)
+            }
 
             val selectedItemIds = if (isSelected) it.selectedItemIds + itemId else it.selectedItemIds - itemId
             it.copy(selectedItemIds = selectedItemIds)
@@ -168,6 +190,7 @@ class WishListViewModel @Inject constructor(
         val target = resolveBulkDeleteTarget(
             isAllSelected = model.isAllSelected,
             selectedItemIds = model.selectedItemIds,
+            excludedItemIds = model.excludedItemIds,
             allLoadedItemIds = allLoadedItemIds,
             totalItemCount = model.totalItemCount,
         )
@@ -188,6 +211,7 @@ class WishListViewModel @Inject constructor(
                     isSelectionMode = false,
                     isAllSelected = false,
                     selectedItemIds = emptySet(),
+                    excludedItemIds = emptySet(),
                 )
             }
 
