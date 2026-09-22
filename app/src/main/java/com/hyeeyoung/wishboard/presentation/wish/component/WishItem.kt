@@ -140,14 +140,17 @@ fun WishItemForListView(
     val imageModifier = Modifier.fillMaxSize()
 
     Row(
+        // 이미지/텍스트마다 별도로 클릭 영역을 두면 각 영역의 제스처 인식기가 서로 경쟁해
+        // 드래그 선택(LazyColumn에 걸린 롱프레스 드래그)이 이미지 위에서만 먹히는 문제가 있었다.
+        // Row 전체를 하나의 클릭 영역으로 통일해 터치/드래그 선택 영역을 행 전체로 넓힌다.
         modifier = Modifier
+            .noRippleClickable { onClickItem() }
             .padding(horizontal = 16.dp, vertical = 10.dp)
             .fillMaxWidth()
             .height(84.dp),
     ) {
         Box(
             modifier = Modifier
-                .noRippleClickable { onClickItem() }
                 .clip(RoundedCornerShape(10.dp))
                 .fillMaxHeight()
                 .aspectRatio(1f),
@@ -188,8 +191,7 @@ fun WishItemForListView(
             Text(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f)
-                    .noRippleClickable { onClickItem() },
+                    .weight(1f),
                 text = wishItem.name,
                 style = WishBoardTheme.typography.suitD2M,
                 color = WishBoardTheme.colors.gray700,
