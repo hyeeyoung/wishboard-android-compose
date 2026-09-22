@@ -157,7 +157,8 @@ fun WishListScreen(
 
             BottomBarSelectionModeState(
                 selectedItemCount = selectedCount,
-                isAllSelected = uiModel.isAllSelected,
+                // excludedItemIds가 있으면 실제로는 전체 선택 상태가 아니므로 버튼엔 "전체 선택"이 노출돼야 한다.
+                isAllSelected = uiModel.isAllSelected && uiModel.excludedItemIds.isEmpty(),
                 onClickSelectAll = viewModel::toggleSelectAll,
                 onClickDelete = { dialogData = DialogData.BulkWishItemDelete(selectedCount) },
             )

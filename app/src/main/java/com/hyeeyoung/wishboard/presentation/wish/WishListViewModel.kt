@@ -146,9 +146,12 @@ class WishListViewModel @Inject constructor(
         }
     }
 
+    // isAllSelected가 true여도 excludedItemIds가 있으면 실제로는 전체가 선택된 상태가 아니므로,
+    // 그 경우엔 "전체 해제"가 아니라 "전체 재선택"으로 동작해야 한다.
     fun toggleSelectAll() {
         _uiModel.update {
-            it.copy(isAllSelected = !it.isAllSelected, selectedItemIds = emptySet(), excludedItemIds = emptySet())
+            val isEverythingSelected = it.isAllSelected && it.excludedItemIds.isEmpty()
+            it.copy(isAllSelected = !isEverythingSelected, selectedItemIds = emptySet(), excludedItemIds = emptySet())
         }
     }
 

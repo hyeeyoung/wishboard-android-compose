@@ -108,8 +108,11 @@ class FolderDetailViewModel @Inject constructor(
         _excludedItemIds.update { emptySet() }
     }
 
+    // isAllSelected가 true여도 excludedItemIds가 있으면 실제로는 전체가 선택된 상태가 아니므로,
+    // 그 경우엔 "전체 해제"가 아니라 "전체 재선택"으로 동작해야 한다.
     fun toggleSelectAll() {
-        _isAllSelected.update { !it }
+        val isEverythingSelected = _isAllSelected.value && _excludedItemIds.value.isEmpty()
+        _isAllSelected.update { !isEverythingSelected }
         _selectedItemIds.update { emptySet() }
         _excludedItemIds.update { emptySet() }
     }

@@ -202,7 +202,8 @@ fun FolderDetailScreen(
             if (isSelectionMode) {
                 SelectionModeBottomBar(
                     selectedItemCount = selectedItemCount,
-                    isAllSelected = isAllSelected,
+                    // excludedItemIds가 있으면 실제로는 전체 선택 상태가 아니므로 버튼엔 "전체 선택"이 노출돼야 한다.
+                    isAllSelected = isAllSelected && excludedItemIds.isEmpty(),
                     onClickSelectAll = onClickSelectAll,
                     onClickDelete = onClickDeleteSelected,
                 )
