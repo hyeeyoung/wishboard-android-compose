@@ -15,6 +15,7 @@ import java.net.URL
 import java.time.Instant
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
+import java.util.UUID
 
 object BitmapUtil {
     private const val DEFAULT_IMAGE_QUALITY = 100
@@ -69,7 +70,10 @@ object BitmapUtil {
 
     private fun makeFileName(token: String): String {
         val timestamp = getTimestamp()
-        return ("${token.substring(7)}_$timestamp.jpg")
+        // timestamp는 초 단위까지만 표현되어, 같은 초 안에 여러 이미지를 연속으로 변환하면
+        // 파일명이 겹쳐 캐시 파일을 서로 덮어쓰게 된다. 호출마다 고유한 접미사를 더해 방지한다.
+        val uniqueSuffix = UUID.randomUUID().toString().substring(0, 8)
+        return ("${token.substring(7)}_${timestamp}_$uniqueSuffix.jpg")
     }
 
     private fun getTimestamp(): String {

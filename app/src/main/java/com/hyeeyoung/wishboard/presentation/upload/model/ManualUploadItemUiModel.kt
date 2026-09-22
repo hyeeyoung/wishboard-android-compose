@@ -19,6 +19,8 @@ data class ManualUploadItemUiModel(
     val itemNotiType: NotiType? = null,
     val itemNotiDate: LocalDateTime? = null,
     val images: List<UploadImage> = emptyList(),
+    /** 수정 화면 진입 시점의 원본 이미지 목록(추가/삭제/순서 변경 여부를 판단하는 기준) */
+    val originalImages: List<UploadImage> = emptyList(),
     val itemMemo: TextFieldValue = TextFieldValue(),
     val wishItemUploadState: WishBoardState<Unit> = WishBoardState.Idle,
     val folders: List<FolderItem> = emptyList(),
@@ -39,9 +41,11 @@ data class ManualUploadItemUiModel(
             itemNotiType = itemNotiType,
             itemNotiDate = dateStr,
             itemImage = itemImage,
+            // 새 이미지 추가뿐 아니라 삭제나 순서 변경도 "변경"으로 취급해야 하므로,
+            // 새로 첨부된 이미지 유무가 아니라 원본 목록과의 전체 비교(순서 포함)로 판단한다.
             updateInfo = WishItemUploadInfo.UpdateInfo(
                 version = version,
-                imageChanged = itemImage.any { it is ImageType.Picture },
+                imageChanged = images != originalImages,
             ),
         )
     }
