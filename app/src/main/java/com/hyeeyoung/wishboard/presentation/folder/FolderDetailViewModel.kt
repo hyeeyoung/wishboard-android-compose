@@ -196,6 +196,8 @@ class FolderDetailViewModel @Inject constructor(
 
             // 500개 초과 시 여러 번에 나눠 삭제하므로, 실패해도 일부는 이미 삭제됐을 수 있어 항상 새로고침한다.
             _refreshFolderDetailTrigger.send(Unit)
+            // 폴더탭의 아이템 수 등 다른 화면도 갱신되어야 하므로 전역으로 알린다.
+            WishBoardEventBus.notifyWishItemChanged()
         }
     }
 
