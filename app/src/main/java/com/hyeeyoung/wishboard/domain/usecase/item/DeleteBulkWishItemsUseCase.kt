@@ -19,11 +19,15 @@ class DeleteBulkWishItemsUseCase @Inject constructor(
         itemIds: List<Long>? = null,
         excludeItemIds: List<Long>? = null,
     ): Result<Unit> {
+        // folderId는 scope=ALL(폴더 내 전체 삭제)일 때만 의미가 있다. scope=SELECTED에서 folderId를
+        // 함께 보내면 서버가 400을 반환하므로, 이 경우엔 보내지 않는다.
+        val scopedFolderId = folderId.takeIf { scope == BulkDeleteScope.ALL }
+
         if (itemIds != null && itemIds.size > MAX_BULK_DELETE_ITEM_IDS) {
             for (chunk in itemIds.chunked(MAX_BULK_DELETE_ITEM_IDS)) {
                 val result = repository.deleteBulkItems(
                     scope = scope,
-                    folderId = folderId,
+                    folderId = scopedFolderId,
                     itemStatus = itemStatus,
                     itemIds = chunk,
                     excludeItemIds = null,
@@ -35,7 +39,7 @@ class DeleteBulkWishItemsUseCase @Inject constructor(
 
         return repository.deleteBulkItems(
             scope = scope,
-            folderId = folderId,
+            folderId = scopedFolderId,
             itemStatus = itemStatus,
             itemIds = itemIds,
             excludeItemIds = excludeItemIds,
