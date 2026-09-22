@@ -205,7 +205,6 @@ class WishListViewModel @Inject constructor(
             selectedItemIds = model.selectedItemIds,
             excludedItemIds = model.excludedItemIds,
             allLoadedItemIds = allLoadedItemIds,
-            totalItemCount = model.totalItemCount,
         )
 
         _uiModel.update { it.copy(deleteSelectedItemsState = WishBoardState.Loading) }

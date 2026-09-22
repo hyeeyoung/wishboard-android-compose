@@ -118,7 +118,10 @@ class FolderDetailViewModel @Inject constructor(
     }
 
     // 전체 선택 상태에서 아이템을 재선택하면, 그 아이템만 전체 선택에서 제외한다.
-    fun toggleItemSelection(itemId: Long) {
+    // totalItemCount는 화면이 헤더에 표시하는 값(totalItemCount ?: wishItems.itemCount)과 동일한 값을
+    // 그대로 전달받는다 — ViewModel의 totalItemCount 상태만 보면 아직 채워지지 않은 시점에
+    // 정규화가 누락될 수 있기 때문이다.
+    fun toggleItemSelection(itemId: Long, totalItemCount: Int) {
         if (_isAllSelected.value) {
             _excludedItemIds.update {
                 if (it.contains(itemId)) it - itemId else it + itemId
@@ -129,10 +132,10 @@ class FolderDetailViewModel @Inject constructor(
         val selectedItemIds = _selectedItemIds.value.let {
             if (it.contains(itemId)) it - itemId else it + itemId
         }
-        applySelectedItemIds(selectedItemIds)
+        applySelectedItemIds(selectedItemIds, totalItemCount)
     }
 
-    fun setItemSelected(itemId: Long, isSelected: Boolean) {
+    fun setItemSelected(itemId: Long, isSelected: Boolean, totalItemCount: Int) {
         if (_isAllSelected.value) {
             _excludedItemIds.update { if (isSelected) it - itemId else it + itemId }
             return
@@ -143,13 +146,12 @@ class FolderDetailViewModel @Inject constructor(
         } else {
             _selectedItemIds.value - itemId
         }
-        applySelectedItemIds(selectedItemIds)
+        applySelectedItemIds(selectedItemIds, totalItemCount)
     }
 
     // 개별 선택으로 전체 아이템이 다 선택되면, "전체 선택" 상태로 정규화한다.
-    private fun applySelectedItemIds(selectedItemIds: Set<Long>) {
-        val total = totalItemCount.value
-        if (total != null && total > 0 && selectedItemIds.size >= total) {
+    private fun applySelectedItemIds(selectedItemIds: Set<Long>, totalItemCount: Int) {
+        if (totalItemCount > 0 && selectedItemIds.size >= totalItemCount) {
             _isAllSelected.update { true }
             _selectedItemIds.update { emptySet() }
         } else {
@@ -165,7 +167,6 @@ class FolderDetailViewModel @Inject constructor(
             selectedItemIds = _selectedItemIds.value,
             excludedItemIds = _excludedItemIds.value,
             allLoadedItemIds = allLoadedItemIds,
-            totalItemCount = totalItemCount.value,
         )
 
         _deleteSelectedItemsState.update { WishBoardState.Loading }

@@ -126,8 +126,12 @@ fun FolderDetailScreen(
         },
         onClickBack = navController::safePopBackStack,
         onClickToggleSelectionMode = viewModel::toggleSelectionMode,
-        onClickToggleItemSelection = viewModel::toggleItemSelection,
-        onDragSelectItem = viewModel::setItemSelected,
+        onClickToggleItemSelection = { id ->
+            viewModel.toggleItemSelection(id, totalItemCount ?: wishList.itemCount)
+        },
+        onDragSelectItem = { id, isSelected ->
+            viewModel.setItemSelected(id, isSelected, totalItemCount ?: wishList.itemCount)
+        },
         onClickSelectAll = viewModel::toggleSelectAll,
         onClickDeleteSelected = { dialogData = DialogData.BulkWishItemDelete(selectedItemCount) },
         updateViewType = viewModel::updateViewType,
