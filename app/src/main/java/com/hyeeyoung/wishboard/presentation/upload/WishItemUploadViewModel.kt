@@ -211,6 +211,7 @@ class WishItemUploadViewModel @Inject constructor(
         viewModelScope.launch {
             getWishItemUseCase(itemDetail.id).onSuccess { detail ->
                 val item = WishItemDetailUiModel.fromDomain(detail)
+                val originalImages = item.images.map { UploadImage.Remote(it) }
 
                 _manualUploadUiModel.update {
                     it.copy(
@@ -220,7 +221,8 @@ class WishItemUploadViewModel @Inject constructor(
                         itemUrl = TextFieldValue(item.site ?: ""),
                         itemNotiType = item.notiType,
                         itemNotiDate = item.notiDate,
-                        images = item.images.map { UploadImage.Remote(it) },
+                        images = originalImages,
+                        originalImages = originalImages,
                         selectedFolder = safeLet(
                             item.folderId,
                             item.folderName,
@@ -510,6 +512,14 @@ class WishItemUploadViewModel @Inject constructor(
     fun deleteImage(id: String) {
         _manualUploadUiModel.update {
             it.copy(images = it.images.filter { it.id != id })
+        }
+    }
+
+    fun reorderImage(fromIndex: Int, toIndex: Int) {
+        _manualUploadUiModel.update {
+            val images = it.images.toMutableList()
+            images.add(toIndex, images.removeAt(fromIndex))
+            it.copy(images = images)
         }
     }
 

@@ -75,6 +75,9 @@ class FolderDetailViewModel @Inject constructor(
     private val _selectedItemIds = MutableStateFlow<Set<Long>>(emptySet())
     val selectedItemIds = _selectedItemIds.asStateFlow()
 
+    private val _excludedItemIds = MutableStateFlow<Set<Long>>(emptySet())
+    val excludedItemIds = _excludedItemIds.asStateFlow()
+
     private val _deleteSelectedItemsState = MutableStateFlow<WishBoardState<Unit>>(WishBoardState.Idle)
     val deleteSelectedItemsState = _deleteSelectedItemsState.asStateFlow()
 
@@ -102,26 +105,58 @@ class FolderDetailViewModel @Inject constructor(
         _isSelectionMode.update { !it }
         _isAllSelected.update { false }
         _selectedItemIds.update { emptySet() }
+        _excludedItemIds.update { emptySet() }
     }
 
-    // 전체 선택 상태에서는 개별 아이템을 부분적으로 해제하는 것을 지원하지 않는다 (다시 누르면 전체 해제).
+    // isAllSelected가 true여도 excludedItemIds가 있으면 실제로는 전체가 선택된 상태가 아니므로,
+    // 그 경우엔 "전체 해제"가 아니라 "전체 재선택"으로 동작해야 한다.
     fun toggleSelectAll() {
-        _isAllSelected.update { !it }
+        val isEverythingSelected = _isAllSelected.value && _excludedItemIds.value.isEmpty()
+        _isAllSelected.update { !isEverythingSelected }
         _selectedItemIds.update { emptySet() }
+        _excludedItemIds.update { emptySet() }
     }
 
-    fun toggleItemSelection(itemId: Long) {
-        if (_isAllSelected.value) return
+    // 전체 선택 상태에서 아이템을 재선택하면, 그 아이템만 전체 선택에서 제외한다.
+    // totalItemCount는 화면이 헤더에 표시하는 값(totalItemCount ?: wishItems.itemCount)과 동일한 값을
+    // 그대로 전달받는다 — ViewModel의 totalItemCount 상태만 보면 아직 채워지지 않은 시점에
+    // 정규화가 누락될 수 있기 때문이다.
+    fun toggleItemSelection(itemId: Long, totalItemCount: Int) {
+        if (_isAllSelected.value) {
+            _excludedItemIds.update {
+                if (it.contains(itemId)) it - itemId else it + itemId
+            }
+            return
+        }
 
-        _selectedItemIds.update {
+        val selectedItemIds = _selectedItemIds.value.let {
             if (it.contains(itemId)) it - itemId else it + itemId
         }
+        applySelectedItemIds(selectedItemIds, totalItemCount)
     }
 
-    fun setItemSelected(itemId: Long, isSelected: Boolean) {
-        if (_isAllSelected.value) return
+    fun setItemSelected(itemId: Long, isSelected: Boolean, totalItemCount: Int) {
+        if (_isAllSelected.value) {
+            _excludedItemIds.update { if (isSelected) it - itemId else it + itemId }
+            return
+        }
 
-        _selectedItemIds.update { if (isSelected) it + itemId else it - itemId }
+        val selectedItemIds = if (isSelected) {
+            _selectedItemIds.value + itemId
+        } else {
+            _selectedItemIds.value - itemId
+        }
+        applySelectedItemIds(selectedItemIds, totalItemCount)
+    }
+
+    // 개별 선택으로 전체 아이템이 다 선택되면, "전체 선택" 상태로 정규화한다.
+    private fun applySelectedItemIds(selectedItemIds: Set<Long>, totalItemCount: Int) {
+        if (totalItemCount > 0 && selectedItemIds.size >= totalItemCount) {
+            _isAllSelected.update { true }
+            _selectedItemIds.update { emptySet() }
+        } else {
+            _selectedItemIds.update { selectedItemIds }
+        }
     }
 
     fun deleteSelectedItems(allLoadedItemIds: List<Long>) {
@@ -130,8 +165,8 @@ class FolderDetailViewModel @Inject constructor(
         val target = resolveBulkDeleteTarget(
             isAllSelected = _isAllSelected.value,
             selectedItemIds = _selectedItemIds.value,
+            excludedItemIds = _excludedItemIds.value,
             allLoadedItemIds = allLoadedItemIds,
-            totalItemCount = totalItemCount.value,
         )
 
         _deleteSelectedItemsState.update { WishBoardState.Loading }
@@ -149,6 +184,7 @@ class FolderDetailViewModel @Inject constructor(
             _isSelectionMode.update { false }
             _isAllSelected.update { false }
             _selectedItemIds.update { emptySet() }
+            _excludedItemIds.update { emptySet() }
 
             result.onSuccess {
                 updateSnackbarMessage("아이템을 위시리스트에서 삭제했어요!🗑")
@@ -161,6 +197,8 @@ class FolderDetailViewModel @Inject constructor(
 
             // 500개 초과 시 여러 번에 나눠 삭제하므로, 실패해도 일부는 이미 삭제됐을 수 있어 항상 새로고침한다.
             _refreshFolderDetailTrigger.send(Unit)
+            // 폴더탭의 아이템 수 등 다른 화면도 갱신되어야 하므로 전역으로 알린다.
+            WishBoardEventBus.notifyWishItemChanged()
         }
     }
 
@@ -172,5 +210,8 @@ class FolderDetailViewModel @Inject constructor(
 
     fun updateExcludeOwnedItems(isExclude: Boolean) {
         _isExcludeOwnedItems.update { isExclude }
+        _isAllSelected.update { false }
+        _selectedItemIds.update { emptySet() }
+        _excludedItemIds.update { emptySet() }
     }
 }

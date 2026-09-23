@@ -101,6 +101,8 @@ fun ImageDetailScreen(
     }
 }
 
+private const val DOUBLE_TAP_ZOOM_SCALE = 2.5f
+
 @Composable
 private fun ZoomableImage(url: String, onZoomChanged: (Boolean) -> Unit = {}) {
     var scale by remember { mutableFloatStateOf(1f) }
@@ -130,9 +132,10 @@ private fun ZoomableImage(url: String, onZoomChanged: (Boolean) -> Unit = {}) {
             .pointerInput(Unit) {
                 detectTapGestures(
                     onDoubleTap = {
-                        scale = 1f
+                        val isZoomed = scale > 1f
+                        scale = if (isZoomed) 1f else DOUBLE_TAP_ZOOM_SCALE
                         offset = Offset.Zero
-                        onZoomChanged(false)
+                        onZoomChanged(!isZoomed)
                     },
                 )
             },

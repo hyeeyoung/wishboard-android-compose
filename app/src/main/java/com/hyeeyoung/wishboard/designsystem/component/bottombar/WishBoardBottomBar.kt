@@ -117,20 +117,13 @@ fun WishBoardBottomBar(
 }
 
 fun isSelectedMenu(currentRoute: String?, navItem: BottomNavItem): Boolean {
-    return when (navItem) {
-        BottomNavItem.Folder ->
-            currentRoute in listOf(MainScreen.Folder.getStartRouteForMainTab(), MainScreen.FolderDetail.routeWithArg)
-
-        else ->
-            currentRoute == navItem.screen.getStartRouteForMainTab()
-    }
+    return currentRoute == navItem.screen.getStartRouteForMainTab()
 }
 
 fun getSelectedScreen(currentRoute: String?): String? =
     when (currentRoute) {
         MainScreen.Wishlist.route -> MainScreen.Wishlist.route
         MainScreen.Folder.getStartRouteForMainTab() -> MainScreen.Folder.getStartRouteForMainTab()
-        MainScreen.FolderDetail.routeWithArg -> MainScreen.FolderDetail.routeWithArg
         MainScreen.Upload.route -> MainScreen.Upload.route
         MainScreen.My.route -> MainScreen.My.route
         else -> null

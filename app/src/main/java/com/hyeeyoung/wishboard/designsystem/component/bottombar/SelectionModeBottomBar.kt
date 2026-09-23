@@ -49,7 +49,8 @@ fun SelectionModeBottomBar(
                         .noRippleClickable { onClickSelectAll() },
                     text = if (isAllSelected) "선택 해제" else "전체 선택",
                     style = WishBoardTheme.typography.suitB2,
-                    color = actionTextColor,
+                    // 비활성화 상태가 없는 버튼이므로 항상 활성화 컬러를 사용한다.
+                    color = WishBoardTheme.colors.gray700,
                 )
 
                 Text(

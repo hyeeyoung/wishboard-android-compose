@@ -3,7 +3,7 @@ package com.hyeeyoung.wishboard.designsystem.component.image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -35,14 +35,15 @@ fun WishBoardFullPlaceHolder(modifier: Modifier) {
 fun WishBoardInitialPlaceHolder(modifier: Modifier, tintColor: Color = WishBoardTheme.colors.gray100) {
     Box(
         modifier = modifier,
+        contentAlignment = Alignment.Center,
     ) {
-        Row(modifier = Modifier.align(Alignment.Center)) {
-            Icon(
-                modifier = Modifier.fillMaxHeight(1f),
-                painter = painterResource(id = R.drawable.ic_initial_placeholder),
-                tint = tintColor,
-                contentDescription = "이미지 없음",
-            )
-        }
+        // fillMaxSize(fraction)으로 컨테이너 크기에 비례해 커지도록 하고,
+        // Icon 내부의 ContentScale.Fit이 아이콘 자체의 비율은 그대로 유지해준다.
+        Icon(
+            modifier = Modifier.fillMaxSize(),
+            painter = painterResource(id = R.drawable.ic_initial_placeholder),
+            tint = tintColor,
+            contentDescription = "이미지 없음",
+        )
     }
 }

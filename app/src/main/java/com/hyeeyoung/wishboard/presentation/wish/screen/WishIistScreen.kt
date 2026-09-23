@@ -39,6 +39,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -140,17 +141,24 @@ fun WishListScreen(
         }
     }
 
-    DisposableEffect(uiModel.isSelectionMode, uiModel.isAllSelected, uiModel.selectedItemIds) {
+    DisposableEffect(
+        uiModel.isSelectionMode,
+        uiModel.isAllSelected,
+        uiModel.selectedItemIds,
+        uiModel.excludedItemIds,
+        uiModel.totalItemCount,
+    ) {
         GlobalState.bottomBarSelectionModeState.value = if (uiModel.isSelectionMode) {
             val selectedCount = if (uiModel.isAllSelected) {
-                uiModel.totalItemCount ?: 0
+                (uiModel.totalItemCount ?: 0) - uiModel.excludedItemIds.size
             } else {
                 uiModel.selectedItemIds.size
             }
 
             BottomBarSelectionModeState(
                 selectedItemCount = selectedCount,
-                isAllSelected = uiModel.isAllSelected,
+                // excludedItemIds가 있으면 실제로는 전체 선택 상태가 아니므로 버튼엔 "전체 선택"이 노출돼야 한다.
+                isAllSelected = uiModel.isAllSelected && uiModel.excludedItemIds.isEmpty(),
                 onClickSelectAll = viewModel::toggleSelectAll,
                 onClickDelete = { dialogData = DialogData.BulkWishItemDelete(selectedCount) },
             )
@@ -238,9 +246,22 @@ fun WishlistScreen(
     var topBarHeightPx by remember { mutableFloatStateOf(with(density) { 52.dp.toPx() }) }
     var topBarOffsetPx by remember { mutableFloatStateOf(0f) }
 
+    // 전체 선택 상태에서는 excludedItemIds에 없는 아이템만 선택된 것으로 취급한다.
+    val isItemSelected: (Long) -> Boolean = { id ->
+        if (uiModel.isAllSelected) !uiModel.excludedItemIds.contains(id) else uiModel.selectedItemIds.contains(id)
+    }
+
+    // 선택모드의 X버튼 탑바는 스크롤에 영향받지 않고 항상 상단에 고정되어야 한다.
+    val isSelectionModeState = rememberUpdatedState(uiModel.isSelectionMode)
+    LaunchedEffect(uiModel.isSelectionMode) {
+        if (uiModel.isSelectionMode) topBarOffsetPx = 0f
+    }
+
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                if (isSelectionModeState.value) return Offset.Zero
+
                 topBarOffsetPx = (topBarOffsetPx + available.y).coerceIn(-topBarHeightPx, 0f)
                 return Offset.Zero
             }
@@ -272,25 +293,9 @@ fun WishlistScreen(
                         }
                     }
 
-                    wishList.itemCount == 0 &&
-                        wishList.loadState.refresh is LoadState.NotLoading &&
-                        wishList.loadState.append.endOfPaginationReached -> {
-                        LazyColumn(
-                            modifier = contentModifier,
-                            verticalArrangement = Arrangement.Center,
-                        ) {
-                            item {
-                                WishBoardEmptyView(
-                                    modifier = contentModifier,
-                                    guideTextRes = R.string.empty_wishlist_guide_text,
-                                )
-                            }
-                        }
-                    }
-
                     else -> {
                         Column(modifier = contentModifier) {
-                            // 스티키 헤더 — 리스트 밖에 위치하므로 항상 최상단에 고정
+                            // 스티키 헤더 — 리스트 밖에 위치하므로 아이템이 없어도 항상 최상단에 노출
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -330,15 +335,28 @@ fun WishlistScreen(
                                 }
                             }
 
-                            if (uiModel.viewType != WishListViewType.LIST) {
+                            if (wishList.itemCount == 0 &&
+                                wishList.loadState.refresh is LoadState.NotLoading &&
+                                wishList.loadState.append.endOfPaginationReached
+                            ) {
+                                LazyColumn(
+                                    modifier = Modifier.fillMaxSize(),
+                                    verticalArrangement = Arrangement.Center,
+                                ) {
+                                    item {
+                                        WishBoardEmptyView(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            guideTextRes = R.string.empty_wishlist_guide_text,
+                                        )
+                                    }
+                                }
+                            } else if (uiModel.viewType != WishListViewType.LIST) {
                                 LazyVerticalGrid(
                                     modifier = Modifier.dragToSelectItems(
                                         gridState = lazyGridState,
                                         enabled = uiModel.isSelectionMode,
                                         idAt = { idx -> wishList[idx]?.id },
-                                        isSelected = { id ->
-                                            uiModel.isAllSelected || uiModel.selectedItemIds.contains(id)
-                                        },
+                                        isSelected = isItemSelected,
                                         onSelectedChange = onDragSelectItem,
                                     ),
                                     columns = GridCells.Fixed(
@@ -351,9 +369,7 @@ fun WishlistScreen(
                                         item?.let {
                                             WishItemForGridView(
                                                 wishItem = it,
-                                                isSelected = uiModel.isAllSelected || uiModel.selectedItemIds.contains(
-                                                    it.id,
-                                                ),
+                                                isSelected = isItemSelected(it.id),
                                                 onClickItem = {
                                                     if (uiModel.isSelectionMode) {
                                                         onClickToggleItemSelection(it.id)
@@ -371,9 +387,7 @@ fun WishlistScreen(
                                         listState = lazyListState,
                                         enabled = uiModel.isSelectionMode,
                                         idAt = { idx -> wishList[idx]?.id },
-                                        isSelected = { id ->
-                                            uiModel.isAllSelected || uiModel.selectedItemIds.contains(id)
-                                        },
+                                        isSelected = isItemSelected,
                                         onSelectedChange = onDragSelectItem,
                                     ),
                                     state = lazyListState,
@@ -384,9 +398,7 @@ fun WishlistScreen(
                                             WishBoardDivider()
                                             WishItemForListView(
                                                 wishItem = item,
-                                                isSelected = uiModel.isAllSelected || uiModel.selectedItemIds.contains(
-                                                    item.id,
-                                                ),
+                                                isSelected = isItemSelected(item.id),
                                                 onClickItem = {
                                                     if (uiModel.isSelectionMode) {
                                                         onClickToggleItemSelection(item.id)
@@ -515,7 +527,7 @@ fun WishlistTopBar(
 
                 WishBoardIconButton(
                     size = 42.dp,
-                    iconRes = R.drawable.ic_notice,
+                    iconRes = R.drawable.ic_main_top_bar_noti,
                     contentDescription = "알림",
                     onClick = onClickCalendar,
                 )
