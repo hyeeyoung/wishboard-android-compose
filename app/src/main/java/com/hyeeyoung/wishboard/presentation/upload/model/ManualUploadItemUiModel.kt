@@ -27,6 +27,9 @@ data class ManualUploadItemUiModel(
     val existingFolderName: String? = null,
     val folderFetchState: WishBoardState<Unit> = WishBoardState.Idle,
     val folderAddState: WishBoardState<Unit> = WishBoardState.Idle,
+    val parsedItemFetchState: WishBoardState<Unit> = WishBoardState.Idle,
+    /** 클립보드 링크로 불러온 상품 정보 중, 기존 입력 내용과의 덮어쓰기 여부를 확인받아야 하는 대기 상태 */
+    val pendingParsedItem: ParsedItemPreview? = null,
     val version: Int = 0,
 ) {
     fun toDomain(itemImage: List<ImageType>): WishItemUploadInfo {

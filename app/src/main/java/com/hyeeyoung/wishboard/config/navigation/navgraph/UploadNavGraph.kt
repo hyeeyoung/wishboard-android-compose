@@ -24,7 +24,7 @@ fun NavGraphBuilder.uploadNavGraph(navController: NavHostController, snackbarHos
             },
         ),
         enterTransition = { slideInVertically(initialOffsetY = { it }) },
-        exitTransition = { slideOutVertically(targetOffsetY = { -it }) },
+        exitTransition = { slideOutVertically(targetOffsetY = { it }) },
         popEnterTransition = { slideInVertically(initialOffsetY = { -it }) },
         popExitTransition = { slideOutVertically(targetOffsetY = { it }) },
     ) { backStackEntry ->

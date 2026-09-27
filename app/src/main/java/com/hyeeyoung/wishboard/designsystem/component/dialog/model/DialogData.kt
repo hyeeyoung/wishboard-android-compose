@@ -79,4 +79,13 @@ sealed class DialogData(
             confirmBtnTextRes = R.string.dialog_withdraw_confirm_btn_text,
         ),
     )
+
+    data object OverwriteParsedItem : DialogData(
+        dialogTextRes = WishBoardDialogTextRes(
+            titleRes = R.string.dialog_overwrite_parsed_item_title,
+            descriptionRes = R.string.dialog_overwrite_parsed_item_description,
+            dismissBtnTextRes = R.string.cancel,
+            confirmBtnTextRes = R.string.modal_shop_link_item_load_btn_text,
+        ),
+    )
 }

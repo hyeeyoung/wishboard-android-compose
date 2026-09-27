@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
@@ -53,6 +54,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
@@ -76,7 +78,9 @@ import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardGlobalSnackbarMessage
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardNarrowButton
+import com.hyeeyoung.wishboard.designsystem.component.dialog.model.DialogData
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.ModalData
+import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.WishBoardTwoButtonDialog
 import com.hyeeyoung.wishboard.designsystem.component.dialog.temp.ModalTitle
 import com.hyeeyoung.wishboard.designsystem.component.dialog.temp.WishBoardModal
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
@@ -102,11 +106,13 @@ import com.hyeeyoung.wishboard.presentation.sign.model.WishItemDetail
 import com.hyeeyoung.wishboard.presentation.upload.WishItemUploadViewModel
 import com.hyeeyoung.wishboard.presentation.upload.component.ShopLinkModalContent
 import com.hyeeyoung.wishboard.presentation.upload.model.ManualUploadItemUiModel
+import com.hyeeyoung.wishboard.presentation.upload.model.ParsedItemPreview
 import com.hyeeyoung.wishboard.presentation.upload.model.UploadImage
 import com.hyeeyoung.wishboard.presentation.upload.model.UploadInputType
 import com.hyeeyoung.wishboard.presentation.util.extension.createImageUri
 import com.hyeeyoung.wishboard.presentation.util.extension.fromJson
 import com.hyeeyoung.wishboard.presentation.util.extension.getScheduleTimeFormat
+import com.hyeeyoung.wishboard.presentation.util.extension.getValidUrl
 import com.hyeeyoung.wishboard.presentation.util.extension.makeValidPriceStr
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.util.extension.rememberModalLauncher
@@ -132,9 +138,11 @@ fun WishUploadScreen(
 ) {
     val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
+    val clipboardManager = LocalClipboardManager.current
     val uiModel by viewModel.manualUploadUiModel.collectAsStateWithLifecycle()
     val enteredAddFlow = itemDetail == null
     var modalData by remember { mutableStateOf<ModalData?>(null) }
+    var clipboardItemUrl by remember { mutableStateOf<String?>(null) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true, confirmValueChange = { true })
     val coroutineScope = rememberCoroutineScope()
 
@@ -146,6 +154,7 @@ fun WishUploadScreen(
     LaunchedEffect(Unit) {
         viewModel.setTokenForProfileImageUri()
         viewModel.getFolders(uploadType = WishItemUploadType.MANUAL)
+        clipboardItemUrl = clipboardManager.getText()?.text?.getValidUrl()
     }
 
     WishBoardGlobalSnackbarMessage(snackbarChannel = viewModel.snackBarChannel)
@@ -154,8 +163,17 @@ fun WishUploadScreen(
         uiModel = uiModel,
         enteredAddFlow = enteredAddFlow,
         modalData = modalData,
+        clipboardItemUrl = clipboardItemUrl,
         coroutineScope = coroutineScope,
         sheetState = sheetState,
+        onClickLoadClipboardItem = {
+            clipboardItemUrl = null
+            viewModel.getParsedWishItem(uploadType = WishItemUploadType.MANUAL, context = context, site = it)
+        },
+        onDismissClipboardItem = {
+            clipboardItemUrl = null
+        },
+        onResolvePendingParsedItem = viewModel::resolvePendingParsedItem,
         onSelectFolder = { folder ->
             viewModel.updateSelectedFolder(folderItem = folder, uploadType = WishItemUploadType.MANUAL)
         },
@@ -234,6 +252,7 @@ fun WishUploadScreen(
     uiModel: ManualUploadItemUiModel,
     modalData: ModalData?,
     enteredAddFlow: Boolean,
+    clipboardItemUrl: String? = null,
     coroutineScope: CoroutineScope,
     sheetState: SheetState,
     updateModalData: (ModalData?) -> Unit,
@@ -247,6 +266,9 @@ fun WishUploadScreen(
     onMoveImage: (fromIndex: Int, toIndex: Int) -> Unit,
     isValidNotiDate: (NotiInfo) -> Boolean,
     updateSnackbarMessage: (String) -> Unit,
+    onClickLoadClipboardItem: (String) -> Unit = {},
+    onDismissClipboardItem: () -> Unit = {},
+    onResolvePendingParsedItem: (Boolean) -> Unit = {},
 ) {
     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
@@ -520,7 +542,28 @@ fun WishUploadScreen(
                     ThreeDotsLoadingView()
                 }
             }
+
+            if (clipboardItemUrl != null &&
+                !isFolderListLoading &&
+                uiModel.wishItemUploadState !is WishBoardState.Loading
+            ) {
+                ClipboardItemLoadToast(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .imePadding(),
+                    isLoading = uiModel.parsedItemFetchState is WishBoardState.Loading,
+                    onClickLoad = { onClickLoadClipboardItem(clipboardItemUrl) },
+                    onDismiss = onDismissClipboardItem,
+                )
+            }
         }
+
+        WishBoardTwoButtonDialog(
+            dialogData = if (uiModel.pendingParsedItem != null) DialogData.OverwriteParsedItem else null,
+            dismissOnConfirm = false,
+            onClickConfirm = { onResolvePendingParsedItem(true) },
+            onDismissRequest = { onResolvePendingParsedItem(false) },
+        )
 
         WishBoardModal(
             isOpen = modalData != null,
@@ -665,7 +708,7 @@ fun ItemImageRow(
             }
         }
 
-        items(images, key = { it.id }) { image ->
+        itemsIndexed(images, key = { _, image -> image.id }) { index, image ->
             ReorderableItem(reorderableLazyListState, key = image.id) { isDragging ->
                 val elevation by animateDpAsState(if (isDragging) 2.dp else 0.dp)
                 Box(
@@ -705,6 +748,23 @@ fun ItemImageRow(
                         alphaColor = WishBoardTheme.colors.gray700.copy(alpha = 0.05f),
                         contentDescription = null,
                     )
+
+                    if (index == 0) {
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                                .fillMaxWidth()
+                                .background(Color.Black.copy(alpha = 0.8f)),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                modifier = Modifier.padding(vertical = 3.dp),
+                                text = "대표 사진",
+                                style = WishBoardTheme.typography.suitD3,
+                                color = WishBoardTheme.colors.white,
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -712,6 +772,56 @@ fun ItemImageRow(
         item {
             Spacer(modifier = Modifier.width(10.dp))
         }
+    }
+}
+
+@Composable
+private fun ClipboardItemLoadToast(
+    modifier: Modifier = Modifier,
+    isLoading: Boolean,
+    onClickLoad: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    LaunchedEffect(Unit) {
+        delay(5000L)
+        onDismiss()
+    }
+
+    Row(
+        modifier = modifier
+            .padding(horizontal = 16.dp, vertical = 16.dp)
+            .fillMaxWidth()
+            .background(color = WishBoardTheme.colors.gray600, shape = RoundedCornerShape(16.dp))
+            .padding(start = 16.dp, end = 8.dp, top = 12.dp, bottom = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            modifier = Modifier.weight(1f),
+            text = stringResource(id = R.string.clipboard_item_load_toast_message),
+            style = WishBoardTheme.typography.suitD2M,
+            color = WishBoardTheme.colors.white,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+
+        Text(
+            modifier = Modifier
+                .padding(horizontal = 8.dp, vertical = 4.dp)
+                .noRippleClickable(enabled = !isLoading, onClick = onClickLoad),
+            text = stringResource(id = R.string.modal_shop_link_item_load_btn_text),
+            style = WishBoardTheme.typography.suitB3,
+            color = WishBoardTheme.colors.green500,
+        )
+
+        Icon(
+            modifier = Modifier
+                .padding(4.dp)
+                .size(16.dp)
+                .noRippleClickable(onClick = onDismiss),
+            painter = painterResource(id = R.drawable.ic_close),
+            tint = WishBoardTheme.colors.white,
+            contentDescription = "닫기",
+        )
     }
 }
 
@@ -1033,6 +1143,67 @@ fun PreviewWishUploadScreenSaving() {
         sheetState = rememberModalBottomSheetState(),
         coroutineScope = rememberCoroutineScope(),
         enteredAddFlow = false,
+        updateModalData = {},
+        onTextChange = { _, _ -> },
+        onSelectFolder = {},
+        onUriChange = {},
+        onClickSave = {},
+        onClickClose = {},
+        isValidNotiDate = { true },
+        deleteImage = {},
+        onMoveImage = { _, _ -> },
+        createFolder = {},
+        updateSnackbarMessage = {},
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview
+@Composable
+fun PreviewWishUploadScreenClipboardItemLoadToast() {
+    WishUploadScreen(
+        uiModel = ManualUploadItemUiModel(
+            folderFetchState = WishBoardState.Success(Unit),
+        ),
+        modalData = null,
+        clipboardItemUrl = "https://www.musinsa.com/app/goods/2377269",
+        sheetState = rememberModalBottomSheetState(),
+        coroutineScope = rememberCoroutineScope(),
+        enteredAddFlow = true,
+        updateModalData = {},
+        onTextChange = { _, _ -> },
+        onSelectFolder = {},
+        onUriChange = {},
+        onClickSave = {},
+        onClickClose = {},
+        isValidNotiDate = { true },
+        deleteImage = {},
+        onMoveImage = { _, _ -> },
+        createFolder = {},
+        updateSnackbarMessage = {},
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview
+@Composable
+fun PreviewWishUploadScreenOverwriteParsedItemDialog() {
+    WishUploadScreen(
+        uiModel = ManualUploadItemUiModel(
+            itemName = TextFieldValue("21SS SAGE SHIRT [4COLOR]"),
+            itemPrice = TextFieldValue("108000"),
+            folderFetchState = WishBoardState.Success(Unit),
+            pendingParsedItem = ParsedItemPreview(
+                itemName = "체리 자카드 패턴 숏 슬리브 가디건 [핑크]",
+                itemPrice = "59000",
+                imageUrl = "https://url.kr/8vwf1e",
+                site = "https://www.musinsa.com/app/goods/2377269",
+            ),
+        ),
+        modalData = null,
+        sheetState = rememberModalBottomSheetState(),
+        coroutineScope = rememberCoroutineScope(),
+        enteredAddFlow = true,
         updateModalData = {},
         onTextChange = { _, _ -> },
         onSelectFolder = {},
