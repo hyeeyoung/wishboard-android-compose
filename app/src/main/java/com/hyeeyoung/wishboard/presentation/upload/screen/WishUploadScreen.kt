@@ -1,6 +1,7 @@
 package com.hyeeyoung.wishboard.presentation.upload.screen
 
 import android.net.Uri
+import android.view.ViewTreeObserver
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -60,6 +61,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -72,9 +74,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
@@ -143,7 +142,7 @@ fun WishUploadScreen(
     val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
     val clipboardManager = LocalClipboardManager.current
-    val lifecycleOwner = LocalLifecycleOwner.current
+    val view = LocalView.current
     val uiModel by viewModel.manualUploadUiModel.collectAsStateWithLifecycle()
     val enteredAddFlow = itemDetail == null
     var modalData by remember { mutableStateOf<ModalData?>(null) }
@@ -163,18 +162,21 @@ fun WishUploadScreen(
         viewModel.getFolders(uploadType = WishItemUploadType.MANUAL)
     }
 
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) {
+    // ON_RESUME 시점에는 아직 윈도우가 포커스를 되찾기 전이라 클립보드를 읽으면 null이 반환될 수 있어,
+    // 윈도우가 실제로 포커스를 되찾는 시점(포그라운드 복귀 포함)에 맞춰 클립보드를 확인한다.
+    DisposableEffect(view) {
+        val listener = ViewTreeObserver.OnWindowFocusChangeListener { hasFocus ->
+            if (hasFocus) {
                 val url = clipboardManager.getText()?.text?.getValidUrl()
+                Timber.e("hello : $url")
                 if (url != null && url != lastCheckedClipboardUrl) {
                     lastCheckedClipboardUrl = url
                     clipboardItemUrl = url
                 }
             }
         }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+        view.viewTreeObserver.addOnWindowFocusChangeListener(listener)
+        onDispose { view.viewTreeObserver.removeOnWindowFocusChangeListener(listener) }
     }
 
     WishBoardGlobalSnackbarMessage(snackbarChannel = viewModel.snackBarChannel)
@@ -297,6 +299,14 @@ fun WishUploadScreen(
     val focusRequester = remember { FocusRequester() }
     val bringIntoViewRequester = remember { BringIntoViewRequester() }
     val scrollState = rememberScrollState()
+    // 클립보드 토스트에서 "불러오기"를 눌러 파싱하는 동안에만 전체 화면 로딩뷰를 보여준다.
+    var isLoadingFromClipboard by remember { mutableStateOf(false) }
+
+    LaunchedEffect(uiModel.parsedItemFetchState) {
+        if (uiModel.parsedItemFetchState !is WishBoardState.Loading) {
+            isLoadingFromClipboard = false
+        }
+    }
 
     var cameraUri: Uri? = null
     val albumLauncher =
@@ -551,7 +561,9 @@ fun WishUploadScreen(
                 }
             }
 
-            if (uiModel.wishItemUploadState is WishBoardState.Loading) {
+            if (uiModel.wishItemUploadState is WishBoardState.Loading ||
+                (isLoadingFromClipboard && uiModel.parsedItemFetchState is WishBoardState.Loading)
+            ) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -572,7 +584,10 @@ fun WishUploadScreen(
                         .align(Alignment.BottomCenter)
                         .imePadding(),
                     isLoading = uiModel.parsedItemFetchState is WishBoardState.Loading,
-                    onClickLoad = { onClickLoadItem(clipboardItemUrl) },
+                    onClickLoad = {
+                        isLoadingFromClipboard = true
+                        onClickLoadItem(clipboardItemUrl)
+                    },
                     onDismiss = onDismissClipboardItem,
                 )
             }
