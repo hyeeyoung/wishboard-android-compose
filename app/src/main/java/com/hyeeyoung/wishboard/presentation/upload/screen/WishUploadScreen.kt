@@ -186,7 +186,7 @@ fun WishUploadScreen(
         clipboardItemUrl = clipboardItemUrl,
         coroutineScope = coroutineScope,
         sheetState = sheetState,
-        onClickLoadClipboardItem = {
+        onClickLoadItem = {
             clipboardItemUrl = null
             viewModel.getParsedWishItem(uploadType = WishItemUploadType.MANUAL, context = context, site = it)
         },
@@ -286,7 +286,7 @@ fun WishUploadScreen(
     onMoveImage: (fromIndex: Int, toIndex: Int) -> Unit,
     isValidNotiDate: (NotiInfo) -> Boolean,
     updateSnackbarMessage: (String) -> Unit,
-    onClickLoadClipboardItem: (String) -> Unit = {},
+    onClickLoadItem: (String) -> Unit = {},
     onDismissClipboardItem: () -> Unit = {},
     onResolvePendingParsedItem: (Boolean) -> Unit = {},
 ) {
@@ -572,7 +572,7 @@ fun WishUploadScreen(
                         .align(Alignment.BottomCenter)
                         .imePadding(),
                     isLoading = uiModel.parsedItemFetchState is WishBoardState.Loading,
-                    onClickLoad = { onClickLoadClipboardItem(clipboardItemUrl) },
+                    onClickLoad = { onClickLoadItem(clipboardItemUrl) },
                     onDismiss = onDismissClipboardItem,
                 )
             }
@@ -651,10 +651,14 @@ fun WishUploadScreen(
                         val linkData = (modalData as ModalData.Modal.ShopLink)
                         ShopLinkModalContent(
                             link = linkData.link,
+                            isLoadingItem = uiModel.parsedItemFetchState is WishBoardState.Loading,
                             onClickComplete = { link ->
                                 onTextChange(UploadInputType.ITEM_URL, TextFieldValue(link))
                                 coroutineScope.launch { sheetState.hide() }
                                 updateModalData(null)
+                            },
+                            onClickLoadItem = { link ->
+                                onClickLoadItem(link)
                             },
                             onDismissRequest = {
                                 coroutineScope.launch { sheetState.hide() }

@@ -185,6 +185,7 @@
 
     <string name="modal_shop_link_title">쇼핑몰 링크</string>
     <string name="item_load_btn_text">불러오기</string>
+    <string name="modal_shop_link_item_load_btn_text">아이템 정보 불러오기</string>
     <string name="modal_shop_link_placeholder">쇼핑몰 링크를 입력해 주세요.</string>
     <string name="modal_shop_link_error">쇼핑몰 링크를 다시 확인해 주세요.</string>
 

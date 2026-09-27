@@ -117,7 +117,8 @@ class WishItemUploadViewModel @Inject constructor(
     }
 
     /**
-     * 클립보드 링크로 상품 정보를 불러온다. 기존에 입력된 내용(이미지/상품명/가격)이 있다면 바로 덮어쓰지 않고
+     * 수동 등록 전용 파싱 api 호출 함수
+     * 기존에 입력된 내용(이미지/상품명/가격)이 있다면 바로 덮어쓰지 않고
      * [ManualUploadItemUiModel.pendingParsedItem]에 담아 덮어쓰기 확인을 받은 뒤 [resolvePendingParsedItem]에서 반영한다.
      */
     private fun getParsedWishItemForManual(context: Context, site: String) {
