@@ -9,18 +9,23 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,6 +34,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.style.TextDecoration
@@ -74,6 +83,7 @@ import com.hyeeyoung.wishboard.presentation.util.extension.toBase64Json
 import com.hyeeyoung.wishboard.presentation.util.safeLet
 import com.hyeeyoung.wishboard.presentation.wish.component.PriceText
 import com.hyeeyoung.wishboard.presentation.wish.model.WishItemDetailUiModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDateTime
 
@@ -94,6 +104,9 @@ fun WishItemDetailScreen(
         uiModel = uiModel,
         navController = navController,
         enabledShopButton = enabledShopButton,
+        onClickToggleMemoEdit = viewModel::startEditingMemo,
+        onMemoInputChanged = viewModel::onMemoInputChanged,
+        onClickSaveMemo = viewModel::saveMemo,
         updateFolder = {
             viewModel.updateFolder(it)
         },
@@ -139,6 +152,9 @@ fun WishItemDetailScreen(
     uiModel: WishItemDetailUiModel,
     navController: NavController,
     enabledShopButton: Boolean,
+    onClickToggleMemoEdit: () -> Unit,
+    onMemoInputChanged: (String) -> Unit,
+    onClickSaveMemo: () -> Unit,
     updateFolder: (FolderItem) -> Unit,
     onClickFolder: ((List<FolderItem>) -> Unit) -> Unit,
     onClickEdit: () -> Unit,
@@ -178,6 +194,9 @@ fun WishItemDetailScreen(
                 uiModel = uiModel,
                 navController = navController,
                 onClickImage = onClickImage,
+                onClickToggleMemoEdit = onClickToggleMemoEdit,
+                onMemoInputChanged = onMemoInputChanged,
+                onClickSaveMemo = onClickSaveMemo,
                 onClickFolder = {
                     onClickFolder { folders ->
                         modalData = ModalData.Modal.FolderList(
@@ -276,6 +295,9 @@ private fun WishItemDetailContents(
     uiModel: WishItemDetailUiModel,
     onClickFolder: () -> Unit,
     onClickImage: (index: Int) -> Unit,
+    onClickToggleMemoEdit: () -> Unit,
+    onMemoInputChanged: (String) -> Unit,
+    onClickSaveMemo: () -> Unit,
 ) {
     val imageModifier = Modifier
         .fillMaxWidth()
@@ -283,7 +305,14 @@ private fun WishItemDetailContents(
     val pagerState = rememberPagerState(pageCount = { uiModel.images.size })
     val imageShape = RoundedCornerShape(32.dp)
 
-    Column(modifier = modifier.verticalScroll(rememberScrollState())) {
+    Column(
+        // imePadding()이 verticalScroll보다 먼저 적용되어야 키보드가 뜰 때 스크롤 가능 영역(뷰포트) 자체가
+        // 줄어들어 포커스된 필드가 올바르게 보인다. 순서가 바뀌면 스크롤 가능한 콘텐츠만 늘어날 뿐
+        // 뷰포트 크기는 그대로라 키보드에 가려진 영역이 스크롤로 드러나지 않는다.
+        modifier = modifier
+            .imePadding()
+            .verticalScroll(rememberScrollState()),
+    ) {
         Box(modifier = Modifier.padding(start = 16.dp, end = 16.dp)) {
             if (uiModel.images.isNotEmpty()) {
                 HorizontalPager(
@@ -375,16 +404,106 @@ private fun WishItemDetailContents(
             )
         }
 
-        uiModel.memo?.let { memo ->
-            WishBoardDivider()
+        WishBoardDivider()
 
-            Column(Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp)) {
-                Text(
-                    modifier = Modifier.padding(bottom = 10.dp),
-                    text = stringResource(id = R.string.memo),
-                    style = WishBoardTheme.typography.suitB2,
-                    color = WishBoardTheme.colors.gray700,
+        MemoSection(
+            navController = navController,
+            memo = uiModel.memo,
+            isEditing = uiModel.isEditingMemo,
+            memoInput = uiModel.memoInput,
+            onClickToggleEdit = onClickToggleMemoEdit,
+            onMemoInputChanged = onMemoInputChanged,
+            onClickSave = onClickSaveMemo,
+        )
+
+        Spacer(modifier = Modifier.padding(bottom = 64.dp))
+    }
+}
+
+@Composable
+private fun MemoSection(
+    navController: NavController,
+    memo: String?,
+    isEditing: Boolean,
+    memoInput: String,
+    onClickToggleEdit: () -> Unit,
+    onMemoInputChanged: (String) -> Unit,
+    onClickSave: () -> Unit,
+) {
+    val focusRequester = remember { FocusRequester() }
+    val bringIntoViewRequester = remember { BringIntoViewRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    LaunchedEffect(isEditing) {
+        if (isEditing) {
+            focusRequester.requestFocus()
+            keyboardController?.show()
+            // 키보드가 올라오는 애니메이션이 끝난 뒤 스크롤해야 필드가 정확히 보인다.
+            delay(300L)
+            bringIntoViewRequester.bringIntoView()
+        }
+    }
+
+    Column(Modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 16.dp)) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 10.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = stringResource(id = R.string.memo),
+                style = WishBoardTheme.typography.suitB2,
+                color = WishBoardTheme.colors.gray700,
+            )
+
+            MemoActionButton(
+                text = when {
+                    isEditing -> "저장"
+                    memo.isNullOrEmpty() -> "작성"
+                    else -> "편집"
+                },
+                isPrimary = isEditing,
+                onClick = if (isEditing) onClickSave else onClickToggleEdit,
+            )
+        }
+
+        when {
+            isEditing -> {
+                BasicTextField(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(focusRequester)
+                        .bringIntoViewRequester(bringIntoViewRequester),
+                    value = memoInput,
+                    onValueChange = onMemoInputChanged,
+                    textStyle = WishBoardTheme.typography.suitD2.copy(color = WishBoardTheme.colors.gray700),
+                    cursorBrush = SolidColor(WishBoardTheme.colors.gray700),
+                    decorationBox = { innerTextField ->
+                        Box {
+                            if (memoInput.isEmpty()) {
+                                Text(
+                                    text = stringResource(id = R.string.wish_item_upload_memo),
+                                    style = WishBoardTheme.typography.suitD2,
+                                    color = WishBoardTheme.colors.gray200,
+                                )
+                            }
+                            innerTextField()
+                        }
+                    },
                 )
+            }
+
+            memo.isNullOrEmpty() -> {
+                Text(
+                    text = stringResource(id = R.string.wish_item_upload_memo),
+                    style = WishBoardTheme.typography.suitD2,
+                    color = WishBoardTheme.colors.gray200,
+                )
+            }
+
+            else -> {
                 HyperlinkText(
                     navController = navController,
                     text = memo,
@@ -393,8 +512,24 @@ private fun WishItemDetailContents(
                 )
             }
         }
+    }
+}
 
-        Spacer(modifier = Modifier.padding(bottom = 64.dp))
+@Composable
+private fun MemoActionButton(text: String, isPrimary: Boolean, onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(12.dp))
+            .background(if (isPrimary) WishBoardTheme.colors.gray700 else WishBoardTheme.colors.gray100)
+            .noRippleClickable { onClick() }
+            .padding(horizontal = 10.dp, vertical = 4.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = text,
+            style = WishBoardTheme.typography.suitB3,
+            color = if (isPrimary) WishBoardTheme.colors.white else WishBoardTheme.colors.gray600,
+        )
     }
 }
 
@@ -480,6 +615,9 @@ fun PreviewWishItemDetailScreen() {
         uiModel = uiModel,
         navController = rememberNavController(),
         enabledShopButton = uiModel.site != null,
+        onClickToggleMemoEdit = {},
+        onMemoInputChanged = {},
+        onClickSaveMemo = {},
         updateFolder = {},
         onClickShop = {},
         onClickEdit = {},

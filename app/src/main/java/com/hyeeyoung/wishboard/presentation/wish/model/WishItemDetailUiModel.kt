@@ -21,6 +21,8 @@ data class WishItemDetailUiModel(
     val createAt: LocalDateTime? = null,
     val version: Int = 0,
     val isOwnedItem: Boolean = false,
+    val isEditingMemo: Boolean = false,
+    val memoInput: String = "",
 ) {
     companion object {
         fun fromDomain(domain: WishItemDetail): WishItemDetailUiModel =

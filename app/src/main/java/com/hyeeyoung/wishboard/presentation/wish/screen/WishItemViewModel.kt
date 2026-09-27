@@ -6,11 +6,15 @@ import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.core.extension.onFailure
 import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
 import com.hyeeyoung.wishboard.domain.model.folder.FolderOrderOption
+import com.hyeeyoung.wishboard.domain.model.wish.WishItemUploadInfo
 import com.hyeeyoung.wishboard.domain.usecase.folder.GetFolderSummariesUseCase
 import com.hyeeyoung.wishboard.domain.usecase.item.DeleteWishItemUseCase
 import com.hyeeyoung.wishboard.domain.usecase.item.GetWishItemDetailUseCase
 import com.hyeeyoung.wishboard.domain.usecase.item.PutFolderOfWishItemUseCase
 import com.hyeeyoung.wishboard.domain.usecase.item.PutWishItemOwnershipUseCase
+import com.hyeeyoung.wishboard.domain.usecase.item.PutWishItemUseCase
+import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat
+import com.hyeeyoung.wishboard.domain.util.WishBoardDateFormat.toUtcFormattedString
 import com.hyeeyoung.wishboard.presentation.common.BaseViewModel
 import com.hyeeyoung.wishboard.presentation.folder.model.FolderListUiModel
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
@@ -32,6 +36,7 @@ class WishItemViewModel @Inject constructor(
     private val putFolderOfWishItemUseCase: PutFolderOfWishItemUseCase,
     private val deleteWishItemUseCase: DeleteWishItemUseCase,
     private val putWishItemOwnershipUseCase: PutWishItemOwnershipUseCase,
+    private val putWishItemUseCase: PutWishItemUseCase,
 ) : BaseViewModel() {
     private var _uiModel = MutableStateFlow(WishItemDetailUiModel())
     val uiModel = _uiModel.asStateFlow()
@@ -128,6 +133,46 @@ class WishItemViewModel @Inject constructor(
                 WishBoardEventBus.notifyWishItemChanged()
             }.onFailure { exception, _, _ ->
                 updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
+            }
+        }
+    }
+
+    fun startEditingMemo() {
+        _uiModel.update { it.copy(isEditingMemo = true, memoInput = it.memo.orEmpty()) }
+    }
+
+    fun onMemoInputChanged(value: String) {
+        _uiModel.update { it.copy(memoInput = value) }
+    }
+
+    // 메모만 변경하는 경우에도 updateWishItem은 아이템 전체 정보를 요구하므로,
+    // 나머지 필드는 현재 화면에 표시된 값을 그대로 채우고 이미지는 건드리지 않는다.
+    //
+    // 낙관적 업데이트: 응답을 기다리지 않고 화면을 바로 갱신하며, 성공/실패 모두 토스트를 띄우지 않는다.
+    fun saveMemo() {
+        val model = uiModel.value
+        val trimmedMemo = model.memoInput.trim().ifEmpty { null }
+
+        _uiModel.update { it.copy(memo = trimmedMemo, isEditingMemo = false) }
+
+        viewModelScope.launch {
+            putWishItemUseCase(
+                itemId = model.id,
+                itemInfo = WishItemUploadInfo(
+                    folderId = model.folderId,
+                    itemName = model.name,
+                    itemPrice = model.price.toInt(),
+                    itemUrl = model.site,
+                    itemNotiType = model.notiType,
+                    itemNotiDate = model.notiDate?.toUtcFormattedString(WishBoardDateFormat.YYYY_MM_DD_HH_MM_SS),
+                    itemImage = null,
+                    itemMemo = trimmedMemo,
+                    updateInfo = WishItemUploadInfo.UpdateInfo(version = model.version, imageChanged = false),
+                ),
+            ).onSuccess {
+                WishBoardEventBus.notifyWishItemChanged()
+                // version이 서버에서 올라가므로, 다음 수정을 위해 최신 상태로 다시 받아온다.
+                getWishItemDetail(model.id)
             }
         }
     }
