@@ -85,7 +85,7 @@ sealed class DialogData(
             titleRes = R.string.dialog_overwrite_parsed_item_title,
             descriptionRes = R.string.dialog_overwrite_parsed_item_description,
             dismissBtnTextRes = R.string.cancel,
-            confirmBtnTextRes = R.string.modal_shop_link_item_load_btn_text,
+            confirmBtnTextRes = R.string.item_load_btn_text,
         ),
     )
 }

@@ -810,37 +810,26 @@ private fun ClipboardItemLoadToast(
     Row(
         modifier = modifier
             .padding(horizontal = 16.dp, vertical = 16.dp)
-            .fillMaxWidth()
             .background(color = WishBoardTheme.colors.gray600, shape = RoundedCornerShape(16.dp))
-            .padding(start = 16.dp, end = 8.dp, top = 12.dp, bottom = 12.dp),
+            .padding(vertical = 6.dp)
+            .padding(start = 16.dp, end = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
-            modifier = Modifier.weight(1f),
             text = stringResource(id = R.string.clipboard_item_load_toast_message),
-            style = WishBoardTheme.typography.suitD2M,
-            color = WishBoardTheme.colors.white,
+            style = WishBoardTheme.typography.suitB5,
+            color = WishBoardTheme.colors.gray50,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
 
         Text(
             modifier = Modifier
-                .padding(horizontal = 8.dp, vertical = 4.dp)
+                .padding(horizontal = 10.dp, vertical = 4.dp)
                 .noRippleClickable(enabled = !isLoading, onClick = onClickLoad),
-            text = stringResource(id = R.string.modal_shop_link_item_load_btn_text),
-            style = WishBoardTheme.typography.suitB3,
+            text = stringResource(R.string.item_load_btn_text),
+            style = WishBoardTheme.typography.suitB5,
             color = WishBoardTheme.colors.green500,
-        )
-
-        Icon(
-            modifier = Modifier
-                .padding(4.dp)
-                .size(16.dp)
-                .noRippleClickable(onClick = onDismiss),
-            painter = painterResource(id = R.drawable.ic_close),
-            tint = WishBoardTheme.colors.white,
-            contentDescription = "닫기",
         )
     }
 }
