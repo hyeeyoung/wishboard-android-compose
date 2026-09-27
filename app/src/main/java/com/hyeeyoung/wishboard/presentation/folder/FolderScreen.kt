@@ -2,6 +2,7 @@ package com.hyeeyoung.wishboard.presentation.folder
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
@@ -23,6 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
@@ -50,6 +52,7 @@ import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.WishBoardTwo
 import com.hyeeyoung.wishboard.designsystem.component.dialog.temp.WishBoardModal
 import com.hyeeyoung.wishboard.designsystem.component.image.Image
 import com.hyeeyoung.wishboard.designsystem.component.image.WishBoardInitialPlaceHolder
+import com.hyeeyoung.wishboard.designsystem.component.loading.ThreeDotsLoadingView
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardMainTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
@@ -58,6 +61,7 @@ import com.hyeeyoung.wishboard.presentation.util.WishBoardPullToRefreshBox
 import com.hyeeyoung.wishboard.presentation.util.extension.navigateIfResumed
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.util.extension.rememberModalLauncher
+import com.hyeeyoung.wishboard.presentation.util.getFakeLoadingPagingData
 import com.hyeeyoung.wishboard.presentation.util.getFakePagingData
 import kotlinx.coroutines.flow.collectLatest
 
@@ -189,6 +193,15 @@ fun FolderScreen(
     val canReorder = folders.itemCount >= 2 &&
         folders.loadState.refresh is LoadState.NotLoading
 
+    // 최초 진입 시의 로딩만 전체 화면 로딩뷰로 보여주고, 이후 당겨서 새로고침할 때는 보여주지 않는다.
+    var hasLoadedOnce by remember { mutableStateOf(false) }
+    LaunchedEffect(folders.loadState.refresh) {
+        if (folders.loadState.refresh !is LoadState.Loading) {
+            hasLoadedOnce = true
+        }
+    }
+    val isFirstLoading = !hasLoadedOnce && folders.loadState.refresh is LoadState.Loading
+
     WishBoardTwoButtonDialog(
         dialogData = dialogData,
         onClickConfirm = {
@@ -244,7 +257,11 @@ fun FolderScreen(
                 folders.refresh()
             },
         ) {
-            if (
+            if (isFirstLoading) {
+                Box(modifier = contentModifier, contentAlignment = Alignment.Center) {
+                    ThreeDotsLoadingView()
+                }
+            } else if (
                 folders.itemCount == 0 &&
                 folders.loadState.refresh is LoadState.NotLoading &&
                 folders.loadState.append.endOfPaginationReached
@@ -354,6 +371,21 @@ fun PreviewFolderScreen() {
                 folder.copy(id = index.toLong())
             },
         ),
+        lazyGridState = LazyGridState(),
+        onClickFolder = {},
+        deleteFolder = {},
+        showModal = {},
+        clearModalData = {},
+        onClickReorder = {},
+    )
+}
+
+@Preview
+@Composable
+fun PreviewFolderScreenFirstLoading() {
+    FolderScreen(
+        uiModel = FolderTabUiModel(),
+        folders = getFakeLoadingPagingData(),
         lazyGridState = LazyGridState(),
         onClickFolder = {},
         deleteFolder = {},

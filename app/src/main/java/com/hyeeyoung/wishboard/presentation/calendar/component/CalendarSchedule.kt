@@ -2,6 +2,7 @@ package com.hyeeyoung.wishboard.presentation.calendar.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,6 +14,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -26,6 +28,7 @@ import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardEmptyView
 import com.hyeeyoung.wishboard.designsystem.component.image.Image
 import com.hyeeyoung.wishboard.designsystem.component.image.WishBoardInitialPlaceHolder
+import com.hyeeyoung.wishboard.designsystem.component.loading.ThreeDotsLoadingView
 import com.hyeeyoung.wishboard.designsystem.style.Gray700
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.domain.model.noti.NotiType
@@ -38,6 +41,7 @@ import java.time.LocalDate
 fun CalendarSchedule(
     selectedDate: LocalDate,
     notiItems: List<NotiItem>,
+    isFirstLoading: Boolean = false,
     onClickSchedule: (Long) -> Unit,
 ) {
     Column(Modifier.padding(start = 16.dp, end = 16.dp, top = 32.dp)) {
@@ -49,7 +53,16 @@ fun CalendarSchedule(
             color = WishBoardTheme.colors.gray700,
             style = WishBoardTheme.typography.suitH3,
         )
-        if (notiItems.isEmpty()) {
+        if (isFirstLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                contentAlignment = Alignment.Center,
+            ) {
+                ThreeDotsLoadingView()
+            }
+        } else if (notiItems.isEmpty()) {
             WishBoardEmptyView(
                 modifier = Modifier
                     .fillMaxWidth()

@@ -81,6 +81,8 @@ class WishItemUploadViewModel @Inject constructor(
             return
         }
 
+        _parsingUiModel.update { it.copy(parseState = WishBoardState.Loading) }
+
         val itemSite = site.getValidUrl() ?: ""
         viewModelScope.launch {
             getParsedItemInfoUseCase(itemSite).onSuccess { parsedItem ->
@@ -90,12 +92,14 @@ class WishItemUploadViewModel @Inject constructor(
                         itemPrice = TextFieldValue(parsedItem?.price ?: ""),
                         downloadImageUrl = parsedItem?.image,
                         itemUrl = itemSite,
+                        parseState = WishBoardState.Success(Unit),
                     )
                 }
             }.onFailure { _, _, _ ->
                 _parsingUiModel.update {
                     it.copy(
                         itemUrl = itemSite,
+                        parseState = WishBoardState.Failure,
                     )
                 }
                 updateSnackbarMessage("앗, 아이템 정보를 불러오지 못했어요🥲")

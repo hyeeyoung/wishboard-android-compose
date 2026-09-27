@@ -57,6 +57,7 @@ class WishItemViewModel @Inject constructor(
                     WishItemDetailUiModel.fromDomain(detail)
                 }
             }.onFailure { exception, _, _ ->
+                _uiModel.update { it.copy(fetchState = WishBoardState.Failure) }
                 updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
             }
         }

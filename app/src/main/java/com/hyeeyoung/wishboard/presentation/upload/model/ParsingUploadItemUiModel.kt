@@ -32,6 +32,8 @@ data class ParsingUploadItemUiModel(
     val existingFolderName: String? = null,
     val isLogin: Boolean = true,
     val wishItemUploadState: WishBoardState<Unit> = WishBoardState.Idle,
+    /** 링크 공유로 진입해 아이템 정보를 파싱해오는 최초 API 호출의 로딩 상태 */
+    val parseState: WishBoardState<Unit> = WishBoardState.Idle,
 ) {
     fun toDomain(itemImage: ImageType?, uploadType: WishItemUploadType): WishItemUploadInfo {
         val dateStr = itemNotiDate?.toUtcFormattedString(WishBoardDateFormat.YYYY_MM_DD_HH_MM_SS)

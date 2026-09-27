@@ -61,6 +61,7 @@ import com.hyeeyoung.wishboard.designsystem.component.dialog.temp.WishBoardModal
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
 import com.hyeeyoung.wishboard.designsystem.component.image.Image
 import com.hyeeyoung.wishboard.designsystem.component.image.WishBoardFullPlaceHolder
+import com.hyeeyoung.wishboard.designsystem.component.loading.ThreeDotsLoadingView
 import com.hyeeyoung.wishboard.designsystem.component.text.HyperlinkText
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.designsystem.model.WishBoardButtonColors
@@ -69,6 +70,7 @@ import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
 import com.hyeeyoung.wishboard.domain.model.noti.NotiType
 import com.hyeeyoung.wishboard.presentation.folder.FolderListModalContent
 import com.hyeeyoung.wishboard.presentation.onboarding.WishBoardIndicator
+import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardString
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.util.WishBoardEventBus
@@ -189,54 +191,61 @@ fun WishItemDetailScreen(
                 .background(WishBoardTheme.colors.white)
                 .padding(top = paddingValues.calculateTopPadding()),
         ) {
-            WishItemDetailContents(
-                modifier = Modifier.weight(1f),
-                uiModel = uiModel,
-                navController = navController,
-                onClickImage = onClickImage,
-                onClickToggleMemoEdit = onClickToggleMemoEdit,
-                onMemoInputChanged = onMemoInputChanged,
-                onClickSaveMemo = onClickSaveMemo,
-                onClickFolder = {
-                    onClickFolder { folders ->
-                        modalData = ModalData.Modal.FolderList(
-                            selectedFolder = uiModel.folderId?.let { FolderItem(id = it) },
-                            folders = folders,
-                        )
-                        coroutineScope.launch {
-                            sheetState.show()
-                        }
-                    }
-                },
-            )
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-                    .padding(bottom = 30.dp),
-                horizontalArrangement = Arrangement.spacedBy(15.dp),
-            ) {
-                WishBoardButton(
+            // 최초 조회 로딩만 전체 화면 로딩뷰로 보여준다(메모 저장 후의 백그라운드 재조회 등은 제외).
+            if (uiModel.fetchState is WishBoardState.Loading) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    ThreeDotsLoadingView()
+                }
+            } else {
+                WishItemDetailContents(
                     modifier = Modifier.weight(1f),
-                    enabled = true,
-                    onClick = {
-                        updateItemOwnership()
+                    uiModel = uiModel,
+                    navController = navController,
+                    onClickImage = onClickImage,
+                    onClickToggleMemoEdit = onClickToggleMemoEdit,
+                    onMemoInputChanged = onMemoInputChanged,
+                    onClickSaveMemo = onClickSaveMemo,
+                    onClickFolder = {
+                        onClickFolder { folders ->
+                            modalData = ModalData.Modal.FolderList(
+                                selectedFolder = uiModel.folderId?.let { FolderItem(id = it) },
+                                folders = folders,
+                            )
+                            coroutineScope.launch {
+                                sheetState.show()
+                            }
+                        }
                     },
-                    text = if (!uiModel.isOwnedItem) "소장템으로 바꾸기" else "소장템에서 제거",
-                    color = if (!uiModel.isOwnedItem) WishBoardButtonColors.WHITE else WishBoardButtonColors.GRAY,
                 )
 
-                if (enabledShopButton) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .padding(bottom = 30.dp),
+                    horizontalArrangement = Arrangement.spacedBy(15.dp),
+                ) {
                     WishBoardButton(
                         modifier = Modifier.weight(1f),
                         enabled = true,
                         onClick = {
-                            onClickShop()
+                            updateItemOwnership()
                         },
-                        text = stringResource(id = R.string.wish_item_detail_go_to_shop),
-                        color = WishBoardButtonColors.BLACK,
+                        text = if (!uiModel.isOwnedItem) "소장템으로 바꾸기" else "소장템에서 제거",
+                        color = if (!uiModel.isOwnedItem) WishBoardButtonColors.WHITE else WishBoardButtonColors.GRAY,
                     )
+
+                    if (enabledShopButton) {
+                        WishBoardButton(
+                            modifier = Modifier.weight(1f),
+                            enabled = true,
+                            onClick = {
+                                onClickShop()
+                            },
+                            text = stringResource(id = R.string.wish_item_detail_go_to_shop),
+                            color = WishBoardButtonColors.BLACK,
+                        )
+                    }
                 }
             }
         }
@@ -609,12 +618,34 @@ fun PreviewWishItemDetailScreen() {
         folderName = "상의",
         isOwnedItem = false,
         createAt = LocalDateTime(2025, 3, 20, 2, 0),
+        fetchState = WishBoardState.Success(Unit),
     )
 
     WishItemDetailScreen(
         uiModel = uiModel,
         navController = rememberNavController(),
         enabledShopButton = uiModel.site != null,
+        onClickToggleMemoEdit = {},
+        onMemoInputChanged = {},
+        onClickSaveMemo = {},
+        updateFolder = {},
+        onClickShop = {},
+        onClickEdit = {},
+        onClickDelete = {},
+        onClickBack = {},
+        onClickImage = {},
+        onClickFolder = {},
+        updateItemOwnership = {},
+    )
+}
+
+@Preview
+@Composable
+fun PreviewWishItemDetailScreenFirstLoading() {
+    WishItemDetailScreen(
+        uiModel = WishItemDetailUiModel(fetchState = WishBoardState.Loading),
+        navController = rememberNavController(),
+        enabledShopButton = false,
         onClickToggleMemoEdit = {},
         onMemoInputChanged = {},
         onClickSaveMemo = {},

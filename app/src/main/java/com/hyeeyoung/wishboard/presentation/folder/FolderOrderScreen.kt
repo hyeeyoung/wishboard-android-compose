@@ -40,11 +40,13 @@ import androidx.navigation.NavController
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardGlobalSnackbarMessage
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
+import com.hyeeyoung.wishboard.designsystem.component.loading.ThreeDotsLoadingView
 import com.hyeeyoung.wishboard.designsystem.component.image.Image
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
 import com.hyeeyoung.wishboard.presentation.folder.model.FolderOrderUiModel
+import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.util.extension.safePopBackStack
@@ -105,39 +107,45 @@ fun FolderOrderContent(
                 .fillMaxSize(),
         ) {
             Box(modifier = Modifier.weight(1f)) {
-                LazyColumn(
-                    state = lazyListState,
-                    contentPadding = PaddingValues(top = 18.dp, bottom = 36.dp),
-                ) {
-                    items(uiModel.customFolders, key = { it.id }) { item ->
-                        ReorderableItem(reorderableLazyListState, key = item.id) { isDragging ->
-                            val elevation by animateDpAsState(if (isDragging) 2.dp else 0.dp)
-                            Surface(shadowElevation = elevation) {
-                                FolderItem(
-                                    dragModifier = Modifier.draggableHandle(),
-                                    folder = item,
-                                )
+                if (uiModel.fetchState is WishBoardState.Loading) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        ThreeDotsLoadingView()
+                    }
+                } else {
+                    LazyColumn(
+                        state = lazyListState,
+                        contentPadding = PaddingValues(top = 18.dp, bottom = 36.dp),
+                    ) {
+                        items(uiModel.customFolders, key = { it.id }) { item ->
+                            ReorderableItem(reorderableLazyListState, key = item.id) { isDragging ->
+                                val elevation by animateDpAsState(if (isDragging) 2.dp else 0.dp)
+                                Surface(shadowElevation = elevation) {
+                                    FolderItem(
+                                        dragModifier = Modifier.draggableHandle(),
+                                        folder = item,
+                                    )
+                                }
                             }
                         }
                     }
-                }
 
-                Box(
-                    modifier = Modifier
-                        .zIndex(2f)
-                        .fillMaxWidth()
-                        .height(36.dp)
-                        .align(Alignment.BottomCenter)
-                        .background(
-                            brush = Brush.verticalGradient(
-                                colors = listOf(
-                                    Color.Transparent,
-                                    Color(0x80FFFFFF),
-                                    Color.White,
+                    Box(
+                        modifier = Modifier
+                            .zIndex(2f)
+                            .fillMaxWidth()
+                            .height(36.dp)
+                            .align(Alignment.BottomCenter)
+                            .background(
+                                brush = Brush.verticalGradient(
+                                    colors = listOf(
+                                        Color.Transparent,
+                                        Color(0x80FFFFFF),
+                                        Color.White,
+                                    ),
                                 ),
                             ),
-                        ),
-                )
+                    )
+                }
             }
 
             WishBoardWideButton(
@@ -252,6 +260,17 @@ fun PreviewFolderOrderScreen() {
                 ),
             ),
         ),
+        onClickClose = {},
+        onClickSave = {},
+        resetOrder = {},
+    )
+}
+
+@Composable
+@Preview
+fun PreviewFolderOrderScreenFirstLoading() {
+    FolderOrderContent(
+        uiModel = FolderOrderUiModel(fetchState = WishBoardState.Loading),
         onClickClose = {},
         onClickSave = {},
         resetOrder = {},
