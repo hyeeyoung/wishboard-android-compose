@@ -39,6 +39,7 @@ import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
@@ -71,6 +72,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
@@ -139,10 +143,13 @@ fun WishUploadScreen(
     val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
     val clipboardManager = LocalClipboardManager.current
+    val lifecycleOwner = LocalLifecycleOwner.current
     val uiModel by viewModel.manualUploadUiModel.collectAsStateWithLifecycle()
     val enteredAddFlow = itemDetail == null
     var modalData by remember { mutableStateOf<ModalData?>(null) }
     var clipboardItemUrl by remember { mutableStateOf<String?>(null) }
+    // 직전에 노출했던 링크와 동일하다면 포그라운드로 돌아와도 다시 노출하지 않는다.
+    var lastCheckedClipboardUrl by remember { mutableStateOf<String?>(null) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true, confirmValueChange = { true })
     val coroutineScope = rememberCoroutineScope()
 
@@ -154,7 +161,20 @@ fun WishUploadScreen(
     LaunchedEffect(Unit) {
         viewModel.setTokenForProfileImageUri()
         viewModel.getFolders(uploadType = WishItemUploadType.MANUAL)
-        clipboardItemUrl = clipboardManager.getText()?.text?.getValidUrl()
+    }
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                val url = clipboardManager.getText()?.text?.getValidUrl()
+                if (url != null && url != lastCheckedClipboardUrl) {
+                    lastCheckedClipboardUrl = url
+                    clipboardItemUrl = url
+                }
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
     WishBoardGlobalSnackbarMessage(snackbarChannel = viewModel.snackBarChannel)
