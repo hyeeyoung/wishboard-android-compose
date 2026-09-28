@@ -148,7 +148,9 @@ class WishItemUploadViewModel @Inject constructor(
                     overwriteWithParsedItem(preview)
                 }
             }.onFailure { _, _, _ ->
-                _manualUploadUiModel.update { it.copy(parsedItemFetchState = WishBoardState.Failure) }
+                _manualUploadUiModel.update {
+                    it.copy(parsedItemFetchState = WishBoardState.Failure, itemUrl = TextFieldValue(itemSite))
+                }
                 updateSnackbarMessage(context.getString(R.string.item_parsing_failure_message))
             }
         }
