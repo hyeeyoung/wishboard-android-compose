@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -32,6 +33,7 @@ import com.hyeeyoung.wishboard.designsystem.model.WishBoardButtonColors
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
 import com.hyeeyoung.wishboard.presentation.util.extension.rippleClickable
+import com.hyeeyoung.wishboard.presentation.util.extension.toImmutableTextStyle
 
 @Composable
 fun WishBoardWideButton(
@@ -87,7 +89,7 @@ fun WishBoardWideButton(
         ) {
             Text(
                 text = if (state != WishBoardState.Loading) text else "",
-                style = WishBoardTheme.typography.suitH3,
+                style = WishBoardTheme.typography.suitH3.toImmutableTextStyle(),
             )
         }
     }
@@ -100,6 +102,7 @@ fun WishBoardButton(
     disabledColor: WishBoardButtonColors = WishBoardButtonColors.GRAY,
     state: WishBoardState<Unit> = WishBoardState.Idle,
     enabled: Boolean,
+    textAlign: TextAlign = TextAlign.Center,
     onClick: () -> Unit,
     text: String,
     shape: Shape = RoundedCornerShape(12.dp),
@@ -145,8 +148,9 @@ fun WishBoardButton(
         ) {
             Text(
                 text = if (state != WishBoardState.Loading) text else "",
-                style = WishBoardTheme.typography.suitH3,
+                style = WishBoardTheme.typography.suitH3.toImmutableTextStyle(),
                 color = if (enabled) color.textColor else disabledColor.textColor,
+                textAlign = textAlign,
             )
         }
     }

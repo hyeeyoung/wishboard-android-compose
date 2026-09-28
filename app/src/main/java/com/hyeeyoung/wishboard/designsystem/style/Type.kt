@@ -39,6 +39,7 @@ data class WishBoardTypography(
     val suitH3: TextStyle = TextStyle(
         fontFamily = SuitFamily,
         fontWeight = FontWeight.Bold,
+        lineHeight = 18.sp,
         fontSize = 16.sp,
     ),
     val suitH4: TextStyle = TextStyle(
