@@ -123,8 +123,8 @@ fun ProfileEditScreen(
         when (data) {
             is ModalData.OptionModal.ImageSelection -> {
                 if (isTopOption) {
-                    cameraUri = context.createImageUri(uiModel.accessToken)
-                    cameraLauncher.launch(cameraUri)
+                    val uri = context.createImageUri(uiModel.accessToken)
+                    cameraLauncher.launch(uri)
                 } else {
                     albumLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
                 }

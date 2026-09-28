@@ -354,7 +354,9 @@ fun WishUploadScreen(
             is ModalData.OptionModal.ImageSelection -> {
                 if (isTopOption) {
                     cameraUri = context.createImageUri(uiModel.accessToken)
-                    cameraLauncher.launch(cameraUri)
+                    cameraUri?.let {
+                        cameraLauncher.launch(it)
+                    }
                 } else {
                     albumLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
                 }

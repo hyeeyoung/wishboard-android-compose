@@ -1,5 +1,7 @@
 package com.hyeeyoung.wishboard.di
 
+import android.content.Context
+import com.chuckerteam.chucker.api.ChuckerInterceptor
 import com.hyeeyoung.wishboard.BuildConfig
 import com.hyeeyoung.wishboard.data.local.WishBoardPreference
 import com.hyeeyoung.wishboard.data.remote.interceptor.AddInfoInterceptor
@@ -10,6 +12,7 @@ import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFact
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -52,6 +55,7 @@ object NetworkModule {
     @Singleton
     @Named("Authenticated")
     fun provideOkHttpClientBuilder(
+        @ApplicationContext context: Context,
         addInfoInterceptor: AddInfoInterceptor,
         interceptor: AuthInterceptor,
     ): OkHttpClient =
@@ -67,6 +71,7 @@ object NetworkModule {
                         level = HttpLoggingInterceptor.Level.BODY
                     },
                 )
+                addInterceptor(ChuckerInterceptor(context))
             }
         }.build()
 
@@ -74,6 +79,7 @@ object NetworkModule {
     @Singleton
     @Named("NonAuthenticated")
     fun provideNonAuthenticatedOkHttpClient(
+        @ApplicationContext context: Context,
         addInfoInterceptor: AddInfoInterceptor,
     ): OkHttpClient =
         OkHttpClient.Builder().apply {
@@ -87,6 +93,7 @@ object NetworkModule {
                         level = HttpLoggingInterceptor.Level.BODY
                     },
                 )
+                addInterceptor(ChuckerInterceptor(context))
             }
         }.build()
 

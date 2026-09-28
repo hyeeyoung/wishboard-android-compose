@@ -24,7 +24,7 @@ android {
         applicationId = "com.hyeeyoung.wishboard"
         minSdk = 24
         targetSdk = 36
-        versionCode = 52
+        versionCode = 53
         versionName = "3.3.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -103,6 +103,8 @@ dependencies {
     implementation(libs.bundles.paging)
     implementation("sh.calvin.reorderable:reorderable:3.0.0")
     coreLibraryDesugaring(libs.desugar)
+    debugImplementation(libs.chucker)
+    releaseImplementation(libs.chucker.no.op)
     debugImplementation(libs.bundles.debug)
     testImplementation(libs.bundles.test)
     androidTestImplementation(composeBom)
