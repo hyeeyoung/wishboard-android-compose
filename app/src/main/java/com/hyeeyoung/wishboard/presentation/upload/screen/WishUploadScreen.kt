@@ -165,14 +165,25 @@ fun WishUploadScreen(
     // ON_RESUME 시점에는 아직 윈도우가 포커스를 되찾기 전이라 클립보드를 읽으면 null이 반환될 수 있어,
     // 윈도우가 실제로 포커스를 되찾는 시점(포그라운드 복귀 포함)에 맞춰 클립보드를 확인한다.
     DisposableEffect(view) {
+        fun checkClipboard() {
+            val url = clipboardManager.getText()?.text?.getValidUrl()
+            Timber.e("hello : $url")
+            // 이미 쇼핑몰 링크가 입력되어 있다면 클립보드에 값이 있어도 토스트를 노출하지 않는다.
+            if (url != null && url != lastCheckedClipboardUrl && uiModel.itemUrl.text.isBlank()) {
+                lastCheckedClipboardUrl = url
+                clipboardItemUrl = url
+            }
+        }
+
+        // 리스너는 등록 이후의 포커스 변화만 알려주므로, 등록 시점에 이미 포커스를 갖고 있는
+        // 경우(예: 화면 최초 진입)를 놓치지 않도록 현재 포커스 상태도 함께 확인한다.
+        if (view.hasWindowFocus()) {
+            checkClipboard()
+        }
+
         val listener = ViewTreeObserver.OnWindowFocusChangeListener { hasFocus ->
             if (hasFocus) {
-                val url = clipboardManager.getText()?.text?.getValidUrl()
-                Timber.e("hello : $url")
-                if (url != null && url != lastCheckedClipboardUrl) {
-                    lastCheckedClipboardUrl = url
-                    clipboardItemUrl = url
-                }
+                checkClipboard()
             }
         }
         view.viewTreeObserver.addOnWindowFocusChangeListener(listener)
