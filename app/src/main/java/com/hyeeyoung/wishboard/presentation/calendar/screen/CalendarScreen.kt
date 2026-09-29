@@ -114,6 +114,7 @@ fun CalendarScreen(
             CalendarSchedule(
                 selectedDate = uiModel.selectedDate,
                 notiItems = curDateNoti,
+                isFirstLoading = uiModel.isFirstLoading,
                 onClickSchedule = { id ->
                     onClickSchedule(id)
                 },
@@ -212,6 +213,22 @@ fun CalendarPreview() {
         uiModel = CalendarUiModel(
             schedules = schedules,
             selectedDate = LocalDate.of(2025, 3, 23),
+            isFirstLoading = false,
+        ),
+        onClickSchedule = {},
+        updateSelectedDate = {},
+        changeCalendarPage = {},
+        onClickClose = {},
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun CalendarScreenFirstLoadingPreview() {
+    CalendarScreen(
+        uiModel = CalendarUiModel(
+            selectedDate = LocalDate.of(2025, 3, 23),
+            isFirstLoading = true,
         ),
         onClickSchedule = {},
         updateSelectedDate = {},

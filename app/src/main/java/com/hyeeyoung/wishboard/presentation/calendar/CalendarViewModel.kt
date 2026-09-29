@@ -45,9 +45,10 @@ class CalendarViewModel @Inject constructor(
         viewModelScope.launch {
             getAllNotiListUseCase().onSuccess { schedules ->
                 _uiModel.update {
-                    it.copy(schedules = schedules)
+                    it.copy(schedules = schedules, isFirstLoading = false)
                 }
             }.onFailure { exception, _, _ ->
+                _uiModel.update { it.copy(isFirstLoading = false) }
                 updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
             }
         }

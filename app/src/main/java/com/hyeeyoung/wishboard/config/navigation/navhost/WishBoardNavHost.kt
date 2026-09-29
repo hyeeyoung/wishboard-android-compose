@@ -51,9 +51,32 @@ fun WishBoardNavHost(modifier: Modifier = Modifier, navController: NavHostContro
         modifier = modifier.systemBarsPadding(),
         navController = navController,
         startDestination = Intro.route,
-        enterTransition = { slideInHorizontally(initialOffsetX = { it }) },
-        exitTransition = { slideOutHorizontally(targetOffsetX = { -it }) },
-        popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }) },
+        enterTransition = {
+            // 아이템 등록/수정 화면에서 빠져나와 다른 화면으로 랜딩될 때, 그 화면은 이미 아래에 있던
+            // 화면이므로 움직이지 않고 그 자리에 그대로 유지되어야 한다.
+            if (initialState.destination.route == MainScreen.Upload.routeWithArg) {
+                EnterTransition.None
+            } else {
+                slideInHorizontally(initialOffsetX = { it })
+            }
+        },
+        exitTransition = {
+            // 아이템 등록/수정 화면은 이전 화면 위로 아래에서 위로 올라오는 모달 형태이므로,
+            // 이전 화면은 움직이지 않고 그 자리에 그대로 유지되어야 한다.
+            if (targetState.destination.route == MainScreen.Upload.routeWithArg) {
+                ExitTransition.None
+            } else {
+                slideOutHorizontally(targetOffsetX = { -it })
+            }
+        },
+        popEnterTransition = {
+            // 아이템 등록/수정 화면을 닫아 이전 화면으로 복귀할 때도 마찬가지로 이전 화면은 고정된다.
+            if (initialState.destination.route == MainScreen.Upload.routeWithArg) {
+                EnterTransition.None
+            } else {
+                slideInHorizontally(initialOffsetX = { -it })
+            }
+        },
         popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) },
     ) {
         snackbarComposable(snackbarHostState = snackbarHostState, route = Intro.route) {

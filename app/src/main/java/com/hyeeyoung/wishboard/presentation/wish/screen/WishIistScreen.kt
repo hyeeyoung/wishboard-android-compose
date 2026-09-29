@@ -23,7 +23,6 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheetProperties
@@ -70,6 +69,7 @@ import com.hyeeyoung.wishboard.designsystem.component.WishBoardEmptyView
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardGlobalSnackbarMessage
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.DialogData
+import com.hyeeyoung.wishboard.designsystem.component.loading.ThreeDotsLoadingView
 import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.WishBoardTwoButtonDialog
 import com.hyeeyoung.wishboard.designsystem.component.dialog.temp.WishBoardModal
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
@@ -84,6 +84,7 @@ import com.hyeeyoung.wishboard.presentation.util.WishBoardPullToRefreshBox
 import com.hyeeyoung.wishboard.presentation.util.extension.dragToSelectItems
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.util.extension.rippleClickable
+import com.hyeeyoung.wishboard.presentation.util.getFakeLoadingPagingData
 import com.hyeeyoung.wishboard.presentation.util.getFakePagingData
 import com.hyeeyoung.wishboard.presentation.wish.WishListViewModel
 import com.hyeeyoung.wishboard.presentation.wish.component.WishItemForGridView
@@ -246,6 +247,15 @@ fun WishlistScreen(
     var topBarHeightPx by remember { mutableFloatStateOf(with(density) { 52.dp.toPx() }) }
     var topBarOffsetPx by remember { mutableFloatStateOf(0f) }
 
+    // 최초 진입 시의 로딩만 전체 화면 로딩뷰로 보여주고, 이후 당겨서 새로고침할 때는 보여주지 않는다.
+    var hasLoadedOnce by remember { mutableStateOf(false) }
+    LaunchedEffect(wishList.loadState.refresh) {
+        if (wishList.loadState.refresh !is LoadState.Loading) {
+            hasLoadedOnce = true
+        }
+    }
+    val isFirstLoading = !hasLoadedOnce && wishList.loadState.refresh is LoadState.Loading
+
     // 전체 선택 상태에서는 excludedItemIds에 없는 아이템만 선택된 것으로 취급한다.
     val isItemSelected: (Long) -> Boolean = { id ->
         if (uiModel.isAllSelected) !uiModel.excludedItemIds.contains(id) else uiModel.selectedItemIds.contains(id)
@@ -289,7 +299,7 @@ fun WishlistScreen(
                 when {
                     uiModel.deleteSelectedItemsState is WishBoardState.Loading -> {
                         Box(modifier = contentModifier, contentAlignment = Alignment.Center) {
-                            CircularProgressIndicator(color = WishBoardTheme.colors.gray300)
+                            ThreeDotsLoadingView()
                         }
                     }
 
@@ -335,7 +345,11 @@ fun WishlistScreen(
                                 }
                             }
 
-                            if (wishList.itemCount == 0 &&
+                            if (isFirstLoading) {
+                                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                    ThreeDotsLoadingView()
+                                }
+                            } else if (wishList.itemCount == 0 &&
                                 wishList.loadState.refresh is LoadState.NotLoading &&
                                 wishList.loadState.append.endOfPaginationReached
                             ) {
@@ -593,6 +607,27 @@ fun PreviewWishlistScreen() {
         lazyGridState = rememberLazyGridState(),
         lazyListState = rememberLazyListState(),
         wishList = getFakePagingData(wishItems),
+        onClickCalendar = {},
+        onClickWishItem = {},
+        updateViewType = {},
+        updateExcludeOwnedItems = {},
+        dismissBulkRegisterBanner = {},
+        onClickBanner = {},
+        onRefresh = {},
+        onClickToggleSelectionMode = {},
+        onClickToggleItemSelection = {},
+        onDragSelectItem = { _, _ -> },
+    )
+}
+
+@Composable
+@Preview
+fun PreviewWishlistScreenFirstLoading() {
+    WishlistScreen(
+        uiModel = WishListUiModel(),
+        lazyGridState = rememberLazyGridState(),
+        lazyListState = rememberLazyListState(),
+        wishList = getFakeLoadingPagingData(),
         onClickCalendar = {},
         onClickWishItem = {},
         updateViewType = {},

@@ -4,17 +4,22 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.hyeeyoung.wishboard.BuildConfig
 import com.hyeeyoung.wishboard.config.navigation.navhost.WishBoardNavHost
 import com.hyeeyoung.wishboard.config.navigation.screen.SignScreen
 import com.hyeeyoung.wishboard.designsystem.component.LocalSnackbarHostState
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardSnackbarMessage
 import com.hyeeyoung.wishboard.designsystem.style.WishboardTheme
+import com.hyeeyoung.wishboard.presentation.debug.DebugFloatingButton
 import com.hyeeyoung.wishboard.presentation.sign.model.snackbar.WishBoardSnackbarVisuals
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -39,7 +44,13 @@ class MainActivity : ComponentActivity() {
                         )
                     }
 
-                    WishBoardNavHost(navController = navController)
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        WishBoardNavHost(navController = navController)
+
+                        if (BuildConfig.DEBUG) {
+                            DebugFloatingButton()
+                        }
+                    }
                 }
             }
 

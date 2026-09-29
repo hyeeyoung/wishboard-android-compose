@@ -18,7 +18,6 @@ import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -49,6 +48,7 @@ import com.hyeeyoung.wishboard.designsystem.component.button.SelectionModeIconBu
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.DialogData
 import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.WishBoardTwoButtonDialog
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
+import com.hyeeyoung.wishboard.designsystem.component.loading.ThreeDotsLoadingView
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.domain.model.wish.WishItem
@@ -58,6 +58,7 @@ import com.hyeeyoung.wishboard.presentation.util.annotation.DefaultPreview
 import com.hyeeyoung.wishboard.presentation.util.extension.dragToSelectItems
 import com.hyeeyoung.wishboard.presentation.util.extension.rippleClickable
 import com.hyeeyoung.wishboard.presentation.util.extension.safePopBackStack
+import com.hyeeyoung.wishboard.presentation.util.getFakeLoadingPagingData
 import com.hyeeyoung.wishboard.presentation.util.getFakePagingData
 import com.hyeeyoung.wishboard.presentation.wish.component.WishItemForGridView
 import com.hyeeyoung.wishboard.presentation.wish.component.WishItemForListView
@@ -178,6 +179,15 @@ fun FolderDetailScreen(
         if (isAllSelected) !excludedItemIds.contains(id) else selectedItemIds.contains(id)
     }
 
+    // 최초 진입 시의 로딩만 전체 화면 로딩뷰로 보여주고, 이후 당겨서 새로고침할 때는 보여주지 않는다.
+    var hasLoadedOnce by remember { mutableStateOf(false) }
+    LaunchedEffect(wishItems.loadState.refresh) {
+        if (wishItems.loadState.refresh !is LoadState.Loading) {
+            hasLoadedOnce = true
+        }
+    }
+    val isFirstLoading = !hasLoadedOnce && wishItems.loadState.refresh is LoadState.Loading
+
     Scaffold(
         topBar = {
             if (isSelectionMode) {
@@ -224,7 +234,7 @@ fun FolderDetailScreen(
 
         if (deleteSelectedItemsState is WishBoardState.Loading) {
             Box(modifier = contentModifier, contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = WishBoardTheme.colors.gray700)
+                ThreeDotsLoadingView()
             }
         } else {
             Column(modifier = contentModifier) {
@@ -267,7 +277,11 @@ fun FolderDetailScreen(
                     }
                 }
 
-                if (
+                if (isFirstLoading) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        ThreeDotsLoadingView()
+                    }
+                } else if (
                     wishItems.itemCount == 0 &&
                     wishItems.loadState.refresh is LoadState.NotLoading &&
                     wishItems.loadState.append.endOfPaginationReached
@@ -357,6 +371,35 @@ fun PreviewFolderDetailScreen() {
         lazyGridState = rememberLazyGridState(),
         lazyListState = rememberLazyListState(),
         totalItemCount = 8,
+        isSelectionMode = false,
+        isAllSelected = false,
+        selectedItemIds = emptySet(),
+        excludedItemIds = emptySet(),
+        selectedItemCount = 0,
+        deleteSelectedItemsState = WishBoardState.Idle,
+        viewType = WishListViewType.GRID_2_COLUMN,
+        isExcludeOwnedItems = false,
+        onClickItem = {},
+        onClickBack = {},
+        onClickToggleSelectionMode = {},
+        onClickToggleItemSelection = {},
+        onDragSelectItem = { _, _ -> },
+        onClickSelectAll = {},
+        onClickDeleteSelected = {},
+        updateViewType = {},
+        updateExcludeOwnedItems = {},
+    )
+}
+
+@Composable
+@DefaultPreview
+fun PreviewFolderDetailScreenFirstLoading() {
+    FolderDetailScreen(
+        wishItems = getFakeLoadingPagingData(),
+        folderName = "상의",
+        lazyGridState = rememberLazyGridState(),
+        lazyListState = rememberLazyListState(),
+        totalItemCount = null,
         isSelectionMode = false,
         isAllSelected = false,
         selectedItemIds = emptySet(),

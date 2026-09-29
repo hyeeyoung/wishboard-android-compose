@@ -36,6 +36,8 @@ timber = "5.0.1"
 
 desugar = "2.1.2"
 
+chucker = "4.1.0"
+
 #Plugin
 gradlePlugin = "8.6.0"
 kotlin = "1.9.10"
@@ -93,6 +95,9 @@ kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 
 desugar = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar" }
+
+chucker = { module = "com.github.chuckerteam.chucker:library", version.ref = "chucker" }
+chucker-no-op = { module = "com.github.chuckerteam.chucker:library-no-op", version.ref = "chucker" }
 
 # Plugin
 google-services = { module = "com.google.gms:google-services", version.ref = "google-services" }

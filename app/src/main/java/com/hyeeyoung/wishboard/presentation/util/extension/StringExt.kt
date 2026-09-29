@@ -2,16 +2,28 @@ package com.hyeeyoung.wishboard.presentation.util.extension
 
 import android.util.Patterns
 import android.webkit.URLUtil
+import java.net.MalformedURLException
 import java.net.URL
 import java.text.NumberFormat
 import java.util.Locale
 
 fun String.isEmptyOrBlank() = this.isEmpty() || this.isBlank()
 
-/** url에서 도메인명 추출 */
+/** 스킴(http/https)이 없으면 https를 붙여 반환한다. (ex. "ver.me/xxx" -> "https://ver.me/xxx") */
+fun String.withScheme(): String =
+    if (startsWith("http://") || startsWith("https://")) this else "https://$this"
+
+/**
+ * url에서 도메인명 추출. Patterns.WEB_URL로 매칭된 링크는 스킴이 없을 수 있어(ex. "ver.me/xxx"),
+ * java.net.URL이 요구하는 스킴을 보정한 뒤 파싱하고, 그래도 유효하지 않으면 null을 반환한다.
+ */
 fun String.getDomainName(): String? {
-    val host = URL(this).host
-    return if (host.startsWith("www.")) host.substring(4) else host
+    return try {
+        val host = URL(this.withScheme()).host
+        if (host.startsWith("www.")) host.substring(4) else host
+    } catch (e: MalformedURLException) {
+        null
+    }
 }
 
 /** 유효한 가격 문자열로 만들기 위해 적절하지 않는 문자를 제거 (ex. "123abc" -> "123", "000" -> "0") */

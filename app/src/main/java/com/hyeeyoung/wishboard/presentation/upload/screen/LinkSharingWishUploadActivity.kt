@@ -53,7 +53,7 @@ class LinkSharingWishUploadActivity : ComponentActivity() {
         if (intent.action == Intent.ACTION_SEND) {
             if (intent.type == "text/plain") {
                 url = intent.getStringExtra(Intent.EXTRA_TEXT) ?: throw NullPointerException("Url is null")
-                viewModel.getParsedWishItem(url)
+                viewModel.getParsedWishItem(uploadType = WishItemUploadType.PARSING, context = this, site = url)
                 viewModel.getFolders(uploadType = WishItemUploadType.PARSING)
             }
         }

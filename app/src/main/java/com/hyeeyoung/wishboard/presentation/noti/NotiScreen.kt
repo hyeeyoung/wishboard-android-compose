@@ -2,6 +2,7 @@ package com.hyeeyoung.wishboard.presentation.noti
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -39,6 +40,7 @@ import com.hyeeyoung.wishboard.designsystem.component.button.LegacyWishBoardIcon
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
 import com.hyeeyoung.wishboard.designsystem.component.image.Image
 import com.hyeeyoung.wishboard.designsystem.component.image.WishBoardInitialPlaceHolder
+import com.hyeeyoung.wishboard.designsystem.component.loading.ThreeDotsLoadingView
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardTopBar
 import com.hyeeyoung.wishboard.designsystem.style.Green500
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
@@ -78,6 +80,7 @@ fun NotiScreen(
     ) {
         NotiScreen(
             notiList = uiModel.notiList,
+            isFirstLoading = uiModel.isFirstLoading,
             updateReadState = viewModel::updateReadState,
             updateSnackbarMessage = viewModel::updateSnackbarMessage,
             moveToWebView = { title, url ->
@@ -97,6 +100,7 @@ fun NotiScreen(
 @Composable
 fun NotiScreen(
     notiList: List<NotiItem>,
+    isFirstLoading: Boolean,
     updateReadState: (id: Long) -> Unit,
     updateSnackbarMessage: (String) -> Unit,
     moveToWebView: (title: String?, url: String) -> Unit,
@@ -126,7 +130,11 @@ fun NotiScreen(
             .background(WishBoardTheme.colors.white)
             .padding(top = paddingValues.calculateTopPadding())
 
-        if (notiList.isEmpty()) {
+        if (isFirstLoading) {
+            Box(modifier = contentModifier, contentAlignment = Alignment.Center) {
+                ThreeDotsLoadingView()
+            }
+        } else if (notiList.isEmpty()) {
             WishBoardEmptyView(modifier = contentModifier, guideTextRes = R.string.empty_noti_guide_text)
         } else {
             LazyColumn(modifier = contentModifier.padding(top = 7.dp)) {
@@ -222,8 +230,29 @@ fun PreviewNotiScreen() {
 
     val notiList = List(7) { idx -> notiItem.copy(itemId = idx.toLong()) }
 
-    NotiScreen(notiList = notiList, updateReadState = {
-    }, updateSnackbarMessage = {}, moveToWebView = { _, _ -> }, onClickCalendar = {}, onClickBack = {})
+    NotiScreen(
+        notiList = notiList,
+        isFirstLoading = false,
+        updateReadState = {},
+        updateSnackbarMessage = {},
+        moveToWebView = { _, _ -> },
+        onClickCalendar = {},
+        onClickBack = {},
+    )
+}
+
+@Composable
+@Preview
+fun PreviewNotiScreenFirstLoading() {
+    NotiScreen(
+        notiList = emptyList(),
+        isFirstLoading = true,
+        updateReadState = {},
+        updateSnackbarMessage = {},
+        moveToWebView = { _, _ -> },
+        onClickCalendar = {},
+        onClickBack = {},
+    )
 }
 
 @Preview(showBackground = true)

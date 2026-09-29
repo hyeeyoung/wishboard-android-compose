@@ -47,6 +47,7 @@ import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.ModalData
 import com.hyeeyoung.wishboard.designsystem.component.image.Image
 import com.hyeeyoung.wishboard.designsystem.component.image.WishBoardInitialPlaceHolder
+import com.hyeeyoung.wishboard.designsystem.component.loading.ThreeDotsLoadingView
 import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardMiniSingleTextField
 import com.hyeeyoung.wishboard.designsystem.style.MontserratFamily
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
@@ -54,6 +55,7 @@ import com.hyeeyoung.wishboard.designsystem.util.LegacyPriceTransformation
 import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
 import com.hyeeyoung.wishboard.domain.model.noti.NotiInfo
 import com.hyeeyoung.wishboard.domain.model.noti.NotiType
+import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
 import com.hyeeyoung.wishboard.presentation.upload.model.UploadInputType
 import com.hyeeyoung.wishboard.presentation.upload.model.ParsingUploadItemUiModel
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
@@ -109,102 +111,113 @@ fun LinkSharingWishUploadScreen(
 
                     Spacer(modifier = Modifier.size(7.dp))
 
-                    val textFieldModifier = Modifier.padding(horizontal = 16.dp, vertical = 3.dp)
-                    WishBoardMiniSingleTextField(
-                        modifier = textFieldModifier,
-                        textFieldValue = uiModel.itemName,
-                        placeholder = stringResource(id = R.string.wish_item_link_sharing_upload_name),
-                        onTextChange = { input ->
-                            onTextChange(UploadInputType.ITEM_NAME, input)
-                        },
-                    )
+                    if (uiModel.parseState is WishBoardState.Loading) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 40.dp),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            ThreeDotsLoadingView()
+                        }
+                    } else {
+                        val textFieldModifier = Modifier.padding(horizontal = 16.dp, vertical = 3.dp)
+                        WishBoardMiniSingleTextField(
+                            modifier = textFieldModifier,
+                            textFieldValue = uiModel.itemName,
+                            placeholder = stringResource(id = R.string.wish_item_link_sharing_upload_name),
+                            onTextChange = { input ->
+                                onTextChange(UploadInputType.ITEM_NAME, input)
+                            },
+                        )
 
-                    WishBoardMiniSingleTextField(
-                        modifier = textFieldModifier,
-                        textFieldValue = uiModel.itemPrice,
-                        style = TextStyle(
-                            fontFamily = MontserratFamily,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 14.sp,
-                        ),
-                        placeholder = stringResource(id = R.string.wish_item_link_sharing_upload_price),
-                        onTextChange = { input ->
-                            onTextChange(UploadInputType.ITEM_PRICE, input)
-                        },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        visualTransformation = LegacyPriceTransformation(),
-                    )
+                        WishBoardMiniSingleTextField(
+                            modifier = textFieldModifier,
+                            textFieldValue = uiModel.itemPrice,
+                            style = TextStyle(
+                                fontFamily = MontserratFamily,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 14.sp,
+                            ),
+                            placeholder = stringResource(id = R.string.wish_item_link_sharing_upload_price),
+                            onTextChange = { input ->
+                                onTextChange(UploadInputType.ITEM_PRICE, input)
+                            },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            visualTransformation = LegacyPriceTransformation(),
+                        )
 
-                    Spacer(modifier = Modifier.size(5.dp))
+                        Spacer(modifier = Modifier.size(5.dp))
 
-                    Row(
-                        modifier = Modifier
-                            .noRippleClickable {
-                                updateModalData(
-                                    ModalData.Modal.Noti(
-                                        NotiInfo(
-                                            notiType = uiModel.itemNotiType,
-                                            notiDate = uiModel.itemNotiDate,
-                                        ).toJson(),
-                                    ),
+                        Row(
+                            modifier = Modifier
+                                .noRippleClickable {
+                                    updateModalData(
+                                        ModalData.Modal.Noti(
+                                            NotiInfo(
+                                                notiType = uiModel.itemNotiType,
+                                                notiDate = uiModel.itemNotiDate,
+                                            ).toJson(),
+                                        ),
+                                    )
+                                }
+                                .padding(8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Icon(
+                                modifier = Modifier.size(12.dp),
+                                painter = painterResource(id = R.drawable.ic_notice),
+                                contentDescription = null,
+                                tint = WishBoardTheme.colors.gray700,
+                            )
+                            Text(
+                                modifier = Modifier.padding(start = 4.dp),
+                                text = safeLet(uiModel.itemNotiType, uiModel.itemNotiDate) { type, date ->
+                                    "${date.toNotiDateStr()} ${type.label}"
+                                } ?: stringResource(id = R.string.wish_item_link_sharing_upload_noti_setting),
+                                style = WishBoardTheme.typography.suitD3,
+                                color = WishBoardTheme.colors.gray700,
+                            )
+
+                            if (uiModel.itemNotiType != null) {
+                                Spacer(modifier = Modifier.size(2.dp))
+                                Icon(
+                                    modifier = Modifier
+                                        .padding(2.dp)
+                                        .noRippleClickable {
+                                            setNotiInfo(NotiInfo(null, null))
+                                        }
+                                        .size(14.dp),
+                                    painter = painterResource(id = R.drawable.ic_delete_circle),
+                                    contentDescription = null,
+                                    tint = Color.Unspecified,
                                 )
                             }
-                            .padding(8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Icon(
-                            modifier = Modifier.size(12.dp),
-                            painter = painterResource(id = R.drawable.ic_notice),
-                            contentDescription = null,
-                            tint = WishBoardTheme.colors.gray700,
-                        )
-                        Text(
-                            modifier = Modifier.padding(start = 4.dp),
-                            text = safeLet(uiModel.itemNotiType, uiModel.itemNotiDate) { type, date ->
-                                "${date.toNotiDateStr()} ${type.label}"
-                            } ?: stringResource(id = R.string.wish_item_link_sharing_upload_noti_setting),
-                            style = WishBoardTheme.typography.suitD3,
-                            color = WishBoardTheme.colors.gray700,
-                        )
-
-                        if (uiModel.itemNotiType != null) {
-                            Spacer(modifier = Modifier.size(2.dp))
-                            Icon(
-                                modifier = Modifier
-                                    .padding(2.dp)
-                                    .noRippleClickable {
-                                        setNotiInfo(NotiInfo(null, null))
-                                    }
-                                    .size(14.dp),
-                                painter = painterResource(id = R.drawable.ic_delete_circle),
-                                contentDescription = null,
-                                tint = Color.Unspecified,
-                            )
                         }
-                    }
 
-                    LazyRow(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 16.dp, top = 8.dp, bottom = 16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    ) {
-                        item {
-                            NewFolder(isLogin = uiModel.isLogin, onClickNew = {
-                                updateModalData(
-                                    ModalData.Modal.NewFolder(folderName = ""),
+                        LazyRow(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 16.dp, top = 8.dp, bottom = 16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        ) {
+                            item {
+                                NewFolder(isLogin = uiModel.isLogin, onClickNew = {
+                                    updateModalData(
+                                        ModalData.Modal.NewFolder(folderName = ""),
+                                    )
+                                })
+                            }
+                            items(uiModel.folders) {
+                                FolderItem(
+                                    isSelected = uiModel.selectedFolder == it,
+                                    folder = it,
+                                    onClickFolder = { folder -> onSelectFolder(folder) },
                                 )
-                            })
-                        }
-                        items(uiModel.folders) {
-                            FolderItem(
-                                isSelected = uiModel.selectedFolder == it,
-                                folder = it,
-                                onClickFolder = { folder -> onSelectFolder(folder) },
-                            )
-                        }
-                        item {
-                            Spacer(modifier = Modifier.size(16.dp))
+                            }
+                            item {
+                                Spacer(modifier = Modifier.size(16.dp))
+                            }
                         }
                     }
 
@@ -339,6 +352,23 @@ fun PreviewLinkSharingWishUploadScreen() {
             isLogin = false,
             itemNotiType = NotiType.SALE_START,
             itemNotiDate = LocalDateTime(2024, 3, 22, 13, 0),
+        ),
+        snackbarHostState = SnackbarHostState(),
+        onTextChange = { _, _ -> },
+        setNotiInfo = { },
+        onSelectFolder = {},
+        onClickSave = {},
+        updateModalData = {},
+    )
+}
+
+@Preview(showSystemUi = true)
+@Composable
+fun PreviewLinkSharingWishUploadScreenFirstLoading() {
+    LinkSharingWishUploadScreen(
+        uiModel = ParsingUploadItemUiModel(
+            isLogin = true,
+            parseState = WishBoardState.Loading,
         ),
         snackbarHostState = SnackbarHostState(),
         onTextChange = { _, _ -> },

@@ -96,7 +96,7 @@
     <string name="wish_item_upload_noti">상품 일정 알림</string>
     <string name="wish_item_upload_shop_link">쇼핑몰 링크</string>
     <string name="wish_item_upload_shop_link_guide">복사한 링크로 아이템을 불러올 수 있어요!</string>
-    <string name="wish_item_upload_memo">브랜드, 사이즈, 컬러 등 아이템 정보를 메모로 남겨보세요!😉</string>
+    <string name="wish_item_upload_memo">브랜드, 사이즈, 컬러 등 아이템 정보를 메모로 남겨보세요! 😉</string>
 
     <!-- Noti -->
     <string name="noti">알림</string>
@@ -167,6 +167,9 @@
     <string name="dialog_withdraw_confirm_btn_text">탈퇴</string>
     <string name="dialog_withdraw_email_error">이메일을 다시 확인해 주세요.</string>
 
+    <string name="dialog_overwrite_parsed_item_title">아이템 정보 덮어쓰기</string>
+    <string name="dialog_overwrite_parsed_item_description">불러온 아이템 정보로\n기존에 입력된 내용이 변경될 수 있어요.\n그래도 불러올까요?</string>
+
     <!-- Empty -->
     <string name="empty_wishlist_guide_text">앗, 아이템이 없어요!\n갖고 싶은 아이템을 등록해 보세요!</string>
     <string name="empty_cart_guide_text">앗, 장바구니가 비어있어요!\n구매할 아이템을 장바구니에 담아보세요!</string>
@@ -181,7 +184,8 @@
     <string name="modal_noti_setting_time_delimiter">:</string>
 
     <string name="modal_shop_link_title">쇼핑몰 링크</string>
-    <string name="modal_shop_link_item_load_btn_text">아이템 불러오기</string>
+    <string name="item_load_btn_text">불러오기</string>
+    <string name="modal_shop_link_item_load_btn_text">아이템 정보 불러오기</string>
     <string name="modal_shop_link_placeholder">쇼핑몰 링크를 입력해 주세요.</string>
     <string name="modal_shop_link_error">쇼핑몰 링크를 다시 확인해 주세요.</string>
 
@@ -193,5 +197,9 @@
 
     <string name="modal_image_upload_camera">카메라로 촬영하기</string>
     <string name="modal_image_upload_gallery">사진 선택하기</string>
+
+    <!-- Clipboard item load -->
+    <string name="clipboard_item_load_toast_message">복사한 링크에서 아이템 정보를 불러올까요?</string>
+    <string name="item_parsing_failure_message">앗, 아이템 정보를 불러오지 못했어요!</string>
 
 </resources>

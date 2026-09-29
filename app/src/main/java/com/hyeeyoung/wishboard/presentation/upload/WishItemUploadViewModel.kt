@@ -6,6 +6,7 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.core.extension.onFailure
 import com.hyeeyoung.wishboard.data.local.WishBoardPreference
@@ -25,6 +26,7 @@ import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
 import com.hyeeyoung.wishboard.presentation.sign.model.snackbar.SnackbarMessage
 import com.hyeeyoung.wishboard.presentation.sign.model.snackbar.WishBoardSnackbarVisuals
 import com.hyeeyoung.wishboard.presentation.upload.model.ManualUploadItemUiModel
+import com.hyeeyoung.wishboard.presentation.upload.model.ParsedItemPreview
 import com.hyeeyoung.wishboard.presentation.upload.model.ParsingUploadItemUiModel
 import com.hyeeyoung.wishboard.presentation.upload.model.UploadImage
 import com.hyeeyoung.wishboard.presentation.util.WishBoardEventBus
@@ -75,11 +77,20 @@ class WishItemUploadViewModel @Inject constructor(
         }
     }
 
-    fun getParsedWishItem(site: String) {
+    fun getParsedWishItem(uploadType: WishItemUploadType, context: Context, site: String) {
+        when (uploadType) {
+            WishItemUploadType.PARSING -> getParsedWishItemForParsing(site)
+            WishItemUploadType.MANUAL -> getParsedWishItemForManual(context, site)
+        }
+    }
+
+    private fun getParsedWishItemForParsing(site: String) {
         _parsingUiModel.update { it.copy(isLogin = localStorage.isLogin) }
         if (!localStorage.isLogin) {
             return
         }
+
+        _parsingUiModel.update { it.copy(parseState = WishBoardState.Loading) }
 
         val itemSite = site.getValidUrl() ?: ""
         viewModelScope.launch {
@@ -90,16 +101,80 @@ class WishItemUploadViewModel @Inject constructor(
                         itemPrice = TextFieldValue(parsedItem?.price ?: ""),
                         downloadImageUrl = parsedItem?.image,
                         itemUrl = itemSite,
+                        parseState = WishBoardState.Success(Unit),
                     )
                 }
             }.onFailure { _, _, _ ->
                 _parsingUiModel.update {
                     it.copy(
                         itemUrl = itemSite,
+                        parseState = WishBoardState.Failure,
                     )
                 }
                 updateSnackbarMessage("앗, 아이템 정보를 불러오지 못했어요🥲")
             }
+        }
+    }
+
+    /**
+     * 수동 등록 전용 파싱 api 호출 함수
+     * 기존에 입력된 내용(이미지/상품명/가격)이 있다면 바로 덮어쓰지 않고
+     * [ManualUploadItemUiModel.pendingParsedItem]에 담아 덮어쓰기 확인을 받은 뒤 [resolvePendingParsedItem]에서 반영한다.
+     */
+    private fun getParsedWishItemForManual(context: Context, site: String) {
+        if (_manualUploadUiModel.value.parsedItemFetchState is WishBoardState.Loading) return
+        _manualUploadUiModel.update { it.copy(parsedItemFetchState = WishBoardState.Loading) }
+
+        val itemSite = site.getValidUrl() ?: site
+        viewModelScope.launch {
+            getParsedItemInfoUseCase(itemSite).onSuccess { parsedItem ->
+                val current = _manualUploadUiModel.value
+                val hasExistingContent = current.images.isNotEmpty() ||
+                    current.itemName.text.isNotBlank() ||
+                    current.itemPrice.text.isNotBlank()
+                val preview = ParsedItemPreview(
+                    itemName = parsedItem?.name,
+                    itemPrice = parsedItem?.price,
+                    imageUrl = parsedItem?.image,
+                    site = itemSite,
+                )
+
+                if (hasExistingContent) {
+                    _manualUploadUiModel.update {
+                        it.copy(parsedItemFetchState = WishBoardState.Success(Unit), pendingParsedItem = preview)
+                    }
+                } else {
+                    _manualUploadUiModel.update { it.copy(parsedItemFetchState = WishBoardState.Success(Unit)) }
+                    overwriteWithParsedItem(preview)
+                }
+            }.onFailure { _, _, _ ->
+                _manualUploadUiModel.update {
+                    it.copy(parsedItemFetchState = WishBoardState.Failure, itemUrl = TextFieldValue(itemSite))
+                }
+                updateSnackbarMessage(context.getString(R.string.item_parsing_failure_message))
+            }
+        }
+    }
+
+    /** 덮어쓰기 확인 알럿에서 "불러오기"(overwrite = true)를 누르면 전체를, "취소"(overwrite = false)를 누르면 쇼핑몰 링크만 반영한다. */
+    fun resolvePendingParsedItem(overwrite: Boolean) {
+        val preview = _manualUploadUiModel.value.pendingParsedItem ?: return
+        if (overwrite) {
+            overwriteWithParsedItem(preview)
+        } else {
+            _manualUploadUiModel.update { it.copy(itemUrl = TextFieldValue(preview.site)) }
+        }
+        _manualUploadUiModel.update { it.copy(pendingParsedItem = null) }
+    }
+
+    private fun overwriteWithParsedItem(preview: ParsedItemPreview) {
+        _manualUploadUiModel.update {
+            it.copy(
+                itemName = TextFieldValue(preview.itemName ?: ""),
+                itemPrice = TextFieldValue(preview.itemPrice ?: ""),
+                itemUrl = TextFieldValue(preview.site),
+                images = preview.imageUrl?.let { url -> listOf(UploadImage.Remote(url)) } ?: emptyList(),
+            )
         }
     }
 
@@ -208,6 +283,8 @@ class WishItemUploadViewModel @Inject constructor(
     }
 
     private fun setWishItemUploadModel(itemDetail: WishItemDetailUiModel) {
+        _manualUploadUiModel.update { it.copy(itemFetchState = WishBoardState.Loading) }
+
         viewModelScope.launch {
             getWishItemUseCase(itemDetail.id).onSuccess { detail ->
                 val item = WishItemDetailUiModel.fromDomain(detail)
@@ -228,9 +305,11 @@ class WishItemUploadViewModel @Inject constructor(
                             item.folderName,
                         ) { id, name -> FolderItem(id = id, name = name) },
                         version = detail.version,
+                        itemFetchState = WishBoardState.Success(Unit),
                     )
                 }
             }.onFailure { exception, _, _ ->
+                _manualUploadUiModel.update { it.copy(itemFetchState = WishBoardState.Failure) }
                 updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
             }
         }
