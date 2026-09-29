@@ -1,7 +1,10 @@
 package com.hyeeyoung.wishboard.presentation.common
 
 import android.annotation.SuppressLint
+import android.content.ActivityNotFoundException
+import android.content.Intent
 import android.view.ViewGroup
+import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.compose.BackHandler
@@ -97,7 +100,24 @@ fun WebView(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT,
                 )
-                webViewClient = WebViewClient()
+                webViewClient = object : WebViewClient() {
+                    // 쇼핑몰 단축 URL(naver.me 등)이 자체 앱으로 열기 위한 커스텀 스킴으로 리다이렉트하는
+                    // 경우가 있는데, WebView는 http(s)가 아닌 스킴을 로드하지 못해 ERR_UNKNOWN_URL_SCHEME로
+                    // 실패한다. http(s)가 아니면 외부 앱(Intent)으로 넘겨 처리한다.
+                    override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
+                        val uri = request.url
+                        if (uri.scheme == "http" || uri.scheme == "https") {
+                            return false
+                        }
+
+                        try {
+                            context.startActivity(Intent(Intent.ACTION_VIEW, uri))
+                        } catch (e: ActivityNotFoundException) {
+                            // 처리할 수 있는 앱이 없으면 무시한다.
+                        }
+                        return true
+                    }
+                }
                 settings.apply {
                     javaScriptEnabled = true
                     javaScriptCanOpenWindowsAutomatically = true
