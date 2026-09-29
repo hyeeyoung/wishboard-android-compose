@@ -40,6 +40,8 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -442,9 +444,12 @@ private fun MemoSection(
     val focusRequester = remember { FocusRequester() }
     val bringIntoViewRequester = remember { BringIntoViewRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
+    var textFieldValue by remember { mutableStateOf(TextFieldValue(memoInput)) }
 
     LaunchedEffect(isEditing) {
         if (isEditing) {
+            // 편집 모드에 진입할 때 커서가 메모 맨 끝을 가리키도록 한다.
+            textFieldValue = TextFieldValue(text = memoInput, selection = TextRange(memoInput.length))
             focusRequester.requestFocus()
             keyboardController?.show()
             // 키보드가 올라오는 애니메이션이 끝난 뒤 스크롤해야 필드가 정확히 보인다.
@@ -485,8 +490,11 @@ private fun MemoSection(
                         .fillMaxWidth()
                         .focusRequester(focusRequester)
                         .bringIntoViewRequester(bringIntoViewRequester),
-                    value = memoInput,
-                    onValueChange = onMemoInputChanged,
+                    value = textFieldValue,
+                    onValueChange = {
+                        textFieldValue = it
+                        onMemoInputChanged(it.text)
+                    },
                     textStyle = WishBoardTheme.typography.suitD2.copy(color = WishBoardTheme.colors.gray700),
                     cursorBrush = SolidColor(WishBoardTheme.colors.gray700),
                     decorationBox = { innerTextField ->
