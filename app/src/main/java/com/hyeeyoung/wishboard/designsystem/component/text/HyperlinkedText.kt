@@ -16,6 +16,7 @@ import androidx.navigation.compose.rememberNavController
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.presentation.util.extension.getDomainName
 import com.hyeeyoung.wishboard.presentation.util.extension.moveToWebView
+import com.hyeeyoung.wishboard.presentation.util.extension.withScheme
 
 private const val GROUP_NAME_TAG = "url"
 
@@ -50,7 +51,10 @@ fun HyperlinkText(
                         style = SpanStyle(color = Color(0xFF3776E7)),
                     ),
                     linkInteractionListener = {
-                        navController.moveToWebView(title = url.getDomainName(), url = url)
+                        // Patterns.WEB_URL로 매칭된 링크는 스킴이 없을 수 있어(ex. "ver.me/xxx"),
+                        // 도메인 추출과 웹뷰 로딩 모두 스킴을 보정한 url을 사용한다.
+                        val normalizedUrl = url.withScheme()
+                        navController.moveToWebView(title = normalizedUrl.getDomainName(), url = normalizedUrl)
                     },
                 ),
                 start = length - url.length,
