@@ -283,6 +283,8 @@ class WishItemUploadViewModel @Inject constructor(
     }
 
     private fun setWishItemUploadModel(itemDetail: WishItemDetailUiModel) {
+        _manualUploadUiModel.update { it.copy(itemFetchState = WishBoardState.Loading) }
+
         viewModelScope.launch {
             getWishItemUseCase(itemDetail.id).onSuccess { detail ->
                 val item = WishItemDetailUiModel.fromDomain(detail)
@@ -303,9 +305,11 @@ class WishItemUploadViewModel @Inject constructor(
                             item.folderName,
                         ) { id, name -> FolderItem(id = id, name = name) },
                         version = detail.version,
+                        itemFetchState = WishBoardState.Success(Unit),
                     )
                 }
             }.onFailure { exception, _, _ ->
+                _manualUploadUiModel.update { it.copy(itemFetchState = WishBoardState.Failure) }
                 updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
             }
         }

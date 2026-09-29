@@ -162,19 +162,24 @@ fun WishUploadScreen(
         viewModel.getFolders(uploadType = WishItemUploadType.MANUAL)
     }
 
+    // 수정 화면은 기존 아이템 정보(쇼핑몰 링크 포함)를 비동기로 불러오므로, 그 조회가 끝나기 전까지는
+    // uiModel.itemUrl이 아직 비어있는 상태다. 조회 완료 전에 클립보드 검사가 실행되면 실제로는 링크가
+    // 있는 아이템인데도 비어있다고 오판해 토스트가 잘못 노출될 수 있어, 조회 중에는 검사를 건너뛴다.
+    fun checkClipboard() {
+        if (uiModel.itemFetchState is WishBoardState.Loading) return
+
+        val url = clipboardManager.getText()?.text?.getValidUrl()
+        Timber.e("hello : $url")
+        // 이미 쇼핑몰 링크가 입력되어 있다면 클립보드에 값이 있어도 토스트를 노출하지 않는다.
+        if (url != null && url != lastCheckedClipboardUrl && uiModel.itemUrl.text.isBlank()) {
+            lastCheckedClipboardUrl = url
+            clipboardItemUrl = url
+        }
+    }
+
     // ON_RESUME 시점에는 아직 윈도우가 포커스를 되찾기 전이라 클립보드를 읽으면 null이 반환될 수 있어,
     // 윈도우가 실제로 포커스를 되찾는 시점(포그라운드 복귀 포함)에 맞춰 클립보드를 확인한다.
     DisposableEffect(view) {
-        fun checkClipboard() {
-            val url = clipboardManager.getText()?.text?.getValidUrl()
-            Timber.e("hello : $url")
-            // 이미 쇼핑몰 링크가 입력되어 있다면 클립보드에 값이 있어도 토스트를 노출하지 않는다.
-            if (url != null && url != lastCheckedClipboardUrl && uiModel.itemUrl.text.isBlank()) {
-                lastCheckedClipboardUrl = url
-                clipboardItemUrl = url
-            }
-        }
-
         // 리스너는 등록 이후의 포커스 변화만 알려주므로, 등록 시점에 이미 포커스를 갖고 있는
         // 경우(예: 화면 최초 진입)를 놓치지 않도록 현재 포커스 상태도 함께 확인한다.
         if (view.hasWindowFocus()) {
@@ -188,6 +193,13 @@ fun WishUploadScreen(
         }
         view.viewTreeObserver.addOnWindowFocusChangeListener(listener)
         onDispose { view.viewTreeObserver.removeOnWindowFocusChangeListener(listener) }
+    }
+
+    // 최초 진입 시 우연히 조회 중이라 위 검사를 건너뛰었을 수 있으므로, 조회가 끝나는 시점에 다시 확인한다.
+    LaunchedEffect(uiModel.itemFetchState) {
+        if (uiModel.itemFetchState !is WishBoardState.Loading) {
+            checkClipboard()
+        }
     }
 
     WishBoardGlobalSnackbarMessage(snackbarChannel = viewModel.snackBarChannel)

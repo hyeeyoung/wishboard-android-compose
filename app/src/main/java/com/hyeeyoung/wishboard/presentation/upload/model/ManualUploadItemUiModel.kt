@@ -28,6 +28,8 @@ data class ManualUploadItemUiModel(
     val folderFetchState: WishBoardState<Unit> = WishBoardState.Idle,
     val folderAddState: WishBoardState<Unit> = WishBoardState.Idle,
     val parsedItemFetchState: WishBoardState<Unit> = WishBoardState.Idle,
+    /** 수정 화면 진입 시 기존 아이템 정보를 불러오는 상태. 신규 등록 플로우에서는 조회 자체가 없어 Idle로 유지된다. */
+    val itemFetchState: WishBoardState<Unit> = WishBoardState.Idle,
     /** 클립보드 링크로 불러온 상품 정보 중, 기존 입력 내용과의 덮어쓰기 여부를 확인받아야 하는 대기 상태 */
     val pendingParsedItem: ParsedItemPreview? = null,
     val version: Int = 0,
