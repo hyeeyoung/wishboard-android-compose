@@ -202,4 +202,7 @@
     <string name="clipboard_item_load_toast_message">복사한 링크에서 아이템 정보를 불러올까요?</string>
     <string name="item_parsing_failure_message">앗, 아이템 정보를 불러오지 못했어요!</string>
 
+    <!-- Wishlist filter -->
+    <string name="wishlist_filter_title">필터</string>
+
 </resources>

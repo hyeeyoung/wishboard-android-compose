@@ -6,7 +6,6 @@ import androidx.paging.cachedIn
 import com.hyeeyoung.wishboard.core.extension.onFailure
 import com.hyeeyoung.wishboard.data.local.WishBoardPreference
 import com.hyeeyoung.wishboard.domain.model.wish.WishItem
-import com.hyeeyoung.wishboard.domain.model.wish.WishItemOwnershipStatus
 import com.hyeeyoung.wishboard.domain.usecase.item.DeleteBulkWishItemsUseCase
 import com.hyeeyoung.wishboard.domain.usecase.item.GetTotalWishItemsUseCase
 import com.hyeeyoung.wishboard.domain.usecase.item.GetWishListUseCase
@@ -16,7 +15,9 @@ import com.hyeeyoung.wishboard.presentation.common.BaseViewModel
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
 import com.hyeeyoung.wishboard.presentation.sign.model.snackbar.SnackbarMessage
 import com.hyeeyoung.wishboard.presentation.util.WishBoardEventBus
+import com.hyeeyoung.wishboard.presentation.wish.model.WishListFilterType
 import com.hyeeyoung.wishboard.presentation.wish.model.WishListUiModel
+import com.hyeeyoung.wishboard.presentation.wish.model.toItemStatus
 import com.hyeeyoung.wishboard.presentation.wish.model.WishListViewType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -47,11 +48,11 @@ class WishListViewModel @Inject constructor(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val wishList: Flow<PagingData<WishItem>> = _uiModel
-        .map { it.isExcludeOwnedItems }
+        .map { it.filterType }
         .distinctUntilChanged()
-        .flatMapLatest { isExclude ->
+        .flatMapLatest { filterType ->
             getWishListUseCase(
-                itemStatus = if (isExclude) WishItemOwnershipStatus.WISH else null,
+                itemStatus = filterType.toItemStatus(),
             )
         }
         .cachedIn(viewModelScope)
@@ -123,10 +124,10 @@ class WishListViewModel @Inject constructor(
         localStorage.wishListViewType = newViewType.name
     }
 
-    fun updateExcludeOwnedItems(isExclude: Boolean) {
+    fun updateFilterType(filterType: WishListFilterType) {
         _uiModel.update {
             it.copy(
-                isExcludeOwnedItems = isExclude,
+                filterType = filterType,
                 isAllSelected = false,
                 selectedItemIds = emptySet(),
                 excludedItemIds = emptySet(),
@@ -212,7 +213,7 @@ class WishListViewModel @Inject constructor(
         viewModelScope.launch {
             val result = deleteBulkWishItemsUseCase(
                 scope = target.scope,
-                itemStatus = if (model.isExcludeOwnedItems) WishItemOwnershipStatus.WISH else null,
+                itemStatus = model.filterType.toItemStatus(),
                 itemIds = target.itemIds,
                 excludeItemIds = target.excludeItemIds,
             )
