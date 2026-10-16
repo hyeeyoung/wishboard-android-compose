@@ -67,6 +67,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.config.BottomBarSelectionModeState
 import com.hyeeyoung.wishboard.config.GlobalState
+import com.hyeeyoung.wishboard.config.MoreOptionsState
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardEmptyView
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardGlobalSnackbarMessage
@@ -152,6 +153,7 @@ fun WishListScreen(
         uiModel.selectedItemIds,
         uiModel.excludedItemIds,
         uiModel.totalItemCount,
+        wishList.itemCount,
     ) {
         GlobalState.bottomBarSelectionModeState.value = if (uiModel.isSelectionMode) {
             val selectedCount = if (uiModel.isAllSelected) {
@@ -160,12 +162,39 @@ fun WishListScreen(
                 uiModel.selectedItemIds.size
             }
 
+            val isItemSelected: (Long) -> Boolean = { id ->
+                if (uiModel.isAllSelected) {
+                    !uiModel.excludedItemIds.contains(id)
+                } else {
+                    uiModel.selectedItemIds.contains(id)
+                }
+            }
+            val selectedItems = (0 until wishList.itemCount)
+                .mapNotNull { wishList[it] }
+                .filter { isItemSelected(it.id) }
+            val allWish = selectedItems.isNotEmpty() && selectedItems.all {
+                it.itemOwnershipStatus == WishItemOwnershipStatus.WISH
+            }
+            val allOwned = selectedItems.isNotEmpty() && selectedItems.all {
+                it.itemOwnershipStatus == WishItemOwnershipStatus.OWNED
+            }
+            val ownedCountInSelected = selectedItems.count { it.itemOwnershipStatus == WishItemOwnershipStatus.OWNED }
+            val wishCountInSelected = selectedItems.count { it.itemOwnershipStatus == WishItemOwnershipStatus.WISH }
+
             BottomBarSelectionModeState(
                 selectedItemCount = selectedCount,
                 // excludedItemIds가 있으면 실제로는 전체 선택 상태가 아니므로 버튼엔 "전체 선택"이 노출돼야 한다.
                 isAllSelected = uiModel.isAllSelected && uiModel.excludedItemIds.isEmpty(),
                 onClickSelectAll = viewModel::toggleSelectAll,
                 onClickDelete = { dialogData = DialogData.BulkWishItemDelete(selectedCount) },
+                moreOptions = MoreOptionsState(
+                    showConvertToWish = !allWish,
+                    showConvertToOwned = !allOwned,
+                    // 위시템으로 전환: 소장템 아이템 수 표시
+                    onClickConvertToWish = { dialogData = DialogData.BulkWishItemToWish(ownedCountInSelected) },
+                    // 소장템으로 전환: 위시템 아이템 수 표시
+                    onClickConvertToOwned = { dialogData = DialogData.BulkWishItemToOwned(wishCountInSelected) },
+                ),
             )
         } else {
             null
@@ -223,8 +252,41 @@ fun WishListScreen(
     WishBoardTwoButtonDialog(
         dialogData = dialogData,
         onClickConfirm = {
-            val allLoadedItemIds = (0 until wishList.itemCount).mapNotNull { idx -> wishList[idx]?.id }
-            viewModel.deleteSelectedItems(allLoadedItemIds)
+            val isItemSelected: (Long) -> Boolean = { id ->
+                if (uiModel.isAllSelected) {
+                    !uiModel.excludedItemIds.contains(id)
+                } else {
+                    uiModel.selectedItemIds.contains(id)
+                }
+            }
+            val loadedItems = (0 until wishList.itemCount).mapNotNull { wishList[it] }
+
+            when (dialogData) {
+                is DialogData.BulkWishItemToWish -> {
+                    // 선택된 아이템 중 소장템(OWNED)만 전환 대상
+                    val targetIds = loadedItems
+                        .filter { isItemSelected(it.id) && it.itemOwnershipStatus == WishItemOwnershipStatus.OWNED }
+                        .map { it.id }
+                    viewModel.convertSelectedItems(
+                        targetStatus = WishItemOwnershipStatus.WISH,
+                        itemIds = targetIds,
+                    )
+                }
+                is DialogData.BulkWishItemToOwned -> {
+                    // 선택된 아이템 중 위시템(WISH)만 전환 대상
+                    val targetIds = loadedItems
+                        .filter { isItemSelected(it.id) && it.itemOwnershipStatus == WishItemOwnershipStatus.WISH }
+                        .map { it.id }
+                    viewModel.convertSelectedItems(
+                        targetStatus = WishItemOwnershipStatus.OWNED,
+                        itemIds = targetIds,
+                    )
+                }
+                else -> {
+                    val allLoadedItemIds = loadedItems.map { it.id }
+                    viewModel.deleteSelectedItems(allLoadedItemIds)
+                }
+            }
         },
         onDismissRequest = { dialogData = null },
     )

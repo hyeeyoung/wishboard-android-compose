@@ -7,6 +7,7 @@ import androidx.paging.map
 import com.hyeeyoung.wishboard.data.remote.model.common.PageSize
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemOwnershipStatus
 import com.hyeeyoung.wishboard.data.remote.model.wish.DeleteBulkItemsRequestDto
+import com.hyeeyoung.wishboard.data.remote.model.wish.UpdateBulkItemStatusRequestDto
 import com.hyeeyoung.wishboard.data.remote.model.wish.WishItemOwnershipRequestDto
 import com.hyeeyoung.wishboard.data.remote.model.wish.WishItemUploadInfoDto
 import com.hyeeyoung.wishboard.data.remote.paging.GeneralPagingSource
@@ -156,6 +157,22 @@ class ItemRepositoryImpl @Inject constructor(
                 ),
             ).data.itemStatus == WishItemOwnershipStatus.OWNED.name
         }
+
+    override suspend fun updateBulkItemStatus(
+        scope: BulkDeleteScope,
+        itemStatus: WishItemOwnershipStatus?,
+        targetStatus: WishItemOwnershipStatus,
+        itemIds: List<Long>?,
+    ): Result<Unit> = runCatching {
+        itemService.updateBulkItemStatus(
+            scope = scope.name,
+            itemStatus = itemStatus?.name,
+            request = UpdateBulkItemStatusRequestDto(
+                targetStatus = targetStatus.name,
+                itemIds = itemIds,
+            ),
+        )
+    }
 
     companion object {
         private const val FORM_DATA_IMAGE_KEY = "itemImages"

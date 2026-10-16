@@ -4,6 +4,7 @@ import com.hyeeyoung.wishboard.data.remote.model.base.BaseResponse
 import com.hyeeyoung.wishboard.data.remote.model.base.BaseResponseNoData
 import com.hyeeyoung.wishboard.data.remote.model.base.PagedResponse
 import com.hyeeyoung.wishboard.data.remote.model.wish.DeleteBulkItemsRequestDto
+import com.hyeeyoung.wishboard.data.remote.model.wish.UpdateBulkItemStatusRequestDto
 import com.hyeeyoung.wishboard.data.remote.model.wish.WishItemDetailDto
 import com.hyeeyoung.wishboard.data.remote.model.wish.WishItemIdDto
 import com.hyeeyoung.wishboard.data.remote.model.wish.WishItemOwnershipRequestDto
@@ -79,4 +80,11 @@ interface ItemService {
         @Path("itemId") itemId: Long,
         @Body ownership: WishItemOwnershipRequestDto,
     ): BaseResponse<WishItemDetailDto>
+
+    @PUT("item/bulk/status")
+    suspend fun updateBulkItemStatus(
+        @Query("scope") scope: String,
+        @Query("itemStatus") itemStatus: String? = null,
+        @Body request: UpdateBulkItemStatusRequestDto,
+    ): BaseResponseNoData
 }

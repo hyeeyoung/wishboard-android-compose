@@ -35,6 +35,7 @@ fun MainScreen(wishNavController: NavHostController, isFirstLaunch: Boolean, onC
                 isAllSelected = currentSelectionModeState.isAllSelected,
                 onClickSelectAll = currentSelectionModeState.onClickSelectAll,
                 onClickDelete = currentSelectionModeState.onClickDelete,
+                moreOptions = currentSelectionModeState.moreOptions,
             )
         } else {
             WishBoardBottomBar(

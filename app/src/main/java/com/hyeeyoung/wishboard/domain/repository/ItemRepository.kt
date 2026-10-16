@@ -36,4 +36,11 @@ interface ItemRepository {
     suspend fun getParsedItemInfo(site: String): Result<ParsedWishItem?>
 
     suspend fun updateItemOwnership(itemId: Long, isOwnedItem: Boolean): Result<Boolean>
+
+    suspend fun updateBulkItemStatus(
+        scope: BulkDeleteScope,
+        itemStatus: WishItemOwnershipStatus? = null,
+        targetStatus: WishItemOwnershipStatus,
+        itemIds: List<Long>? = null,
+    ): Result<Unit>
 }

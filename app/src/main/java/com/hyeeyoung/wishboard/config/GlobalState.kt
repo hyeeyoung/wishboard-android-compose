@@ -16,4 +16,12 @@ data class BottomBarSelectionModeState(
     val isAllSelected: Boolean,
     val onClickSelectAll: () -> Unit,
     val onClickDelete: () -> Unit,
+    val moreOptions: MoreOptionsState? = null,
+)
+
+data class MoreOptionsState(
+    val showConvertToWish: Boolean,
+    val showConvertToOwned: Boolean,
+    val onClickConvertToWish: () -> Unit,
+    val onClickConvertToOwned: () -> Unit,
 )

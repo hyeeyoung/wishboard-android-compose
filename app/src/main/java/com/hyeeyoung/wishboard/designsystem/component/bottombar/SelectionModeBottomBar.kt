@@ -7,13 +7,23 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import com.hyeeyoung.wishboard.R
+import com.hyeeyoung.wishboard.config.MoreOptionsState
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardDivider
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
@@ -25,9 +35,11 @@ fun SelectionModeBottomBar(
     isAllSelected: Boolean,
     onClickSelectAll: () -> Unit,
     onClickDelete: () -> Unit,
+    moreOptions: MoreOptionsState? = null,
 ) {
     val isEnabled = selectedItemCount > 0
     val actionTextColor = if (isEnabled) WishBoardTheme.colors.gray700 else WishBoardTheme.colors.gray300
+    var isMenuExpanded by remember { mutableStateOf(false) }
 
     Surface(
         modifier = Modifier
@@ -60,14 +72,74 @@ fun SelectionModeBottomBar(
                     color = WishBoardTheme.colors.gray200,
                 )
 
-                Text(
-                    modifier = Modifier
-                        .align(Alignment.CenterEnd)
-                        .noRippleClickable(enabled = isEnabled) { onClickDelete() },
-                    text = "삭제",
-                    style = WishBoardTheme.typography.suitB2,
-                    color = actionTextColor,
-                )
+                if (moreOptions != null) {
+                    Box(modifier = Modifier.align(Alignment.CenterEnd)) {
+                        Text(
+                            modifier = Modifier.noRippleClickable(enabled = isEnabled) { isMenuExpanded = true },
+                            text = stringResource(R.string.more_options),
+                            style = WishBoardTheme.typography.suitB2,
+                            color = actionTextColor,
+                        )
+                        DropdownMenu(
+                            expanded = isMenuExpanded,
+                            onDismissRequest = { isMenuExpanded = false },
+                            offset = DpOffset(x = 0.dp, y = 4.dp),
+                        ) {
+                            if (moreOptions.showConvertToWish) {
+                                DropdownMenuItem(
+                                    text = {
+                                        Text(
+                                            text = stringResource(R.string.context_menu_convert_to_wish),
+                                            style = WishBoardTheme.typography.suitB3,
+                                            color = WishBoardTheme.colors.gray700,
+                                        )
+                                    },
+                                    onClick = {
+                                        isMenuExpanded = false
+                                        moreOptions.onClickConvertToWish()
+                                    },
+                                )
+                            }
+                            if (moreOptions.showConvertToOwned) {
+                                DropdownMenuItem(
+                                    text = {
+                                        Text(
+                                            text = stringResource(R.string.context_menu_convert_to_owned),
+                                            style = WishBoardTheme.typography.suitB3,
+                                            color = WishBoardTheme.colors.gray700,
+                                        )
+                                    },
+                                    onClick = {
+                                        isMenuExpanded = false
+                                        moreOptions.onClickConvertToOwned()
+                                    },
+                                )
+                            }
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        text = stringResource(R.string.delete),
+                                        style = WishBoardTheme.typography.suitB3,
+                                        color = WishBoardTheme.colors.pink700,
+                                    )
+                                },
+                                onClick = {
+                                    isMenuExpanded = false
+                                    onClickDelete()
+                                },
+                            )
+                        }
+                    }
+                } else {
+                    Text(
+                        modifier = Modifier
+                            .align(Alignment.CenterEnd)
+                            .noRippleClickable(enabled = isEnabled) { onClickDelete() },
+                        text = stringResource(R.string.delete),
+                        style = WishBoardTheme.typography.suitB2,
+                        color = actionTextColor,
+                    )
+                }
             }
         }
     }
