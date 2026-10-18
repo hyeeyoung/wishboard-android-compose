@@ -13,4 +13,5 @@ data class WishListUiModel(
     val selectedItemIds: Set<Long> = emptySet(),
     val excludedItemIds: Set<Long> = emptySet(),
     val deleteSelectedItemsState: WishBoardState<Unit> = WishBoardState.Idle,
+    val unreadNotiCount: Int = 0,
 )

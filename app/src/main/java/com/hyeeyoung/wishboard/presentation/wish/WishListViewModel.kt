@@ -7,6 +7,8 @@ import com.hyeeyoung.wishboard.core.extension.onFailure
 import com.hyeeyoung.wishboard.data.local.WishBoardPreference
 import com.hyeeyoung.wishboard.domain.model.wish.WishItem
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemOwnershipStatus
+import com.hyeeyoung.wishboard.domain.usecase.event.ConnectEventStreamUseCase
+import com.hyeeyoung.wishboard.domain.usecase.event.ObserveUnreadStatusUseCase
 import com.hyeeyoung.wishboard.domain.usecase.item.DeleteBulkWishItemsUseCase
 import com.hyeeyoung.wishboard.domain.usecase.item.GetTotalWishItemsUseCase
 import com.hyeeyoung.wishboard.domain.usecase.item.GetWishListUseCase
@@ -46,6 +48,8 @@ class WishListViewModel @Inject constructor(
     getTotalWishItemsUseCase: GetTotalWishItemsUseCase,
     private val deleteBulkWishItemsUseCase: DeleteBulkWishItemsUseCase,
     private val updateBulkItemStatusUseCase: UpdateBulkItemStatusUseCase,
+    observeUnreadStatusUseCase: ObserveUnreadStatusUseCase,
+    connectEventStreamUseCase: ConnectEventStreamUseCase,
 ) : BaseViewModel() {
     private var _uiModel = MutableStateFlow(WishListUiModel())
     val uiModel = _uiModel.asStateFlow()
@@ -75,6 +79,20 @@ class WishListViewModel @Inject constructor(
         initUiModel()
         refreshWishList()
         observeTotalItemCount(getTotalWishItemsUseCase)
+        observeUnreadNotiCount(observeUnreadStatusUseCase, connectEventStreamUseCase)
+    }
+
+    // 로그인 이후 위시리스트 탭에 진입하면 SSE 연결을 보장하고(이미 연결돼 있으면 무시), 안 읽은 알림 수를 구독한다.
+    private fun observeUnreadNotiCount(
+        observeUnreadStatusUseCase: ObserveUnreadStatusUseCase,
+        connectEventStreamUseCase: ConnectEventStreamUseCase,
+    ) {
+        connectEventStreamUseCase()
+        viewModelScope.launch {
+            observeUnreadStatusUseCase().collect { status ->
+                _uiModel.update { it.copy(unreadNotiCount = status.unreadCount) }
+            }
+        }
     }
 
     private fun refreshWishList() {

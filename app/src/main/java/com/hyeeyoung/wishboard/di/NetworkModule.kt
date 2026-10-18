@@ -75,6 +75,24 @@ object NetworkModule {
             }
         }.build()
 
+    /**
+     * SSE 전용 클라이언트. 서버가 이벤트가 없으면 30초마다 heartbeat만 보내므로 읽기 타임아웃을 끈다.
+     * 로깅/Chucker 인터셉터는 응답 본문을 끝까지 읽으려 해 스트림을 막을 수 있어 붙이지 않는다.
+     */
+    @Provides
+    @Singleton
+    @Named("Sse")
+    fun provideSseOkHttpClient(
+        addInfoInterceptor: AddInfoInterceptor,
+        interceptor: AuthInterceptor,
+    ): OkHttpClient =
+        OkHttpClient.Builder().apply {
+            connectTimeout(10, TimeUnit.SECONDS)
+            readTimeout(0, TimeUnit.SECONDS)
+            addInterceptor(addInfoInterceptor)
+            addInterceptor(interceptor)
+        }.build()
+
     @Provides
     @Singleton
     @Named("NonAuthenticated")

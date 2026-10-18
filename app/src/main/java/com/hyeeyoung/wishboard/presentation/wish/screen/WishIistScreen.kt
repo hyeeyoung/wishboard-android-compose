@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -71,6 +72,7 @@ import com.hyeeyoung.wishboard.config.MoreOptionsState
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardEmptyView
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardGlobalSnackbarMessage
+import com.hyeeyoung.wishboard.designsystem.component.badge.CountBadge
 import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.DialogData
 import com.hyeeyoung.wishboard.designsystem.component.loading.ThreeDotsLoadingView
@@ -533,6 +535,7 @@ fun WishlistScreen(
                     Box(modifier = Modifier.background(WishBoardTheme.colors.white)) {
                         WishlistTopBar(
                             isSelectionMode = uiModel.isSelectionMode,
+                            unreadNotiCount = uiModel.unreadNotiCount,
                             onClickCalendar = onClickCalendar,
                             onClickToggleSelectionMode = onClickToggleSelectionMode,
                         )
@@ -697,6 +700,7 @@ fun SelectableCircleButton(
 @Composable
 fun WishlistTopBar(
     isSelectionMode: Boolean,
+    unreadNotiCount: Int = 0,
     onClickCalendar: () -> Unit,
     onClickToggleSelectionMode: () -> Unit,
 ) {
@@ -729,12 +733,22 @@ fun WishlistTopBar(
                     onClick = onClickToggleSelectionMode,
                 )
 
-                WishBoardIconButton(
-                    size = 42.dp,
-                    iconRes = R.drawable.ic_main_top_bar_noti,
-                    contentDescription = "알림",
-                    onClick = onClickCalendar,
-                )
+                Box {
+                    WishBoardIconButton(
+                        size = 42.dp,
+                        iconRes = R.drawable.ic_main_top_bar_noti,
+                        contentDescription = "알림",
+                        onClick = onClickCalendar,
+                    )
+
+                    // 아이콘(24dp, 버튼 안 가운데) 우상단 기준 x +13dp, y -5dp 위치에 배지를 얹는다.
+                    CountBadge(
+                        count = unreadNotiCount,
+                        modifier = Modifier
+                            .align(Alignment.TopStart)
+                            .offset(x = 22.dp, y = 4.dp),
+                    )
+                }
             }
         }
     }
@@ -792,6 +806,7 @@ fun PreviewWishlistScreen() {
         uiModel = WishListUiModel(
             isSelectionMode = false,
             totalItemCount = wishItems.size,
+            unreadNotiCount = 2,
         ),
         lazyGridState = rememberLazyGridState(),
         lazyListState = rememberLazyListState(),
