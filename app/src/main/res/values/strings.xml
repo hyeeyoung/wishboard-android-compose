@@ -172,10 +172,6 @@
 
     <string name="dialog_logout_description">정말 로그아웃 하시겠어요?</string>
 
-    <string name="dialog_withdraw_title">회원 탈퇴</string>
-    <string name="dialog_withdraw_description">정말 탈퇴하시겠습니까?\n탈퇴 시 앱 내 모든 데이터가 사라집니다.\n서비스를 탈퇴하시려면 이메일을 입력해 주세요.</string>
-    <string name="dialog_withdraw_confirm_btn_text">탈퇴</string>
-    <string name="dialog_withdraw_email_error">이메일을 다시 확인해 주세요.</string>
 
     <string name="dialog_overwrite_parsed_item_title">아이템 정보 덮어쓰기</string>
     <string name="dialog_overwrite_parsed_item_description">불러온 아이템 정보로\n기존에 입력된 내용이 변경될 수 있어요.\n그래도 불러올까요?</string>
@@ -214,5 +210,11 @@
 
     <!-- Wishlist filter -->
     <string name="wishlist_filter_title">필터</string>
+
+    <!-- Withdrawal reason -->
+    <string name="withdrawal_reason_title">어떤 점이 아쉬우셨나요?</string>
+    <string name="withdrawal_reason_subtitle">소중한 의견을 남겨주시면 위시보드 개선에 큰 도움이 돼요.</string>
+    <string name="withdrawal_reason_button">탈퇴하기</string>
+    <string name="withdrawal_reason_etc_placeholder">탈퇴하시는 이유를 자유롭게 작성해 주세요</string>
 
 </resources>

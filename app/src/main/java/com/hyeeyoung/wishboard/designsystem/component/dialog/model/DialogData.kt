@@ -97,15 +97,6 @@ sealed class DialogData(
         ),
     )
 
-    data object Withdraw : DialogData(
-        dialogTextRes = WishBoardDialogTextRes(
-            titleRes = R.string.dialog_withdraw_title,
-            descriptionRes = R.string.dialog_withdraw_description,
-            dismissBtnTextRes = R.string.cancel,
-            confirmBtnTextRes = R.string.dialog_withdraw_confirm_btn_text,
-        ),
-    )
-
     data object OverwriteParsedItem : DialogData(
         dialogTextRes = WishBoardDialogTextRes(
             titleRes = R.string.dialog_overwrite_parsed_item_title,

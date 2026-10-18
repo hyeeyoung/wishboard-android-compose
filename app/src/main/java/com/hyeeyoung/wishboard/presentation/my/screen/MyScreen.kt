@@ -1,7 +1,6 @@
 package com.hyeeyoung.wishboard.presentation.my.screen
 
 import android.os.Build
-import android.view.View
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -28,7 +27,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,7 +35,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -55,7 +52,6 @@ import com.hyeeyoung.wishboard.designsystem.component.dialog.model.DialogData
 import com.hyeeyoung.wishboard.designsystem.component.dialog.screen.WishBoardTwoButtonDialog
 import com.hyeeyoung.wishboard.designsystem.component.divider.WishBoardThickDivider
 import com.hyeeyoung.wishboard.designsystem.component.image.Image
-import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardTextField
 import com.hyeeyoung.wishboard.designsystem.component.topbar.WishBoardMainTopBar
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.domain.model.user.UserInfo
@@ -74,7 +70,6 @@ fun MyScreen(
     viewModel: MyViewModel = hiltViewModel(),
 ) {
     val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
-    val keyboardController = LocalSoftwareKeyboardController.current
     val lazyListState = rememberLazyListState()
 
     WishBoardGlobalSnackbarMessage(snackbarChannel = viewModel.snackBarChannel)
@@ -101,16 +96,6 @@ fun MyScreen(
                 }
             }
         },
-        deleteAccount = {
-            viewModel.deleteAccount {
-                keyboardController?.hide()
-                navController.navigate(SignScreen.Main.route) {
-                    popUpTo(navController.graph.id) {
-                        inclusive = true
-                    }
-                }
-            }
-        },
         moveToWebView = { title, url ->
             navController.moveToWebView(title = title, url = url)
         },
@@ -128,14 +113,11 @@ fun MyScreen(
     navigate: (route: String) -> Unit,
     updatePushState: (Boolean) -> Unit,
     logout: () -> Unit,
-    deleteAccount: () -> Unit,
     moveToWebView: (title: String?, url: String) -> Unit,
     onRefresh: () -> Unit,
 ) {
     val context = LocalContext.current
     var dialogData by remember { mutableStateOf<DialogData?>(null) }
-    val withdrawalEmailInput = remember { mutableStateOf("") }
-    var isEmailMatched by remember { mutableStateOf<Boolean?>(null) }
 
     val myMenuComponents =
         listOf(
@@ -209,9 +191,7 @@ fun MyScreen(
             MyMenuComponent.Menu(
                 nameRes = R.string.my_menu_withdraw,
                 onClickMenu = {
-                    isEmailMatched = null
-                    withdrawalEmailInput.value = ""
-                    dialogData = DialogData.Withdraw
+                    navigate(MainScreen.MyWithdrawalReason.route)
                 },
             ),
         )
@@ -259,39 +239,13 @@ fun MyScreen(
             onClickConfirm = {
                 when (dialogData) {
                     DialogData.Logout -> logout()
-
-                    DialogData.Withdraw -> {
-                        val isMatched = withdrawalEmailInput.value.isNotBlank() &&
-                            withdrawalEmailInput.value.trimEnd() == uiModel.userInfo.email
-
-                        if (isMatched) {
-                            deleteAccount()
-                        } else {
-                            isEmailMatched = false
-                        }
-                    }
-
                     else -> {}
                 }
             },
             onDismissRequest = {
                 dialogData = null
             },
-            dismissOnConfirm = dialogData is DialogData.Logout ||
-                (dialogData is DialogData.Withdraw && isEmailMatched == true),
-            content = if (dialogData is DialogData.Withdraw) {
-                {
-                    WithdrawDialogContent(
-                        emailInput = withdrawalEmailInput,
-                        isIncorrectEmail = isEmailMatched,
-                        updateIsIncorrectEmail = {
-                            isEmailMatched = null
-                        },
-                    )
-                }
-            } else {
-                null
-            },
+            dismissOnConfirm = dialogData is DialogData.Logout,
         )
     }
 }
@@ -339,30 +293,6 @@ fun Profile(userInfo: UserInfo, onClickProfileEdit: () -> Unit) {
         BadgeButton(
             onClick = { onClickProfileEdit() },
             text = stringResource(id = R.string.edit),
-        )
-    }
-}
-
-@Composable
-fun WithdrawDialogContent(
-    emailInput: MutableState<String>,
-    isIncorrectEmail: Boolean?,
-    updateIsIncorrectEmail: (Boolean) -> Unit,
-) {
-    Column(
-        modifier = Modifier
-            .padding(start = 16.dp, end = 16.dp, top = 20.dp, bottom = 14.dp),
-    ) {
-        WishBoardTextField(
-            input = emailInput,
-            onTextChange = {
-                updateIsIncorrectEmail(false)
-            },
-
-            isError = isIncorrectEmail == false,
-            errorHidingStrategy = View.INVISIBLE,
-            placeholder = stringResource(id = R.string.sign_email_placeholder),
-            errorMsg = stringResource(id = R.string.dialog_withdraw_email_error),
         )
     }
 }
@@ -441,7 +371,6 @@ fun PreviewMyScreen() {
         navigate = {},
         updatePushState = {},
         logout = {},
-        deleteAccount = {},
         moveToWebView = { _, _ -> },
         onRefresh = {},
     )

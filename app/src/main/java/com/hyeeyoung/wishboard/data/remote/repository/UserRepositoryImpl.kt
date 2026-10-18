@@ -3,9 +3,11 @@ package com.hyeeyoung.wishboard.data.remote.repository
 import com.hyeeyoung.wishboard.data.local.WishBoardPreference
 import com.hyeeyoung.wishboard.data.remote.model.user.NicknameRequestDto
 import com.hyeeyoung.wishboard.data.remote.model.user.PasswordDto
+import com.hyeeyoung.wishboard.data.remote.model.user.WithdrawalFeedbackDto
 import com.hyeeyoung.wishboard.data.remote.service.UserService
 import com.hyeeyoung.wishboard.domain.model.user.UserInfo
 import com.hyeeyoung.wishboard.domain.model.user.UserProfile
+import com.hyeeyoung.wishboard.domain.model.user.WithdrawalReason
 import com.hyeeyoung.wishboard.domain.repository.UserRepository
 import com.hyeeyoung.wishboard.presentation.util.extension.toJson
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -26,6 +28,10 @@ class UserRepositoryImpl @Inject constructor(
 
         remoteUserInfo.copy(nickname = nickName).toDomain()
     }.onSuccess { localStorage.userInfo = it }
+
+    override suspend fun submitWithdrawalFeedback(reasonCode: String, detail: String?): Result<Unit> = runCatching {
+        userService.submitWithdrawalFeedback(WithdrawalFeedbackDto(reason = reasonCode, detail = detail))
+    }.map { }
 
     override suspend fun updateUserInfo(userProfile: UserProfile): Result<Unit> = runCatching {
         userService.updateUserInfo(
@@ -53,4 +59,8 @@ class UserRepositoryImpl @Inject constructor(
     }.onSuccess {
         localStorage.clear()
     }.map { }
+
+    override suspend fun getWithdrawalReasons(): Result<List<WithdrawalReason>> = runCatching {
+        userService.getWithdrawalReasons().data.map { it.toDomain() }
+    }
 }
