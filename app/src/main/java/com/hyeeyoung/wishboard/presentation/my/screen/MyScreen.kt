@@ -99,6 +99,7 @@ fun MyScreen(
         moveToWebView = { title, url ->
             navController.moveToWebView(title = title, url = url)
         },
+        getUserEmail = viewModel::getUserEmail,
         onRefresh = {
             viewModel.fetchUserInfo(isRefreshing = true)
         },
@@ -114,6 +115,7 @@ fun MyScreen(
     updatePushState: (Boolean) -> Unit,
     logout: () -> Unit,
     moveToWebView: (title: String?, url: String) -> Unit,
+    getUserEmail: () -> String,
     onRefresh: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -148,6 +150,7 @@ fun MyScreen(
                             Build.MODEL,
                             BuildConfig.VERSION_NAME,
                             Build.VERSION.SDK_INT,
+                            getUserEmail(),
                         ),
                     )
                 }
@@ -372,6 +375,7 @@ fun PreviewMyScreen() {
         updatePushState = {},
         logout = {},
         moveToWebView = { _, _ -> },
+        getUserEmail = { "wishboard@example.com" },
         onRefresh = {},
     )
 }

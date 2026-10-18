@@ -185,6 +185,9 @@ class MyViewModel @Inject constructor(
         }
     }
 
+    /** 문의하기 메일에 첨부하기 위해 프리퍼런스에 저장된 사용자 이메일을 반환한다. */
+    fun getUserEmail(): String = localStorage.userInfo.email
+
     fun setTokenForProfileImageUri() {
         _uiModel.update {
             it.copy(accessToken = localStorage.accessToken)
