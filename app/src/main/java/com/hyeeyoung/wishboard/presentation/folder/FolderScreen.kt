@@ -1,5 +1,6 @@
 package com.hyeeyoung.wishboard.presentation.folder
 
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -116,6 +117,12 @@ fun FolderScreen(
         onClickReorder = {
             wishNavController.navigate(route = MainScreen.FolderOrder.route)
         },
+        onClickEditThumbnail = { folderId, folderName ->
+            wishNavController.navigateIfResumed(
+                lifecycleOwner = lifecycleOwner,
+                route = "${MainScreen.FolderThumbnail.route}/$folderId/${Uri.encode(folderName)}",
+            )
+        },
     )
 
     WishBoardModal(
@@ -170,11 +177,20 @@ fun FolderScreen(
     deleteFolder: (id: Long?) -> Unit,
     showModal: (ModalData.Modal) -> Unit,
     onClickReorder: () -> Unit,
+    onClickEditThumbnail: (folderId: Long, folderName: String) -> Unit,
     clearModalData: () -> Unit,
 ) {
     var dialogData by remember { mutableStateOf<DialogData?>(null) }
     val context = LocalContext.current
-    val modalLauncher = rememberModalLauncher { isTopOption, data ->
+    val modalLauncher = rememberModalLauncher(
+        afterExtraOptionInput = { data ->
+            clearModalData()
+
+            if (data is ModalData.OptionModal.FolderMore) {
+                onClickEditThumbnail(data.folderId, data.folderName)
+            }
+        },
+    ) { isTopOption, data ->
         clearModalData()
 
         when (data) {
@@ -377,6 +393,7 @@ fun PreviewFolderScreen() {
         showModal = {},
         clearModalData = {},
         onClickReorder = {},
+        onClickEditThumbnail = { _, _ -> },
     )
 }
 
@@ -392,6 +409,7 @@ fun PreviewFolderScreenFirstLoading() {
         showModal = {},
         clearModalData = {},
         onClickReorder = {},
+        onClickEditThumbnail = { _, _ -> },
     )
 }
 

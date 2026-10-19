@@ -18,11 +18,19 @@ fun <T : Serializable> Intent.getSerializable(name: String, clazz: Class<T>): T?
 }
 
 @Composable
-fun rememberModalLauncher(afterModalDataInput: (Boolean, ModalData?) -> Unit) =
+fun rememberModalLauncher(
+    afterExtraOptionInput: (ModalData?) -> Unit = {},
+    afterModalDataInput: (Boolean, ModalData?) -> Unit,
+) =
     rememberLauncherForActivityResult(contract = ActivityResultContracts.StartActivityForResult()) {
         it.data?.let { intent ->
             val isTopOption = intent.getBooleanExtra(ModalActivity.ARG_TOP_OPTION, false)
+            val isExtraOption = intent.getBooleanExtra(ModalActivity.ARG_EXTRA_OPTION, false)
             val data = intent.getSerializable(ModalActivity.ARG_MODAL_DATA, ModalData::class.java)
-            afterModalDataInput(isTopOption, data)
+            if (isExtraOption) {
+                afterExtraOptionInput(data)
+            } else {
+                afterModalDataInput(isTopOption, data)
+            }
         }
     }

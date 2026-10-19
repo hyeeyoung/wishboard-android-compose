@@ -5,8 +5,10 @@ import com.hyeeyoung.wishboard.data.remote.model.base.BaseResponseNoData
 import com.hyeeyoung.wishboard.data.remote.model.base.PagedResponse
 import com.hyeeyoung.wishboard.data.remote.model.folder.FolderItemDto
 import com.hyeeyoung.wishboard.data.remote.model.folder.FolderNameDto
+import com.hyeeyoung.wishboard.data.remote.model.folder.FolderThumbnailImageDto
 import com.hyeeyoung.wishboard.data.remote.model.folder.FolderSummaryDto
 import com.hyeeyoung.wishboard.data.remote.model.folder.ReorderFolderListDto
+import com.hyeeyoung.wishboard.data.remote.model.folder.UpdateFolderThumbnailDto
 import com.hyeeyoung.wishboard.domain.model.folder.FolderOrderOption
 import com.hyeeyoung.wishboard.presentation.upload.model.WishItemDto
 import retrofit2.http.Body
@@ -54,4 +56,20 @@ interface FolderService {
 
     @DELETE("folder/{folderId}")
     suspend fun deleteFolder(@Path("folderId") folderId: Long): BaseResponseNoData
+
+    @GET("folder/{folderId}/thumbnail/images")
+    suspend fun fetchFolderThumbnailImages(
+        @Path("folderId") folderId: Long,
+        @Query("page") page: Int,
+        @Query("size") size: Int,
+    ): BaseResponse<PagedResponse<FolderThumbnailImageDto>>
+
+    @PUT("folder/{folderId}/thumbnail")
+    suspend fun updateFolderThumbnail(
+        @Path("folderId") folderId: Long,
+        @Body thumbnail: UpdateFolderThumbnailDto,
+    ): BaseResponseNoData
+
+    @DELETE("folder/{folderId}/thumbnail")
+    suspend fun deleteFolderThumbnail(@Path("folderId") folderId: Long): BaseResponseNoData
 }

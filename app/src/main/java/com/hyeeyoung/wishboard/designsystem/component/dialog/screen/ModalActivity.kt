@@ -52,8 +52,10 @@ class ModalActivity : ComponentActivity() {
                             topOption = modalData.topOption,
                             bottomOption = modalData.bottomOption,
                             isWarningBottom = modalData.isWarningBottomOption,
+                            extraOption = modalData.extraOption,
                             onClickTop = { moveToPrevious(modalData) },
                             onClickBottom = { moveToPrevious(modalData, false) },
+                            onClickExtra = { moveToPrevious(modalData, isExtra = true) },
                             onDismissRequest = { finish() },
                         )
                     }
@@ -88,10 +90,11 @@ class ModalActivity : ComponentActivity() {
     }
 
     /** 옵션 모달 전용 이전 화면으로 돌아가기 + 데이터 전달 */
-    private fun moveToPrevious(modal: ModalData.OptionModal, isTop: Boolean = true) {
+    private fun moveToPrevious(modal: ModalData.OptionModal, isTop: Boolean = true, isExtra: Boolean = false) {
         Intent().apply {
             putExtra(ARG_MODAL_DATA, modal)
             putExtra(ARG_TOP_OPTION, isTop)
+            putExtra(ARG_EXTRA_OPTION, isExtra)
         }.also {
             setResult(RESULT_OK, it)
             finish()
@@ -110,5 +113,6 @@ class ModalActivity : ComponentActivity() {
     companion object {
         const val ARG_MODAL_DATA = "modalData"
         const val ARG_TOP_OPTION = "isTopOption"
+        const val ARG_EXTRA_OPTION = "isExtraOption"
     }
 }

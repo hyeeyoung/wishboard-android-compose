@@ -31,6 +31,12 @@ sealed class MainScreen(override val route: String) : Screen {
         val routeWithArg = "$route/{$ARG_FOLDER_ID}/{$ARG_FOLDER_NAME}"
     }
 
+    data object FolderThumbnail : MainScreen(route = "folderThumbnail") {
+        const val ARG_FOLDER_ID: String = "folderId"
+        const val ARG_FOLDER_NAME: String = "folderName"
+        val routeWithArg = "$route/{$ARG_FOLDER_ID}/{$ARG_FOLDER_NAME}"
+    }
+
     data object Upload : MainScreen(route = "upload") {
         const val ARG_ITEM_DETAIL: String = "itemDetail"
         val routeWithArg = "$route?$ARG_ITEM_DETAIL={$ARG_ITEM_DETAIL}"
