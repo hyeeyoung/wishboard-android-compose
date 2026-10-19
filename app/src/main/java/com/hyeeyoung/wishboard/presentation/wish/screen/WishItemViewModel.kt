@@ -135,7 +135,7 @@ class WishItemViewModel @Inject constructor(
 
         viewModelScope.launch {
             deleteWishItemUseCase(itemId).onSuccess {
-                updateSnackbarMessage("아이템을 위시리스트에서 삭제했어요!🗑️")
+                updateSnackbarMessage("아이템을 위시리스트에서 삭제했어요!")
                 afterSuccess()
             }.onFailure { exception, _, _ ->
                 updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
