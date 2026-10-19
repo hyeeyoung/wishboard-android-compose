@@ -155,6 +155,10 @@
     <string name="dialog_bulk_item_delete_description">선택된 %1$d개의 아이템을 삭제할까요?\n삭제된 아이템은 다시 복구할 수 없어요!</string>
 
     <string name="more_options">더 보기</string>
+    <string name="remove">제거</string>
+    <string name="context_menu_remove_from_folder">폴더에서 제거</string>
+    <string name="dialog_remove_from_folder_title">폴더에서 아이템 제거</string>
+    <string name="dialog_bulk_remove_from_folder_description">선택된 %1$d개의 아이템을 폴더에서 제거할까요?\n폴더에서 제거해도 아이템은 삭제되지 않아요</string>
     <string name="context_menu_convert_to_wish">위시템으로 전환</string>
     <string name="context_menu_convert_to_owned">소장템으로 전환</string>
     <string name="convert">전환</string>

@@ -43,6 +43,7 @@ import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardEmptyView
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardGlobalSnackbarMessage
+import com.hyeeyoung.wishboard.config.MoreOptionsState
 import com.hyeeyoung.wishboard.designsystem.component.bottombar.SelectionModeBottomBar
 import com.hyeeyoung.wishboard.designsystem.component.button.SelectionModeIconButton
 import com.hyeeyoung.wishboard.designsystem.component.dialog.model.DialogData
@@ -135,6 +136,9 @@ fun FolderDetailScreen(
         },
         onClickSelectAll = viewModel::toggleSelectAll,
         onClickDeleteSelected = { dialogData = DialogData.BulkWishItemDelete(selectedItemCount) },
+        onClickRemoveFromFolderSelected = {
+            dialogData = DialogData.BulkWishItemRemoveFromFolder(selectedItemCount)
+        },
         updateViewType = viewModel::updateViewType,
         updateExcludeOwnedItems = viewModel::updateExcludeOwnedItems,
     )
@@ -143,7 +147,10 @@ fun FolderDetailScreen(
         dialogData = dialogData,
         onClickConfirm = {
             val allLoadedItemIds = (0 until wishList.itemCount).mapNotNull { idx -> wishList[idx]?.id }
-            viewModel.deleteSelectedItems(allLoadedItemIds)
+            when (dialogData) {
+                is DialogData.BulkWishItemRemoveFromFolder -> viewModel.removeSelectedItemsFromFolder(allLoadedItemIds)
+                else -> viewModel.deleteSelectedItems(allLoadedItemIds)
+            }
         },
         onDismissRequest = { dialogData = null },
     )
@@ -171,6 +178,7 @@ fun FolderDetailScreen(
     onDragSelectItem: (id: Long, isSelected: Boolean) -> Unit,
     onClickSelectAll: () -> Unit,
     onClickDeleteSelected: () -> Unit,
+    onClickRemoveFromFolderSelected: () -> Unit,
     updateViewType: () -> Unit,
     updateExcludeOwnedItems: (Boolean) -> Unit,
 ) {
@@ -220,6 +228,7 @@ fun FolderDetailScreen(
                     isAllSelected = isAllSelected && excludedItemIds.isEmpty(),
                     onClickSelectAll = onClickSelectAll,
                     onClickDelete = onClickDeleteSelected,
+                    moreOptions = MoreOptionsState(onClickRemoveFromFolder = onClickRemoveFromFolderSelected),
                 )
             }
         },
@@ -386,6 +395,7 @@ fun PreviewFolderDetailScreen() {
         onDragSelectItem = { _, _ -> },
         onClickSelectAll = {},
         onClickDeleteSelected = {},
+        onClickRemoveFromFolderSelected = {},
         updateViewType = {},
         updateExcludeOwnedItems = {},
     )
@@ -415,6 +425,7 @@ fun PreviewFolderDetailScreenFirstLoading() {
         onDragSelectItem = { _, _ -> },
         onClickSelectAll = {},
         onClickDeleteSelected = {},
+        onClickRemoveFromFolderSelected = {},
         updateViewType = {},
         updateExcludeOwnedItems = {},
     )

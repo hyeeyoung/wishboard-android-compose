@@ -147,6 +147,21 @@ class ItemRepositoryImpl @Inject constructor(
         )
     }
 
+    override suspend fun deleteBulkItemsFromFolder(
+        folderId: Long,
+        scope: BulkDeleteScope,
+        itemStatus: WishItemOwnershipStatus?,
+        itemIds: List<Long>?,
+        excludeItemIds: List<Long>?,
+    ): Result<Unit> = runCatching {
+        itemService.deleteBulkItemsFromFolder(
+            folderId = folderId,
+            scope = scope.name,
+            itemStatus = itemStatus?.name,
+            request = DeleteBulkItemsRequestDto(itemIds = itemIds, excludeItemIds = excludeItemIds),
+        )
+    }
+
     override suspend fun getParsedItemInfo(site: String): Result<ParsedWishItem?> =
         runCatching {
             itemService.getParsedItemInfo(site).data

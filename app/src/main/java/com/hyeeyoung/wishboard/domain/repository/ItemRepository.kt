@@ -35,6 +35,14 @@ interface ItemRepository {
         excludeItemIds: List<Long>? = null,
     ): Result<Unit>
 
+    suspend fun deleteBulkItemsFromFolder(
+        folderId: Long,
+        scope: BulkDeleteScope,
+        itemStatus: WishItemOwnershipStatus? = null,
+        itemIds: List<Long>? = null,
+        excludeItemIds: List<Long>? = null,
+    ): Result<Unit>
+
     suspend fun getParsedItemInfo(site: String): Result<ParsedWishItem?>
 
     suspend fun updateItemOwnership(itemId: Long, isOwnedItem: Boolean): Result<Boolean>

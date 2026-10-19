@@ -115,6 +115,21 @@ fun SelectionModeBottomBar(
                                     },
                                 )
                             }
+                            if (moreOptions.onClickRemoveFromFolder != null) {
+                                DropdownMenuItem(
+                                    text = {
+                                        Text(
+                                            text = stringResource(R.string.context_menu_remove_from_folder),
+                                            style = WishBoardTheme.typography.suitB3,
+                                            color = WishBoardTheme.colors.gray700,
+                                        )
+                                    },
+                                    onClick = {
+                                        isMenuExpanded = false
+                                        moreOptions.onClickRemoveFromFolder.invoke()
+                                    },
+                                )
+                            }
                             DropdownMenuItem(
                                 text = {
                                     Text(

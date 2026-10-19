@@ -20,8 +20,10 @@ data class BottomBarSelectionModeState(
 )
 
 data class MoreOptionsState(
-    val showConvertToWish: Boolean,
-    val showConvertToOwned: Boolean,
-    val onClickConvertToWish: () -> Unit,
-    val onClickConvertToOwned: () -> Unit,
+    val showConvertToWish: Boolean = false,
+    val showConvertToOwned: Boolean = false,
+    val onClickConvertToWish: () -> Unit = {},
+    val onClickConvertToOwned: () -> Unit = {},
+    // 폴더 상세에서만 노출되는 "폴더에서 제거" 메뉴. null이면 노출하지 않는다.
+    val onClickRemoveFromFolder: (() -> Unit)? = null,
 )

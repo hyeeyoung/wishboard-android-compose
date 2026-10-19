@@ -76,6 +76,15 @@ interface ItemService {
         @Body request: DeleteBulkItemsRequestDto,
     ): BaseResponseNoData
 
+    // 폴더에서 아이템 일괄 해제 (아이템은 삭제되지 않고 폴더 미지정 상태가 된다).
+    @HTTP(method = "DELETE", path = "item/bulk/folder/{folderId}", hasBody = true)
+    suspend fun deleteBulkItemsFromFolder(
+        @Path("folderId") folderId: Long,
+        @Query("scope") scope: String,
+        @Query("itemStatus") itemStatus: String? = null,
+        @Body request: DeleteBulkItemsRequestDto,
+    ): BaseResponseNoData
+
     @GET("item/parse")
     suspend fun getParsedItemInfo(
         @Query("site") site: String,
