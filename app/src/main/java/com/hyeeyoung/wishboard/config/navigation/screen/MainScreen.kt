@@ -34,7 +34,10 @@ sealed class MainScreen(override val route: String) : Screen {
     data object FolderThumbnail : MainScreen(route = "folderThumbnail") {
         const val ARG_FOLDER_ID: String = "folderId"
         const val ARG_FOLDER_NAME: String = "folderName"
-        val routeWithArg = "$route/{$ARG_FOLDER_ID}/{$ARG_FOLDER_NAME}"
+
+        /** 폴더 탭에서 보이던 현재 썸네일 URL. 없으면 빈 문자열 */
+        const val ARG_THUMBNAIL_URL: String = "thumbnailUrl"
+        val routeWithArg = "$route/{$ARG_FOLDER_ID}/{$ARG_FOLDER_NAME}?$ARG_THUMBNAIL_URL={$ARG_THUMBNAIL_URL}"
     }
 
     data object Upload : MainScreen(route = "upload") {

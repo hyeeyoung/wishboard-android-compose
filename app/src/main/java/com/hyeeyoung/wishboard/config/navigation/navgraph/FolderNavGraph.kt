@@ -58,6 +58,10 @@ fun NavGraphBuilder.folderThumbnailNavGraph(
         arguments = listOf(
             navArgument(MainScreen.FolderThumbnail.ARG_FOLDER_ID) { type = NavType.LongType },
             navArgument(MainScreen.FolderThumbnail.ARG_FOLDER_NAME) { type = NavType.StringType },
+            navArgument(MainScreen.FolderThumbnail.ARG_THUMBNAIL_URL) {
+                type = NavType.StringType
+                defaultValue = ""
+            },
         ),
     ) {
         FolderThumbnailScreen(navController = navController)

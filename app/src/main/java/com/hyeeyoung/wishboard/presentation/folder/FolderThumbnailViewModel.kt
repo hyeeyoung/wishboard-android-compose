@@ -48,6 +48,10 @@ class FolderThumbnailViewModel @Inject constructor(
     private val folderId: Long = checkNotNull(savedStateHandle.get<Long>(MainScreen.FolderThumbnail.ARG_FOLDER_ID))
     val folderName: String = savedStateHandle.get<String>(MainScreen.FolderThumbnail.ARG_FOLDER_NAME).orEmpty()
 
+    // 폴더 탭에서 보이던 현재 썸네일 URL. 후보 중 URL이 같은 사진을 진입 시 선택된 상태로 둔다.
+    private val currentThumbnailUrl: String =
+        savedStateHandle.get<String>(MainScreen.FolderThumbnail.ARG_THUMBNAIL_URL).orEmpty()
+
     private val _uiState = MutableStateFlow(FolderThumbnailUiState())
     val uiState = _uiState.asStateFlow()
 
@@ -58,7 +62,11 @@ class FolderThumbnailViewModel @Inject constructor(
     private fun fetchThumbnailImages() {
         viewModelScope.launch {
             getFolderThumbnailImagesUseCase(folderId = folderId).onSuccess { images ->
-                val currentImageId = images.firstOrNull { it.isSelected }?.itemImageId
+                val currentImageId = if (currentThumbnailUrl.isBlank()) {
+                    null
+                } else {
+                    images.firstOrNull { it.imageUrl == currentThumbnailUrl }?.itemImageId
+                }
                 _uiState.update {
                     it.copy(
                         images = images,

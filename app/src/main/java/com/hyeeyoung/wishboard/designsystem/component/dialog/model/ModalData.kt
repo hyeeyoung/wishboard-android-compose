@@ -50,6 +50,7 @@ sealed class ModalData : Serializable {
         data class FolderMore(
             val folderId: Long,
             val folderName: String,
+            val folderThumbnail: String = "",
         ) : OptionModal(
             topOption = R.string.modal_folder_name_edit_title,
             bottomOption = R.string.dialog_folder_delete_title,

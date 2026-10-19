@@ -117,10 +117,11 @@ fun FolderScreen(
         onClickReorder = {
             wishNavController.navigate(route = MainScreen.FolderOrder.route)
         },
-        onClickEditThumbnail = { folderId, folderName ->
+        onClickEditThumbnail = { folderId, folderName, thumbnailUrl ->
             wishNavController.navigateIfResumed(
                 lifecycleOwner = lifecycleOwner,
-                route = "${MainScreen.FolderThumbnail.route}/$folderId/${Uri.encode(folderName)}",
+                route = "${MainScreen.FolderThumbnail.route}/$folderId/${Uri.encode(folderName)}" +
+                    "?${MainScreen.FolderThumbnail.ARG_THUMBNAIL_URL}=${Uri.encode(thumbnailUrl)}",
             )
         },
     )
@@ -177,7 +178,7 @@ fun FolderScreen(
     deleteFolder: (id: Long?) -> Unit,
     showModal: (ModalData.Modal) -> Unit,
     onClickReorder: () -> Unit,
-    onClickEditThumbnail: (folderId: Long, folderName: String) -> Unit,
+    onClickEditThumbnail: (folderId: Long, folderName: String, thumbnailUrl: String) -> Unit,
     clearModalData: () -> Unit,
 ) {
     var dialogData by remember { mutableStateOf<DialogData?>(null) }
@@ -187,7 +188,7 @@ fun FolderScreen(
             clearModalData()
 
             if (data is ModalData.OptionModal.FolderMore) {
-                onClickEditThumbnail(data.folderId, data.folderName)
+                onClickEditThumbnail(data.folderId, data.folderName, data.folderThumbnail)
             }
         },
     ) { isTopOption, data ->
@@ -306,7 +307,11 @@ fun FolderScreen(
                                     onClickFolder(folder)
                                 },
                                 onClickMore = { selectedFolder ->
-                                    ModalData.OptionModal.FolderMore(selectedFolder.id, selectedFolder.name)
+                                    ModalData.OptionModal.FolderMore(
+                                        folderId = selectedFolder.id,
+                                        folderName = selectedFolder.name,
+                                        folderThumbnail = selectedFolder.thumbnail,
+                                    )
                                         .openModal(context = context, resultLauncher = modalLauncher)
                                 },
                             )
@@ -393,7 +398,7 @@ fun PreviewFolderScreen() {
         showModal = {},
         clearModalData = {},
         onClickReorder = {},
-        onClickEditThumbnail = { _, _ -> },
+        onClickEditThumbnail = { _, _, _ -> },
     )
 }
 
@@ -409,7 +414,7 @@ fun PreviewFolderScreenFirstLoading() {
         showModal = {},
         clearModalData = {},
         onClickReorder = {},
-        onClickEditThumbnail = { _, _ -> },
+        onClickEditThumbnail = { _, _, _ -> },
     )
 }
 
