@@ -54,6 +54,7 @@ sealed class ModalData : Serializable {
         ) : OptionModal(
             topOption = R.string.modal_folder_name_edit_title,
             bottomOption = R.string.dialog_folder_delete_title,
+            isWarningBottomOption = false,
             extraOption = R.string.modal_folder_thumbnail_edit_title,
         )
 

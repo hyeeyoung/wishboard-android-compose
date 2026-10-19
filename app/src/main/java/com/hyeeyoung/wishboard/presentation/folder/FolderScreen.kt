@@ -118,8 +118,9 @@ fun FolderScreen(
             wishNavController.navigate(route = MainScreen.FolderOrder.route)
         },
         onClickEditThumbnail = { folderId, folderName, thumbnailUrl ->
-            wishNavController.navigateIfResumed(
-                lifecycleOwner = lifecycleOwner,
+            // 더보기 모달(ModalActivity)의 결과 콜백에서 호출되는데, 이때 화면은 아직 RESUMED가 아니라서
+            // navigateIfResumed를 쓰면 이동이 무시된다.
+            wishNavController.navigate(
                 route = "${MainScreen.FolderThumbnail.route}/$folderId/${Uri.encode(folderName)}" +
                     "?${MainScreen.FolderThumbnail.ARG_THUMBNAIL_URL}=${Uri.encode(thumbnailUrl)}",
             )
