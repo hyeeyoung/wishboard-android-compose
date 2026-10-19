@@ -58,6 +58,12 @@ interface ItemService {
         @Path("folderId") folderId: Long,
     ): BaseResponseNoData
 
+    @DELETE("item/{itemId}/folder/{folderId}")
+    suspend fun deleteFolderOfItem(
+        @Path("itemId") itemId: Long,
+        @Path("folderId") folderId: Long,
+    ): BaseResponseNoData
+
     @DELETE("item/{itemId}")
     suspend fun deleteWishItem(@Path("itemId") itemId: Long): BaseResponseNoData
 

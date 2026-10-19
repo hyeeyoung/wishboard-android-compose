@@ -8,6 +8,7 @@ import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
 import com.hyeeyoung.wishboard.domain.model.folder.FolderOrderOption
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemUploadInfo
 import com.hyeeyoung.wishboard.domain.usecase.folder.GetFolderSummariesUseCase
+import com.hyeeyoung.wishboard.domain.usecase.item.DeleteFolderOfWishItemUseCase
 import com.hyeeyoung.wishboard.domain.usecase.item.DeleteWishItemUseCase
 import com.hyeeyoung.wishboard.domain.usecase.item.GetWishItemDetailUseCase
 import com.hyeeyoung.wishboard.domain.usecase.item.PutFolderOfWishItemUseCase
@@ -34,6 +35,7 @@ class WishItemViewModel @Inject constructor(
     private val getWishItemUseCase: GetWishItemDetailUseCase,
     private val getFolderSummariesUseCase: GetFolderSummariesUseCase,
     private val putFolderOfWishItemUseCase: PutFolderOfWishItemUseCase,
+    private val deleteFolderOfWishItemUseCase: DeleteFolderOfWishItemUseCase,
     private val deleteWishItemUseCase: DeleteWishItemUseCase,
     private val putWishItemOwnershipUseCase: PutWishItemOwnershipUseCase,
     private val putWishItemUseCase: PutWishItemUseCase,
@@ -94,11 +96,30 @@ class WishItemViewModel @Inject constructor(
     }
 
     fun updateFolder(folder: FolderItem) {
+        // 이미 지정된 폴더를 다시 선택하면 폴더를 해제한다.
+        if (uiModel.value.folderId == folder.id) {
+            deleteFolder(folder.id)
+            return
+        }
+
         viewModelScope.launch {
             putFolderOfWishItemUseCase(itemId = uiModel.value.id, folderId = folder.id).onSuccess {
                 WishBoardEventBus.notifyWishItemChanged()
                 _uiModel.update {
                     it.copy(folderId = folder.id, folderName = folder.name)
+                }
+            }.onFailure { exception, _, _ ->
+                updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
+            }
+        }
+    }
+
+    private fun deleteFolder(folderId: Long) {
+        viewModelScope.launch {
+            deleteFolderOfWishItemUseCase(itemId = uiModel.value.id, folderId = folderId).onSuccess {
+                WishBoardEventBus.notifyWishItemChanged()
+                _uiModel.update {
+                    it.copy(folderId = null, folderName = null)
                 }
             }.onFailure { exception, _, _ ->
                 updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)

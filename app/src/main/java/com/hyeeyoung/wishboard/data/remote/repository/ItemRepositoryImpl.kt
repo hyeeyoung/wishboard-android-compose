@@ -124,6 +124,10 @@ class ItemRepositoryImpl @Inject constructor(
             itemService.updateFolderOfItem(itemId, folderId)
         }
 
+    override suspend fun deleteFolderOfWishItem(itemId: Long, folderId: Long): Result<Unit> = runCatching {
+        itemService.deleteFolderOfItem(itemId, folderId)
+    }
+
     override suspend fun deleteWishItem(itemId: Long): Result<Unit> = runCatching {
         itemService.deleteWishItem(itemId)
     }

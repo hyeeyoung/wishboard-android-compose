@@ -3,9 +3,13 @@ package com.hyeeyoung.wishboard.presentation.folder
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -21,9 +25,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.component.WishBoardEmptyView
@@ -34,6 +48,16 @@ import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 
+/**
+ * 리스트가 소비하고 남은 스크롤/플링을 부모(바텀시트)로 전달하지 않아,
+ * 리스트 스크롤이 시트를 내리는 드래그 제스처로 인식되지 않도록 한다.
+ */
+private val consumeRemainingScrollConnection = object : NestedScrollConnection {
+    override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset = available
+
+    override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity = available
+}
+
 @Composable
 fun FolderListModalContent(
     selectedFolder: FolderItem?,
@@ -42,7 +66,13 @@ fun FolderListModalContent(
     onDismissRequest: () -> Unit,
 ) {
     var selectedId by remember { mutableStateOf(selectedFolder?.id) }
-    Column(modifier = Modifier.heightIn(max = 317.dp)) {
+    // 폴더 리스트 바텀시트의 전체 높이가 디바이스(화면) 높이의 2/3가 되도록, 시트가 따로 차지하는 내비게이션 바 높이는 제외한다.
+    val density = LocalDensity.current
+    val windowHeight = with(density) { LocalView.current.rootView.height.toDp() }
+        .takeIf { it > 0.dp } ?: LocalConfiguration.current.screenHeightDp.dp
+    val navigationBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+    val sheetHeight = windowHeight * 2 / 3 - navigationBarHeight
+    Column(modifier = Modifier.height(sheetHeight)) {
         ModalTitle(
             title = stringResource(id = R.string.folder),
             onDismissRequest = onDismissRequest,
@@ -62,8 +92,10 @@ fun FolderListModalContent(
         } else {
             LazyColumn(
                 modifier = Modifier
+                    // ModalTitle 높이(45dp)와 합쳐 Figma의 리스트 시작 위치(시트 상단에서 50dp)에 맞춘다.
                     .padding(top = 5.dp)
-                    .background(WishBoardTheme.colors.white),
+                    .background(WishBoardTheme.colors.white)
+                    .nestedScroll(consumeRemainingScrollConnection),
                 contentPadding = PaddingValues(bottom = 64.dp),
             ) {
                 itemsIndexed(folders) { idx, folder ->
@@ -88,7 +120,8 @@ fun FolderListModalContent(
 fun HorizontalFolderItem(folder: FolderItem, isSelected: Boolean, onClickFolder: (FolderItem) -> Unit) {
     Row(
         modifier = Modifier
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .fillMaxWidth()
+            .padding(horizontal = dimensionResource(id = R.dimen.spacing_base), vertical = 8.dp)
             .noRippleClickable { onClickFolder(folder) },
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -108,16 +141,15 @@ fun HorizontalFolderItem(folder: FolderItem, isSelected: Boolean, onClickFolder:
             color = WishBoardTheme.colors.gray700,
         )
 
-        if (isSelected) {
-            Spacer(modifier = Modifier.size(10.dp))
-            Icon(
-                modifier = Modifier
-                    .size(24.dp),
-                painter = painterResource(id = R.drawable.ic_check_white),
-                contentDescription = null,
-                tint = WishBoardTheme.colors.green500,
-            )
-        }
+        Spacer(modifier = Modifier.size(10.dp))
+        Icon(
+            modifier = Modifier.size(24.dp),
+            painter = painterResource(
+                id = if (isSelected) R.drawable.ic_folder_check_on else R.drawable.ic_folder_check_off,
+            ),
+            contentDescription = null,
+            tint = Color.Unspecified,
+        )
     }
 }
 

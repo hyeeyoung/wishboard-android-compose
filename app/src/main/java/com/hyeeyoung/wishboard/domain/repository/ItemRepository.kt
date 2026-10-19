@@ -23,6 +23,8 @@ interface ItemRepository {
 
     suspend fun updateFolderOfWishItem(itemId: Long, folderId: Long): Result<Unit>
 
+    suspend fun deleteFolderOfWishItem(itemId: Long, folderId: Long): Result<Unit>
+
     suspend fun deleteWishItem(itemId: Long): Result<Unit>
 
     suspend fun deleteBulkItems(
