@@ -41,7 +41,7 @@ import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.util.extension.safePopBackStack
 
-// 선택된 사진(또는 아무것도 선택되지 않았을 때 모든 사진)에 씌우는 10% 검정 오버레이
+// 모든 후보 사진에 씌우는 10% 검정 오버레이(전경색)
 private val ThumbnailDimColor = Color(0x1A000000)
 
 @Composable
@@ -112,8 +112,6 @@ fun FolderThumbnailScreen(
                 }
 
                 else -> {
-                    val hasSelection = uiState.selectedImageId != null
-
                     LazyVerticalGrid(
                         modifier = Modifier.fillMaxSize(),
                         columns = GridCells.Fixed(2),
@@ -122,7 +120,6 @@ fun FolderThumbnailScreen(
                             ThumbnailCandidate(
                                 image = image,
                                 isSelected = image.itemImageId == uiState.selectedImageId,
-                                hasSelection = hasSelection,
                                 onClick = { onClickImage(image) },
                             )
                         }
@@ -133,16 +130,11 @@ fun FolderThumbnailScreen(
     }
 }
 
-/**
- * 대표 사진 후보 한 칸.
- * - 아무것도 선택되지 않은 상태: 모든 칸에 오버레이와 빈 체크 원을 보여준다.
- * - 하나가 선택된 상태: 선택된 칸에만 오버레이와 체크 원을 보여주고 나머지는 그대로 둔다.
- */
+/** 대표 사진 후보 한 칸. 선택 여부와 관계없이 전경색을 씌우고, 우측 하단에 선택 여부를 나타내는 원을 보여준다. */
 @Composable
 private fun ThumbnailCandidate(
     image: FolderThumbnailImage,
     isSelected: Boolean,
-    hasSelection: Boolean,
     onClick: () -> Unit,
 ) {
     Box(
@@ -159,16 +151,14 @@ private fun ThumbnailCandidate(
             },
         )
 
-        if (isSelected || !hasSelection) {
-            Box(modifier = Modifier.fillMaxSize().background(ThumbnailDimColor))
+        Box(modifier = Modifier.fillMaxSize().background(ThumbnailDimColor))
 
-            ThumbnailCheckCircle(
-                isSelected = isSelected,
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(10.dp),
-            )
-        }
+        ThumbnailCheckCircle(
+            isSelected = isSelected,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(10.dp),
+        )
     }
 }
 
@@ -178,7 +168,8 @@ private fun ThumbnailCheckCircle(isSelected: Boolean, modifier: Modifier = Modif
         Box(
             modifier = modifier
                 .size(24.dp)
-                .background(WishBoardTheme.colors.black, CircleShape),
+                .background(WishBoardTheme.colors.black, CircleShape)
+                .border(1.dp, WishBoardTheme.colors.white, CircleShape),
             contentAlignment = Alignment.Center,
         ) {
             Icon(
@@ -192,7 +183,7 @@ private fun ThumbnailCheckCircle(isSelected: Boolean, modifier: Modifier = Modif
         Box(
             modifier = modifier
                 .size(24.dp)
-                .border(1.5.dp, WishBoardTheme.colors.white, CircleShape),
+                .border(1.dp, WishBoardTheme.colors.white, CircleShape),
         )
     }
 }
