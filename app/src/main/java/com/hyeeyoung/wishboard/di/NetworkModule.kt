@@ -1,6 +1,7 @@
 package com.hyeeyoung.wishboard.di
 
 import android.content.Context
+import com.chuckerteam.chucker.api.ChuckerCollector
 import com.chuckerteam.chucker.api.ChuckerInterceptor
 import com.hyeeyoung.wishboard.BuildConfig
 import com.hyeeyoung.wishboard.data.local.WishBoardPreference
@@ -71,7 +72,11 @@ object NetworkModule {
                         level = HttpLoggingInterceptor.Level.BODY
                     },
                 )
-                addInterceptor(ChuckerInterceptor(context))
+                addInterceptor(
+                    ChuckerInterceptor.Builder(context)
+                        .collector(ChuckerCollector(context, showNotification = false))
+                        .build(),
+                )
             }
         }.build()
 
@@ -111,7 +116,11 @@ object NetworkModule {
                         level = HttpLoggingInterceptor.Level.BODY
                     },
                 )
-                addInterceptor(ChuckerInterceptor(context))
+                addInterceptor(
+                    ChuckerInterceptor.Builder(context)
+                        .collector(ChuckerCollector(context, showNotification = false))
+                        .build(),
+                )
             }
         }.build()
 
