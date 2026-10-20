@@ -131,6 +131,7 @@ import sh.calvin.reorderable.rememberReorderableLazyListState
 import timber.log.Timber
 
 const val MAX_IMAGE_COUNT = 10
+const val MAX_ITEM_NAME_LENGTH = 512
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -473,6 +474,7 @@ fun WishUploadScreen(
                             spanStyle = spanStyle,
                             textFieldValue = uiModel.itemName,
                             placeholder = stringResource(id = R.string.wish_item_upload_item_name),
+                            maxLength = MAX_ITEM_NAME_LENGTH,
                             onTextChange = { input ->
                                 onTextChange(UploadInputType.ITEM_NAME, input)
                             },

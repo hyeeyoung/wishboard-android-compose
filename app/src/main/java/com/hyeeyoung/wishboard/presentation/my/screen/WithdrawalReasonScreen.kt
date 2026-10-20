@@ -60,6 +60,7 @@ import com.hyeeyoung.wishboard.presentation.my.WithdrawalReasonUiState
 import com.hyeeyoung.wishboard.presentation.my.WithdrawalReasonViewModel
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
+import com.hyeeyoung.wishboard.presentation.util.extension.graphemeLength
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.util.extension.safePopBackStack
 import kotlinx.coroutines.flow.first
@@ -278,7 +279,7 @@ private fun EtcTextField(
     ) {
         BasicTextField(
             value = text,
-            onValueChange = { if (it.length <= maxLength) onTextChange(it) },
+            onValueChange = { if (it.graphemeLength() <= maxLength) onTextChange(it) },
             textStyle = WishBoardTheme.typography.suitD1.copy(color = WishBoardTheme.colors.gray700),
             modifier = Modifier
                 .fillMaxWidth()
@@ -301,7 +302,7 @@ private fun EtcTextField(
         Spacer(modifier = Modifier.size(15.dp))
 
         Text(
-            text = "(${text.length}/$maxLength)자",
+            text = "(${text.graphemeLength()}/$maxLength)자",
             style = WishBoardTheme.typography.suitD3,
             color = WishBoardTheme.colors.gray200,
             modifier = Modifier.align(Alignment.End),
