@@ -361,12 +361,10 @@ fun WishUploadScreen(
     val isEnabledSave by remember(
         uiModel.itemName,
         uiModel.itemPrice,
-        uiModel.images,
     ) {
         mutableStateOf(
             uiModel.itemName.text.isNotBlank() &&
-                uiModel.itemPrice.text.isNotBlank() &&
-                (uiModel.images.isNotEmpty()),
+                uiModel.itemPrice.text.isNotBlank(),
         )
     }
 
