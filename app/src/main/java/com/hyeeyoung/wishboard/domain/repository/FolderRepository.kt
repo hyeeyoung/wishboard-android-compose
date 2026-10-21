@@ -30,7 +30,4 @@ interface FolderRepository {
     suspend fun fetchFolderThumbnailImages(folderId: Long): Result<List<FolderThumbnailImage>>
 
     suspend fun updateFolderThumbnail(folderId: Long, itemImageId: Long): Result<Unit>
-
-    /** 지정한 대표 사진을 해제하고 기본 대표 사진으로 되돌린다. */
-    suspend fun deleteFolderThumbnail(folderId: Long): Result<Unit>
 }

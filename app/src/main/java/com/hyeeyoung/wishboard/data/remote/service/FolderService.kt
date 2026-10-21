@@ -69,7 +69,4 @@ interface FolderService {
         @Path("folderId") folderId: Long,
         @Body thumbnail: UpdateFolderThumbnailDto,
     ): BaseResponseNoData
-
-    @DELETE("folder/{folderId}/thumbnail")
-    suspend fun deleteFolderThumbnail(@Path("folderId") folderId: Long): BaseResponseNoData
 }

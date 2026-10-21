@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.core.extension.onFailure
 import com.hyeeyoung.wishboard.domain.model.folder.FolderThumbnailImage
-import com.hyeeyoung.wishboard.domain.usecase.folder.DeleteFolderThumbnailUseCase
 import com.hyeeyoung.wishboard.domain.usecase.folder.GetFolderThumbnailImagesUseCase
 import com.hyeeyoung.wishboard.domain.usecase.folder.PutFolderThumbnailUseCase
 import com.hyeeyoung.wishboard.presentation.common.BaseViewModel
@@ -43,7 +42,6 @@ class FolderThumbnailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val getFolderThumbnailImagesUseCase: GetFolderThumbnailImagesUseCase,
     private val putFolderThumbnailUseCase: PutFolderThumbnailUseCase,
-    private val deleteFolderThumbnailUseCase: DeleteFolderThumbnailUseCase,
 ) : BaseViewModel() {
     private val folderId: Long = checkNotNull(savedStateHandle.get<Long>(MainScreen.FolderThumbnail.ARG_FOLDER_ID))
     val folderName: String = savedStateHandle.get<String>(MainScreen.FolderThumbnail.ARG_FOLDER_NAME).orEmpty()
@@ -82,12 +80,9 @@ class FolderThumbnailViewModel @Inject constructor(
         }
     }
 
-    /** 하나만 선택할 수 있으며, 이미 선택된 사진을 다시 누르면 선택이 해제된다. */
     fun onClickImage(image: FolderThumbnailImage) {
         if (_uiState.value.saveState is WishBoardState.Loading) return
-        _uiState.update {
-            it.copy(selectedImageId = if (it.selectedImageId == image.itemImageId) null else image.itemImageId)
-        }
+        _uiState.update { it.copy(selectedImageId = image.itemImageId) }
     }
 
     fun save(afterSuccess: () -> Unit) {
@@ -96,12 +91,8 @@ class FolderThumbnailViewModel @Inject constructor(
 
         _uiState.update { it.copy(saveState = WishBoardState.Loading) }
         viewModelScope.launch {
-            val selectedImageId = state.selectedImageId
-            val result = if (selectedImageId == null) {
-                deleteFolderThumbnailUseCase(folderId = folderId)
-            } else {
-                putFolderThumbnailUseCase(folderId = folderId, itemImageId = selectedImageId)
-            }
+            val selectedImageId = checkNotNull(state.selectedImageId)
+            val result = putFolderThumbnailUseCase(folderId = folderId, itemImageId = selectedImageId)
 
             result.onSuccess {
                 _uiState.update { it.copy(saveState = WishBoardState.Success(Unit)) }

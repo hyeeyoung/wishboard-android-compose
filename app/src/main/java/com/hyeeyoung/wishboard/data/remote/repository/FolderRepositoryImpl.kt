@@ -120,10 +120,6 @@ class FolderRepositoryImpl @Inject constructor(
         )
     }
 
-    override suspend fun deleteFolderThumbnail(folderId: Long): Result<Unit> = runCatching {
-        folderService.deleteFolderThumbnail(folderId = folderId)
-    }
-
     private companion object {
         const val THUMBNAIL_IMAGES_PAGE_SIZE = 100 // 서버가 허용하는 최대 페이지 크기
     }
