@@ -6,11 +6,12 @@ data class WishListUiModel(
     val shouldShowOnboardingModal: Boolean = false,
     val viewType: WishListViewType = WishListViewType.GRID_2_COLUMN,
     val totalItemCount: Int? = null,
-    val isExcludeOwnedItems: Boolean = false,
+    val filterType: WishListFilterType = WishListFilterType.ALL,
     val isBulkRegisterBannerVisible: Boolean = false,
     val isSelectionMode: Boolean = false,
     val isAllSelected: Boolean = false,
     val selectedItemIds: Set<Long> = emptySet(),
     val excludedItemIds: Set<Long> = emptySet(),
     val deleteSelectedItemsState: WishBoardState<Unit> = WishBoardState.Idle,
+    val unreadNotiCount: Int = 0,
 )

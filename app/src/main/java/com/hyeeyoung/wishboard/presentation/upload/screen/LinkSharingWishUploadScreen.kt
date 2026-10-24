@@ -1,6 +1,5 @@
 package com.hyeeyoung.wishboard.presentation.upload.screen
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -56,8 +55,8 @@ import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
 import com.hyeeyoung.wishboard.domain.model.noti.NotiInfo
 import com.hyeeyoung.wishboard.domain.model.noti.NotiType
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
-import com.hyeeyoung.wishboard.presentation.upload.model.UploadInputType
 import com.hyeeyoung.wishboard.presentation.upload.model.ParsingUploadItemUiModel
+import com.hyeeyoung.wishboard.presentation.upload.model.UploadInputType
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.util.extension.toJson
 import com.hyeeyoung.wishboard.presentation.util.extension.toNotiDateStr
@@ -77,7 +76,11 @@ fun LinkSharingWishUploadScreen(
     onClickSave: () -> Unit,
     onClickClose: () -> Unit = {},
 ) {
-    Box(modifier = Modifier.systemBarsPadding().imePadding()) {
+    Box(
+        modifier = Modifier
+            .systemBarsPadding()
+            .imePadding(),
+    ) {
         Column(modifier = Modifier.fillMaxSize()) {
             Spacer(
                 modifier = Modifier
@@ -126,6 +129,7 @@ fun LinkSharingWishUploadScreen(
                             modifier = textFieldModifier,
                             textFieldValue = uiModel.itemName,
                             placeholder = stringResource(id = R.string.wish_item_link_sharing_upload_name),
+                            maxLength = MAX_ITEM_NAME_LENGTH,
                             onTextChange = { input ->
                                 onTextChange(UploadInputType.ITEM_NAME, input)
                             },

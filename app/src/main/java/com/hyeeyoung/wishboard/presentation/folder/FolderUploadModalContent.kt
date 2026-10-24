@@ -18,6 +18,7 @@ import com.hyeeyoung.wishboard.designsystem.component.button.WishBoardWideButton
 import com.hyeeyoung.wishboard.designsystem.component.textfield.WishBoardTextField
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
+import com.hyeeyoung.wishboard.presentation.util.extension.graphemeLength
 
 private const val MAX_LENGTH_FOLDER_NAME = 20
 
@@ -44,7 +45,7 @@ fun FolderUploadModalContent(
                 Text(
                     text = stringResource(
                         id = R.string.text_length,
-                        nameInput.value.codePointCount(0, nameInput.value.length),
+                        nameInput.value.graphemeLength(),
                         MAX_LENGTH_FOLDER_NAME,
                     ),
                     color = WishBoardTheme.colors.gray200,

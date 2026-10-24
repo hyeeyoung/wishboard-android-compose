@@ -47,6 +47,7 @@ devtools-ksp = "1.9.10-1.0.13"
 [libraries]
 core-ktx = { module = "androidx.core:core-ktx", version.ref = "core-ktx" }
 lifecycle = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycle" }
+lifecycle-process = { module = "androidx.lifecycle:lifecycle-process", version.ref = "lifecycle" }
 appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
 security = { module = "androidx.security:security-crypto-ktx", version.ref = "security" }
 
@@ -88,6 +89,7 @@ paging-common-ktx = { group = "androidx.paging", name = "paging-common-ktx", ver
 okhttp-bom = { module = "com.squareup.okhttp3:okhttp-bom", version.ref = "okhttp" }
 okhttp = { module = "com.squareup.okhttp3:okhttp" }
 okhttp-logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor" }
+okhttp-sse = { module = "com.squareup.okhttp3:okhttp-sse" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization-json" }
 kotlinx-serialization-converter = { module = "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter", version.ref = "kotlinx-serialization-converter" }
@@ -114,11 +116,11 @@ devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "devtools-ksp" }
 #firebase-crashlytics-gradle = { id = "com.google.firebase.crashlytics", version.ref = "firebase-crashlytics-gradle" }
 
 [bundles]
-androidx = ["core-ktx", "lifecycle", "appcompat", "security"]
+androidx = ["core-ktx", "lifecycle", "lifecycle-process", "appcompat", "security"]
 compose = ["compose-activity", "compose-runtime-livedata", "compose-lifecycle-viewmodel", "compose-lifecycle-runtime", "compose-navigation", "compose-ui", "compose-ui-tooling-preview", "compose-constraintlayout", "compose-coil", "compose-lottie", "compose-foundation"]
 dagger-hilt = ["hilt", "hilt-navigation"]
 firebase = ["firebase-messeging", "firebase-analytics", "firebase-crashlytics"]
-network = ["okhttp", "okhttp-logging-interceptor", "retrofit", "kotlinx-serialization-json", "kotlinx-serialization-converter"]
+network = ["okhttp", "okhttp-logging-interceptor", "okhttp-sse", "retrofit", "kotlinx-serialization-json", "kotlinx-serialization-converter"]
 app-update = ["app-update", "app-update-ktx"]
 paging = ["paging-compose", "paging-common-ktx"]
 compiler = ["dagger-hilt-compiler"]

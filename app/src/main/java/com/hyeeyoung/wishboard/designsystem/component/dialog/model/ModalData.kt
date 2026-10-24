@@ -45,13 +45,17 @@ sealed class ModalData : Serializable {
         @StringRes val topOption: Int,
         @StringRes val bottomOption: Int,
         val isWarningBottomOption: Boolean = true,
+        @StringRes val extraOption: Int? = null,
     ) : ModalData() {
         data class FolderMore(
             val folderId: Long,
             val folderName: String,
+            val folderThumbnail: String = "",
         ) : OptionModal(
             topOption = R.string.modal_folder_name_edit_title,
             bottomOption = R.string.dialog_folder_delete_title,
+            isWarningBottomOption = false,
+            extraOption = R.string.modal_folder_thumbnail_edit_title,
         )
 
         object ImageSelection : OptionModal(

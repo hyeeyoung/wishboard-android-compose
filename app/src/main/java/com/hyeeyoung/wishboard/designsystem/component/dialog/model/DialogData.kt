@@ -32,6 +32,44 @@ sealed class DialogData(
         descriptionFormatArgs = listOf(itemCount),
     )
 
+    data class BulkWishItemRemoveFromFolder(
+        val itemCount: Int,
+    ) : DialogData(
+        dialogTextRes = WishBoardDialogTextRes(
+            titleRes = R.string.dialog_remove_from_folder_title,
+            descriptionRes = R.string.dialog_bulk_remove_from_folder_description,
+            dismissBtnTextRes = R.string.cancel,
+            confirmBtnTextRes = R.string.remove,
+        ),
+        descriptionFormatArgs = listOf(itemCount),
+    )
+
+    data class BulkWishItemToWish(
+        val itemCount: Int,
+    ) : DialogData(
+        dialogTextRes = WishBoardDialogTextRes(
+            titleRes = R.string.dialog_bulk_convert_to_wish_title,
+            descriptionRes = R.string.dialog_bulk_convert_to_wish_description,
+            dismissBtnTextRes = R.string.cancel,
+            confirmBtnTextRes = R.string.convert,
+        ),
+        isWarningDialog = false,
+        descriptionFormatArgs = listOf(itemCount),
+    )
+
+    data class BulkWishItemToOwned(
+        val itemCount: Int,
+    ) : DialogData(
+        dialogTextRes = WishBoardDialogTextRes(
+            titleRes = R.string.dialog_bulk_convert_to_owned_title,
+            descriptionRes = R.string.dialog_bulk_convert_to_owned_description,
+            dismissBtnTextRes = R.string.cancel,
+            confirmBtnTextRes = R.string.convert,
+        ),
+        isWarningDialog = false,
+        descriptionFormatArgs = listOf(itemCount),
+    )
+
     data class FolderDelete(
         val folderId: Long? = null,
     ) : DialogData(
@@ -68,15 +106,6 @@ sealed class DialogData(
             descriptionRes = R.string.dialog_logout_description,
             dismissBtnTextRes = R.string.cancel,
             confirmBtnTextRes = R.string.my_menu_logout,
-        ),
-    )
-
-    data object Withdraw : DialogData(
-        dialogTextRes = WishBoardDialogTextRes(
-            titleRes = R.string.dialog_withdraw_title,
-            descriptionRes = R.string.dialog_withdraw_description,
-            dismissBtnTextRes = R.string.cancel,
-            confirmBtnTextRes = R.string.dialog_withdraw_confirm_btn_text,
         ),
     )
 

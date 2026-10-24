@@ -506,9 +506,11 @@ class WishItemUploadViewModel @Inject constructor(
             }
 
             WishItemUploadType.MANUAL -> {
-                if (folderItem?.id == _manualUploadUiModel.value.selectedFolder?.id) return
                 _manualUploadUiModel.update {
-                    it.copy(selectedFolder = folderItem)
+                    it.copy(
+                        // 이미 선택된 폴더를 다시 선택하면 선택을 해제한다.
+                        selectedFolder = if (folderItem?.id != it.selectedFolder?.id) folderItem else null,
+                    )
                 }
             }
         }

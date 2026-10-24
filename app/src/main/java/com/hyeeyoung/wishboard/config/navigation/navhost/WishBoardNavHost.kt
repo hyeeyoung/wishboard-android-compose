@@ -23,6 +23,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.hyeeyoung.wishboard.config.navigation.navgraph.folderDetailNavGraph
+import com.hyeeyoung.wishboard.config.navigation.navgraph.folderThumbnailNavGraph
 import com.hyeeyoung.wishboard.config.navigation.navgraph.itemDetailNavGraph
 import com.hyeeyoung.wishboard.config.navigation.navgraph.signNavGraph
 import com.hyeeyoung.wishboard.config.navigation.navgraph.uploadNavGraph
@@ -40,6 +41,7 @@ import com.hyeeyoung.wishboard.presentation.intro.SplashScreen
 import com.hyeeyoung.wishboard.presentation.main.MainScreen
 import com.hyeeyoung.wishboard.presentation.my.screen.PasswordChangeScreen
 import com.hyeeyoung.wishboard.presentation.my.screen.ProfileEditScreen
+import com.hyeeyoung.wishboard.presentation.my.screen.WithdrawalReasonScreen
 import com.hyeeyoung.wishboard.presentation.noti.NotiScreen
 import com.hyeeyoung.wishboard.presentation.util.extension.getBase64Json
 
@@ -143,6 +145,10 @@ fun WishBoardNavHost(modifier: Modifier = Modifier, navController: NavHostContro
             PasswordChangeScreen(navController = navController)
         }
 
+        snackbarComposable(snackbarHostState = snackbarHostState, route = MainScreen.MyWithdrawalReason.route) {
+            WithdrawalReasonScreen(navController = navController)
+        }
+
         signNavGraph(navController = navController, snackbarHostState = snackbarHostState)
 
         uploadNavGraph(navController = navController, snackbarHostState = snackbarHostState)
@@ -150,6 +156,8 @@ fun WishBoardNavHost(modifier: Modifier = Modifier, navController: NavHostContro
         itemDetailNavGraph(navController = navController, snackbarHostState = snackbarHostState)
 
         folderDetailNavGraph(navController = navController, snackbarHostState = snackbarHostState)
+
+        folderThumbnailNavGraph(navController = navController, snackbarHostState = snackbarHostState)
 
         webViewNavGraph(navController = navController, snackbarHostState = snackbarHostState)
 

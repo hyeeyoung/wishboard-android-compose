@@ -16,6 +16,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
+import com.hyeeyoung.wishboard.presentation.util.extension.graphemeLength
 
 @Composable
 fun WishBoardMiniSingleTextField(
@@ -36,7 +37,7 @@ fun WishBoardMiniSingleTextField(
             value = textFieldValue,
             onValueChange = {
                 // TODO 붙여넣기 예외처리
-                if (it.text.length <= maxLength) {
+                if (it.text.graphemeLength() <= maxLength) {
                     onTextChange(it)
                 }
             },

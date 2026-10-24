@@ -34,6 +34,7 @@ import com.hyeeyoung.wishboard.R
 import com.hyeeyoung.wishboard.designsystem.component.button.LegacyWishBoardIconButton
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTextFieldComponent
+import com.hyeeyoung.wishboard.presentation.util.extension.graphemeLength
 
 @Composable
 fun WishBoardTextField(
@@ -63,7 +64,7 @@ fun WishBoardTextField(
                 .onFocusChanged { isFocused = it.isFocused },
             value = textFieldValue,
             onValueChange = { s ->
-                if (s.text.codePointCount(0, s.text.length) <= maxLength) {
+                if (s.text.graphemeLength() <= maxLength) {
                     onTextChange(s)
                 }
             },
@@ -137,7 +138,7 @@ fun WishBoardTextField(
                 .onFocusChanged { isFocused = it.isFocused },
             value = input,
             onValueChange = { s ->
-                if (s.codePointCount(0, s.length) <= maxLength) {
+                if (s.graphemeLength() <= maxLength) {
                     onTextChange(s)
                 }
             },
@@ -199,7 +200,7 @@ fun WishBoardTextField(
                 .onFocusChanged { isFocused = it.isFocused },
             value = input.value,
             onValueChange = {
-                if (it.codePointCount(0, it.length) <= maxLength) {
+                if (it.graphemeLength() <= maxLength) {
                     input.value = it
                     onTextChange(it)
                 }

@@ -7,6 +7,7 @@ import androidx.paging.map
 import com.hyeeyoung.wishboard.data.remote.model.common.PageSize
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemOwnershipStatus
 import com.hyeeyoung.wishboard.data.remote.model.wish.DeleteBulkItemsRequestDto
+import com.hyeeyoung.wishboard.data.remote.model.wish.UpdateBulkItemStatusRequestDto
 import com.hyeeyoung.wishboard.data.remote.model.wish.WishItemOwnershipRequestDto
 import com.hyeeyoung.wishboard.data.remote.model.wish.WishItemUploadInfoDto
 import com.hyeeyoung.wishboard.data.remote.paging.GeneralPagingSource
@@ -123,6 +124,10 @@ class ItemRepositoryImpl @Inject constructor(
             itemService.updateFolderOfItem(itemId, folderId)
         }
 
+    override suspend fun deleteFolderOfWishItem(itemId: Long, folderId: Long): Result<Unit> = runCatching {
+        itemService.deleteFolderOfItem(itemId, folderId)
+    }
+
     override suspend fun deleteWishItem(itemId: Long): Result<Unit> = runCatching {
         itemService.deleteWishItem(itemId)
     }
@@ -142,6 +147,21 @@ class ItemRepositoryImpl @Inject constructor(
         )
     }
 
+    override suspend fun deleteBulkItemsFromFolder(
+        folderId: Long,
+        scope: BulkDeleteScope,
+        itemStatus: WishItemOwnershipStatus?,
+        itemIds: List<Long>?,
+        excludeItemIds: List<Long>?,
+    ): Result<Unit> = runCatching {
+        itemService.deleteBulkItemsFromFolder(
+            folderId = folderId,
+            scope = scope.name,
+            itemStatus = itemStatus?.name,
+            request = DeleteBulkItemsRequestDto(itemIds = itemIds, excludeItemIds = excludeItemIds),
+        )
+    }
+
     override suspend fun getParsedItemInfo(site: String): Result<ParsedWishItem?> =
         runCatching {
             itemService.getParsedItemInfo(site).data
@@ -156,6 +176,22 @@ class ItemRepositoryImpl @Inject constructor(
                 ),
             ).data.itemStatus == WishItemOwnershipStatus.OWNED.name
         }
+
+    override suspend fun updateBulkItemStatus(
+        scope: BulkDeleteScope,
+        itemStatus: WishItemOwnershipStatus?,
+        targetStatus: WishItemOwnershipStatus,
+        itemIds: List<Long>?,
+    ): Result<Unit> = runCatching {
+        itemService.updateBulkItemStatus(
+            scope = scope.name,
+            itemStatus = itemStatus?.name,
+            request = UpdateBulkItemStatusRequestDto(
+                targetStatus = targetStatus.name,
+                itemIds = itemIds,
+            ),
+        )
+    }
 
     companion object {
         private const val FORM_DATA_IMAGE_KEY = "itemImages"

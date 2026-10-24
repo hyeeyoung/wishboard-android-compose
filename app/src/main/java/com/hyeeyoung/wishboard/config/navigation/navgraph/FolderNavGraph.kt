@@ -11,6 +11,7 @@ import com.hyeeyoung.wishboard.config.navigation.navhost.snackbarComposable
 import com.hyeeyoung.wishboard.config.navigation.screen.MainScreen
 import com.hyeeyoung.wishboard.presentation.folder.FolderDetailScreen
 import com.hyeeyoung.wishboard.presentation.folder.FolderScreen
+import com.hyeeyoung.wishboard.presentation.folder.FolderThumbnailScreen
 
 fun NavGraphBuilder.folderNavGraph(wishNavController: NavHostController) =
     navigation(startDestination = MainScreen.Folder.getStartRouteForMainTab(), route = MainScreen.Folder.route) {
@@ -43,5 +44,26 @@ fun NavGraphBuilder.folderDetailNavGraph(
                 folderName = name,
             )
         }
+    }
+}
+
+/** 폴더 대표 사진 변경 화면. 폴더 상세와 마찬가지로 바텀바가 없는 최상위 네비게이션 호스트에 등록한다 */
+fun NavGraphBuilder.folderThumbnailNavGraph(
+    navController: NavHostController,
+    snackbarHostState: SnackbarHostState,
+) {
+    snackbarComposable(
+        snackbarHostState = snackbarHostState,
+        route = MainScreen.FolderThumbnail.routeWithArg,
+        arguments = listOf(
+            navArgument(MainScreen.FolderThumbnail.ARG_FOLDER_ID) { type = NavType.LongType },
+            navArgument(MainScreen.FolderThumbnail.ARG_FOLDER_NAME) { type = NavType.StringType },
+            navArgument(MainScreen.FolderThumbnail.ARG_THUMBNAIL_URL) {
+                type = NavType.StringType
+                defaultValue = ""
+            },
+        ),
+    ) {
+        FolderThumbnailScreen(navController = navController)
     }
 }

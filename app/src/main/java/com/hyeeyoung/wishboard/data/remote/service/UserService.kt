@@ -4,12 +4,15 @@ import com.hyeeyoung.wishboard.data.remote.model.base.BaseResponse
 import com.hyeeyoung.wishboard.data.remote.model.base.BaseResponseNoData
 import com.hyeeyoung.wishboard.data.remote.model.user.PasswordDto
 import com.hyeeyoung.wishboard.data.remote.model.user.UserInfoDto
+import com.hyeeyoung.wishboard.data.remote.model.user.WithdrawalFeedbackDto
+import com.hyeeyoung.wishboard.data.remote.model.user.WithdrawalReasonDto
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Multipart
+import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Part
 import retrofit2.http.Path
@@ -17,6 +20,12 @@ import retrofit2.http.Path
 interface UserService {
     @GET("user")
     suspend fun fetchUserInfo(): BaseResponse<UserInfoDto>
+
+    @GET("user/withdrawal-reasons")
+    suspend fun getWithdrawalReasons(): BaseResponse<List<WithdrawalReasonDto>>
+
+    @POST("user/withdrawal-feedback")
+    suspend fun submitWithdrawalFeedback(@Body feedback: WithdrawalFeedbackDto): BaseResponseNoData
 
     @Multipart
     @PUT("user")

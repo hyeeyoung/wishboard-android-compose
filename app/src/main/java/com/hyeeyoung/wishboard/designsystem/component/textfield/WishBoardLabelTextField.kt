@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import com.hyeeyoung.wishboard.designsystem.style.WishBoardTheme
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardString
 import com.hyeeyoung.wishboard.presentation.util.buildStringWithSpans
+import com.hyeeyoung.wishboard.presentation.util.extension.graphemeLength
 
 @Composable
 fun WishBoardLabelTextField(
@@ -57,7 +58,7 @@ fun WishBoardLabelTextField(
                 },
             value = textFieldValue,
             onValueChange = { s ->
-                if (s.text.length <= maxLength) {
+                if (s.text.graphemeLength() <= maxLength) {
                     onTextChange(s)
                 }
             },

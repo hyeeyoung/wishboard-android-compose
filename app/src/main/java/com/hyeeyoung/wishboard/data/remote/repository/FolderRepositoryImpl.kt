@@ -7,10 +7,12 @@ import androidx.paging.map
 import com.hyeeyoung.wishboard.data.remote.model.common.PageSize
 import com.hyeeyoung.wishboard.data.remote.model.folder.FolderNameDto
 import com.hyeeyoung.wishboard.data.remote.model.folder.ReorderFolderListDto
+import com.hyeeyoung.wishboard.data.remote.model.folder.UpdateFolderThumbnailDto
 import com.hyeeyoung.wishboard.data.remote.paging.GeneralPagingSource
 import com.hyeeyoung.wishboard.data.remote.service.FolderService
 import com.hyeeyoung.wishboard.domain.model.folder.FolderItem
 import com.hyeeyoung.wishboard.domain.model.folder.FolderOrderOption
+import com.hyeeyoung.wishboard.domain.model.folder.FolderThumbnailImage
 import com.hyeeyoung.wishboard.domain.model.wish.WishItem
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemOwnershipStatus
 import com.hyeeyoung.wishboard.domain.repository.FolderRepository
@@ -91,5 +93,34 @@ class FolderRepositoryImpl @Inject constructor(
 
     override suspend fun reorderFolders(folderIds: List<Long>): Result<Unit> = runCatching {
         folderService.reorderFolders(folderIds = ReorderFolderListDto(folderIds))
+    }
+
+    override suspend fun fetchFolderThumbnailImages(folderId: Long): Result<List<FolderThumbnailImage>> =
+        runCatching {
+            // 현재 적용된 대표 사진이 어느 페이지에 있을지 알 수 없으므로 마지막 페이지까지 모두 불러온다.
+            val images = mutableListOf<FolderThumbnailImage>()
+            var page = 0
+            while (true) {
+                val response = folderService.fetchFolderThumbnailImages(
+                    folderId = folderId,
+                    page = page,
+                    size = THUMBNAIL_IMAGES_PAGE_SIZE,
+                ).data
+                images += response.content.map { it.toDomain() }
+                if (response.last || response.content.isEmpty()) break
+                page++
+            }
+            images
+        }
+
+    override suspend fun updateFolderThumbnail(folderId: Long, itemImageId: Long): Result<Unit> = runCatching {
+        folderService.updateFolderThumbnail(
+            folderId = folderId,
+            thumbnail = UpdateFolderThumbnailDto(itemImageId = itemImageId),
+        )
+    }
+
+    private companion object {
+        const val THUMBNAIL_IMAGES_PAGE_SIZE = 100 // 서버가 허용하는 최대 페이지 크기
     }
 }

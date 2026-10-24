@@ -55,6 +55,7 @@ import com.hyeeyoung.wishboard.presentation.my.MyViewModel
 import com.hyeeyoung.wishboard.presentation.my.model.MyUiModel
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardTopBarModel
 import com.hyeeyoung.wishboard.presentation.util.extension.createImageUri
+import com.hyeeyoung.wishboard.presentation.util.extension.graphemeLength
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.util.extension.rememberModalLauncher
 import com.hyeeyoung.wishboard.presentation.util.extension.safePopBackStack
@@ -207,7 +208,7 @@ fun ProfileEditScreen(
                     Text(
                         text = stringResource(
                             id = R.string.text_length,
-                            uiModel.nicknameInput.text.length,
+                            uiModel.nicknameInput.text.graphemeLength(),
                             MAX_LENGTH_NICKNAME_NAME,
                         ),
                         color = WishBoardTheme.colors.gray200,

@@ -10,7 +10,6 @@ import com.hyeeyoung.wishboard.data.local.WishBoardPreference
 import com.hyeeyoung.wishboard.domain.model.user.UserInfo
 import com.hyeeyoung.wishboard.domain.model.user.UserProfile
 import com.hyeeyoung.wishboard.domain.usecase.auth.PostLogoutUseCase
-import com.hyeeyoung.wishboard.domain.usecase.user.DeleteUserAccountUseCase
 import com.hyeeyoung.wishboard.domain.usecase.user.GetUserInfoUseCase
 import com.hyeeyoung.wishboard.domain.usecase.user.PutPasswordUseCase
 import com.hyeeyoung.wishboard.domain.usecase.user.PutUserProfileUseCase
@@ -42,7 +41,6 @@ class MyViewModel @Inject constructor(
     private val updatePushStateUseCase: UpdatePushStateUseCase,
     private val putPasswordUseCase: PutPasswordUseCase,
     private val postLogoutUseCase: PostLogoutUseCase,
-    private val deleteUserAccountUseCase: DeleteUserAccountUseCase,
 ) : BaseViewModel() {
     private var _uiModel = MutableStateFlow(MyUiModel())
     val uiModel = _uiModel.asStateFlow()
@@ -156,17 +154,6 @@ class MyViewModel @Inject constructor(
         }
     }
 
-    fun deleteAccount(afterSuccess: () -> Unit) {
-        viewModelScope.launch {
-            deleteUserAccountUseCase().onSuccess {
-                afterSuccess()
-                updateSnackbarMessage("탈퇴 완료되었어요. 이용해주셔서 감사합니다!☺️")
-            }.onFailure { exception, _, _ ->
-                updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
-            }
-        }
-    }
-
     fun onNicknameChange(nickname: TextFieldValue) {
         _uiModel.update {
             it.copy(nicknameInput = nickname)
@@ -197,6 +184,9 @@ class MyViewModel @Inject constructor(
             }
         }
     }
+
+    /** 문의하기 메일에 첨부하기 위해 프리퍼런스에 저장된 사용자 이메일을 반환한다. */
+    fun getUserEmail(): String = localStorage.userInfo.email
 
     fun setTokenForProfileImageUri() {
         _uiModel.update {

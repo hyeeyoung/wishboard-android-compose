@@ -1,5 +1,6 @@
 package com.hyeeyoung.wishboard.presentation.folder
 
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -116,6 +117,14 @@ fun FolderScreen(
         onClickReorder = {
             wishNavController.navigate(route = MainScreen.FolderOrder.route)
         },
+        onClickEditThumbnail = { folderId, folderName, thumbnailUrl ->
+            // 더보기 모달(ModalActivity)의 결과 콜백에서 호출되는데, 이때 화면은 아직 RESUMED가 아니라서
+            // navigateIfResumed를 쓰면 이동이 무시된다.
+            wishNavController.navigate(
+                route = "${MainScreen.FolderThumbnail.route}/$folderId/${Uri.encode(folderName)}" +
+                    "?${MainScreen.FolderThumbnail.ARG_THUMBNAIL_URL}=${Uri.encode(thumbnailUrl)}",
+            )
+        },
     )
 
     WishBoardModal(
@@ -170,11 +179,20 @@ fun FolderScreen(
     deleteFolder: (id: Long?) -> Unit,
     showModal: (ModalData.Modal) -> Unit,
     onClickReorder: () -> Unit,
+    onClickEditThumbnail: (folderId: Long, folderName: String, thumbnailUrl: String) -> Unit,
     clearModalData: () -> Unit,
 ) {
     var dialogData by remember { mutableStateOf<DialogData?>(null) }
     val context = LocalContext.current
-    val modalLauncher = rememberModalLauncher { isTopOption, data ->
+    val modalLauncher = rememberModalLauncher(
+        afterExtraOptionInput = { data ->
+            clearModalData()
+
+            if (data is ModalData.OptionModal.FolderMore) {
+                onClickEditThumbnail(data.folderId, data.folderName, data.folderThumbnail)
+            }
+        },
+    ) { isTopOption, data ->
         clearModalData()
 
         when (data) {
@@ -290,7 +308,11 @@ fun FolderScreen(
                                     onClickFolder(folder)
                                 },
                                 onClickMore = { selectedFolder ->
-                                    ModalData.OptionModal.FolderMore(selectedFolder.id, selectedFolder.name)
+                                    ModalData.OptionModal.FolderMore(
+                                        folderId = selectedFolder.id,
+                                        folderName = selectedFolder.name,
+                                        folderThumbnail = selectedFolder.thumbnail,
+                                    )
                                         .openModal(context = context, resultLauncher = modalLauncher)
                                 },
                             )
@@ -377,6 +399,7 @@ fun PreviewFolderScreen() {
         showModal = {},
         clearModalData = {},
         onClickReorder = {},
+        onClickEditThumbnail = { _, _, _ -> },
     )
 }
 
@@ -392,6 +415,7 @@ fun PreviewFolderScreenFirstLoading() {
         showModal = {},
         clearModalData = {},
         onClickReorder = {},
+        onClickEditThumbnail = { _, _, _ -> },
     )
 }
 

@@ -7,16 +7,22 @@ import com.hyeeyoung.wishboard.core.extension.onFailure
 import com.hyeeyoung.wishboard.data.local.WishBoardPreference
 import com.hyeeyoung.wishboard.domain.model.wish.WishItem
 import com.hyeeyoung.wishboard.domain.model.wish.WishItemOwnershipStatus
+import com.hyeeyoung.wishboard.domain.usecase.event.ConnectEventStreamUseCase
+import com.hyeeyoung.wishboard.domain.usecase.event.ObserveUnreadStatusUseCase
 import com.hyeeyoung.wishboard.domain.usecase.item.DeleteBulkWishItemsUseCase
 import com.hyeeyoung.wishboard.domain.usecase.item.GetTotalWishItemsUseCase
 import com.hyeeyoung.wishboard.domain.usecase.item.GetWishListUseCase
+import com.hyeeyoung.wishboard.domain.model.wish.BulkDeleteScope
+import com.hyeeyoung.wishboard.domain.usecase.item.UpdateBulkItemStatusUseCase
 import com.hyeeyoung.wishboard.domain.util.resolveBulkDeleteTarget
 import com.hyeeyoung.wishboard.domain.util.safeValueOf
 import com.hyeeyoung.wishboard.presentation.common.BaseViewModel
 import com.hyeeyoung.wishboard.presentation.sign.model.WishBoardState
 import com.hyeeyoung.wishboard.presentation.sign.model.snackbar.SnackbarMessage
 import com.hyeeyoung.wishboard.presentation.util.WishBoardEventBus
+import com.hyeeyoung.wishboard.presentation.wish.model.WishListFilterType
 import com.hyeeyoung.wishboard.presentation.wish.model.WishListUiModel
+import com.hyeeyoung.wishboard.presentation.wish.model.toItemStatus
 import com.hyeeyoung.wishboard.presentation.wish.model.WishListViewType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -41,17 +47,20 @@ class WishListViewModel @Inject constructor(
     getWishListUseCase: GetWishListUseCase,
     getTotalWishItemsUseCase: GetTotalWishItemsUseCase,
     private val deleteBulkWishItemsUseCase: DeleteBulkWishItemsUseCase,
+    private val updateBulkItemStatusUseCase: UpdateBulkItemStatusUseCase,
+    observeUnreadStatusUseCase: ObserveUnreadStatusUseCase,
+    connectEventStreamUseCase: ConnectEventStreamUseCase,
 ) : BaseViewModel() {
     private var _uiModel = MutableStateFlow(WishListUiModel())
     val uiModel = _uiModel.asStateFlow()
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val wishList: Flow<PagingData<WishItem>> = _uiModel
-        .map { it.isExcludeOwnedItems }
+        .map { it.filterType }
         .distinctUntilChanged()
-        .flatMapLatest { isExclude ->
+        .flatMapLatest { filterType ->
             getWishListUseCase(
-                itemStatus = if (isExclude) WishItemOwnershipStatus.WISH else null,
+                itemStatus = filterType.toItemStatus(),
             )
         }
         .cachedIn(viewModelScope)
@@ -70,6 +79,20 @@ class WishListViewModel @Inject constructor(
         initUiModel()
         refreshWishList()
         observeTotalItemCount(getTotalWishItemsUseCase)
+        observeUnreadNotiCount(observeUnreadStatusUseCase, connectEventStreamUseCase)
+    }
+
+    // 로그인 이후 위시리스트 탭에 진입하면 SSE 연결을 보장하고(이미 연결돼 있으면 무시), 안 읽은 알림 수를 구독한다.
+    private fun observeUnreadNotiCount(
+        observeUnreadStatusUseCase: ObserveUnreadStatusUseCase,
+        connectEventStreamUseCase: ConnectEventStreamUseCase,
+    ) {
+        connectEventStreamUseCase()
+        viewModelScope.launch {
+            observeUnreadStatusUseCase().collect { status ->
+                _uiModel.update { it.copy(unreadNotiCount = status.unreadCount) }
+            }
+        }
     }
 
     private fun refreshWishList() {
@@ -123,10 +146,10 @@ class WishListViewModel @Inject constructor(
         localStorage.wishListViewType = newViewType.name
     }
 
-    fun updateExcludeOwnedItems(isExclude: Boolean) {
+    fun updateFilterType(filterType: WishListFilterType) {
         _uiModel.update {
             it.copy(
-                isExcludeOwnedItems = isExclude,
+                filterType = filterType,
                 isAllSelected = false,
                 selectedItemIds = emptySet(),
                 excludedItemIds = emptySet(),
@@ -212,7 +235,7 @@ class WishListViewModel @Inject constructor(
         viewModelScope.launch {
             val result = deleteBulkWishItemsUseCase(
                 scope = target.scope,
-                itemStatus = if (model.isExcludeOwnedItems) WishItemOwnershipStatus.WISH else null,
+                itemStatus = model.filterType.toItemStatus(),
                 itemIds = target.itemIds,
                 excludeItemIds = target.excludeItemIds,
             )
@@ -228,7 +251,7 @@ class WishListViewModel @Inject constructor(
             }
 
             result.onSuccess {
-                updateSnackbarMessage("아이템을 위시리스트에서 삭제했어요!🗑")
+                updateSnackbarMessage("아이템을 위시리스트에서 삭제했어요!")
             }.onFailure { exception, _, _ ->
                 updateSnackbarMessage(
                     message = "일시적인 오류가 발생했어요!\n잠시후 다시 시도해주세요",
@@ -239,6 +262,48 @@ class WishListViewModel @Inject constructor(
             // 500개 초과 시 여러 번에 나눠 삭제하므로, 실패해도 일부는 이미 삭제됐을 수 있어 항상 새로고침한다.
             _refreshWishListTrigger.send(Unit)
             // 폴더탭 등 다른 화면의 아이템 수도 갱신되어야 하므로 전역으로 알린다.
+            WishBoardEventBus.notifyWishItemChanged()
+        }
+    }
+
+    // itemIds: 전환 대상 아이템 ID 목록 (이미 target status인 아이템은 제외한 상태)
+    fun convertSelectedItems(targetStatus: WishItemOwnershipStatus, itemIds: List<Long>) {
+        if (itemIds.isEmpty()) return
+
+        _uiModel.update { it.copy(deleteSelectedItemsState = WishBoardState.Loading) }
+
+        viewModelScope.launch {
+            val result = updateBulkItemStatusUseCase(
+                scope = BulkDeleteScope.SELECTED,
+                targetStatus = targetStatus,
+                itemIds = itemIds,
+            )
+
+            _uiModel.update {
+                it.copy(
+                    deleteSelectedItemsState = WishBoardState.Idle,
+                    isSelectionMode = false,
+                    isAllSelected = false,
+                    selectedItemIds = emptySet(),
+                    excludedItemIds = emptySet(),
+                )
+            }
+
+            result.onSuccess {
+                val message = if (targetStatus == WishItemOwnershipStatus.OWNED) {
+                    "소장템으로 전환했어요! 👜"
+                } else {
+                    "위시템으로 전환했어요! ✨"
+                }
+                updateSnackbarMessage(message)
+            }.onFailure { exception, _, _ ->
+                updateSnackbarMessage(
+                    message = "일시적인 오류가 발생했어요!\n잠시후 다시 시도해주세요",
+                    exception = exception,
+                )
+            }
+
+            _refreshWishListTrigger.send(Unit)
             WishBoardEventBus.notifyWishItemChanged()
         }
     }

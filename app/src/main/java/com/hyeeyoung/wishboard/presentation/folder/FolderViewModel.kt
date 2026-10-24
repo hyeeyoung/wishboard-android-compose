@@ -127,7 +127,7 @@ class FolderViewModel @Inject constructor(
             deleteFolderUseCase(folderId = folderId).onSuccess {
                 afterSuccess()
                 _uiModel.update { it.copy(deleteState = WishBoardState.Success(Unit)) }
-                updateSnackbarMessage("폴더를 삭제했어요!🗑️")
+                updateSnackbarMessage("폴더를 삭제했어요!")
             }.onFailure { exception, _, _ ->
                 updateSnackbarMessage(message = SnackbarMessage.DEFAULT, exception = exception)
                 _uiModel.update { it.copy(deleteState = WishBoardState.Failure) }

@@ -4,10 +4,19 @@ import android.util.Patterns
 import android.webkit.URLUtil
 import java.net.MalformedURLException
 import java.net.URL
+import java.text.BreakIterator
 import java.text.NumberFormat
 import java.util.Locale
 
 fun String.isEmptyOrBlank() = this.isEmpty() || this.isBlank()
+
+fun String.graphemeLength(): Int {
+    val bi = BreakIterator.getCharacterInstance()
+    bi.setText(this)
+    var count = 0
+    while (bi.next() != BreakIterator.DONE) count++
+    return count
+}
 
 /** 스킴(http/https)이 없으면 https를 붙여 반환한다. (ex. "ver.me/xxx" -> "https://ver.me/xxx") */
 fun String.withScheme(): String =

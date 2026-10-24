@@ -4,6 +4,7 @@ import com.hyeeyoung.wishboard.data.remote.model.base.BaseResponse
 import com.hyeeyoung.wishboard.data.remote.model.base.BaseResponseNoData
 import com.hyeeyoung.wishboard.data.remote.model.base.PagedResponse
 import com.hyeeyoung.wishboard.data.remote.model.wish.DeleteBulkItemsRequestDto
+import com.hyeeyoung.wishboard.data.remote.model.wish.UpdateBulkItemStatusRequestDto
 import com.hyeeyoung.wishboard.data.remote.model.wish.WishItemDetailDto
 import com.hyeeyoung.wishboard.data.remote.model.wish.WishItemIdDto
 import com.hyeeyoung.wishboard.data.remote.model.wish.WishItemOwnershipRequestDto
@@ -57,6 +58,12 @@ interface ItemService {
         @Path("folderId") folderId: Long,
     ): BaseResponseNoData
 
+    @DELETE("item/{itemId}/folder/{folderId}")
+    suspend fun deleteFolderOfItem(
+        @Path("itemId") itemId: Long,
+        @Path("folderId") folderId: Long,
+    ): BaseResponseNoData
+
     @DELETE("item/{itemId}")
     suspend fun deleteWishItem(@Path("itemId") itemId: Long): BaseResponseNoData
 
@@ -65,6 +72,15 @@ interface ItemService {
     suspend fun deleteBulkItems(
         @Query("scope") scope: String,
         @Query("folderId") folderId: Long? = null,
+        @Query("itemStatus") itemStatus: String? = null,
+        @Body request: DeleteBulkItemsRequestDto,
+    ): BaseResponseNoData
+
+    // 폴더에서 아이템 일괄 해제 (아이템은 삭제되지 않고 폴더 미지정 상태가 된다).
+    @HTTP(method = "DELETE", path = "item/bulk/folder/{folderId}", hasBody = true)
+    suspend fun deleteBulkItemsFromFolder(
+        @Path("folderId") folderId: Long,
+        @Query("scope") scope: String,
         @Query("itemStatus") itemStatus: String? = null,
         @Body request: DeleteBulkItemsRequestDto,
     ): BaseResponseNoData
@@ -79,4 +95,11 @@ interface ItemService {
         @Path("itemId") itemId: Long,
         @Body ownership: WishItemOwnershipRequestDto,
     ): BaseResponse<WishItemDetailDto>
+
+    @PUT("item/bulk/status")
+    suspend fun updateBulkItemStatus(
+        @Query("scope") scope: String,
+        @Query("itemStatus") itemStatus: String? = null,
+        @Body request: UpdateBulkItemStatusRequestDto,
+    ): BaseResponseNoData
 }

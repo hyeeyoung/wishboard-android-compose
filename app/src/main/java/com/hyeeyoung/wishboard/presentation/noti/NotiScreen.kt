@@ -52,6 +52,8 @@ import com.hyeeyoung.wishboard.presentation.util.extension.getDomainName
 import com.hyeeyoung.wishboard.presentation.util.extension.moveToWebView
 import com.hyeeyoung.wishboard.presentation.util.extension.noRippleClickable
 import com.hyeeyoung.wishboard.presentation.util.extension.safePopBackStack
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.app.NotificationManagerCompat
 import kotlinx.coroutines.flow.collectLatest
 import timber.log.Timber
 
@@ -62,6 +64,7 @@ fun NotiScreen(
     viewModel: NotiViewModel = hiltViewModel(),
 ) {
     val uiModel by viewModel.uiModel.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
     WishBoardGlobalSnackbarMessage(snackbarChannel = viewModel.snackBarChannel)
 
@@ -81,7 +84,13 @@ fun NotiScreen(
         NotiScreen(
             notiList = uiModel.notiList,
             isFirstLoading = uiModel.isFirstLoading,
-            updateReadState = viewModel::updateReadState,
+            updateReadState = { itemId ->
+                if (uiModel.notiList.find { it.itemId == itemId }?.isRead == false) {
+                    val nm = NotificationManagerCompat.from(context)
+                    nm.activeNotifications.firstOrNull()?.let { nm.cancel(it.tag, it.id) }
+                }
+                viewModel.updateReadState(itemId)
+            },
             updateSnackbarMessage = viewModel::updateSnackbarMessage,
             moveToWebView = { title, url ->
                 navController.moveToWebView(

@@ -26,8 +26,10 @@ fun WishBoardTwoOptionModal(
     @StringRes topOption: Int,
     @StringRes bottomOption: Int,
     isWarningBottom: Boolean = true,
+    @StringRes extraOption: Int? = null,
     onClickTop: () -> Unit = {},
     onClickBottom: () -> Unit = {},
+    onClickExtra: () -> Unit = {},
     onDismissRequest: () -> Unit,
 ) {
     Column(
@@ -75,6 +77,21 @@ fun WishBoardTwoOptionModal(
                     color = if (isWarningBottom) WishBoardTheme.colors.pink700 else WishBoardTheme.colors.gray600,
                     textAlign = TextAlign.Center,
                 )
+                extraOption?.let {
+                    WishBoardDivider()
+                    Text(
+                        modifier = Modifier
+                            .noRippleClickable {
+                                onClickExtra()
+                            }
+                            .padding(vertical = 16.dp)
+                            .fillMaxWidth(),
+                        text = stringResource(it),
+                        style = WishBoardTheme.typography.suitB3,
+                        color = WishBoardTheme.colors.gray600,
+                        textAlign = TextAlign.Center,
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.size(4.dp))
@@ -102,6 +119,8 @@ fun PreviewWishBoardTwoOptionModal() {
     WishBoardTwoOptionModal(
         topOption = R.string.modal_folder_name_edit_title,
         bottomOption = R.string.dialog_folder_delete_title,
+        isWarningBottom = false,
+        extraOption = R.string.modal_folder_thumbnail_edit_title,
         onDismissRequest = {},
     )
 }
