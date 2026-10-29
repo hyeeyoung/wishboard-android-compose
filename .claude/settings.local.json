@@ -1,0 +1,37 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./gradlew :app:compileDebugKotlin)",
+      "Read(//private/tmp/**)",
+      "Bash(mkdir -p foundation_src)",
+      "Bash(jar xf:*)",
+      "Bash(find /tmp/foundation_src -name \"DragAndDropSource*\")",
+      "Read(//tmp/**)",
+      "Bash(unzip -o ~/.gradle/caches/modules-2/files-2.1/androidx.compose.foundation/foundation-android/1.8.3/56e652ff40b01300c4c753c1a58a439b90934b84/foundation-android-1.8.3-sources.jar \"*/draganddrop/*\")",
+      "Bash(find . -path \"*/draganddrop/*\" -name \"*.kt\")",
+      "Bash(xargs cat)",
+      "Bash(grep -E \"\\\\.\\(kt|xml\\)$\")",
+      "Bash(grep -E \"\\\\.\\(kt\\)$\")",
+      "Bash(xargs cat -n)",
+      "Bash(git reset *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(gh pr *)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(./gradlew :app:spotlessApply)",
+      "Bash(git *)",
+      "Bash(gh api *)",
+      "Bash(xargs ls -la)",
+      "mcp__claude_ai_Figma__get_screenshot",
+      "mcp__claude_ai_Figma__get_design_context",
+      "Bash(xargs ls)",
+      "Bash(sed -i '' 's|선택된 %1\\\\$d개의 아이템이 위시템으로 전환돼요.\\\\\\\\n이미 위시템인 아이템은 그대로 유지돼요.|선택한 위시템 %1$d개는 그대로 유지되고,\\\\\\\\n소장템이 위시템으로 전환돼요.|g' /Users/choiyoungjin/Git/wishboard-android-compose/app/src/main/res/values/strings.xml)",
+      "Bash(sed -i '' 's|선택한 %1\\\\$d개의 아이템이 소장템으로 전환돼요.\\\\\\\\n이미 소장템인 아이템은 그대로 유지돼요.|선택한 소장템 %1$d개는 그대로 유지되고,\\\\\\\\n위시템이 소장템으로 전환돼요.|g' /Users/choiyoungjin/Git/wishboard-android-compose/app/src/main/res/values/strings.xml)",
+      "WebFetch(domain:43.201.137.248)",
+      "Bash(./gradlew :app:compileDebugKotlin --quiet)",
+      "Bash(grep -E \"\\\\.\\(kt|java\\)$\")",
+      "Bash(grep -E \"\\\\.kt$\")"
+    ]
+  }
+}

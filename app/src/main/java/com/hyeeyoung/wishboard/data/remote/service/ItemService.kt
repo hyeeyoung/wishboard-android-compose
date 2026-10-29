@@ -12,6 +12,7 @@ import com.hyeeyoung.wishboard.domain.model.wish.ParsedWishItem
 import com.hyeeyoung.wishboard.presentation.upload.model.WishItemDto
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -88,7 +89,7 @@ interface ItemService {
     @GET("item/parse")
     suspend fun getParsedItemInfo(
         @Query("site") site: String,
-    ): BaseResponse<ParsedWishItem?>
+    ): Response<BaseResponse<ParsedWishItem?>>
 
     @PUT("item/{itemId}/status")
     suspend fun updateItemOwnership(

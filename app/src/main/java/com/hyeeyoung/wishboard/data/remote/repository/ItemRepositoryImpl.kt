@@ -11,6 +11,7 @@ import com.hyeeyoung.wishboard.data.remote.model.wish.UpdateBulkItemStatusReques
 import com.hyeeyoung.wishboard.data.remote.model.wish.WishItemOwnershipRequestDto
 import com.hyeeyoung.wishboard.data.remote.model.wish.WishItemUploadInfoDto
 import com.hyeeyoung.wishboard.data.remote.paging.GeneralPagingSource
+import com.hyeeyoung.wishboard.data.remote.parser.WebViewItemParser
 import com.hyeeyoung.wishboard.data.remote.service.ItemService
 import com.hyeeyoung.wishboard.domain.model.wish.BulkDeleteScope
 import com.hyeeyoung.wishboard.domain.model.wish.ParsedWishItem
@@ -36,10 +37,14 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import retrofit2.HttpException
+import timber.log.Timber
+import java.net.HttpURLConnection
 import javax.inject.Inject
 
 class ItemRepositoryImpl @Inject constructor(
     private val itemService: ItemService,
+    private val webViewItemParser: WebViewItemParser,
 ) : ItemRepository {
     private val _totalElements = MutableStateFlow<Int?>(null)
     override val totalElements: StateFlow<Int?> = _totalElements.asStateFlow()
@@ -164,7 +169,16 @@ class ItemRepositoryImpl @Inject constructor(
 
     override suspend fun getParsedItemInfo(site: String): Result<ParsedWishItem?> =
         runCatching {
-            itemService.getParsedItemInfo(site).data
+            val response = itemService.getParsedItemInfo(site)
+            when {
+                // 서버가 정보를 내려주지 못한 경우, 앱에서 숨긴 WebView로 직접 파싱해 대체한다.
+                response.code() == HttpURLConnection.HTTP_NO_CONTENT -> {
+                    Timber.d("item/parse 204, fallback to WebView parsing: $site")
+                    webViewItemParser.parse(site) ?: error("WebView parsing found no item info: $site")
+                }
+                response.isSuccessful -> response.body()?.data
+                else -> throw HttpException(response)
+            }
         }
 
     override suspend fun updateItemOwnership(itemId: Long, isOwnedItem: Boolean): Result<Boolean> =
