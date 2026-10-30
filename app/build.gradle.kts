@@ -24,8 +24,8 @@ android {
         applicationId = "com.hyeeyoung.wishboard"
         minSdk = 24
         targetSdk = 36
-        versionCode = 57
-        versionName = "3.4.0"
+        versionCode = 58
+        versionName = "3.4.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
